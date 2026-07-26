@@ -1,31 +1,31 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-07-26T16:57:53+02:00",
+  "updatedAt": "2026-07-26T17:17:59+02:00",
   "repository": {
     "remote": "https://github.com/j4wg/interview-coder-withoupaywall-opensource",
     "pushRemote": "https://github.com/timomak/interview-coder-withoupaywall-opensource",
     "baseBranch": "main",
     "baseSha": "9dcb4b2d39607273a8528a24657cdb4f5bfc3412"
   },
-  "orchestrationStatus": "PLANNING",
+  "orchestrationStatus": "PLAN_REVIEW",
   "currentPhaseId": "P00",
   "packet": {
-    "status": "PLANNING",
-    "revision": "P00-R1",
+    "status": "PLAN_REVIEW",
+    "revision": "P00-R2",
     "path": "docs/implementation/phase-execution-packet.md",
     "branch": "phase/P00-execution-packet",
-    "headSha": "899bc74e0648cf8cc7d774181e2f8e439505eace",
+    "headSha": "5b885baed4f00eda89751a646e43793aa30e1154",
     "frozenAtSha": null,
     "planningRemediationCycleCount": 1,
-    "reviewTask": "P00/review-1",
-    "reviewVerdict": "CHANGES_REQUESTED",
-    "openFindingIds": ["P00-R1-B01", "P00-R1-B02", "P00-R1-B03", "P00-R1-B04", "P00-R1-B05"],
+    "reviewTask": "P00/review-2",
+    "reviewVerdict": null,
+    "openFindingIds": [],
     "findings": {
-      "P00-R1-B01": {"severity": "HIGH", "rootCauseTag": "verification-raw-exit", "disposition": "OPEN", "requiredOutcome": "Use a tested reporter for every phase command, emit per-command raw exits/counts, and fail the aggregate."},
-      "P00-R1-B02": {"severity": "RELEASE_BLOCKING", "rootCauseTag": "qualification-procedure", "disposition": "OPEN", "requiredOutcome": "Define executable M01/M02 procedures, prerequisites, remote-observer steps, artifact schema, validation, and exits."},
-      "P00-R1-B03": {"severity": "HIGH", "rootCauseTag": "requirement-test-coverage", "disposition": "OPEN", "requiredOutcome": "Add P04 criteria and named tests for D-043c, D-043d, and D-045b behaviors."},
-      "P00-R1-B04": {"severity": "HIGH", "rootCauseTag": "dependency-encryption-boundary", "disposition": "OPEN", "requiredOutcome": "Narrow P02 restart scope to caller-supplied opaque IDs or add encrypted persistence dependency; leave persisted recovery to P04."},
-      "P00-R1-B05": {"severity": "MEDIUM", "rootCauseTag": "nonfalsifiable-criteria", "disposition": "OPEN", "requiredOutcome": "Enumerate entitlement allowlist and freeze Staff+ fixtures/assertions or a failure rubric."}
+      "P00-R1-B01": {"severity": "HIGH", "rootCauseTag": "verification-raw-exit", "disposition": "RESOLVED", "resolvedInSha": "5b885baed4f00eda89751a646e43793aa30e1154", "requiredOutcome": "Use a tested reporter for every phase command, emit per-command raw exits/counts, and fail the aggregate."},
+      "P00-R1-B02": {"severity": "RELEASE_BLOCKING", "rootCauseTag": "qualification-procedure", "disposition": "RESOLVED", "resolvedInSha": "5b885baed4f00eda89751a646e43793aa30e1154", "requiredOutcome": "Define executable M01/M02 procedures, prerequisites, remote-observer steps, artifact schema, validation, and exits."},
+      "P00-R1-B03": {"severity": "HIGH", "rootCauseTag": "requirement-test-coverage", "disposition": "RESOLVED", "resolvedInSha": "5b885baed4f00eda89751a646e43793aa30e1154", "requiredOutcome": "Add P04 criteria and named tests for D-043c, D-043d, and D-045b behaviors."},
+      "P00-R1-B04": {"severity": "HIGH", "rootCauseTag": "dependency-encryption-boundary", "disposition": "RESOLVED", "resolvedInSha": "5b885baed4f00eda89751a646e43793aa30e1154", "requiredOutcome": "Narrow P02 restart scope to caller-supplied opaque IDs or add encrypted persistence dependency; leave persisted recovery to P04."},
+      "P00-R1-B05": {"severity": "MEDIUM", "rootCauseTag": "nonfalsifiable-criteria", "disposition": "RESOLVED", "resolvedInSha": "5b885baed4f00eda89751a646e43793aa30e1154", "requiredOutcome": "Enumerate entitlement allowlist and freeze Staff+ fixtures/assertions or a failure rubric."}
     },
     "prNumber": 154,
     "prUrl": "https://github.com/j4wg/interview-coder-withoupaywall-opensource/pull/154"
@@ -99,10 +99,19 @@
       "blockingFindingIds": ["P00-R1-B01", "P00-R1-B02", "P00-R1-B03", "P00-R1-B04", "P00-R1-B05"]
     },
     "P00/remediate-1": {
-      "status": "ACTIVE",
+      "status": "COMPLETE",
       "clientThreadId": "client-new-thread:603e372d-b07e-4f97-b07f-a497dd1bb07d",
       "threadId": "019f9eed-7021-7fc1-93e9-841e6bf646d6",
       "hostId": "local",
+      "infrastructureRetryCount": 0,
+      "baseSha": "899bc74e0648cf8cc7d774181e2f8e439505eace",
+      "reportedSha": "5b885baed4f00eda89751a646e43793aa30e1154",
+      "validation": {"checksPassed": 50, "checksFailed": 0, "phases": 12, "criteria": 117, "migrations": 11, "decisionsOwned": "96/96", "prototypePaths": "40/40", "gitDiffCheckExit": 0}
+    },
+    "P00/review-2": {
+      "status": "PENDING",
+      "threadId": null,
+      "hostId": null,
       "infrastructureRetryCount": 0
     }
   },
