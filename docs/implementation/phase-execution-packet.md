@@ -1,6 +1,6 @@
 # InterviewCopilot phase-execution packet
 
-Packet revision: **P00-R4**
+Packet revision: **P00-R5**
 
 Planning base: `main@9dcb4b2d39607273a8528a24657cdb4f5bfc3412`
 
@@ -267,9 +267,13 @@ test-classified and must print passed/failed/skipped counts.
 The P12 row is complete and therefore does not receive the default manifest or
 build suffix. Package, diagnostics, Meet collection/validation, and final
 release validation are child commands of the same reporter and cannot bypass
-its raw-exit aggregate. `qualify:meet` launches collection when evidence is
-absent and performs the write-once manifest/attestation/bundle finalization in
-P12-M01/M02; it is not an artifact-presence shortcut.
+its raw-exit aggregate. `package:mac` invokes the controller-owned writer for
+the mandatory external release statement only after signing/notarization/
+stapling; `verify:mac-package`,
+`qualify:meet`, and `verify:release` require and validate but never synthesize
+it. `qualify:meet` launches collection when evidence is absent and performs the
+write-once manifest/attestation/bundle finalization in P12-M01/M02; it is not an
+artifact-presence shortcut.
 The remote device also uses the reporter, with the exact invocation
 `npm run verify:phase -- --phase P12 --role meet-observer --pair
 <one-time-pairing-url> --artifacts .artifacts/qualification-observer`.
@@ -386,7 +390,7 @@ inside the single PR.
 
 **Self-contained implementation prompt.**
 
-> Implement P01 from P00-R4 on `phase/P01-local-gates`, based only on upstream
+> Implement P01 from P00-R5 on `phase/P01-local-gates`, based only on upstream
 > `main@9dcb4b2d…` plus merged planning docs. Do not import the dirty prototype.
 > Make local lint, strict type-check, real unit tests (including the unchanged
 > tracked CRA sample), manifest enforcement, and build green. Centralize and
@@ -398,7 +402,7 @@ inside the single PR.
 
 **Self-contained review prompt.**
 
-> Review P01 independently against P00-R4, not the author’s summary. From the
+> Review P01 independently against P00-R5, not the author’s summary. From the
 > clean PR checkout run the P01 reporter invocation, confirm the inherited CRA
 > test ran,
 > inspect all config/glob/ignore changes for hidden coverage loss, compare typed
@@ -527,7 +531,7 @@ and evolving; pin capabilities and fail explicitly on unsupported versions.
 
 **Self-contained implementation prompt.**
 
-> Implement P02 from P00-R4 after P01, on
+> Implement P02 from P00-R5 after P01, on
 > `phase/P02-subscription-runtime`. Build a provider-neutral persistent runtime
 > for Claude Code and Codex only, using one resumable session/thread, normalized
 > streaming/usage/compaction/stop/error events, explicit provider/model/Fast-
@@ -540,7 +544,7 @@ and evolving; pin capabilities and fail explicitly on unsupported versions.
 
 **Self-contained review prompt.**
 
-> Review P02 against P00-R4 from a clean checkout. Trace both fake providers
+> Review P02 against P00-R5 from a clean checkout. Trace both fake providers
 > through two turns, stop, compaction, driver/child restart, and caller-ID
 > resume; force every failure and prove the other provider never starts. Inspect
 > spawn/env/tool restrictions, IPC exposure, migration idempotence/file mode,
@@ -653,7 +657,7 @@ never custom cryptography.
 
 **Self-contained implementation prompt.**
 
-> Implement P03 from P00-R4 after P01 on
+> Implement P03 from P00-R5 after P01 on
 > `phase/P03-encrypted-persistence`. Build the Keychain-backed installation-key
 > service, versioned AES-256-GCM record/blob store, atomic writes, encrypted
 > in-memory-search source, typed recovery, raw-audio rejection, and journaled
@@ -801,7 +805,7 @@ boundary; no renderer or provider may keep a second authoritative session.
 
 **Self-contained implementation prompt.**
 
-> Implement P04 from P00-R4 after P02/P03 on
+> Implement P04 from P00-R5 after P02/P03 on
 > `phase/P04-session-orchestrator`. Replace global transient state with the
 > deterministic InterviewSession reducer, typed event/IPC contract, one
 > persistent-conversation orchestrator, context/delta policy, pending artifacts,
@@ -936,7 +940,7 @@ display behavior is platform-sensitive and directly touches privacy regression.
 
 **Self-contained implementation prompt.**
 
-> Implement P05 from P00-R4 after P04 on `phase/P05-live-shell`. Build the
+> Implement P05 from P00-R5 after P04 on `phase/P05-live-shell`. Build the
 > exact Quiet Signal hidden/compact/answer/expanded shell, command rail,
 > composer, input tray, explicit click-through/drag regions, final remappable
 > shortcuts, display-aware geometry, primary-display screenshot behavior,
@@ -1058,7 +1062,7 @@ regress silently; fixture contracts are merge-blocking.
 
 **Self-contained implementation prompt.**
 
-> Implement P06 from P00-R4 after P05 on `phase/P06-coding`. Add the exact
+> Implement P06 from P00-R5 after P05 on `phase/P06-coding`. Add the exact
 > typed Coding intents/schema/renderer, concise-first progressive answer,
 > language snapshot and six-family fixtures, read-only actions, New Question,
 > and isolated `Control+Shift+D` versioned Fix flow. Enforce no personal context,
@@ -1173,7 +1177,7 @@ must not become a second untyped document model.
 
 **Self-contained implementation prompt.**
 
-> Implement P07 from P00-R4 after P05 on `phase/P07-system-design`. Add the
+> Implement P07 from P00-R5 after P05 on `phase/P07-system-design`. Add the
 > fixed typed five-section progressive workflow, bounded material estimates,
 > safe vendor-neutral structured diagram, read-only accessible interactions,
 > assumption handling, dependency-scoped follow-up and What changed summary.
@@ -1294,7 +1298,7 @@ integrity are product trust boundaries.
 
 **Self-contained implementation prompt.**
 
-> Implement P08 from P00-R4 after P05 on `phase/P08-behavioral`. Build the
+> Implement P08 from P00-R5 after P05 on `phase/P08-behavioral`. Build the
 > encrypted canonical candidate dossier, guided/manual reviewed editing,
 > sanitized Markdown import/export, multiple snapshotted opportunities,
 > provenance, opt-in labeled persistent synthetic stories, and typed Behavioral
@@ -1427,7 +1431,7 @@ packaging, privacy, and transcription latency are launch-critical.
 
 **Self-contained implementation prompt.**
 
-> Implement P09 from P00-R4 after P05 on `phase/P09-audio`, macOS only. Build
+> Implement P09 from P00-R5 after P05 on `phase/P09-audio`, macOS only. Build
 > explicit two-source native capture, deterministic master/per-source controls,
 > contextual permission recovery, pinned offline whisper.cpp transcription,
 > explicit Apple Speech remote fallback, typed segments/attribution/correction,
@@ -1546,7 +1550,7 @@ must never become a capability or schema escape hatch.
 
 **Self-contained implementation prompt.**
 
-> Implement P10 from P00-R4 after P06/P07/P08 on
+> Implement P10 from P00-R5 after P06/P07/P08 on
 > `phase/P10-prompt-studio`. Build synchronized reviewed-diff Chat/Manage,
 > immutable built-ins, complete encrypted user CRUD, core-mode-only schemas,
 > deterministic recorded instruction resolution, Start snapshotting, protected
@@ -1663,7 +1667,7 @@ content and destructive user controls.
 
 **Self-contained implementation prompt.**
 
-> Implement P11 from P00-R4 after P06–P10 on
+> Implement P11 from P00-R5 after P06–P10 on
 > `phase/P11-history-recovery`. Add explicit crash Resume/Reset, complete
 > encrypted archive projection, Settings-only in-memory search/open/delete one/
 > all, safe consented individual Markdown/JSON export, read-only archive open,
@@ -1712,18 +1716,20 @@ Setup, anti-proctoring/process hiding/monitoring evasion, universal
 undetectability, analytics/crash upload, and automatic result inference from a
 local preview.
 
-**Implementation requirements.** At RC cut, freeze exact InterviewCopilot
-commit/version, the latest Apple-supported stable macOS patch available on each
-claimed arm64/x64 test machine, current stable Chrome, Meet version, display
-mode, and architecture. The shipped matrix contains full concrete values
+**Implementation requirements.** Before RC cut, freeze the latest Apple-
+supported stable macOS patch available on each claimed arm64/x64 test machine,
+current stable Chrome, Meet version, display mode, and architecture. The
+committed matrix contains only those full concrete pre-commit policy values
 (`ProductVersion` plus `BuildVersion`, Chrome four-part version, visible Meet
-client/build identifier, app semver plus full commit SHA, architecture, display
-pixel dimensions/scaling, and internal/external display type), never `latest`,
-a range, or a wildcard. Those exact passing tuples—and no neighboring patch,
-major version, browser, app build, architecture, or display mode—are the
-supported macOS/browser/app versions until separately qualified. Qualify each
-supported tuple separately. P00-R4 represents no version as supported before
-that committed matrix and its evidence pass. Entire-display and specific-window
+client/build identifier, architecture, display pixel dimensions/scaling, and
+internal/external display type), never `latest`, a range, or a wildcard. The
+external controller later pins the exact clean-checkout commit; the mandatory
+detached statement binds its app semver and post-build package identity. Those
+exact passing tuples—and no neighboring patch, major version, browser, app
+build, architecture, or display mode—are the supported macOS/browser/app
+versions until separately qualified. Qualify each supported tuple separately.
+P00-R5 represents no version as supported before the committed matrix, detached
+release statement, and evidence pass. Entire-display and specific-window
 require confirmation from remote Meet view or
 second device and retained high-contrast moving-marker artifacts; one fail makes
 the tuple unsupported; browser-tab remains unverified; verification state is
@@ -1826,7 +1832,7 @@ for this gate.
 | P12-AC4: verification record contains exact app/commit/macOS/arch/Chrome/Meet/display/scopes/date/result plus evidence- and bundle-manifest digests, and state invalidates by specified changes. | `electron/privacy/verificationRecord.test.ts — versions verifies fails and stales exact tuples` |
 | P12-AC5: release-build Google Meet entire-display capture contains zero marker pixels while underlying control frames remain visible for every frozen tuple, with the accepted evidence bound by both independent role attestations and the final bundle digest. | `P12-M01 — remote Google Meet entire-display moving-marker qualification` |
 | P12-AC6: release-build Google Meet specific-window capture contains zero marker pixels while target-window control frames remain visible for every frozen tuple, with the accepted evidence bound by both independent role attestations and the final bundle digest. | `P12-M02 — remote Google Meet specific-window moving-marker qualification` |
-| P12-AC7: any missing/failed scope or artifact, noncanonical or extra manifest member, self-reference, final-byte size/hash mismatch, schema/identity/trust/signature failure, or required detached-review failure produces Failed/Not verified and makes release qualification nonzero; local preview can never produce pass. Historical second writes or mutate-and-restore are collector-runtime concerns and are not inferred from an identical accepted final state. | `scripts/qualification/meet-artifact-validator.test.ts — rejects incomplete cyclic final-byte-mutated untrusted or local-only evidence` |
+| P12-AC7: any missing/failed scope or artifact, missing/mismatched/invalid detached release statement, noncanonical or extra manifest member, self-reference, final-byte size/hash mismatch, schema/identity/trust/signature failure, or required detached-review failure produces Failed/Not verified and makes release qualification nonzero; local preview can never produce pass. Historical second writes or mutate-and-restore are collector-runtime concerns and are not inferred from an identical accepted final state. | `scripts/qualification/meet-artifact-validator.test.ts — rejects incomplete cyclic final-byte-mutated untrusted or local-only evidence` |
 | P12-AC8: diagnostics exclude transcript/audio/screenshots/prompts/responses/profile/opportunity/credentials/tokens/device IDs, preview before manual export, and perform zero network upload. | `electron/diagnostics/diagnosticPrivacy.test.ts — previews redacted local-only diagnostic export` |
 | P12-AC9: provider/microphone/system-audio/screen-capture denial disables only affected action and explicit repair/retry preserves the session. | `tests/release/scopedRecovery.e2e.test.ts — preserves session through every permission/provider failure` |
 | P12-AC10: shipped copy/docs contain only qualified D-005g language and no 99%, undetectable, bypass, anti-cheat, process-hiding, monitoring-evasion, or unsupported-app/platform claim. | `tests/release/claimPolicy.test.ts — rejects unqualified privacy and platform language` |
@@ -1846,18 +1852,29 @@ is absent. A pre-existing artifact directory is accepted only after complete
 schema/canonical-byte/manifest/signature validation; an empty or partial
 directory triggers collection or a nonzero failure, never a presumed pass.
 
-**Supported version rule and release prerequisite.** Before the first run,
-`docs/qualification/macos-google-meet.json` must be committed at the RC SHA with
-`schemaVersion: 1`, a matrix revision, and one entry per claimed tuple. Every
-entry contains concrete app semver/full SHA, signed package SHA-256, macOS
-`ProductVersion`/`BuildVersion`, `arm64` or `x64`, Chrome four-part version,
-visible Meet build identifier, display ID/type/pixel dimensions/scale factor,
-and both scopes. Wildcards, ranges, `latest`, missing architectures, or an
-uncommitted matrix make preflight exit nonzero. Only exact passing entries are
-supported. The installed app must be the matrix package built from the clean RC
-SHA, Developer-ID signed, hardened-runtime enabled, notarized, stapled, accepted
-by `spctl`, and passing `verify:mac-package`; a development/Electron launch or
-ad-hoc signature aborts collection.
+**Supported version rule and release prerequisite.** Before the RC is selected,
+`docs/qualification/macos-google-meet.json` must be committed with
+`schemaVersion: 1`, a matrix revision, and one pre-commit policy entry per
+claimed tuple. Every entry contains the exact macOS `ProductVersion`/
+`BuildVersion`, `arm64` or `x64`, Chrome four-part version, visible Meet build
+identifier, display ID/type/pixel dimensions/scale factor, and both scopes.
+Wildcards, ranges, `latest`, missing architectures, or an uncommitted matrix
+make preflight exit nonzero. The matrix deliberately contains no containing
+commit SHA, app/package hash, notarization or staple output, build timestamp,
+or detached-statement digest.
+
+The release controller externally selects the reviewed PR/release commit,
+checks it out detached, proves the checkout is clean, and pins `git rev-parse
+HEAD` in memory as `expectedRcSha` before reading any artifact. Both
+`qualify:meet` and `verify:release` repeat that derivation independently and
+accept no artifact field, CLI artifact value, environment value, pairing
+message, or detached statement as a checkout selector or override. They freeze
+and hash the exact committed matrix bytes as `matrixBlobSha256`. After the RC
+exists and the signed/notarized packages are built, the release controller
+creates the mandatory detached release statement defined below. Only a package
+bound by that valid statement, Developer-ID signed, hardened-runtime enabled,
+notarized, stapled, accepted by `spctl`, and passing `verify:mac-package` may be
+collected; a development/Electron launch or ad-hoc signature aborts collection.
 
 **People, accounts, devices, and network.** Each run requires:
 
@@ -1916,7 +1933,8 @@ npm run verify:phase -- --phase P12 --role meet-observer --pair <one-time-pairin
 The reporter installs/verifies the clean observer checkout and then launches the
 observer helper as the exact argv child defined in `P12-observer.json`. It logs
 that child raw exit and returns aggregate 0 only after the helper verifies the
-SHA embedded in the pairing challenge, records only the Chrome Meet
+SHA embedded in the pairing challenge equals the observer's independently
+pinned checkout HEAD, without fetching or switching from it, records only the Chrome Meet
 presentation region plus recorder telemetry, and streams the original recording
 and signed observer events directly into the collector's new run directory.
 Pairing expires after one use. Closing either reporter, supplying a file path in
@@ -2004,7 +2022,7 @@ character. The protocol uses these exact lexical primitives:
 | Name | Exact representation |
 |---|---|
 | `Sha256` | string matching `^[0-9a-f]{64}$` |
-| `RcSha` | string matching `^[0-9a-f]{40}$`; it equals the checked-out RC commit |
+| `RcSha` | string matching `^[0-9a-f]{40}$`; in artifacts it equals the externally pinned clean-checkout `expectedRcSha` |
 | `Token` | string matching `^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$` |
 | `RoleId` | string matching `^[a-z0-9][a-z0-9-]{15,63}$` |
 | `RunId` | string matching `^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$` |
@@ -2036,28 +2054,36 @@ duplicate keys, Unicode variants, timestamp variants, numeric large counters,
 wrong array order, and every outer/nested extra field; semantic equivalence is
 not an acceptance rule.
 
-**RC-pinned matrix and trust registry.** The already required committed
-`docs/qualification/macos-google-meet.json` is the sole trust root; this adds no
-artifact or phase. Its top-level object contains exactly `schemaVersion: 1`,
-`matrixRevision: Token`, `rcSha: RcSha`, `trustRegistry`, and `entries`.
-`entries` is a nonempty array sorted by `tupleId`; each entry contains exactly
-`tupleId: Token`, `appSemver: SemVer` (without leading `v`),
-`appCommitSha: RcSha`, `packageSha256: Sha256`, `macOSProductVersion` (three
-dot-separated decimal components without leading zeroes),
-`macOSBuildVersion: Token`, `architecture` (`"arm64"` or `"x64"`),
-`chromeVersion` (four dot-separated decimal components without leading zeroes),
-`meetBuildId: Token`, `display`, and `scopes`. `display` contains exactly
-`displayId: Token`, `type` (`"internal"` or `"external"`), `pixelWidth` and
-`pixelHeight` (JSON integers 1–32768), and `scaleFactor` (string matching
-`^[1-4](\.[0-9]{1,3})?$`). `scopes` is exactly
-`["entire-display","specific-window"]`. Every `appCommitSha` and trust entry
-`rcSha` equals the top-level `rcSha`; tuple IDs are unique.
+**Committed matrix and trust registry.** In the externally selected immutable
+RC checkout, `docs/qualification/macos-google-meet.json` is the sole tuple and
+key-purpose authority. Its exact committed bytes are frozen before artifact
+validation and SHA-256 hashed as `matrixBlobSha256`; the file is never copied
+from an artifact or replaced after checkout. The verifier reads the blob from
+`<expectedRcSha>:docs/qualification/macos-google-meet.json`, requires it to be
+byte-for-byte identical to the clean worktree path, validates and hashes it
+once, retains those exact bytes and the parsed registry in memory, and rechecks
+HEAD, cleanliness, and that digest before exit. Its top-level object contains
+exactly `schemaVersion: 1`, `matrixRevision: Token`, `trustRegistry`, and
+`entries`. It contains only pre-commit-constructible policy and contains no
+`rcSha`, app commit/version, package hash, signing result, notarization/staple
+output, build timestamp, or detached-statement digest at any depth.
 
-`trustRegistry` is an array of 3–64 objects sorted by unsigned UTF-8 bytes of
+`entries` is a nonempty array sorted by unsigned UTF-8 bytes of `tupleId`; each
+entry contains exactly `tupleId: Token`, `macOSProductVersion` (three dot-
+separated decimal components without leading zeroes), `macOSBuildVersion:
+Token`, `architecture` (`"arm64"` or `"x64"`), `chromeVersion` (four dot-
+separated decimal components without leading zeroes), `meetBuildId: Token`,
+`display`, and `scopes`. `display` contains exactly `displayId: Token`, `type`
+(`"internal"` or `"external"`), `pixelWidth` and `pixelHeight` (JSON integers
+1–32768), and `scaleFactor` (string matching `^[1-4](\.[0-9]{1,3})?$`).
+`scopes` is exactly `["entire-display","specific-window"]`; tuple IDs are
+unique.
+
+`trustRegistry` is an array of 4–64 objects sorted by unsigned UTF-8 bytes of
 `keyId`. Each object contains exactly `keyId` (string matching
 `^[a-z0-9][a-z0-9._-]{15,63}$`), `publicKeyBase64Url: Base64Url32`, `purpose`,
-`role`, `status` (`"active"` or `"revoked"`), and `rcSha: RcSha`. The only legal
-purpose/role pairs are:
+`role`, and `status` (`"active"` or `"revoked"`). The only legal purpose/role
+pairs are:
 
 | `purpose` | `role` |
 |---|---|
@@ -2065,18 +2091,89 @@ purpose/role pairs are:
 | `"qualification-role-attestation"` | `"remote-observer"` |
 | `"qualification-independent-review"` | `"independent-reviewer"` |
 | `"qualification-release-bundle"` | `"release-bundle"` |
+| `"qualification-release-statement"` | `"release-statement"` |
 
-There is at least one active key for each of the first three rows. A release-
-bundle key is optional, but every such key and every key referenced anywhere
-must occur exactly once in this registry at the exact RC SHA. `keyId` values and
-decoded public-key bytes are globally unique across the registry. A key cannot
+There is at least one active key for each row except the optional release-bundle
+row. Every key referenced anywhere must occur exactly once in this registry.
+`keyId` values and decoded public-key bytes are globally unique. A key cannot
 be reused for another role or purpose; local operator, remote observer,
-independent reviewer, and release signer must all be different keys. Unknown,
-revoked, wrong-purpose, wrong-role, duplicate-ID, reused-role, same-public-key,
-RC-mismatched, or malformed entries block acceptance. `collection.json` and
-signature files reference trusted `keyId` values; they never carry or override
-public-key bytes. Verification always loads the matrix from a clean checkout at
-its exact `rcSha`, closing the self-pinning dependency.
+independent reviewer, optional bundle signer, and mandatory release-statement
+signer are all different keys. Unknown, revoked, wrong-purpose, wrong-role,
+duplicate-ID, reused-role, same-public-key, or malformed entries block
+acceptance. Collection, bundle, review, and release-statement envelopes carry
+only `keyId`; they never carry or override public-key bytes. Verification loads
+the public key only from the matrix in the already externally selected checkout.
+No artifact selects a checkout, expected SHA, matrix, registry, key, or purpose.
+
+**Mandatory detached post-RC release statement.** After the RC commit exists
+and each signed/notarized package is built, `package:mac` invokes the release
+controller's writer to create one statement at exactly
+`/Users/Shared/InterviewCopilot/qualification-release-statements/<expectedRcSha>/release-statement.json`.
+The resolved statement path and every
+ancestor below `/Users/Shared` must be regular directories with no symlink, and
+must be outside every Git worktree, per-run bundle, and
+`.artifacts/qualification-reviews` root. The statement is never added to Git,
+copied into a run/review root, or committed back into the RC. Creating,
+replacing, or resigning it cannot change `expectedRcSha` or the frozen matrix
+bytes/digest. The statement itself is a link-count-one regular file with mode
+0400; links, alternate paths, or a writable accepted file fail validation.
+
+The existing `package:mac` child is the only producer. As its final step after
+signing, notarization, stapling, and `spctl` assessment, it invokes the release-
+controller-owned external writer/signing operation with those frozen post-build
+results; that operation creates the statement once with exclusive-create
+semantics at the external path. `package:mac` returns nonzero if the operation
+fails. `verify:mac-package`, `qualify:meet`, and `verify:release` only validate
+the result; none creates, repairs, replaces, or infers a missing statement. This
+adds no reporter-plan entry or per-run artifact.
+
+The statement is a closed JCS envelope containing exactly `payload` and
+`signature`; `signature` contains exactly `algorithm: "Ed25519"`, `keyId`, and
+`value: Base64Url64`. The payload contains exactly `schemaVersion: 1`, `kind:
+"qualification-release-statement"`, `expectedRcSha: RcSha`, `matrixPath:
+"docs/qualification/macos-google-meet.json"`, `matrixBlobSha256: Sha256`,
+`matrixRevision: Token`, `appSemver: SemVer`, `packages`, `releaseKeyId`, and
+`issuedAt: UtcMillis`. `expectedRcSha` equals the verifier's already-pinned
+checkout HEAD; the matrix path, digest, and revision equal the already-validated
+committed matrix. The statement never contains its own digest.
+
+`packages` is a nonempty array sorted by unsigned UTF-8 bytes of `architecture`
+and contains exactly one object for every distinct architecture in the matrix,
+with no other architecture. Each object contains exactly `architecture`
+(`"arm64"` or `"x64"`), `packageSha256: Sha256`, `signingTeamId` (string
+matching `^[A-Z0-9]{10}$`), `signingCertificateSha256: Sha256`,
+`hardenedRuntime: true`, `notarizationTicketId: Token`,
+`notarizationStatus: "Accepted"`, `notarizationLogSha256: Sha256`,
+`stapleStatus: "valid"`, `staplerStdoutSha256: Sha256`,
+`staplerStderrSha256: Sha256`, `spctlStatus: "accepted"`,
+`spctlStdoutSha256: Sha256`, `spctlStderrSha256: Sha256`, `builtAt: UtcMillis`,
+`notarizedAt: UtcMillis`, and `stapledAt: UtcMillis`. Its three timestamps are
+strictly increasing.
+`issuedAt` is no earlier than every `stapledAt`. These fields are the complete
+post-build package/signing/notarization/staple identity used by qualification.
+`notarizationTicketId` is the accepted submission/ticket identifier emitted by
+`xcrun notarytool`; collection uses that same identifier. The log digest hashes
+the exact raw bytes returned by `xcrun notarytool log <notarizationTicketId>`.
+The four stdout/stderr digests hash the exact, unnormalized byte streams from
+`xcrun stapler validate -v <final-package>` and `spctl --assess --type execute
+--verbose=4 <final-app>`, respectively; empty streams hash as empty bytes and
+no stream is concatenated with another. The three status constants and the
+tools' raw exit 0 are independently required by `package:mac` and
+`verify:mac-package`; a digest alone cannot turn a failed result into success.
+
+`releaseKeyId`, the signature `keyId`, and the looked-up registry `keyId` are
+equal and resolve only to an active `qualification-release-statement`/
+`release-statement` entry. The exact signed bytes are the UTF-8/ASCII bytes of
+`InterviewCopilot qualification release statement v1\n` (one LF, no NUL),
+immediately followed by the JCS UTF-8 payload bytes, with no trailing byte.
+This fourth domain is distinct from the three existing role-attestation,
+optional release-bundle, and independent-review domains. A missing statement,
+wrong external path, extra/missing/wrong-type field, non-JCS object-key order,
+wrong package order, bad timestamp/order, expected-RC or matrix disagreement,
+package hash mismatch, unknown/revoked/wrong-purpose/reused key, noncanonical
+bytes, wrong domain, or
+bad signature makes `qualify:meet`, `verify:release`, and the P12 aggregate
+nonzero.
 
 **Exact `collection.json` schema.** The top-level object contains exactly these
 required keys and values:
@@ -2102,10 +2199,17 @@ required keys and values:
 | `contentResult` | closed object defined below |
 | `evidenceMembers` | exact ordered eight-entry array defined below |
 
+The top-level `rcSha` equals the externally pinned `expectedRcSha`; no
+collection value can supply or change that expectation.
+
 `app` contains exactly `semver: SemVer`, `commitSha: RcSha`,
 `packageSha256: Sha256`, `signingTeamId` (string matching
 `^[A-Z0-9]{10}$`), `signingCertificateSha256: Sha256`, and
-`notarizationTicketId: Token`. `environment` contains exactly
+`notarizationTicketId: Token`. `commitSha` equals the externally pinned
+`expectedRcSha`; every other app field equals the already-validated detached
+release statement and the selected architecture's package object (with
+`notarizationTicketId` equal to its same-named field). `environment`
+contains exactly
 `macOSProductVersion`, `macOSBuildVersion`, `architecture`, `chromeVersion`,
 `meetBuildId`, and `display`, with values and nested display schema identical to
 the selected matrix entry. `roles` contains exactly `localOperator` and
@@ -2125,7 +2229,8 @@ monotonic time. `marker` contains exactly `algorithm:
 numeric spellings fail.
 
 `validator` contains exactly `version` (canonical SemVer) and `commitSha:
-RcSha`, which equals the RC SHA. `contentResult` contains exactly `result:
+RcSha`, which equals the externally pinned `expectedRcSha`. `contentResult`
+contains exactly `result:
 "pass"`, `markerDetectedFrames: "0"`, `markerContinuityPpm`,
 `controlRecognizedPpm`, and `validSharedIntervalFrames`, with the last three
 values as `Uint64String`; both ppm values are 995000–1000000 and the frame count
@@ -2253,12 +2358,14 @@ If `bundle-manifest.sig` is present, it is a closed JCS envelope with exactly
 `bundleManifestSha256: Sha256`, and `signedAt: UtcMillis`; its signature uses
 the exact common `{algorithm,keyId,value}` schema. Both key IDs are equal and
 resolve to an active `qualification-release-bundle`/`release-bundle` matrix
-entry. The signed bytes are exactly the ASCII/UTF-8 domain separator
+entry distinct from the mandatory release-statement key. The signed bytes are
+exactly the ASCII/UTF-8 domain separator
 `InterviewCopilot qualification release bundle v1\n` followed immediately by
 JCS payload bytes, with no trailing byte. If the file is absent, no release
-signature is inferred or required and required role/reviewer checks still
+signature is inferred or required and required statement/role/reviewer checks still
 apply. If it is present, every schema, RC/key-purpose, digest, timestamp, and
-Ed25519 check is mandatory; any failure blocks acceptance. The signature file's
+Ed25519 check is mandatory, and its `rcSha` equals the externally pinned
+`expectedRcSha`; any failure blocks acceptance. The signature file's
 own bytes are never in the digest. No other file is allowed in an accepted run
 root.
 
@@ -2313,9 +2420,10 @@ It has exactly 28 directed edges: the eight non-collection evidence members to
 collection; all nine evidence members to evidence manifest; evidence manifest
 to each role attestation; evidence manifest plus both attestations to bundle
 metadata; the four exact bundle members to bundle manifest; bundle manifest to
-the optional signature; and bundle manifest to detached review. The matrix
-trust registry and externally hashed reviewer work products are RC-pinned trust
-inputs, not accepted-run members or additional finalization nodes. A
+the optional signature; and bundle manifest to detached review. The committed
+matrix, mandatory detached release statement, and externally hashed reviewer
+work products are validation inputs, not accepted-run members or additional
+finalization nodes. Neither detached input adds an edge to this per-run graph. A
 topological-sort fixture proves all 16 nodes are visited with 28 edges and zero
 cycle.
 
@@ -2335,12 +2443,17 @@ date; public evidence contains only hashes, tuple metadata, counts, and the
 redacted copy.
 
 **Offline acceptance boundary.** Within `qualify:meet`, the final-state
-validator is read-only. Its acceptance proof is deliberately limited to the
-bytes and filesystem state it can observe: exact canonical bytes, closed
-schemas, byte sizes and hashes, path/order/membership, regular-file status,
-link-count-one/no-link constraints, final 0400/0500 modes, identities, matrix/RC
-trust lookup, key purpose/role/status/distinctness, and signatures. It then
-verifies versions/signing, timing expressed in the records, frame decode/
+validator is read-only. Before it opens any per-run artifact, it pins the clean
+checkout HEAD, validates and freezes the committed matrix bytes/closed schema/
+registry, computes `matrixBlobSha256`, and validates the mandatory external
+release statement's path, closed schema, expected RC, matrix binding, package
+identity, purpose-separated key, domain, and signature. Its later per-run proof
+is deliberately limited to the bytes and filesystem state it can observe:
+exact canonical bytes, closed schemas, byte sizes and hashes, path/order/
+membership, regular-file status, link-count-one/no-link constraints, final
+0400/0500 modes, identities, expected-RC/matrix/statement trust lookup, key
+purpose/role/status/distinctness, and signatures. It then verifies versions/
+signing against the statement, timing expressed in the records, frame decode/
 continuity, the positive detector corpus, marker absence, control visibility,
 and M01/M02 completeness. It rejects `.partial` roots and writes only to the
 reporter's separate log directory.
@@ -2362,38 +2475,66 @@ separator, and optional-signature rule. Mutation fixtures claim only observable
 final-state rejection; separate collector-runtime fixtures make the historical
 write assertions.
 
+`scripts/qualification/release-statement-constructibility.test.ts` runs a real
+toy-Git probe in a temporary directory: it commits a canonical matrix containing
+only the policy/registry schema above, records HEAD/tree/matrix blob bytes and
+`matrixBlobSha256`, builds a toy package, creates a purpose-separated Ed25519
+statement at the external sibling path, and verifies its HEAD/matrix/package/
+signature bindings. It then replaces the statement with another validly signed
+post-build statement and proves HEAD, tree, matrix blob, and matrix digest are
+unchanged; placing, updating, or deleting the external statement never changes
+Git identity. A statement bound to a second toy commit fails against the first
+already-selected checkout without causing a fetch, checkout, reset, or switch.
+The companion fixed-point scan rejects any matrix field or normative prose that
+requires the matrix to contain its own RC SHA, app/package hash, signing/
+notarization/staple output, build timestamp, or release-statement digest.
+
 `scripts/qualification/schema-inventory.test.ts` inventories the committed
-closed schemas for the matrix, each of the four NDJSON event payload families,
+closed schemas for the matrix and release-envelope family (mandatory detached
+statement plus optional bundle signature), each of the four NDJSON event payload
+families,
 local preflight, control coverage, frame analysis, content-validation report,
 collection, manifest/entry, acknowledgement, role attestation, bundle metadata,
-optional bundle signature, and detached review. It recursively fails any
+and detached review. The inventory remains the same 13 schema families while
+adding the release-statement arm to the existing release-envelope family. It
+recursively fails any
 object schema missing `additionalProperties: false`, any unconstrained array,
 unknown union arm, unsafe integer counter, non-exact time format, or missing
 positive/negative fixture. `scripts/qualification/canonical-bytes.test.ts`
 runs the two independent serializer fixture sets and checks identical JCS bytes,
-digests, exact domain separators, and rejection of noncanonical semantic
+digests, all four exact domain separators, and rejection of noncanonical semantic
 variants. `scripts/qualification/trust-registry.test.ts` probes unknown,
 revoked, wrong-purpose, wrong-role, reused-role, duplicate-ID, same-public-key,
-RC-mismatched, malformed, and collection-supplied-key cases. The artifact-
-validator suite covers optional bundle signature absent, valid-present, and
-invalid-present; only the first two pass.
+expected-RC-mismatched, malformed, and collection-supplied-key cases. The
+release-statement suite tampers `expectedRcSha`, matrix digest, package hash,
+release key/purpose/signature, each outer/nested extra field, each field type,
+package order, and every timestamp/order variant; all mutations fail. It also
+proves that no artifact-derived value is consumed before checkout/matrix pinning
+or can select a checkout. The artifact-validator suite covers optional bundle
+signature absent, valid-present, and invalid-present; only the first two pass.
 
 It prints one line per tuple/scope plus `passed=<n> failed=<n> skipped=<n>` and
-exits 0 only when every matrix tuple has exactly one accepted M01 and M02 bundle,
-the exact graph and all assertions pass, failed=0, and skipped=0. Missing raw
-evidence, either attestation, either manifest, or the bundle metadata is a
+exits 0 only when the mandatory release statement is valid, every matrix tuple
+has exactly one accepted M01 and M02 bundle, the exact graph and all assertions
+pass, failed=0, and skipped=0. A missing/mismatched/invalid release statement,
+raw evidence, either attestation, either manifest, or bundle metadata is a
 failure, never a skip. The P12 reporter preserves that raw exit and makes its
 aggregate nonzero otherwise.
 
-**Detached independent review.** An independent reviewer starts from a fresh
-clone at the exact RC SHA, obtains the signed package and complete immutable
-bundle through the documented encrypted release channel, recomputes both
-manifest digests from canonical bytes, walks every allowlist edge, verifies both
-role signatures against the RC matrix registry, and runs the complete P12
-reporter command below. To reproduce collection rather than only validate, the
-reviewer uses a fresh checkout with no `.artifacts/qualification`, the exact
-matrix hardware/software/display tuple, new dedicated accounts/meeting, and the
-two launch commands above; absent evidence automatically launches M01 then M02.
+**Detached independent review.** An independent reviewer externally selects
+and checks out the reviewed RC before obtaining any artifact, independently
+pins clean `HEAD` as `expectedRcSha`, validates/freezes/hashes the committed
+matrix, and then obtains the signed package, mandatory detached release
+statement, and complete immutable bundle through the documented encrypted
+release channel. In that order the reviewer validates the statement against the
+already-pinned SHA, matrix digest/revision, package, and matrix-only release key;
+recomputes both manifest digests from canonical bytes; walks every allowlist
+edge; verifies both role signatures against the committed registry; and runs
+the complete P12 reporter command below. To reproduce collection rather than
+only validate, the reviewer uses a fresh checkout with no
+`.artifacts/qualification`, the exact matrix hardware/software/display tuple,
+new dedicated accounts/meeting, and the two launch commands above; absent
+evidence automatically launches M01 then M02.
 The reviewer watches the full remote shared intervals plus pre/post boundaries,
 checks at least the first/last and one frame from every 15-second marker-position
 epoch against `frame-analysis.ndjson`, and verifies ordinary underlying content
@@ -2424,9 +2565,9 @@ boolean is true, otherwise JSON `null`). At least one accepted review record per
 matrix revision has `livePairingReproduced: true`, preserving the required one
 clean live-paired reproduction without pretending every retained run was
 recollected. Identity and bundle digest match the reviewed bundle. Both key IDs
-are equal and resolve only to an active
-`qualification-independent-review`/`independent-reviewer` key at the RC SHA,
-distinct from both role keys and any release-bundle key.
+are equal and resolve only to an active `qualification-independent-review`/
+`independent-reviewer` matrix key, distinct from both role keys and either
+release-purpose key. Its `rcSha` equals the externally pinned `expectedRcSha`.
 
 The exact signed bytes are the ASCII/UTF-8 domain separator
 `InterviewCopilot qualification independent review v1\n` followed immediately
@@ -2436,14 +2577,16 @@ digest disagreement, unknown/wrong-purpose/reused key, noncanonical bytes, or
 bad signature blocks `verify:release` and the P12 aggregate.
 
 No reporter plan entry or ad-hoc shell command is added. The existing
-`qualify:meet --collect-missing` child validates bundles and, when run by the
-configured independent reviewer after the required prompts/checks, writes and
-immediately verifies this detached record outside the run root. The already-
-planned final `verify:release` child requires and revalidates the exact record
-for every accepted M01/M02 run. An initial collector run may therefore finish
-collection but cannot make the release aggregate green until independent
-review exists; the final unchanged P12 reporter rerun must have all raw exits
-zero. Any disagreement, non-reproducible tuple, graph/byte mismatch, or changed
+`qualify:meet --collect-missing` child first requires the valid detached release
+statement, then validates bundles and, when run by the configured independent
+reviewer after the required prompts/checks, writes and immediately verifies
+this detached record outside the run root. The already-planned final
+`verify:release` child independently repins clean `HEAD`, matrix bytes, and the
+statement, then requires and revalidates the exact review record for every
+accepted M01/M02 run. An initial collector run may therefore finish collection
+but cannot make the release aggregate green until independent review exists;
+the final unchanged P12 reporter rerun must have all raw exits zero. Any
+statement disagreement, non-reproducible tuple, graph/byte mismatch, or changed
 version leaves external reporter failure evidence, produces no qualifying
 `result: "pass"` review envelope, and blocks the claim.
 
@@ -2459,11 +2602,27 @@ git -C "$p12_verify_dir/repo" switch --detach FETCH_HEAD
 cd "$p12_verify_dir/repo"
 test "$(uname -s)" = "Darwin"
 test -z "$(git status --porcelain)"
+expected_rc_sha=$(git rev-parse HEAD)
+test "$expected_rc_sha" = "$(git rev-parse HEAD)"
 node -e 'if (Number(process.versions.node.split(".")[0]) !== 20) process.exit(1)'
 ```
 
-**Verification commands, in order.** `test:p12` reports at least 14 named
-automated/manual manifest entries passed, 0 failed, 0 skipped; all raw exits 0.
+**Verification commands and non-circular order.** The external controller, not
+an artifact, chooses the commit used by `switch --detach`. Each verifier then
+executes this strict order: (1) require clean checkout and pin HEAD as
+`expectedRcSha`; (2) load the matrix blob from that commit, compare the
+worktree bytes, validate its closed schema/JCS/registry, and freeze/hash it;
+(3) validate the external statement's fixed path, closed schema/JCS,
+`expectedRcSha`, matrix binding, package identity, purpose-separated key,
+domain, and signature; (4) validate or collect per-run evidence and detached
+reviewer records; and (5) run `verify:release`. A bundle, statement, review,
+pairing challenge, or other artifact is never read to fetch, switch, reset, or
+select a checkout, matrix, registry, or expected SHA. The observer independently
+pins its already selected clean checkout and only compares the pairing SHA to
+that value.
+
+`test:p12` reports at least 14 named automated/manual manifest entries passed,
+0 failed, 0 skipped; all raw exits 0.
 
 ```bash
 npm run verify:phase -- --phase P12 --artifacts .artifacts/verification/P12
@@ -2472,16 +2631,18 @@ npm run verify:phase -- --phase P12 --artifacts .artifacts/verification/P12
 Expected reporter aggregate exit is 0; every logged child raw exit is 0.
 
 `qualify:meet` launches P12-M01 and P12-M02 for absent evidence and exits 0 only
-after every frozen tuple has a live-paired, complete, read-only validated bundle
-with `marker_detected_frames=0`, valid control coverage, the exact acyclic
-manifest graph, and two valid role attestations. `test:staff-live-corpus`
+after the detached release statement is valid and every frozen tuple has a live-
+paired, complete, read-only validated bundle with `marker_detected_frames=0`,
+valid control coverage, the exact acyclic manifest graph, and two valid role
+attestations. `test:staff-live-corpus`
 executes all three frozen cases. Every test-classified reporter entry prints
 passed/failed/skipped totals. **Regression suite.** the
 entire P01–P11 suite, native audio, all mode fixtures, migrations, storage
 plaintext scans, shell/capture integration, package smoke tests, and release
 claim/deferred-scope scans. The later existing `verify:release` entry makes the
-unchanged reporter aggregate nonzero unless every accepted run also has its
-valid external independent-review envelope.
+unchanged reporter aggregate nonzero unless the mandatory statement remains
+valid and every accepted run also has its valid external independent-review
+envelope.
 
 **Docs.** Exact supported tuple matrix/date, guided verification, stale rules,
 D-005g headline/qualifier, limitations/non-security-boundary, permissions,
@@ -2489,12 +2650,17 @@ provider/audio/storage/privacy, diagnostics, AGPL/source offer, macOS install/
 uninstall/update, release evidence, SBOM/vulnerability disposition, and explicit
 Windows/Linux/app/scope deferrals. Release docs also publish the exact parent/
 inherit entitlement tables, frozen Staff-live corpus hash/assertion summary,
-closed schema inventory, RC-pinned trust registry, both manifest schemas/
-memberships/digests, signature verification result, and detached independent-
-review record.
+closed schema inventory, externally selected RC/matrix trust boundary, frozen
+matrix digest and purpose-separated registry, detached release-statement path/
+schema/signature result, both manifest schemas/memberships/digests, signature
+verification result, and detached independent-review record.
 
-**Completion evidence.** (1) SHAs/base/version; (2) every raw gate/count report;
-(3) signed/notarized arm64/x64 hashes and package-policy report; (4) role-by-
+**Completion evidence.** (1) externally selected SHAs/base/version and proof
+that no artifact selected them; (2) every raw gate/count report; (3) exact
+committed matrix bytes/digest plus the mandatory detached release statement's
+external path, closed payload, arm64/x64 package/signing/notarization/staple
+identities, matrix-only release key lookup, domain, and signature, together with
+the package-policy report; (4) role-by-
 role extracted entitlement plist diff, SBOM, and vulnerability disposition;
 (5) protection trace; (6) exact no-wildcard matrix; (7) per-tuple P12-M01/M02
 raw recording/content analysis, exact evidence-manifest membership/digest, both
@@ -2514,7 +2680,7 @@ signing infrastructure cannot be inferred from unit tests.
 
 **Self-contained implementation prompt.**
 
-> Implement P12 from P00-R4 after P01–P11 on
+> Implement P12 from P00-R5 after P01–P11 on
 > `phase/P12-macos-qualification`. Freeze the exact macOS/Chrome/Meet/build/
 > architecture matrix, harden macOS-only package/entitlements/identity, add
 > local-only redacted diagnostic preview/export, scoped failure recovery,
@@ -2524,36 +2690,45 @@ signing infrastructure cannot be inferred from unit tests.
 > signed/notarized arm64/x64 artifacts, launch and execute the full live-paired
 > P12-M01/M02 procedures on the release build, and run the complete P12 reporter
 > plan including artifact validation and the SHA-pinned three-case Staff-live
-> corpus. Implement the exact write-once evidence-manifest → two independent
+> corpus. Externally select and pin clean checkout HEAD before artifacts,
+> validate/freeze/hash the pre-commit-only committed matrix, produce the
+> mandatory signed detached post-RC release statement outside Git and all
+> bundle/review roots, and fail qualification/release on any checkout, matrix,
+> package, key-purpose, domain, or signature disagreement. Implement the exact
+> write-once evidence-manifest → two independent
 > role attestations → final bundle-manifest/digest sequence, canonical bytes,
-> recursively closed schemas, matrix-pinned role/reviewer/release trust,
+> recursively closed schemas, committed-matrix role/reviewer/release trust,
 > memberships, exclusions, exact signature domains, optional release-signature
 > absence/presence rules, mandatory external review, and read-only validator.
 > Enforce first-touch/write-once/freeze in the live collector while limiting
 > offline claims to observable final state. Attach every enumerated artifact. A
-> failed/incomplete tuple, cyclic/extra/missing member, observable final-byte or
-> trust/signature mismatch, missing review, extra or missing entitlement, corpus
+> failed/incomplete tuple, missing/invalid release statement, cyclic/extra/
+> missing member, observable final-byte or trust/signature mismatch, missing
+> review, extra or missing entitlement, corpus
 > assertion failure, or skipped case blocks release; never infer pass or accept
 > pre-existing files without complete read-only validation.
 
 **Self-contained review prompt.**
 
-> Independently review P12 on the exact frozen matrix. Rebuild/package from the
-> clean SHA, inspect signing/notarization/entitlements/SBOM, trace protection
+> Independently review P12 by externally selecting the clean SHA, freezing and
+> hashing its exact committed matrix before reading artifacts, then validate the
+> required external release statement and rebuild/package identity. Inspect
+> signing/notarization/entitlements/SBOM, trace protection
 > before first frame, mechanically compare every signed parent/nested executable
 > with the exact role allowlist, rerun the complete reporter plan, personally
 > verify remote Meet raw artifacts/control frames, canonical evidence manifest,
 > independently signed role attestations, bundle metadata/final digest, exact
 > include/exclude rules, and acyclic dependency graph for both scopes/
-> architectures, recursively closed schemas, RC-pinned key purposes, exact
-> signature domains, optional release-signature semantics, and reproduce one
+> architectures, recursively closed schemas, matrix-only key purposes, all four
+> exact signature domains, optional bundle-signature semantics, and reproduce one
 > clean live-paired tuple. Verify
 > the frozen Staff-live corpus hash and every structural assertion, force stale/
 > failed records, inspect diagnostic network/content traces, and scan every
 > shipped string. Reject missing tuple evidence, local-only confirmation,
 > broadened claim, unsupported platform/app/scope, entitlement drift, telemetry,
-> corpus mutation/failure, self-reference, observable final-byte mismatch,
-> invalid role/reviewer/release signature or trust binding, skipped test,
+> corpus mutation/failure, self-reference, artifact-derived checkout selection,
+> observable final-byte mismatch, missing/invalid statement, invalid role/
+> reviewer/release signature or trust binding, skipped test,
 > vulnerability without disposition, or any nonzero child/aggregate gate. Sign
 > the closed review envelope at its exact external path; do not claim the offline
 > validator proves write history.
@@ -2568,7 +2743,8 @@ signing infrastructure cannot be inferred from unit tests.
 > both live-paired remote qualifications for every affected tuple, then return
 > every reporter raw exit/count and aggregate exit, entitlement diff, corpus
 > counts, both manifest memberships/digests, schema/canonical/trust probes,
-> role/release/reviewer signature results, matrix revision, and new SHAs.
+> detached-statement/role/optional-bundle/reviewer signature results, frozen
+> matrix revision/digest, externally pinned expected RC, and new SHAs.
 
 ## 8. Requirement ownership matrix
 
@@ -2630,8 +2806,11 @@ product contract:
    performance evidence before merge. Apple Speech is the sole launch remote
    fallback and remains explicit/off by default.
 3. **P12 qualification tuple.** At RC cut, record the exact current-stable macOS
-   patch, Chrome/Meet versions, display configuration, app commit/version, and
-   arm64/x64 hardware. Do not claim a version or architecture that was not run.
+   patch, Chrome/Meet versions, display configuration, and arm64/x64 hardware in
+   the pre-commit matrix; externally pin the selected app commit from clean
+   checkout HEAD and bind app version/package identities only in the later
+   detached release statement. Do not claim a version or architecture that was
+   not run.
 4. **External P12 prerequisites.** Apple signing/notarization credentials and a
    remote Meet observer/second device are required. Their absence is not a P00
    blocker, but it is a genuine release blocker: P12 cannot pass or the product
