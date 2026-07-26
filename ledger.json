@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-07-26T18:47:52+02:00",
+  "updatedAt": "2026-07-26T18:49:33+02:00",
   "repository": {
     "remote": "https://github.com/j4wg/interview-coder-withoupaywall-opensource",
     "pushRemote": "https://github.com/timomak/interview-coder-withoupaywall-opensource",
@@ -11,10 +11,10 @@
   "currentPhaseId": "P00",
   "packet": {
     "status": "PLANNING",
-    "revision": "P00-R2",
+    "revision": "P00-R3",
     "path": "docs/implementation/phase-execution-packet.md",
     "branch": "phase/P00-execution-packet",
-    "headSha": "5b885baed4f00eda89751a646e43793aa30e1154",
+    "headSha": "7733c8a9c7750e8e61e6a7e51769ceda971d6768",
     "frozenAtSha": null,
     "planningRemediationCycleCount": 2,
     "reviewTask": "P00/review-2",
@@ -22,11 +22,11 @@
     "openFindingIds": ["P00-R2-B01"],
     "findings": {
       "P00-R1-B01": {"severity": "HIGH", "rootCauseTag": "verification-raw-exit", "disposition": "RESOLVED", "resolvedInSha": "5b885baed4f00eda89751a646e43793aa30e1154", "requiredOutcome": "Use a tested reporter for every phase command, emit per-command raw exits/counts, and fail the aggregate."},
-      "P00-R1-B02": {"severity": "RELEASE_BLOCKING", "rootCauseTag": "qualification-procedure", "disposition": "REOPENED_BY_P00-R2-B01", "resolvedInSha": "5b885baed4f00eda89751a646e43793aa30e1154", "requiredOutcome": "Define executable M01/M02 procedures, prerequisites, remote-observer steps, artifact schema, validation, and exits."},
+      "P00-R1-B02": {"severity": "RELEASE_BLOCKING", "rootCauseTag": "qualification-procedure", "disposition": "REMEDIATED_PENDING_P00_R3_REVIEW", "resolvedInSha": "7733c8a9c7750e8e61e6a7e51769ceda971d6768", "requiredOutcome": "Define executable M01/M02 procedures, prerequisites, remote-observer steps, artifact schema, validation, and exits."},
       "P00-R1-B03": {"severity": "HIGH", "rootCauseTag": "requirement-test-coverage", "disposition": "RESOLVED", "resolvedInSha": "5b885baed4f00eda89751a646e43793aa30e1154", "requiredOutcome": "Add P04 criteria and named tests for D-043c, D-043d, and D-045b behaviors."},
       "P00-R1-B04": {"severity": "HIGH", "rootCauseTag": "dependency-encryption-boundary", "disposition": "RESOLVED", "resolvedInSha": "5b885baed4f00eda89751a646e43793aa30e1154", "requiredOutcome": "Narrow P02 restart scope to caller-supplied opaque IDs or add encrypted persistence dependency; leave persisted recovery to P04."},
       "P00-R1-B05": {"severity": "MEDIUM", "rootCauseTag": "nonfalsifiable-criteria", "disposition": "RESOLVED", "resolvedInSha": "5b885baed4f00eda89751a646e43793aa30e1154", "requiredOutcome": "Enumerate entitlement allowlist and freeze Staff+ fixtures/assertions or a failure rubric."},
-      "P00-R2-B01": {"severity": "RELEASE_BLOCKING", "rootCauseTag": "qualification-artifact-hash-cycle", "disposition": "OPEN", "requiredOutcome": "Define an acyclic qualification-evidence finalization order and exact manifest membership so evidence can be deterministically hashed, attested, bundled, and independently validated."}
+      "P00-R2-B01": {"severity": "RELEASE_BLOCKING", "rootCauseTag": "qualification-artifact-hash-cycle", "disposition": "REMEDIATED_PENDING_REVIEW", "resolvedInSha": "7733c8a9c7750e8e61e6a7e51769ceda971d6768", "requiredOutcome": "Define an acyclic qualification-evidence finalization order and exact manifest membership so evidence can be deterministically hashed, attested, bundled, and independently validated."}
     },
     "prNumber": 154,
     "prUrl": "https://github.com/j4wg/interview-coder-withoupaywall-opensource/pull/154"
@@ -122,7 +122,7 @@
       "verification": {"contracts": "12/12", "criteria": 117, "decisions": "96/96", "migrations": 11, "prototypePaths": "40/40", "dependencyEdges": 18, "cycles": 0, "bashBlocks": "25/25", "reporterPlans": 13, "rerunsDisclosed": true}
     },
     "P00/remediate-2": {
-      "status": "ACTIVE",
+      "status": "COMPLETE",
       "clientThreadId": "client-new-thread:c173e6e5-cfc9-437d-931d-57b7c04b3b52",
       "threadId": "019f9f0a-0466-7b91-99ac-55b0b19aac9e",
       "hostId": "local",
@@ -131,6 +131,9 @@
       "recoveryWorktreePath": "/Users/thirdfacedev/.codex/worktrees/p00-remediate-2-recovery",
       "recoveryBaseSha": "5b885baed4f00eda89751a646e43793aa30e1154",
       "recoveryState": "Full prior two-document R3 patch recovered; task approval loop bypassed by root orchestration without touching the dirty prototype checkout.",
+      "reportedSha": "7733c8a9c7750e8e61e6a7e51769ceda971d6768",
+      "parentSha": "5b885baed4f00eda89751a646e43793aa30e1154",
+      "completionMode": "Root orchestration finalized the recovered task diff after repeated stale-worktree approval loops, then archived the superseded task thread.",
       "precommitValidation": {
         "checksPassed": 20,
         "checksFailed": 0,
