@@ -1,6 +1,6 @@
 # InterviewCopilot phase-execution packet
 
-Packet revision: **P00-R1**
+Packet revision: **P00-R2**
 
 Planning base: `main@9dcb4b2d39607273a8528a24657cdb4f5bfc3412`
 
@@ -136,17 +136,17 @@ The table maps every tracked or untracked prototype path to a future owner.
 |---|---|
 | `package.json`, `package-lock.json`, `vitest.config.ts`, `tsconfig.electron.json` | P01 re-creates a consolidated test/lint/type gate and lockfile; the observed Vitest spike is not accepted as-is. |
 | `electron/ConfigHelper.ts`, `electron/ConfigHelper.test.ts` | P02 reimplements a versioned subscription-only config migration. Legacy API-key paths in the spike are explicitly rejected. |
-| `electron/ai/types.ts`, `cliProcess.ts`, `cliProcess.test.ts` | P02 reuses safety ideas (absolute executables, no shell, abort/timeout/output limits, redaction) inside the persistent driver. |
-| `electron/ai/cliProviders.ts`, `cliProviders.test.ts` | P02 replaces one-shot Claude `--no-session-persistence` and Codex `--ephemeral` execution with resumable Claude sessions and Codex app-server threads. |
+| `electron/ai/types.ts`, `electron/ai/cliProcess.ts`, `electron/ai/cliProcess.test.ts` | P02 reuses safety ideas (absolute executables, no shell, abort/timeout/output limits, redaction) inside the persistent driver. |
+| `electron/ai/cliProviders.ts`, `electron/ai/cliProviders.test.ts` | P02 replaces one-shot Claude `--no-session-persistence` and Codex `--ephemeral` execution with resumable Claude sessions and Codex app-server threads. |
 | `electron/ProcessingHelper.ts` | P02/P04 replace legacy provider branching and regex orchestration; no legacy API-provider branch survives P02. |
 | `electron/ipcHandlers.ts`, `electron/preload.ts`, `src/env.d.ts`, `src/types/electron.d.ts` | P02 owns narrow provider/config IPC; P04 owns typed session/event IPC; P05 owns shell/window IPC. Duplicate typings become one generated/shared contract. |
-| `electron/captureProtection.ts`, `captureProtection.test.ts` | P01 adopts the centralized invariant and expands lifecycle coverage; P12 owns external qualification. |
+| `electron/captureProtection.ts`, `electron/captureProtection.test.ts` | P01 adopts the centralized invariant and expands lifecycle coverage; P12 owns external qualification. |
 | `electron/main.ts`, `electron/ScreenshotHelper.ts` | P05 reimplements hidden launch, prior-visibility restoration, per-display geometry, click-through, and capture lifecycle without weakening protection. |
-| `electron/shortcuts.ts`, `shortcuts.test.ts`, `src/utils/platform.ts` | P05 implements the final remappable shortcut map. The spike's Reset-on-`R` and inverted Up/Down behavior are rejected. |
+| `electron/shortcuts.ts`, `electron/shortcuts.test.ts`, `src/utils/platform.ts` | P05 implements the final remappable shortcut map. The spike's Reset-on-`R` and inverted Up/Down behavior are rejected. |
 | `src/App.tsx`, `src/_pages/Queue.tsx`, `src/_pages/SubscribedApp.tsx` | P04/P05 replace transient view state and computed-style click-through heuristics with typed session state and explicit interactive regions. |
-| `src/components/Settings/SettingsDialog.tsx`, `WelcomeScreen.tsx` | P02 builds provider-only onboarding; later settings panels are added by their owning phases. The prototype is not the final Quiet Signal UI. |
-| `src/components/Header/Header.tsx`, `Queue/QueueCommands.tsx`, `Solutions/SolutionCommands.tsx` | P02 removes entitlement/API debris; P05 replaces command rows and exposes visible equivalent actions. |
-| `src/constants/languages.ts`, `electron/languages.test.ts`, `LanguageSelector.tsx` | P06 adopts the normalized language catalog and adds first-class language fixtures required by D-023a. |
+| `src/components/Settings/SettingsDialog.tsx`, `src/components/WelcomeScreen.tsx` | P02 builds provider-only onboarding; later settings panels are added by their owning phases. The prototype is not the final Quiet Signal UI. |
+| `src/components/Header/Header.tsx`, `src/components/Queue/QueueCommands.tsx`, `src/components/Solutions/SolutionCommands.tsx` | P02 removes entitlement/API debris; P05 replaces command rows and exposes visible equivalent actions. |
+| `src/constants/languages.ts`, `electron/languages.test.ts`, `src/components/shared/LanguageSelector.tsx` | P06 adopts the normalized language catalog and adds first-class language fixtures required by D-023a. |
 | `src/_pages/Solutions.tsx`, `src/_pages/Debug.tsx` | P06 replaces regex-parsed views with typed Coding sections, read-only code actions, and versioned Fix cards. Copy-button ideas remain evidence only. |
 | `README.md`, `CONTRIBUTING.md`, `stealth-run.sh`, `stealth-run.bat` | P12 rewrites launch docs/scripts for macOS-only qualified claims. The Windows script is retained only until P12 removes launch support through an explicit reviewed change; it is never used as evidence of support. |
 | `src/_pages/SubscribedApp.tsx` sizing removal and `Queue.tsx` width change | P05 owns automatic compact sizing and expanded-only manual resize with display-clamping tests. |
@@ -200,27 +200,88 @@ review. A phase cannot use another open phase branch as its base.
 
 ## 6. Immutable local-gate contract
 
-P01 creates and documents these scripts. From P01 onward every phase runs them
-in the listed order from a clean checkout. `verify:test-manifest` fails if a
-tracked test disappeared, was renamed without a packet revision, contains
-`.skip`/`.todo`/`xit`/`xdescribe`, or did not execute. Test commands must print
-passed, failed, and skipped totals plus their raw exit code.
+P01 creates and tests `scripts/verification/phase-reporter.mjs`, the package
+script `verify:phase`, and immutable argv plans
+`scripts/verification/plans/P01.json` through `P12.json` plus the auxiliary
+`P12-observer.json`. From P01 onward a
+phase invokes only that reporter for the phase gate; none of the child commands
+below is run bare. The plan files contain argv arrays, test/non-test
+classification, expected raw exit, and minimum test count, and the reporter
+rejects shell strings, unknown labels, duplicate labels, or a plan whose hash
+does not match the committed manifest.
 
-```bash
-npm ci                                      # expected exit 0
-npm run verify:policy                       # expected exit 0
-npm run lint                                # expected exit 0
-npm run typecheck                           # expected exit 0
-npm run test:legacy -- --reporter=verbose   # expected exit 0; failed 0; skipped 0
-npm run test:unit -- --reporter=verbose     # expected exit 0; failed 0; skipped 0
-npm run verify:test-manifest                # expected exit 0
-npm run build                               # expected exit 0
-```
+For every plan entry the reporter, without `shell`, prints and logs the exact
+shell-escaped command, UTC start/end, duration, raw child exit or terminating
+signal, and numbered stdout/stderr log path. It tees output without changing the
+child result, records every raw exit, and continues after failures. For every
+test-classified entry it consumes the framework's machine-readable result (or
+the P01-tested adapter for native/manual suites) and prints
+`passed=<n> failed=<n> skipped=<n>`; missing/unparseable counts, any failure or
+skip, or a count below the plan minimum is itself a recorded failure. The
+reporter runs `verify:test-manifest` only after all test entries, writes one
+JSON and one text aggregate report with the plan hash, and exits 0 only when
+every child raw exit equals its expected value, all count requirements pass,
+and the manifest proves that every inherited, phase-owned, fixture, native,
+E2E, and manual procedure entry ran. Otherwise it exits 1 after the last entry.
+Injected-failure tests must prove that later commands still run and that the
+failed raw exit remains visible in both reports and the aggregate nonzero exit.
 
-Each phase adds one domain test script and runs it between `test:unit` and the
-manifest check. Exact commands and minimum named-test counts appear below.
-No implementer may edit the gate script and feature behavior in the same phase
-after P01; a required gate change needs a separate P00 packet revision.
+Every P01–P12 plan starts with these exact argv entries, in this order; all
+expect raw exit 0. The two test entries additionally require failed=0 and
+skipped=0. `test:legacy` executes the preserved legacy renderer test, while
+`test:unit` executes the complete inherited manifest from all merged phases;
+the phase-specific `test:pNN` entry then executes the current domain criteria.
+Therefore a current phase cannot replace its inherited regression suites with
+only its new tests.
+
+| Label | Exact child command | Classification |
+|---|---|---|
+| `install` | `npm ci` | non-test |
+| `policy` | `npm run verify:policy` | non-test |
+| `lint` | `npm run lint` | non-test |
+| `typecheck` | `npm run typecheck` | non-test |
+| `legacy` | `npm run test:legacy -- --reporter=verbose` | test |
+| `unit` | `npm run test:unit -- --reporter=verbose` | test |
+
+The plan then appends the exact phase entries below. Within each row, commands
+run left to right. Unless the row explicitly places it later, the reporter then
+runs `npm run verify:test-manifest` followed by `npm run build`, each with
+expected raw exit 0. All commands beginning `test:` and `qualify:` are
+test-classified and must print passed/failed/skipped counts.
+
+| Phase | Exact phase-plan child commands after `unit` |
+|---|---|
+| P01 | `npm run test:p01 -- --reporter=verbose` |
+| P02 | `npm run test:p02 -- --reporter=verbose` |
+| P03 | `npm run test:p03 -- --reporter=verbose` |
+| P04 | `npm run test:p04 -- --reporter=verbose` |
+| P05 | `npm run test:p05 -- --reporter=verbose`; `npm run test:electron-shell` |
+| P06 | `npm run test:p06 -- --reporter=verbose`; `npm run test:coding-fixtures` |
+| P07 | `npm run test:p07 -- --reporter=verbose`; `npm run test:system-design-fixtures` |
+| P08 | `npm run test:p08 -- --reporter=verbose`; `npm run test:behavioral-fixtures` |
+| P09 | `npm run test:p09 -- --reporter=verbose`; `npm run test:audio-native`; `npm run test:audio-retention` |
+| P10 | `npm run test:p10 -- --reporter=verbose`; `npm run test:prompt-adversarial` |
+| P11 | `npm run test:p11 -- --reporter=verbose`; `npm run test:history-roundtrip`; `npm run test:plaintext-scan` |
+| P12 | `npm run test:p12 -- --reporter=verbose`; `npm run test:e2e-macos`; `npm run test:staff-live-corpus`; `npm run build`; `npm run package:mac`; `npm run verify:mac-package`; `npm run verify:diagnostics`; `npm run qualify:meet -- --matrix docs/qualification/macos-google-meet.json --artifacts .artifacts/qualification --collect-missing`; `npm run verify:test-manifest`; `npm run verify:release` |
+
+The P12 row is complete and therefore does not receive the default manifest or
+build suffix. Package, diagnostics, Meet collection/validation, and final
+release validation are child commands of the same reporter and cannot bypass
+its raw-exit aggregate. `qualify:meet` launches collection when evidence is
+absent as specified in P12-M01/M02; it is not an artifact-presence shortcut.
+The remote device also uses the reporter, with the exact invocation
+`npm run verify:phase -- --phase P12 --role meet-observer --pair
+<one-time-pairing-url> --artifacts .artifacts/qualification-observer`.
+`P12-observer.json` runs `npm ci`, `npm run verify:policy`, and then
+`npm run qualify:meet:observer -- --pair <one-time-pairing-url>` without a
+shell; every child raw exit and the observer aggregate must be 0. Pair data is
+an argv value, never a shell string.
+
+Each phase section below gives the exact reporter invocation, expected
+aggregate exit, and minimum named-test count. P01 seeds all twelve phase plans
+and the P12 observer plan, so no later implementer edits the reporter or a plan
+alongside feature behavior. A required gate/plan change needs a new P00 packet
+revision.
 
 ## 7. Phase contracts
 
@@ -237,15 +298,18 @@ docs). Branch `phase/P01-local-gates`.
 **Scope.** Consolidate Vitest (including the unchanged tracked CRA sample),
 correct ESLint parsing/ignores rather than suppressing findings, fix all current
 strict TypeScript and lint failures without changing behavior, create the raw
-exit/count reporter and immutable test manifest, centralize capture protection,
-set canonical InterviewCopilot metadata, add policy scans, and document local
-gates. **Out of scope:** new session/provider/UI behavior, deleting the legacy
-renderer, dependency-vulnerability upgrades unrelated to making gates work,
-and external capture claims.
+exit/count reporter, all phase and P12-observer immutable argv plans, and
+immutable test manifest, centralize capture protection, set canonical
+InterviewCopilot metadata, add policy scans, and document local gates. **Out of
+scope:** new session/provider/UI behavior, deleting the legacy renderer,
+dependency-vulnerability upgrades unrelated to making gates work, and external
+capture claims.
 
 **Implementation requirements.** Use Node 20; keep lockfile deterministic;
 make root tests execute `renderer/src/App.test.tsx` unchanged; permit no skip or
-todo test forms; report raw exit plus passed/failed/skipped counts; fix all 105
+todo test forms; report exact command, raw exit, and passed/failed/skipped
+counts; accumulate injected failures while preserving their raw exits and make
+the final reporter aggregate nonzero; fix all 105
 lint and 48 type errors rather than excluding product code; make every window
 creation/reveal path call one `applyCaptureProtection` helper; add no false
 content-protection path; scan dependencies/source for analytics and automatic
@@ -277,7 +341,7 @@ must make each failure observable and fail closed.
 | P01-AC4: every BrowserWindow creation and reveal path invokes `applyCaptureProtection`, which calls `setContentProtection(true)` and never false. | `electron/captureProtection.test.ts — protects creation and reveal lifecycle paths` |
 | P01-AC5: package metadata and visible identity use InterviewCopilot and retain `AGPL-3.0-or-later`. | `tests/policy/productPolicy.test.ts — enforces canonical identity and AGPL metadata` |
 | P01-AC6: shipped source has no analytics SDK, device fingerprint, automatic crash-upload initialization, or environment-based secret logging. | `tests/policy/productPolicy.test.ts — rejects telemetry crash upload and secret logging entry points` |
-| P01-AC7: the verification reporter prints command, raw exit, and test passed/failed/skipped fields without converting nonzero to success. | `tests/policy/verificationReporter.test.ts — preserves raw failures and count fields` |
+| P01-AC7: the reporter validates immutable argv plans, logs every exact command/raw exit, prints passed/failed/skipped for every test entry, continues after an injected child failure, preserves that raw exit in JSON/text, and exits nonzero at the aggregate gate; missing counts and plan drift also fail. | `tests/policy/verificationReporter.test.ts — accumulates raw failures counts and immutable plan drift` |
 
 **Clean-checkout setup.** Every command must exit 0.
 
@@ -295,18 +359,11 @@ node -e 'if (Number(process.versions.node.split(".")[0]) !== 20) process.exit(1)
 P01 named tests passed, 0 failed, 0 skipped; the full suite may have more.
 
 ```bash
-npm ci
-npm run verify:policy
-npm run lint
-npm run typecheck
-npm run test:legacy -- --reporter=verbose
-npm run test:unit -- --reporter=verbose
-npm run test:p01 -- --reporter=verbose
-npm run verify:test-manifest
-npm run build
+npm run verify:phase -- --phase P01 --artifacts .artifacts/verification/P01
 ```
 
-Expected raw exit for every command is 0. **Regression suite:** all inherited
+Expected reporter aggregate exit is 0; every logged child raw exit is 0.
+**Regression suite.** all inherited
 tests, capture/screenshot behavior tests, full root unit suite, strict type
 check, lint, and production build. No baseline error is grandfathered.
 
@@ -315,7 +372,9 @@ artifact format, AGPL/privacy policy, and the non-claim that unit protection
 proves capture privacy.
 
 **Completion evidence (enumerated).** (1) commit SHA and base SHA; (2) clean
-status; (3) dependency install log; (4) one raw-exit/count report per gate;
+status; (3) dependency install log; (4) one aggregate JSON/text report with
+every child exact command/raw exit and test count plus an injected-failure
+artifact proving aggregate exit 1;
 (5) manifest diff proving the inherited test remains; (6) capture lifecycle
 test output; (7) build artifact list; (8) reviewer sign-off that no lint/type
 rule or source glob was weakened.
@@ -326,19 +385,21 @@ inside the single PR.
 
 **Self-contained implementation prompt.**
 
-> Implement P01 from P00-R1 on `phase/P01-local-gates`, based only on upstream
+> Implement P01 from P00-R2 on `phase/P01-local-gates`, based only on upstream
 > `main@9dcb4b2d…` plus merged planning docs. Do not import the dirty prototype.
 > Make local lint, strict type-check, real unit tests (including the unchanged
 > tracked CRA sample), manifest enforcement, and build green. Centralize and
 > lifecycle-test `setContentProtection(true)`, enforce InterviewCopilot/AGPL/no-
-> telemetry policy, print raw exits and test counts, add exactly the tests named
-> in P01, run the commands in order, and attach every enumerated artifact. Do
-> not add product features or waive existing failures.
+> telemetry policy, seed/validate the exact P01–P12 and P12-observer argv plans, print raw exits
+> and test counts, accumulate failures into a nonzero aggregate, add exactly the
+> tests named in P01, run the P01 reporter gate, and attach every enumerated
+> artifact. Do not add product features or waive existing failures.
 
 **Self-contained review prompt.**
 
-> Review P01 independently against P00-R1, not the author’s summary. From the
-> clean PR checkout run every P01 command, confirm the inherited CRA test ran,
+> Review P01 independently against P00-R2, not the author’s summary. From the
+> clean PR checkout run the P01 reporter invocation, confirm the inherited CRA
+> test ran,
 > inspect all config/glob/ignore changes for hidden coverage loss, compare typed
 > cleanup for behavior changes, and prove every window lifecycle applies true
 > content protection. Reject the PR for any missing raw count, skipped test,
@@ -349,8 +410,9 @@ inside the single PR.
 > Remediate P01 only. Evidence: `{failing command/raw exit/counts or review
 > finding}`. Root cause: `{confirmed cause}`. Change the smallest P01-owned
 > files, add/strengthen `{named regression test}`, preserve every inherited
-> gate and capture invariant, rerun the complete P01 sequence from `npm ci`,
-> and return new raw evidence plus the before/after commit SHAs.
+> gate and capture invariant, rerun the complete P01 plan (which begins with
+> `npm ci`) by invoking the reporter, and return every child raw exit/count,
+> aggregate exit, and the before/after commit SHAs.
 
 ### P02 — Subscription-only persistent agent runtime
 
@@ -368,48 +430,57 @@ normalized stream, usage, compaction, stop, resume, and error events; process
 safety; provider settings/onboarding; removal of OpenAI/Anthropic/Gemini answer
 SDK paths, API keys, Supabase, credits, plans, quotas, and subscription portal.
 **Out of scope:** interview domain orchestration, mode schemas, storage
-encryption, renderer answer layouts, cloud transcription, and cross-provider
+encryption, any on-disk provider conversation-ID persistence, app-restart
+recovery, renderer answer layouts, cloud transcription, and cross-provider
 fallback.
 
 **Implementation requirements.** Pin and validate supported CLI protocol
 versions; resolve only absolute executables; use `spawn` with `shell:false`;
 strip answer-provider secret overrides; cap output, timeout, abort gracefully,
 then force-kill; sanitize stderr; never expose auth tokens/account identifiers;
-keep one Claude session ID or Codex thread ID resumable across process/app
-restart; map provider events to one discriminated union; never launch the
-unselected provider after session selection; map Fast/Reasoning only to native
-supported controls and mark unsupported combinations unavailable.
+accept one caller-supplied opaque Claude session ID or Codex thread ID, retain
+it only in memory/test fixtures, and resume it across driver or child-process
+restart; write no provider ID/session/thread file or plaintext recovery record;
+map provider events to one discriminated union; never launch the unselected
+provider after session selection; map Fast/Reasoning only to native supported
+controls and mark unsupported combinations unavailable. P04, after P03, owns
+encrypted app-restart persistence and passes the recovered opaque ID back to
+this runtime.
 
 **Expected files/systems.** `electron/providers/**`, shared provider event and
 IPC types, `electron/config/**`, settings/onboarding UI, preload/IPC narrowing,
 provider fixtures/fake executables, package dependencies, and removal of legacy
-provider/entitlement modules and strings.
+provider/entitlement modules and strings. Runtime tests use caller-owned opaque
+IDs in memory-only fixtures; no P02 provider persistence directory is allowed.
 
 **Compatibility, migration, rollback.** P02 exclusively owns migration
 `M-01`: legacy `config.json` to versioned subscription config. Preserve
 language/opacity; remove and never rewrite legacy API keys/models/credits; take
 an owner-only backup with no key material before atomic replacement; repeated
-migration is idempotent. Rollback restores the backup only after explicit user
-choice because the old format contains disallowed secrets.
+migration is idempotent. M-01 must not add a provider conversation ID or
+session/thread recovery field. Rollback restores the backup only after explicit
+user choice because the old format contains disallowed secrets.
 
 **Security/failure modes.** PATH substitution, argument injection, inherited
 API keys changing billing, malformed stream events, output floods, zombie
 children, provider version drift, token leakage, accidental tool access,
-automatic fallback, and applying settings mid-session. Fake-executable tests
-cover all without a live subscription.
+automatic fallback, applying settings mid-session, and plaintext/native provider
+session persistence. Fake-executable tests cover all without a live
+subscription.
 
 **Acceptance criteria and named new tests.**
 
 | Criterion | Named test |
 |---|---|
 | P02-AC1: only `claude-code` and `codex` answer-provider IDs are accepted; legacy providers/API-key/credit/entitlement IPC and dependencies are absent. | `electron/providers/providerBoundary.test.ts — rejects legacy providers and entitlement surfaces` |
-| P02-AC2: two turns and an app restart resume the same Claude session and Codex thread respectively. | `electron/providers/persistence.contract.test.ts — resumes one conversation for both adapters` |
+| P02-AC2: two turns separated by driver and child-process restart resume the same Claude session and Codex thread when the caller supplies the same opaque ID; the runtime does not claim app-restart recovery. | `electron/providers/persistence.contract.test.ts — resumes caller-owned conversations after process restart` |
 | P02-AC3: selected provider failure emits a typed recoverable error and never starts the other provider. | `electron/providers/noFallback.contract.test.ts — never invokes the unselected provider` |
 | P02-AC4: provider, model, and response mode snapshot once; unsupported effort/model combinations cannot start and no silent substitution occurs. | `electron/providers/selectionSnapshot.test.ts — locks explicit provider model and effort` |
 | P02-AC5: normalized streams preserve text/typed payload, usage and compaction signals, stop, completion, and sanitized provider errors. | `electron/providers/eventNormalization.contract.test.ts — normalizes streaming and compaction events` |
 | P02-AC6: child processes use absolute paths, no shell, scrubbed answer-secret env, bounded output/time, and graceful-then-forceful cancellation. | `electron/providers/processSafety.test.ts — constrains provider child processes` |
 | P02-AC7: M-01 preserves language/opacity, removes legacy secrets/credits, writes mode 0600 atomically, and is idempotent. | `electron/config/configMigration.test.ts — migrates legacy settings once without persisting secrets` |
 | P02-AC8: first run requires exactly one installed/authenticated provider then lands on Start Interview without requesting capture/audio permission. | `src/features/onboarding/ProviderSetup.test.tsx — completes provider-only onboarding` |
+| P02-AC9: provider IDs/session/thread state exist only in caller memory or test fixtures; config, backups, logs, provider directories, and a full test filesystem byte scan contain no opaque-ID fixture, and M-01 has no conversation field. | `electron/providers/conversationIdBoundary.test.ts — prohibits plaintext provider conversation persistence` |
 
 **Clean-checkout setup.** Same expected exit policy as P01.
 
@@ -423,66 +494,69 @@ test -z "$(git status --porcelain)"
 node -e 'if (Number(process.versions.node.split(".")[0]) !== 20) process.exit(1)'
 ```
 
-**Verification commands, in order.** `test:p02` must report at least 8 named
+**Verification commands, in order.** `test:p02` must report at least 9 named
 tests passed, 0 failed, 0 skipped; every command exits 0.
 
 ```bash
-npm ci
-npm run verify:policy
-npm run lint
-npm run typecheck
-npm run test:legacy -- --reporter=verbose
-npm run test:unit -- --reporter=verbose
-npm run test:p02 -- --reporter=verbose
-npm run verify:test-manifest
-npm run build
+npm run verify:phase -- --phase P02 --artifacts .artifacts/verification/P02
 ```
 
+Expected reporter aggregate exit is 0; every logged child raw exit is 0.
+
 **Regression suite.** P01 gates, capture lifecycle, screenshot queues, config
-language/opacity behavior, fake provider process tests, and production build.
+language/opacity behavior, fake provider process tests, conversation-ID
+plaintext scans, and production build.
 Live Claude/Codex smoke tests are optional evidence and never replace fakes.
 
 **Docs.** Supported/minimum CLI versions, install/sign-in/reconnect, provider
 selection semantics, Fast/Reasoning availability, migration/rollback, process
-sandbox/tool restrictions, and explicit no-fallback/no-API-key boundaries.
+sandbox/tool restrictions, explicit no-fallback/no-API-key boundaries, and the
+in-memory-only P02 ID boundary with encrypted app-restart ownership deferred to
+P04/P03.
 
 **Completion evidence.** (1) SHAs/base; (2) clean gate report; (3) fake Claude
 two-turn/restart transcript; (4) fake Codex two-turn/restart transcript; (5)
 no-fallback process trace; (6) migration before/after with secrets redacted;
 (7) dependency and IPC removal scan; (8) UI keyboard/a11y test output;
-(9) supported CLI protocol fixture versions.
+(9) supported CLI protocol fixture versions; (10) test-filesystem/config/log
+byte scan proving the opaque conversation-ID fixture was never persisted.
 
 **Risk/complexity.** Very high/high. CLI protocol/auth behavior is external
 and evolving; pin capabilities and fail explicitly on unsupported versions.
 
 **Self-contained implementation prompt.**
 
-> Implement P02 from P00-R1 after P01, on
+> Implement P02 from P00-R2 after P01, on
 > `phase/P02-subscription-runtime`. Build a provider-neutral persistent runtime
 > for Claude Code and Codex only, using one resumable session/thread, normalized
 > streaming/usage/compaction/stop/error events, explicit provider/model/Fast-
 > Reasoning snapshots, and no fallback. Migrate legacy config through M-01,
 > remove every legacy answer API key/provider/credit/paywall surface, create the
-> named fake-executable tests, run the exact P02 gates, and attach the evidence.
-> Do not implement interview orchestration or reuse one-shot prototype code.
+> named fake-executable tests, accept only caller-supplied opaque conversation
+> IDs held in memory, and prove no ID/provider session persists to plaintext.
+> Run the exact P02 reporter gate and attach the evidence. Do not implement app-
+> restart recovery, interview orchestration, or reuse one-shot prototype code.
 
 **Self-contained review prompt.**
 
-> Review P02 against P00-R1 from a clean checkout. Trace both fake providers
-> through two turns, stop, compaction, restart, and resume; force every failure
-> and prove the other provider never starts. Inspect spawn/env/tool restrictions,
-> IPC exposure, migration idempotence/file mode, dependency removals, model/
-> effort locking, and provider-only onboarding. Run all P02 commands and reject
-> any live-credential requirement, legacy path, secret leak, silent fallback,
-> ephemeral conversation, skipped test, or gate failure.
+> Review P02 against P00-R2 from a clean checkout. Trace both fake providers
+> through two turns, stop, compaction, driver/child restart, and caller-ID
+> resume; force every failure and prove the other provider never starts. Inspect
+> spawn/env/tool restrictions, IPC exposure, migration idempotence/file mode,
+> dependency removals, model/effort locking, provider-only onboarding, and a
+> full filesystem scan for the opaque-ID fixture. Run the P02 reporter gate and
+> reject any live-credential requirement, legacy path, plaintext provider ID,
+> P02-owned app recovery, secret leak, silent fallback, ephemeral conversation,
+> skipped test, or gate failure.
 
 **Remediation prompt template.**
 
 > Remediate P02 only for `{failed criterion/evidence}`. Reproduce with the fake
 > provider fixture, state the confirmed runtime or migration cause, change the
 > smallest provider/config/onboarding surface, add or strengthen `{P02 named
-> test}`, prove no unselected process ran and no secret persisted, rerun all P02
-> commands from `npm ci`, and return raw exits/counts plus new SHAs.
+> test}`, prove no unselected process ran and no secret or conversation ID
+> persisted, rerun the complete P02 reporter plan (which begins with `npm ci`),
+> and return every child raw exit/count plus the aggregate exit and new SHAs.
 
 ### P03 — Encrypted local persistence foundation
 
@@ -554,16 +628,10 @@ node -e 'if (Number(process.versions.node.split(".")[0]) !== 20) process.exit(1)
 passed, 0 failed, 0 skipped; every raw exit is 0.
 
 ```bash
-npm ci
-npm run verify:policy
-npm run lint
-npm run typecheck
-npm run test:legacy -- --reporter=verbose
-npm run test:unit -- --reporter=verbose
-npm run test:p03 -- --reporter=verbose
-npm run verify:test-manifest
-npm run build
+npm run verify:phase -- --phase P03 --artifacts .artifacts/verification/P03
 ```
+
+Expected reporter aggregate exit is 0; every logged child raw exit is 0.
 
 **Regression suite.** P01 gates, capture behavior, screenshot creation/deletion,
 config persistence, path safety, and build. Run storage tests on a case-
@@ -584,17 +652,17 @@ never custom cryptography.
 
 **Self-contained implementation prompt.**
 
-> Implement P03 from P00-R1 after P01 on
+> Implement P03 from P00-R2 after P01 on
 > `phase/P03-encrypted-persistence`. Build the Keychain-backed installation-key
 > service, versioned AES-256-GCM record/blob store, atomic writes, encrypted
 > in-memory-search source, typed recovery, raw-audio rejection, and journaled
 > M-02/M-03 migrations exactly as specified. Add all P03 named tests and threat-
-> model docs, run the exact clean gates, and attach enumerated evidence. Do not
+> model docs, run the complete P03 reporter plan, and attach enumerated evidence. Do not
 > implement session, History, provider, profile, or template behavior.
 
 **Self-contained review prompt.**
 
-> Threat-model and review P03 independently. Run every clean gate, inspect key
+> Threat-model and review P03 independently. Run the P03 reporter plan, inspect key
 > storage, nonce generation, AAD, atomicity, permissions, path canonicalization,
 > temp handling, raw-audio rejection, and both migrations under interruption.
 > Search fixture storage byte-for-byte for plaintext. Reject home-grown crypto,
@@ -606,8 +674,9 @@ never custom cryptography.
 > Remediate P03 only for `{crypto/storage/migration finding}`. Preserve the
 > failing fixture and journal as evidence, identify the exact invariant breach,
 > make the smallest storage-owned change, add or strengthen `{P03 named test}`,
-> prove no plaintext/key remains and interruption is recoverable, rerun all P03
-> gates from `npm ci`, and return raw exits/counts plus new SHAs.
+> prove no plaintext/key remains and interruption is recoverable, rerun the
+> complete P03 reporter plan (starting with `npm ci`), and return every child
+> raw exit/count, aggregate exit, and new SHAs.
 
 ### P04 — Interview session domain and orchestrator
 
@@ -623,8 +692,10 @@ progressive sections, cancel/continue, Reset, and crash snapshots.
 provider/model/response snapshot; persistent provider-conversation binding;
 input artifacts and pending-selection semantics; screenshot-over-transcript
 authority; context status/detail; typed response-section streaming; request IDs,
-cancellation and Continue unfinished; Coding question-branch primitive; encrypted
-active-session snapshots. **Out of scope:** final shell visuals, mode renderers,
+cancellation and Continue unfinished; curated-response versus compact-chat
+routing; best-effort/clarification/correction policy; Coding question-branch
+primitive; encrypted active-session snapshots and encrypted provider
+conversation-ID recovery. **Out of scope:** final shell visuals, mode renderers,
 capture implementations, transcript engine, History UI/export, and templates.
 
 **Implementation requirements.** Reducer is deterministic and exhaustively
@@ -634,24 +705,36 @@ submitted artifacts cannot be duplicated; excluded artifacts remain local and
 pending until discard/submit; Reset cancels capture/provider work, discards the
 native conversation, seals an archive-ready snapshot, clears active state, and
 preserves preferences/reusable records; partial output remains after cancel;
-Continue unfinished reuses request identity and only missing section IDs.
+Continue unfinished reuses request identity and only missing section IDs; the
+P02 runtime receives its opaque conversation ID from P04 and never persists it,
+while P04 writes it only inside the P03 encrypted snapshot and restores it only
+after explicit Resume. Structured mode-valid responses update curated sections;
+ordinary clarification remains compact chat. Generation is never blocked by a
+confidence threshold, and correction deltas revise only affected sections.
 
 **Expected files/systems.** `src/domain/interview/**`,
 `electron/orchestrator/**`, shared IPC/event schemas, reducer/selectors, provider
 driver integration, encrypted active-session repository adapter, fake clock/ID/
-provider fixtures, and replacement of global `view/problemInfo/hasDebugged`.
+provider fixtures, response router/correction impact fixtures, and replacement
+of global `view/problemInfo/hasDebugged`.
 
 **Compatibility, migration, rollback.** P04 exclusively owns `M-04`, encrypted
 InterviewSession schema v1. Existing plaintext queues are imported only through
 P03 M-02 as unattached artifacts; they are never silently treated as a live
-session. Schema upgrades are forward-version rejected and rollback retains the
-encrypted v1 record without lossy conversion.
+session. M-04 includes the opaque provider conversation ID only inside the
+authenticated encrypted envelope; no plaintext config, index, log, or provider
+session file may contain it. Schema upgrades are forward-version rejected and
+rollback retains the encrypted v1 record without lossy conversion.
 
 **Security/failure modes.** Duplicate evidence on retry, stale/out-of-order
 stream events, cross-session event bleed, Coding personal-context leak, provider
 compaction misreported as data loss, Reset racing with writes, cancellation
 destroying native session, partial response replacing complete content, and
-malformed IPC. Reducer/property tests and fake provider traces cover them.
+malformed IPC. Additional failures are a context popover overstating included
+sources, chat opening a second conversation, ordinary clarification overwriting
+curated state, confidence blocking an answer, correction rewriting unaffected
+sections, and plaintext conversation-ID recovery. Reducer/property tests,
+filesystem scans, and fake provider traces cover them.
 
 **Acceptance criteria and named new tests.**
 
@@ -666,7 +749,12 @@ malformed IPC. Reducer/property tests and fake provider traces cover them.
 | P04-AC7: stable typed sections publish progressively without reorder or completed-section replacement. | `electron/orchestrator/progressiveSections.test.ts — streams stable independently final sections` |
 | P04-AC8: Cancel preserves completed/partial output and native conversation; Continue unfinished requests only incomplete IDs with the same request identity. | `electron/orchestrator/cancelContinue.test.ts — resumes unfinished sections without duplicate evidence` |
 | P04-AC9: Reset cancels work, seals an encrypted archive-ready record, discards provider conversation, clears active artifacts, and preserves settings/reusable data. | `electron/orchestrator/resetSemantics.test.ts — performs the sole terminal lifecycle transition` |
-| P04-AC10: restart offers Resume or Reset from the last valid encrypted snapshot and never auto-resumes capture. | `electron/orchestrator/crashRecovery.test.ts — restores session state with capture off` |
+| P04-AC10: app restart offers Resume or Reset from the last valid encrypted snapshot, passes the recovered opaque ID to P02 to resume the same provider conversation only after Resume, never auto-resumes capture, and leaves no ID fixture in plaintext config/index/log/provider files. | `electron/orchestrator/crashRecovery.test.ts — restores one encrypted provider conversation with capture off` |
+| P04-AC11: the detail popover shows snapshotted provider/model/mode, last successful update, exact source-category counts, profile/opportunity included or Coding-excluded state, and only provider-reported usage/compaction; its main label follows AC6 and never claims original tokens remain verbatim. | `src/domain/interview/contextDetail.test.ts — renders exact honest source-level context detail` |
+| P04-AC12: mode actions, typed chat, and compact clarification use the same opaque provider conversation ID and ordered context stream; no chat-only driver, process, session, or thread is created. | `electron/orchestrator/sharedConversation.test.ts — routes curated and chat turns through one conversation` |
+| P04-AC13: a response satisfying the locked mode schema updates only its typed curated sections, while an ordinary non-schema clarification appears as a compact exchange and preserves the last curated answer byte-for-byte. | `electron/orchestrator/responseRouting.test.ts — separates structured updates from compact clarification` |
+| P04-AC14: uncertain input still produces best-effort output with no numeric confidence field or blocking review state, states only consequential assumptions, and includes clarification suggestions exactly when a frozen impact fixture says the missing answer can materially change the result. | `electron/orchestrator/bestEffortClarification.test.ts — answers without confidence gates and suggests material clarifications` |
+| P04-AC15: a correction submitted through chat is a context delta on the current branch, revises exactly the fixture-declared affected section IDs, preserves every unaffected section byte-for-byte, and returns the changed-section set. | `electron/orchestrator/correctionRevision.test.ts — applies correction-scoped revision without collateral changes` |
 
 **Clean-checkout setup.** Every command exits 0.
 
@@ -680,64 +768,71 @@ test -z "$(git status --porcelain)"
 node -e 'if (Number(process.versions.node.split(".")[0]) !== 20) process.exit(1)'
 ```
 
-**Verification commands, in order.** `test:p04` reports at least 10 named
+**Verification commands, in order.** `test:p04` reports at least 15 named
 tests passed, 0 failed, 0 skipped; every raw exit is 0.
 
 ```bash
-npm ci
-npm run verify:policy
-npm run lint
-npm run typecheck
-npm run test:legacy -- --reporter=verbose
-npm run test:unit -- --reporter=verbose
-npm run test:p04 -- --reporter=verbose
-npm run verify:test-manifest
-npm run build
+npm run verify:phase -- --phase P04 --artifacts .artifacts/verification/P04
 ```
+
+Expected reporter aggregate exit is 0; every logged child raw exit is 0.
 
 **Regression suite.** P01–P03 complete suites, provider fake contracts,
 encrypted storage migration/recovery, capture lifecycle, screenshot queue
-compatibility, and production build.
+compatibility, P02 conversation-ID plaintext boundary, and production build.
 
 **Docs.** State/event diagrams, schema/event catalog, context inclusion table,
 request idempotency, status semantics, Reset/cancel/recovery behavior, and M-04
-version/rollback.
+version/rollback; document the context-detail fields, one-conversation
+chat/curated routing table, best-effort/clarification policy, correction impact
+contract, and encrypted ID ownership boundary.
 
 **Completion evidence.** (1) SHAs/base; (2) full gates/counts; (3) reducer
 property seed/corpus; (4) first-turn/delta traces for each mode; (5) explicit
 Coding exclusion byte scan; (6) cancel/continue trace; (7) Reset before/after
-record; (8) crash/relaunch transcript; (9) schema fixture.
+record; (8) crash/relaunch transcript plus plaintext ID scan; (9) schema
+fixture; (10) context-popover snapshot; (11) shared conversation/process trace;
+(12) structured-versus-compact routing trace; (13) best-effort/clarification
+fixture report; (14) correction before/after section hashes.
 
 **Risk/complexity.** Very high/very high. This is the central consistency
 boundary; no renderer or provider may keep a second authoritative session.
 
 **Self-contained implementation prompt.**
 
-> Implement P04 from P00-R1 after P02/P03 on
+> Implement P04 from P00-R2 after P02/P03 on
 > `phase/P04-session-orchestrator`. Replace global transient state with the
 > deterministic InterviewSession reducer, typed event/IPC contract, one
 > persistent-conversation orchestrator, context/delta policy, pending artifacts,
 > screenshot authority, progressive sections, cancel/continue, Reset, encrypted
-> snapshot/recovery, and M-04 exactly as specified. Add the ten named tests, run
-> all P04 gates, attach evidence, and do not build final shell/mode/audio/History
-> UI or import prototype orchestration.
+> snapshot/recovery (including the opaque provider ID), exact context detail,
+> one-conversation curated/chat routing, structured-versus-compact response
+> routing, best-effort clarification, correction-scoped revision, and M-04
+> exactly as specified. Add the fifteen named tests, run the complete P04
+> reporter plan, attach all evidence, and do not build final shell/mode/audio/
+> History UI or import prototype orchestration.
 
 **Self-contained review prompt.**
 
 > Review P04 as the sole session authority. Run all gates and property tests;
 > trace every event, first-turn seed, delta, pending-artifact transition,
-> compaction signal, cancel/continue, Reset race, and crash restart. Search a
-> Coding trace for dossier/opportunity bytes. Reject duplicate state stores,
-> Markdown-as-domain-state, artifact resends, section reorder, silent invalid
-> transitions, capture auto-resume, skipped tests, or nonzero gates.
+> compaction signal/detail field, curated/chat turn, response-routing branch,
+> best-effort/clarification fixture, correction impact, cancel/continue, Reset
+> race, and encrypted crash restart. Search a Coding trace for dossier/
+> opportunity bytes and all plaintext files/logs for the opaque ID fixture.
+> Reject duplicate conversations/state stores, Markdown-as-domain-state,
+> artifact resends, section reorder, confidence gates, collateral correction,
+> silent invalid transitions, capture auto-resume, skipped tests, or nonzero
+> gates.
 
 **Remediation prompt template.**
 
 > Remediate P04 only for `{state/orchestration criterion}` using the smallest
 > reducer/orchestrator/schema change. Add the exact failing event sequence to
 > `{P04 named test}`, prove idempotency and no cross-session/personal-context
-> leak, rerun every P04 command from `npm ci`, and return raw counts, traces,
-> migration compatibility, and new SHAs.
+> or plaintext-ID leak, rerun the complete P04 reporter plan (starting with
+> `npm ci`), and return every raw exit/count, aggregate exit, routing/section
+> traces, migration compatibility, and new SHAs.
 
 ### P05 — Quiet Signal live shell, window, and capture controls
 
@@ -816,21 +911,13 @@ node -e 'if (Number(process.versions.node.split(".")[0]) !== 20) process.exit(1)
 tests passed, 0 failed, 0 skipped; every raw exit is 0.
 
 ```bash
-npm ci
-npm run verify:policy
-npm run lint
-npm run typecheck
-npm run test:legacy -- --reporter=verbose
-npm run test:unit -- --reporter=verbose
-npm run test:p05 -- --reporter=verbose
-npm run verify:test-manifest
-npm run build
-npm run test:electron-shell
+npm run verify:phase -- --phase P05 --artifacts .artifacts/verification/P05
 ```
 
+Expected reporter aggregate exit is 0; every logged child raw exit is 0.
+
 `test:electron-shell` exits 0 on macOS and records window bounds, protection
-application, screenshot-display ID, and pointer-region results. **Regression
-suite:** all P01–P04 tests, provider/storage/session contracts, capture queues,
+application, screenshot-display ID, and pointer-region results. **Regression suite.** all P01–P04 tests, provider/storage/session contracts, capture queues,
 preload IPC allowlist, accessibility, and production build.
 
 **Docs.** Window-state and focus diagrams, shortcut reference, display recovery,
@@ -848,14 +935,15 @@ display behavior is platform-sensitive and directly touches privacy regression.
 
 **Self-contained implementation prompt.**
 
-> Implement P05 from P00-R1 after P04 on `phase/P05-live-shell`. Build the
+> Implement P05 from P00-R2 after P04 on `phase/P05-live-shell`. Build the
 > exact Quiet Signal hidden/compact/answer/expanded shell, command rail,
 > composer, input tray, explicit click-through/drag regions, final remappable
 > shortcuts, display-aware geometry, primary-display screenshot behavior,
 > tokens and accessibility presets. Preserve protection before every show and
 > prior visibility across capture. Add the ten named tests, run all P05 gates
-> including macOS Electron shell, and attach evidence. Do not add mode answers,
-> audio, History, Prompt Studio, or unqualified capture claims.
+> through the P05 reporter including macOS Electron shell, and attach evidence.
+> Do not add mode answers, audio, History, Prompt Studio, or unqualified capture
+> claims.
 
 **Self-contained review prompt.**
 
@@ -872,8 +960,9 @@ display behavior is platform-sensitive and directly touches privacy regression.
 > Remediate P05 only for `{shell/window/capture criterion}`. Attach the exact
 > display/window/input reproduction, fix the smallest P05-owned service or
 > primitive, add/strengthen `{P05 named test}`, recheck protection and prior
-> visibility, rerun every P05 command including `test:electron-shell`, and
-> return raw counts, artifact paths, and new SHAs.
+> visibility, rerun the complete P05 reporter plan including
+> `test:electron-shell`, and return every raw exit/count, aggregate exit,
+> artifact paths, and new SHAs.
 
 ### P06 — Coding mode and primary-display debugging
 
@@ -944,20 +1033,13 @@ node -e 'if (Number(process.versions.node.split(".")[0]) !== 20) process.exit(1)
 passed, 0 failed, 0 skipped; every raw exit is 0.
 
 ```bash
-npm ci
-npm run verify:policy
-npm run lint
-npm run typecheck
-npm run test:legacy -- --reporter=verbose
-npm run test:unit -- --reporter=verbose
-npm run test:p06 -- --reporter=verbose
-npm run verify:test-manifest
-npm run test:coding-fixtures
-npm run build
+npm run verify:phase -- --phase P06 --artifacts .artifacts/verification/P06
 ```
 
+Expected reporter aggregate exit is 0; every logged child raw exit is 0.
+
 `test:coding-fixtures` exits 0 and reports all six first-class families passed,
-0 failed, 0 skipped. **Regression suite:** P01–P05, provider/session no-fallback,
+0 failed, 0 skipped. **Regression suite.** P01–P05, provider/session no-fallback,
 Coding personal-context exclusion, shell shortcuts/capture/protection, storage,
 and production build.
 
@@ -975,12 +1057,12 @@ regress silently; fixture contracts are merge-blocking.
 
 **Self-contained implementation prompt.**
 
-> Implement P06 from P00-R1 after P05 on `phase/P06-coding`. Add the exact
+> Implement P06 from P00-R2 after P05 on `phase/P06-coding`. Add the exact
 > typed Coding intents/schema/renderer, concise-first progressive answer,
 > language snapshot and six-family fixtures, read-only actions, New Question,
 > and isolated `Control+Shift+D` versioned Fix flow. Enforce no personal context,
 > tools, execution, fallback, or staged-artifact consumption. Own M-05b, add all
-> nine named tests, run the exact gates/fixture matrix, and attach evidence.
+> nine named tests, run the P06 reporter plan/fixture matrix, and attach evidence.
 
 **Self-contained review prompt.**
 
@@ -996,8 +1078,8 @@ regress silently; fixture contracts are merge-blocking.
 > Remediate P06 only for `{intent/language/branch/debug criterion}`. Add the
 > failing problem/language/event trace to `{P06 named test or first-class
 > fixture}`, make the smallest Coding-owned change, prove isolation/no fallback,
-> rerun all P06 commands and the six-family matrix, and return raw counts,
-> request/response traces, and new SHAs.
+> rerun the complete P06 reporter plan and six-family matrix, and return every
+> raw exit/count, aggregate exit, request/response traces, and new SHAs.
 
 ### P07 — System Design mode and structured architecture
 
@@ -1067,20 +1149,13 @@ node -e 'if (Number(process.versions.node.split(".")[0]) !== 20) process.exit(1)
 passed, 0 failed, 0 skipped; every raw exit is 0.
 
 ```bash
-npm ci
-npm run verify:policy
-npm run lint
-npm run typecheck
-npm run test:legacy -- --reporter=verbose
-npm run test:unit -- --reporter=verbose
-npm run test:p07 -- --reporter=verbose
-npm run verify:test-manifest
-npm run test:system-design-fixtures
-npm run build
+npm run verify:phase -- --phase P07 --artifacts .artifacts/verification/P07
 ```
 
+Expected reporter aggregate exit is 0; every logged child raw exit is 0.
+
 Fixture command exits 0 with all design/vendor/follow-up cases passed, failed 0,
-skipped 0. **Regression suite:** P01–P05, provider/session/storage, shell section
+skipped 0. **Regression suite.** P01–P05, provider/session/storage, shell section
 navigation, accessibility, capture protection, and build.
 
 **Docs.** Response/graph schemas, allowed node types, estimate policy,
@@ -1097,11 +1172,11 @@ must not become a second untyped document model.
 
 **Self-contained implementation prompt.**
 
-> Implement P07 from P00-R1 after P05 on `phase/P07-system-design`. Add the
+> Implement P07 from P00-R2 after P05 on `phase/P07-system-design`. Add the
 > fixed typed five-section progressive workflow, bounded material estimates,
 > safe vendor-neutral structured diagram, read-only accessible interactions,
 > assumption handling, dependency-scoped follow-up and What changed summary.
-> Add all eight named tests/fixtures, run exact gates, attach evidence, and do
+> Add all eight named tests/fixtures, run the P07 reporter plan, attach evidence, and do
 > not add diagram editing/export, vendor node types, Prompt Studio, or profile UI.
 
 **Self-contained review prompt.**
@@ -1118,7 +1193,8 @@ must not become a second untyped document model.
 > Remediate P07 only for `{schema/estimate/diagram/follow-up criterion}`. Add the
 > failing graph or event to `{P07 named fixture}`, change the smallest System
 > Design-owned validator/renderer/policy, prove unaffected hashes and no export,
-> rerun all P07 gates/fixtures, and return raw counts, diffs, and new SHAs.
+> rerun the complete P07 reporter plan/fixtures, and return every raw exit/count,
+> aggregate exit, diffs, and new SHAs.
 
 ### P08 — Candidate profile, opportunity context, and Behavioral mode
 
@@ -1193,20 +1269,13 @@ node -e 'if (Number(process.versions.node.split(".")[0]) !== 20) process.exit(1)
 tests passed, 0 failed, 0 skipped; every raw exit is 0.
 
 ```bash
-npm ci
-npm run verify:policy
-npm run lint
-npm run typecheck
-npm run test:legacy -- --reporter=verbose
-npm run test:unit -- --reporter=verbose
-npm run test:p08 -- --reporter=verbose
-npm run verify:test-manifest
-npm run test:behavioral-fixtures
-npm run build
+npm run verify:phase -- --phase P08 --artifacts .artifacts/verification/P08
 ```
 
+Expected reporter aggregate exit is 0; every logged child raw exit is 0.
+
 Fixture command exits 0 with verified/synthetic/import cases passed, 0 failed,
-0 skipped. **Regression suite:** P01–P06 plus P07 if already merged, storage
+0 skipped. **Regression suite.** P01–P06 plus P07 if already merged, storage
 plaintext scans, session context policy, Coding isolation, shell/accessibility,
 provider no-fallback, and build.
 
@@ -1224,13 +1293,14 @@ integrity are product trust boundaries.
 
 **Self-contained implementation prompt.**
 
-> Implement P08 from P00-R1 after P05 on `phase/P08-behavioral`. Build the
+> Implement P08 from P00-R2 after P05 on `phase/P08-behavioral`. Build the
 > encrypted canonical candidate dossier, guided/manual reviewed editing,
 > sanitized Markdown import/export, multiple snapshotted opportunities,
 > provenance, opt-in labeled persistent synthetic stories, and typed Behavioral
 > views with same-facts Full Answer. Route context only to Behavioral/System
-> Design, never Coding. Own M-06, add ten named tests/fixtures, run exact gates,
-> attach evidence, and add no Practice or plaintext personal index.
+> Design, never Coding. Own M-06, add ten named tests/fixtures, run the complete
+> P08 reporter plan, attach evidence, and add no Practice or plaintext personal
+> index.
 
 **Self-contained review prompt.**
 
@@ -1247,8 +1317,8 @@ integrity are product trust boundaries.
 > Remediate P08 only for `{privacy/provenance/factuality/context criterion}`.
 > Preserve the failing dossier/import/trace fixture, make the smallest profile
 > or Behavioral-owned fix, strengthen `{P08 named test}`, repeat plaintext and
-> three-mode scans, rerun every P08 command/fixture, and return raw counts,
-> fact/context diffs, and new SHAs.
+> three-mode scans, rerun the complete P08 reporter plan/fixtures, and return
+> every raw exit/count, aggregate exit, fact/context diffs, and new SHAs.
 
 ### P09 — macOS audio capture, transcription, and question detection
 
@@ -1331,21 +1401,13 @@ node -e 'if (Number(process.versions.node.split(".")[0]) !== 20) process.exit(1)
 tests passed, 0 failed, 0 skipped; every raw exit is 0.
 
 ```bash
-npm ci
-npm run verify:policy
-npm run lint
-npm run typecheck
-npm run test:legacy -- --reporter=verbose
-npm run test:unit -- --reporter=verbose
-npm run test:p09 -- --reporter=verbose
-npm run verify:test-manifest
-npm run test:audio-native
-npm run test:audio-retention
-npm run build
+npm run verify:phase -- --phase P09 --artifacts .artifacts/verification/P09
 ```
 
+Expected reporter aggregate exit is 0; every logged child raw exit is 0.
+
 Native/retention commands exit 0 and print passed/failed/skipped counts; fixture
-audio contains no interview/user content. **Regression suite:** P01–P05,
+audio contains no interview/user content. **Regression suite.** P01–P05,
 provider no-fallback, session pending artifacts/Reset/recovery, encrypted storage
 raw-audio rejection, shell visibility/shortcuts/accessibility, and build.
 
@@ -1364,7 +1426,7 @@ packaging, privacy, and transcription latency are launch-critical.
 
 **Self-contained implementation prompt.**
 
-> Implement P09 from P00-R1 after P05 on `phase/P09-audio`, macOS only. Build
+> Implement P09 from P00-R2 after P05 on `phase/P09-audio`, macOS only. Build
 > explicit two-source native capture, deterministic master/per-source controls,
 > contextual permission recovery, pinned offline whisper.cpp transcription,
 > explicit Apple Speech remote fallback, typed segments/attribution/correction,
@@ -1387,8 +1449,9 @@ packaging, privacy, and transcription latency are launch-critical.
 > Remediate P09 only for `{capture/transcription/privacy criterion}`. Preserve
 > the exact macOS/version/permission/audio fixture trace, fix the smallest
 > audio-owned native/adapter/state path, strengthen `{P09 named test}`, repeat
-> offline/remote-consent and byte-retention scans, rerun all P09 commands, and
-> return raw counts, artifacts, and new SHAs.
+> offline/remote-consent and byte-retention scans, rerun the complete P09
+> reporter plan, and return every raw exit/count, aggregate exit, artifacts,
+> and new SHAs.
 
 ### P10 — Prompt Studio and protected template variants
 
@@ -1458,20 +1521,13 @@ node -e 'if (Number(process.versions.node.split(".")[0]) !== 20) process.exit(1)
 passed, 0 failed, 0 skipped; every raw exit is 0.
 
 ```bash
-npm ci
-npm run verify:policy
-npm run lint
-npm run typecheck
-npm run test:legacy -- --reporter=verbose
-npm run test:unit -- --reporter=verbose
-npm run test:p10 -- --reporter=verbose
-npm run verify:test-manifest
-npm run test:prompt-adversarial
-npm run build
+npm run verify:phase -- --phase P10 --artifacts .artifacts/verification/P10
 ```
 
+Expected reporter aggregate exit is 0; every logged child raw exit is 0.
+
 Adversarial command exits 0 with every escalation fixture passed, 0 failed, 0
-skipped. **Regression suite:** P01–P08 (and P09 when merged), all mode schemas,
+skipped. **Regression suite.** P01–P08 (and P09 when merged), all mode schemas,
 provider/session no-fallback and context isolation, encrypted storage, shell,
 accessibility, and build.
 
@@ -1489,12 +1545,12 @@ must never become a capability or schema escape hatch.
 
 **Self-contained implementation prompt.**
 
-> Implement P10 from P00-R1 after P06/P07/P08 on
+> Implement P10 from P00-R2 after P06/P07/P08 on
 > `phase/P10-prompt-studio`. Build synchronized reviewed-diff Chat/Manage,
 > immutable built-ins, complete encrypted user CRUD, core-mode-only schemas,
 > deterministic recorded instruction resolution, Start snapshotting, protected
 > invariant/capability enforcement, and M-08. Add eight named tests and the
-> adversarial suite, run all exact gates, attach evidence, and add no arbitrary
+> adversarial suite, run the complete P10 reporter plan, attach evidence, and add no arbitrary
 > schema/custom mode/sharing/plugin capability.
 
 **Self-contained review prompt.**
@@ -1511,8 +1567,8 @@ must never become a capability or schema escape hatch.
 > Remediate P10 only for `{CRUD/schema/conflict/security criterion}`. Add the
 > exact malicious or state-transition input to `{P10 named/adversarial test}`,
 > make the smallest Prompt Studio/composition fix, prove protected invariants
-> and encrypted storage, rerun all P10 commands, and return raw counts,
-> effective-instruction diff, and new SHAs.
+> and encrypted storage, rerun the complete P10 reporter plan, and return every
+> raw exit/count, aggregate exit, effective-instruction diff, and new SHAs.
 
 ### P11 — Crash recovery, searchable History, export, and deletion
 
@@ -1582,21 +1638,13 @@ node -e 'if (Number(process.versions.node.split(".")[0]) !== 20) process.exit(1)
 passed, 0 failed, 0 skipped; every raw exit is 0.
 
 ```bash
-npm ci
-npm run verify:policy
-npm run lint
-npm run typecheck
-npm run test:legacy -- --reporter=verbose
-npm run test:unit -- --reporter=verbose
-npm run test:p11 -- --reporter=verbose
-npm run verify:test-manifest
-npm run test:history-roundtrip
-npm run test:plaintext-scan
-npm run build
+npm run verify:phase -- --phase P11 --artifacts .artifacts/verification/P11
 ```
 
+Expected reporter aggregate exit is 0; every logged child raw exit is 0.
+
 Round-trip/plaintext commands exit 0 with all fixtures passed, failed 0,
-skipped 0. **Regression suite:** every P01–P10 test, all three modes, audio raw-
+skipped 0. **Regression suite.** every P01–P10 test, all three modes, audio raw-
 retention, provider/session recovery, storage migrations, prompt/profile data
 isolation, shell/accessibility, and build.
 
@@ -1614,12 +1662,12 @@ content and destructive user controls.
 
 **Self-contained implementation prompt.**
 
-> Implement P11 from P00-R1 after P06–P10 on
+> Implement P11 from P00-R2 after P06–P10 on
 > `phase/P11-history-recovery`. Add explicit crash Resume/Reset, complete
 > encrypted archive projection, Settings-only in-memory search/open/delete one/
 > all, safe consented individual Markdown/JSON export, read-only archive open,
 > indefinite retention, M-09, and strict no-audio/secret/plaintext-index rules.
-> Add eight named tests/round-trip/scans, run every exact gate, and attach all
+> Add eight named tests/round-trip/scans, run the complete P11 reporter plan, and attach all
 > evidence. Add no tags/favorites/bulk/cloud/pruning/live History surface.
 
 **Self-contained review prompt.**
@@ -1636,8 +1684,8 @@ content and destructive user controls.
 > Remediate P11 only for `{recovery/archive/search/export/delete criterion}`.
 > Preserve the failing encrypted fixture/journal, make the smallest History-
 > owned change, strengthen `{P11 named test}`, repeat round-trip/plaintext/data-
-> isolation checks, rerun all P11 commands, and return raw counts, hashes,
-> journals, and new SHAs.
+> isolation checks, rerun the complete P11 reporter plan, and return every raw
+> exit/count, aggregate exit, hashes, journals, and new SHAs.
 
 ### P12 — macOS release hardening and Google Meet qualification
 
@@ -1666,8 +1714,16 @@ local preview.
 **Implementation requirements.** At RC cut, freeze exact InterviewCopilot
 commit/version, the latest Apple-supported stable macOS patch available on each
 claimed arm64/x64 test machine, current stable Chrome, Meet version, display
-mode, and architecture; qualify each supported tuple separately;
-entire-display and specific-window require confirmation from remote Meet view or
+mode, and architecture. The shipped matrix contains full concrete values
+(`ProductVersion` plus `BuildVersion`, Chrome four-part version, visible Meet
+client/build identifier, app semver plus full commit SHA, architecture, display
+pixel dimensions/scaling, and internal/external display type), never `latest`,
+a range, or a wildcard. Those exact passing tuples—and no neighboring patch,
+major version, browser, app build, architecture, or display mode—are the
+supported macOS/browser/app versions until separately qualified. Qualify each
+supported tuple separately. P00-R2 represents no version as supported before
+that committed matrix and its evidence pass. Entire-display and specific-window
+require confirmation from remote Meet view or
 second device and retained high-contrast moving-marker artifacts; one fail makes
 the tuple unsupported; browser-tab remains unverified; verification state is
 Not verified/Verified/Failed/Retest required and invalidates after capture-
@@ -1693,11 +1749,77 @@ unsafe updater/publish target; diagnostics contain user content/credentials;
 generic test implies certification; signing/notarization mismatch; ordinary
 qualification language drifts into evasion advice.
 
+#### P12 final macOS entitlement allowlists
+
+P12 replaces the planning-base configuration, which incorrectly points parent
+and inherited signing at one absent file, with two committed plists. The only
+allowed keys and values in `build/entitlements.mac.plist` (the parent app) are:
+
+| Parent entitlement | Required value |
+|---|---|
+| `com.apple.security.cs.allow-jit` | boolean `true` |
+| `com.apple.security.cs.allow-unsigned-executable-memory` | boolean `true` |
+| `com.apple.security.cs.disable-library-validation` | boolean `true` |
+| `com.apple.security.device.audio-input` | boolean `true` |
+| `com.apple.security.personal-information.speech-recognition` | boolean `true` |
+
+The only allowed keys and values in
+`build/entitlements.mac.inherit.plist` (Electron helpers and other nested
+executables) are the first three code-signing keys above, each boolean `true`.
+Audio-input and speech-recognition entitlements are absent from the inherited
+file. Both files omit App Sandbox, `get-task-allow`, camera, location, contacts,
+calendar, automation, network server/client, USB, Bluetooth, iCloud, application
+groups, keychain access groups, and every other entitlement. ScreenCaptureKit
+and screen-recording permission are expressed through macOS usage descriptions
+and TCC, not an invented signing entitlement.
+
+`package.json` must map `mac.entitlements` to the parent file and
+`mac.entitlementsInherit` to the inherited file. The package-policy validator
+parses the source plists and `codesign -d --entitlements :-` output from the
+signed main executable and every signed nested executable, normalizes plist
+ordering only, and rejects a missing key, extra key, wrong role, non-boolean or
+false value, signing omission, or entitlement mismatch. There is no
+“minimum-looking” reviewer judgment or allow-extra mode.
+
+#### Frozen Live-first/Staff+ corpus and assertions
+
+P12 commits `tests/fixtures/release/staff-live-corpus.v1.json` and its canonical
+SHA-256 in the test manifest. It contains exactly these immutable cases:
+
+1. `SL-CODING-01`: an ambiguous multi-tenant rate-limiter change with a fixed
+   screenshot/transcript conflict and production-failure follow-up.
+2. `SL-SYSTEM-01`: a global job scheduler with fixed scale, regional-failure,
+   migration, ownership, and cost constraints.
+3. `SL-BEHAVIORAL-01`: influence-without-authority using a fixed verified
+   dossier and Staff Engineer opportunity, including a correction that changes
+   one claim but not the other evidence.
+
+Each case freezes input artifacts, provider-event fixture, expected mode,
+expected affected-section IDs, forbidden Practice fields/copy, and exact
+structural assertions. `SL-CODING-01` must expose ambiguity/assumptions, a key
+trade-off, time and space complexity, production failure handling, and testing/
+maintainability. `SL-SYSTEM-01` must expose the five fixed sections, 2–4
+unit-bearing estimates, explicit assumptions, a vendor-neutral architecture,
+regional failure, migration, operational ownership, cost, and scoped follow-up
+hash preservation. `SL-BEHAVIORAL-01` must use dossier-backed claims only and
+expose leadership, influence, organizational impact, qualitative handling of
+unknown metrics, same-fact concise/full output, and correction-scoped hash
+preservation. All three must start in the Live shell, require no Practice or
+post-answer score, and include the frozen Senior/Staff+ prompt-policy snapshot.
+
+`npm run test:staff-live-corpus` validates the corpus hash and every assertion
+deterministically against the typed fake-provider trace; any missing field,
+wrong count/order, forbidden field/copy, unexpected changed-section ID, hash
+drift, corpus mutation without a packet revision, failed assertion, or skipped
+case exits nonzero. It prints case/assertion passed, failed, and skipped totals.
+No subjective “representative fixture” or reviewer prioritization substitutes
+for this gate.
+
 **Acceptance criteria and named new tests/procedures.**
 
 | Criterion | Named test/procedure |
 |---|---|
-| P12-AC1: package config emits only macOS arm64/x64 launch artifacts with canonical identity, minimum entitlements, valid signing/notarization, AGPL metadata, and no Windows/Linux support claim. | `tests/release/macosPackagePolicy.test.ts — validates macOS-only signed package metadata` |
+| P12-AC1: package config emits only macOS arm64/x64 launch artifacts with canonical identity; the signed parent and every nested executable match their exact allowlists above with a mechanical reject-on-extra/missing/wrong-role assertion; signing/notarization and AGPL metadata are valid; no Windows/Linux support claim exists. | `tests/release/macosPackagePolicy.test.ts — rejects any macOS entitlement allowlist mismatch` |
 | P12-AC2: every BrowserWindow in the packaged app enables content protection before first visible frame and after lifecycle reconfiguration. | `tests/release/packagedCaptureProtection.test.ts — traces protection in the packaged app` |
 | P12-AC3: guided Meet flow tests entire-display and specific-window separately with moving marker and requires remote/second-device confirmation; it never offers generic/browser-tab certification. | `src/features/privacy/MeetVerification.test.tsx — guides only qualified scopes with remote confirmation` |
 | P12-AC4: verification record contains exact app/commit/macOS/arch/Chrome/Meet/display/scopes/date/result/artifact hashes and state invalidates by specified changes. | `electron/privacy/verificationRecord.test.ts — versions verifies fails and stales exact tuples` |
@@ -1709,8 +1831,211 @@ qualification language drifts into evasion advice.
 | P12-AC10: shipped copy/docs contain only qualified D-005g language and no 99%, undetectable, bypass, anti-cheat, process-hiding, monitoring-evasion, or unsupported-app/platform claim. | `tests/release/claimPolicy.test.ts — rejects unqualified privacy and platform language` |
 | P12-AC11: no product plan/credit/quota/entitlement, analytics/device fingerprint, or automatic crash upload exists in package/source/network trace. | `tests/release/openSourcePrivacyPolicy.test.ts — enforces free local-only product policy` |
 | P12-AC12: Practice, custom named modes, browser-tab certification, generic Test My Setup, Zoom/Teams, Windows, and Linux remain absent/deferred. | `tests/release/deferredScope.test.ts — keeps deferred surfaces out of launch` |
-| P12-AC13: representative Coding/System Design/Behavioral fixtures and surfaced copy prioritize Senior/Staff+ ambiguity reduction, trade-offs, production/operational judgment, leadership, and organizational impact in a Live-first flow. | `tests/release/staffLivePositioning.contract.test.ts — validates Staff plus judgment across the live loop` |
+| P12-AC13: the SHA-pinned `staff-live-corpus.v1.json` executes all three exact cases and passes every deterministic structural/hash/forbidden-surface assertion above with failed=0 and skipped=0. | `tests/release/staffLivePositioning.contract.test.ts — enforces the frozen Live-first Staff-plus corpus` |
 | P12-AC14: onboarding and Start contain no responsibility notice, usage-boundary acknowledgement, consent gate, or recurring confirmation. | `tests/release/noUsageGate.test.ts — preserves the neutral frictionless tool boundary` |
+
+#### P12-M01/M02 executable Google Meet qualification
+
+M01 and M02 are interactive procedures executed by `qualify:meet`; they are not
+names for manually supplied files. From the clean checkout prepared below, the
+P12 reporter's exact invocation launches the procedure for every incomplete
+matrix tuple and scope, blocks until collection and validation finish, and
+returns nonzero if a prerequisite, human step, raw artifact, count, or assertion
+is absent. A pre-existing artifact directory is accepted only after complete
+schema/hash validation; an empty or partial directory triggers collection or a
+nonzero failure, never a presumed pass.
+
+**Supported version rule and release prerequisite.** Before the first run,
+`docs/qualification/macos-google-meet.json` must be committed at the RC SHA with
+`schemaVersion: 1`, a matrix revision, and one entry per claimed tuple. Every
+entry contains concrete app semver/full SHA, signed package SHA-256, macOS
+`ProductVersion`/`BuildVersion`, `arm64` or `x64`, Chrome four-part version,
+visible Meet build identifier, display ID/type/pixel dimensions/scale factor,
+and both scopes. Wildcards, ranges, `latest`, missing architectures, or an
+uncommitted matrix make preflight exit nonzero. Only exact passing entries are
+supported. The installed app must be the matrix package built from the clean RC
+SHA, Developer-ID signed, hardened-runtime enabled, notarized, stapled, accepted
+by `spctl`, and passing `verify:mac-package`; a development/Electron launch or
+ad-hoc signature aborts collection.
+
+**People, accounts, devices, and network.** Each run requires:
+
+- a local operator on the matrix Mac and display, using the matrix Chrome and a
+  dedicated Google account named `IC Local Operator`;
+- an independent remote observer on a second physical device and display (not
+  Sidecar, mirroring, remote desktop, or the local Meet preview), using a second
+  dedicated account named `IC Remote Observer` and the observer helper from the
+  same clean RC SHA;
+- a new two-participant Meet with camera, microphone, captions, chat, extensions,
+  and background effects off, and no other participant;
+- stable wired/Wi-Fi connectivity measured by preflight at at least 10 Mbit/s
+  up/down per endpoint, round-trip latency at most 100 ms, packet loss below 1%,
+  and clocks synchronized within two seconds; and
+- macOS Screen Recording permission for Chrome/InterviewCopilot as required,
+  Accessibility permission only if the shipped app requires it, recording
+  permission for the observer helper, all notifications/Focus distractions
+  disabled, and at least 5 GiB free on both devices.
+
+The local operator performs share controls and may not attest the remote result.
+The remote observer watches the received presentation, runs the remote recorder,
+and records pass/fail notes. A single person looking at the local preview is not
+an observer and cannot produce a passing record.
+
+**Deterministic evidence surfaces.** The collector launches the signed app's
+guided Meet verification plus a packaged `Qualification Control` Chrome window.
+The control window contains ordinary underlying content (fixed prose, code,
+table, and image blocks), a 2 Hz UTC/frame counter, and an 8 × 8 color/checker
+sequence seeded by `SHA256(matrixRevision + tupleId + scope)`. InterviewCopilot
+shows a 256 × 256 marker above that ordinary content. The marker cycles exact
+`#FF00FF`, `#00FFFF`, `#A6FF00`, and `#000000` quadrants at 4 Hz, embeds the
+seed/frame number, moves clockwise to a new display quadrant every 15 seconds,
+and records monotonic render events. Reduced motion is overridden only in this
+explicit test surface. The collector fails if the control or marker seed,
+cadence, size, contrast, frame sequence, position sequence, or render-event
+continuity differs from the fixture.
+
+**Exact launch.** On the local matrix Mac, the operator runs the P12 reporter
+release gate:
+
+```text
+npm run verify:phase -- --phase P12 --artifacts .artifacts/verification/P12
+```
+
+Its immutable P12 plan executes the exact `qualify:meet --collect-missing` argv
+listed in section 6. That child performs package/version/network/account/
+display/permission/disk preflight,
+opens the control and guided-verification surfaces, prints a one-time pairing
+URL, and waits. On the remote device, from a clean checkout of the same SHA, the
+observer runs the exact reporter command printed with the URL substituted:
+
+```text
+npm run verify:phase -- --phase P12 --role meet-observer --pair <one-time-pairing-url> --artifacts .artifacts/qualification-observer
+```
+
+The reporter installs/verifies the clean observer checkout and then launches the
+observer helper as the exact argv child defined in `P12-observer.json`. It logs
+that child raw exit and returns aggregate 0 only after the helper verifies the
+SHA embedded in the pairing challenge, records only the Chrome Meet
+presentation region plus recorder telemetry, and streams the original recording
+and signed observer events directly into the collector's new run directory.
+Pairing expires after one use. Closing either reporter, supplying a file path in
+place of live pairing, or failing to upload the final record makes both
+collector and observer aggregates nonzero. Thus neither command assumes a pre-
+existing `.artifacts/qualification` record.
+
+**Shared timing and start/stop sequence.** The collector leads the following
+steps and records UTC plus monotonic timestamps for each acknowledgement:
+
+1. Join the new Meet with the two dedicated accounts; confirm exactly two
+   participants, observer recording armed, presentation tile pinned remotely,
+   no personal content visible, and marker/control animation visibly running
+   locally. Record 15 seconds before sharing.
+2. For M01 choose Meet **Present now → Your entire screen**, select the exact
+   matrix display by its recorded ID/dimensions, and choose **Share**. For M02
+   choose **Present now → A window**, select only the collector-created
+   `Qualification Control — <tupleId>` Chrome window, and choose **Share**.
+   Never choose **A tab** or the InterviewCopilot window.
+3. Wait for the remote observer to acknowledge that the received presentation,
+   rather than a local preview, is pinned and the control seed/frame is readable.
+   That acknowledgement starts the observation interval.
+4. Leave InterviewCopilot visible above the shared control content while its
+   marker visits all four quadrants. Do not move/cover either window, change the
+   display, resize, switch tabs/windows, or interact with Meet for at least 120
+   continuous seconds. The remote observer records the whole interval.
+5. After the collector announces 120 valid seconds, choose Meet **Stop
+   presenting**. The observer acknowledges presentation stopped and records 15
+   more seconds. The collector then closes the test surfaces, finalizes the raw
+   streams, and immediately validates both scope evidence and attestations.
+
+M01 and M02 run separately for every tuple, in that order, with a fresh Meet
+presentation and run ID. A pass in one scope never fills or waives the other.
+
+**Abort and fail rules.** Abort without a qualification result and rerun in a
+new run directory on any version/package/display mismatch, extra participant,
+account/notification/personal content, permission or update prompt, pairing or
+recorder failure, app/control/marker restart, share-scope mistake, display or
+window geometry change, observer disconnect, clock skew above two seconds,
+network threshold breach, decoded-frame gap above 500 ms, or less than 120
+continuous observed seconds. A completed run fails (and the tuple is
+unsupported) for a missing/invalid artifact or attestation; marker detected in
+one or more remote shared-interval frames; marker render continuity below
+99.5%; control sequence recognized in less than 99.5% of remote shared-interval
+frames; any one-second interval without a valid control frame; wrong seed/scope;
+local-only evidence; or hash/schema/timestamp/version inconsistency. Compression
+noise is not counted as a marker: the frozen validator detects the exact
+seeded color/geometry/temporal signature and reports
+`marker_detected_frames=0`; its detection corpus includes positive transcodes
+and must pass before real evidence is evaluated.
+
+**Raw and derived artifact schema.** The collector creates, never imports into,
+this exact root for each run:
+
+```text
+.artifacts/qualification/<matrixRevision>/<tupleId>/<M01|M02>/<runId>/
+  collection.json
+  raw/local-preflight.json
+  raw/local-marker-events.ndjson
+  raw/local-control-events.ndjson
+  raw/remote-observer.mov
+  raw/remote-observer-events.ndjson
+  attestations/local-operator.json
+  attestations/remote-observer.json
+  derived/frame-analysis.ndjson
+  derived/control-coverage.json
+  validation/report.json
+  hashes.sha256
+```
+
+`collection.json` contains `schemaVersion`, `procedureId`, matrix revision,
+tuple ID, scope, run ID, app semver/SHA/package hash, signing team/certificate/
+notarization ticket, exact OS build/arch/Chrome/Meet/display values, dedicated
+pseudonymous role IDs, UTC start/share-start/share-stop/end, monotonic offsets,
+duration, marker/control algorithms and seed, observer pairing challenge hash,
+relative artifact paths, byte sizes, SHA-256 hashes, validator version/SHA, and
+result. NDJSON records carry schema version, sequence, RFC3339 UTC, monotonic
+nanoseconds, frame ID, and event payload. Attestations carry exact tuple/scope,
+role, steps acknowledged, observed result, aborts/deviations, timestamps, and a
+signature over `collection.json` plus `hashes.sha256`. `hashes.sha256` covers
+every raw, attestation, derived, and validation file except itself. Paths must
+be canonical, relative, inside the run root, non-symlinked, and mode 0600 (dirs
+0700). Source video is at least 1080p, 24 fps, includes 15/120/15-second
+segments, and retains original timestamps; derived frames never replace it.
+
+**Privacy and redaction.** Use only the dedicated names, synthetic control
+content, and a disposable meeting. Do not enable audio/video/chat/captions or
+show email addresses, calendars, notifications, browser profiles, interview
+content, or unrelated screens. If personal data appears, abort, securely delete
+the unaccepted run directory, record only the abort reason without the data, and
+rerun. Accepted raw evidence is immutable and validated before any redaction;
+it is never committed or publicly uploaded. A separately hashed review copy may
+redact only meeting code/account chrome outside the presentation and marker/
+control analysis regions. Validation always uses raw evidence. Release storage
+documents encrypted access, named independent reviewers, and retention/deletion
+date; public evidence contains only hashes, tuple metadata, counts, and the
+redacted copy.
+
+**Validation, exits, and independent reproduction.** Within `qualify:meet`, the
+validator verifies schemas, canonical paths/modes, hashes, versions/signing,
+two distinct signed roles, timing, frame decode/continuity, positive detector
+corpus, marker absence, control visibility, and M01/M02 completeness. It prints
+one line per tuple/scope plus `passed=<n> failed=<n> skipped=<n>` and exits 0
+only when every matrix tuple has exactly one accepted M01 and M02 run, all
+assertions pass, failed=0, and skipped=0. The P12 reporter preserves that raw
+exit and makes its aggregate nonzero otherwise.
+
+An independent reviewer starts from a fresh clone at the exact RC SHA, obtains
+the signed package and immutable raw evidence through the documented encrypted
+release channel, verifies their published SHA-256 values, and runs the complete
+P12 reporter command below. To reproduce collection rather than only validate,
+the reviewer uses a fresh checkout with no `.artifacts/qualification`, the same
+exact matrix hardware/software/display tuple, new dedicated accounts/meeting,
+and the two launch commands above; absent evidence automatically launches M01
+then M02. The reviewer watches the full remote shared intervals plus pre/post
+boundaries, checks at least the first/last and one frame from every 15-second
+marker-position epoch against `frame-analysis.ndjson`, verifies ordinary
+underlying content remains readable, and signs a separate review attestation.
+Any disagreement, non-reproducible tuple, or changed version creates a new
+failed/retest-required record and blocks the claim.
 
 **Clean-checkout setup.** Requires supported macOS, Chrome, Meet test account,
 remote observer/second device, signing/notarization credentials, and both
@@ -1731,26 +2056,16 @@ node -e 'if (Number(process.versions.node.split(".")[0]) !== 20) process.exit(1)
 automated/manual manifest entries passed, 0 failed, 0 skipped; all raw exits 0.
 
 ```bash
-npm ci
-npm run verify:policy
-npm run lint
-npm run typecheck
-npm run test:legacy -- --reporter=verbose
-npm run test:unit -- --reporter=verbose
-npm run test:p12 -- --reporter=verbose
-npm run verify:test-manifest
-npm run test:e2e-macos
-npm run build
-npm run package:mac
-npm run verify:mac-package
-npm run verify:diagnostics
-npm run qualify:meet -- --matrix docs/qualification/macos-google-meet.json --artifacts .artifacts/qualification
-npm run verify:release
+npm run verify:phase -- --phase P12 --artifacts .artifacts/verification/P12
 ```
 
-`qualify:meet` exits 0 only after P12-M01 and P12-M02 records/artifacts exist for
-every frozen tuple and validator finds marker pixels=0 with valid control frames.
-All test scripts print passed/failed/skipped totals. **Regression suite:** the
+Expected reporter aggregate exit is 0; every logged child raw exit is 0.
+
+`qualify:meet` launches P12-M01 and P12-M02 for absent evidence and exits 0 only
+after every frozen tuple has a live-paired, complete, validated run with
+`marker_detected_frames=0` and valid control coverage. `test:staff-live-corpus`
+executes all three frozen cases. Every test-classified reporter entry prints
+passed/failed/skipped totals. **Regression suite.** the
 entire P01–P11 suite, native audio, all mode fixtures, migrations, storage
 plaintext scans, shell/capture integration, package smoke tests, and release
 claim/deferred-scope scans.
@@ -1759,42 +2074,52 @@ claim/deferred-scope scans.
 D-005g headline/qualifier, limitations/non-security-boundary, permissions,
 provider/audio/storage/privacy, diagnostics, AGPL/source offer, macOS install/
 uninstall/update, release evidence, SBOM/vulnerability disposition, and explicit
-Windows/Linux/app/scope deferrals.
+Windows/Linux/app/scope deferrals. Release docs also publish the exact parent/
+inherit entitlement tables and frozen Staff-live corpus hash/assertion summary.
 
 **Completion evidence.** (1) SHAs/base/version; (2) every raw gate/count report;
-(3) signed/notarized arm64/x64 hashes and package-policy report; (4) entitlements/
-SBOM/vulnerability disposition; (5) protection trace; (6) exact matrix; (7)
-P12-M01/M02 remote recordings, control frames, marker analysis and hashes per
-tuple; (8) verification-state/stale trace; (9) diagnostic preview/network-zero
-trace; (10) scoped recovery E2E; (11) claim/deferred scan; (12) reviewer sign-
-off that evidence supports every public claim.
+(3) signed/notarized arm64/x64 hashes and package-policy report; (4) role-by-
+role extracted entitlement plist diff, SBOM, and vulnerability disposition;
+(5) protection trace; (6) exact no-wildcard matrix; (7) P12-M01/M02 raw remote
+recordings, paired role attestations, control coverage, marker analysis, schema,
+and hashes per tuple; (8) verification-state/stale trace; (9) diagnostic
+preview/network-zero trace; (10) scoped recovery E2E; (11) claim/deferred scan;
+(12) frozen Staff-live corpus hash plus all case/assertion counts; (13)
+independent reviewer sign-off that evidence supports every public claim.
 
 **Risk/complexity.** Release-blocking/very high. External capture behavior and
 signing infrastructure cannot be inferred from unit tests.
 
 **Self-contained implementation prompt.**
 
-> Implement P12 from P00-R1 after P01–P11 on
+> Implement P12 from P00-R2 after P01–P11 on
 > `phase/P12-macos-qualification`. Freeze the exact macOS/Chrome/Meet/build/
 > architecture matrix, harden macOS-only package/entitlements/identity, add
 > local-only redacted diagnostic preview/export, scoped failure recovery,
 > guided remote-confirmed Meet verification and M-10, rewrite docs to qualified
 > D-005g claims, and remove/defer every unsupported platform/scope/evasion claim.
-> Produce signed/notarized arm64/x64 artifacts, execute P12-M01/M02 on the
-> release build, run every exact gate including artifact validation, and attach
-> all evidence, including the Staff+/Live-first and no-usage-gate contracts. A
-> failed or incomplete tuple blocks release; never infer pass.
+> Enforce the exact separate parent/inherit entitlement allowlists, produce
+> signed/notarized arm64/x64 artifacts, launch and execute the full live-paired
+> P12-M01/M02 procedures on the release build, and run the complete P12 reporter
+> plan including artifact validation and the SHA-pinned three-case Staff-live
+> corpus. Attach every enumerated artifact. A failed/incomplete tuple, extra or
+> missing entitlement, corpus assertion failure, or skipped case blocks release;
+> never infer pass or accept pre-existing files without validation.
 
 **Self-contained review prompt.**
 
 > Independently review P12 on the exact frozen matrix. Rebuild/package from the
 > clean SHA, inspect signing/notarization/entitlements/SBOM, trace protection
-> before first frame, rerun all automated gates, personally verify remote Meet
-> artifacts/control frames/hashes for both scopes/architectures, force stale/
+> before first frame, mechanically compare every signed parent/nested executable
+> with the exact role allowlist, rerun the complete reporter plan, personally
+> verify remote Meet raw artifacts/control frames/hashes/role attestations for
+> both scopes/architectures, and reproduce one clean live-paired tuple. Verify
+> the frozen Staff-live corpus hash and every structural assertion, force stale/
 > failed records, inspect diagnostic network/content traces, and scan every
 > shipped string. Reject missing tuple evidence, local-only confirmation,
-> broadened claim, unsupported platform/app/scope, telemetry/entitlement, skipped
-> test, vulnerability without disposition, or any nonzero gate.
+> broadened claim, unsupported platform/app/scope, entitlement drift, telemetry,
+> corpus mutation/failure, skipped test, vulnerability without disposition, or
+> any nonzero child/aggregate gate.
 
 **Remediation prompt template.**
 
@@ -1803,8 +2128,9 @@ signing infrastructure cannot be inferred from unit tests.
 > Preserve failed artifacts, identify whether code/config/environment caused it,
 > make the smallest P12-owned change, invalidate prior verification, strengthen
 > `{P12 named test/validator}`, rebuild and rerun the complete P12 sequence and
-> both remote qualifications for every affected tuple, then return raw counts,
-> artifact hashes, matrix revision, and new SHAs.
+> both live-paired remote qualifications for every affected tuple, then return
+> every reporter raw exit/count and aggregate exit, entitlement diff, corpus
+> counts, artifact hashes, matrix revision, and new SHAs.
 
 ## 8. Requirement ownership matrix
 
@@ -1842,7 +2168,7 @@ the migrated interface but may not write an alternate migration.
 | M-01 | P02 | Legacy API/provider/model/credit config → versioned subscription-only config. | Redacted backup, mode 0600, atomic/idempotent migration; explicit-only legacy restore. |
 | M-02 | P03 | Plaintext screenshot/temp/cache artifacts → authenticated encrypted blobs. | Journal, decrypt-before-delete proof, interruption resume, quarantine. |
 | M-03 | P03 | Encrypted store envelope/schema v1 and protected installation key. | Prior/new valid record atomicity, Keychain recovery, version rejection. |
-| M-04 | P04 | InterviewSession/ResponseSection/active-recovery schema v1. | Encrypted fixture round-trip, forward-version rejection, no lossy downgrade. |
+| M-04 | P04 | InterviewSession/ResponseSection/active-recovery schema v1, including the opaque provider conversation ID inside the authenticated encrypted envelope only. | Encrypted fixture round-trip, plaintext config/index/log/provider-directory byte scan, same-conversation Resume, forward-version rejection, no lossy downgrade. |
 | M-05a | P05 | Density/text/shortcut/per-display geometry preferences. | Invalid-value defaults; old builds ignore additive keys. |
 | M-05b | P06 | Language aliases (`python`→`python3`, Go aliases) to canonical preference. | Idempotent normalization; active session unchanged. |
 | M-06 | P08 | Candidate dossier/opportunity/provenance/active-selection schema v1. | Reviewed draft/import, encrypted original revision, Markdown export escape hatch. |
@@ -1902,11 +2228,12 @@ SHAs and the formal Stage 2 baseline at the frozen SHA. For each phase:
    intended base SHA.
 2. Create only the canonical phase branch/worktree; verify clean status.
 3. Execute the self-contained implementation prompt without prototype commits.
-4. Produce every named test and completion artifact; run commands in order.
+4. Produce every named test and completion artifact; invoke the phase reporter
+   once and retain its exact-command/raw-exit/count/aggregate reports.
 5. Have an independent reviewer execute the self-contained review prompt from a
    fresh clean checkout and challenge the solution at the owning boundary.
 6. For any failure, use the phase remediation template; rerun the complete
-   sequence from `npm ci`, not only the failed test.
+   reporter plan, which begins with `npm ci`, not only the failed test.
 7. Merge only with all local raw exits 0, failed=0, skipped=0, manifest complete,
    acceptance criteria checked, migrations/rollback evidenced, and no unresolved
    actionable review feedback.
