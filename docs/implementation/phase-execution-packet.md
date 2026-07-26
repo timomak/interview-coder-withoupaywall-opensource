@@ -1,6 +1,6 @@
 # InterviewCopilot phase-execution packet
 
-Packet revision: **P00-R3**
+Packet revision: **P00-R4**
 
 Planning base: `main@9dcb4b2d39607273a8528a24657cdb4f5bfc3412`
 
@@ -386,7 +386,7 @@ inside the single PR.
 
 **Self-contained implementation prompt.**
 
-> Implement P01 from P00-R3 on `phase/P01-local-gates`, based only on upstream
+> Implement P01 from P00-R4 on `phase/P01-local-gates`, based only on upstream
 > `main@9dcb4b2d…` plus merged planning docs. Do not import the dirty prototype.
 > Make local lint, strict type-check, real unit tests (including the unchanged
 > tracked CRA sample), manifest enforcement, and build green. Centralize and
@@ -398,7 +398,7 @@ inside the single PR.
 
 **Self-contained review prompt.**
 
-> Review P01 independently against P00-R3, not the author’s summary. From the
+> Review P01 independently against P00-R4, not the author’s summary. From the
 > clean PR checkout run the P01 reporter invocation, confirm the inherited CRA
 > test ran,
 > inspect all config/glob/ignore changes for hidden coverage loss, compare typed
@@ -527,7 +527,7 @@ and evolving; pin capabilities and fail explicitly on unsupported versions.
 
 **Self-contained implementation prompt.**
 
-> Implement P02 from P00-R3 after P01, on
+> Implement P02 from P00-R4 after P01, on
 > `phase/P02-subscription-runtime`. Build a provider-neutral persistent runtime
 > for Claude Code and Codex only, using one resumable session/thread, normalized
 > streaming/usage/compaction/stop/error events, explicit provider/model/Fast-
@@ -540,7 +540,7 @@ and evolving; pin capabilities and fail explicitly on unsupported versions.
 
 **Self-contained review prompt.**
 
-> Review P02 against P00-R3 from a clean checkout. Trace both fake providers
+> Review P02 against P00-R4 from a clean checkout. Trace both fake providers
 > through two turns, stop, compaction, driver/child restart, and caller-ID
 > resume; force every failure and prove the other provider never starts. Inspect
 > spawn/env/tool restrictions, IPC exposure, migration idempotence/file mode,
@@ -653,7 +653,7 @@ never custom cryptography.
 
 **Self-contained implementation prompt.**
 
-> Implement P03 from P00-R3 after P01 on
+> Implement P03 from P00-R4 after P01 on
 > `phase/P03-encrypted-persistence`. Build the Keychain-backed installation-key
 > service, versioned AES-256-GCM record/blob store, atomic writes, encrypted
 > in-memory-search source, typed recovery, raw-audio rejection, and journaled
@@ -801,7 +801,7 @@ boundary; no renderer or provider may keep a second authoritative session.
 
 **Self-contained implementation prompt.**
 
-> Implement P04 from P00-R3 after P02/P03 on
+> Implement P04 from P00-R4 after P02/P03 on
 > `phase/P04-session-orchestrator`. Replace global transient state with the
 > deterministic InterviewSession reducer, typed event/IPC contract, one
 > persistent-conversation orchestrator, context/delta policy, pending artifacts,
@@ -936,7 +936,7 @@ display behavior is platform-sensitive and directly touches privacy regression.
 
 **Self-contained implementation prompt.**
 
-> Implement P05 from P00-R3 after P04 on `phase/P05-live-shell`. Build the
+> Implement P05 from P00-R4 after P04 on `phase/P05-live-shell`. Build the
 > exact Quiet Signal hidden/compact/answer/expanded shell, command rail,
 > composer, input tray, explicit click-through/drag regions, final remappable
 > shortcuts, display-aware geometry, primary-display screenshot behavior,
@@ -1058,7 +1058,7 @@ regress silently; fixture contracts are merge-blocking.
 
 **Self-contained implementation prompt.**
 
-> Implement P06 from P00-R3 after P05 on `phase/P06-coding`. Add the exact
+> Implement P06 from P00-R4 after P05 on `phase/P06-coding`. Add the exact
 > typed Coding intents/schema/renderer, concise-first progressive answer,
 > language snapshot and six-family fixtures, read-only actions, New Question,
 > and isolated `Control+Shift+D` versioned Fix flow. Enforce no personal context,
@@ -1173,7 +1173,7 @@ must not become a second untyped document model.
 
 **Self-contained implementation prompt.**
 
-> Implement P07 from P00-R3 after P05 on `phase/P07-system-design`. Add the
+> Implement P07 from P00-R4 after P05 on `phase/P07-system-design`. Add the
 > fixed typed five-section progressive workflow, bounded material estimates,
 > safe vendor-neutral structured diagram, read-only accessible interactions,
 > assumption handling, dependency-scoped follow-up and What changed summary.
@@ -1294,7 +1294,7 @@ integrity are product trust boundaries.
 
 **Self-contained implementation prompt.**
 
-> Implement P08 from P00-R3 after P05 on `phase/P08-behavioral`. Build the
+> Implement P08 from P00-R4 after P05 on `phase/P08-behavioral`. Build the
 > encrypted canonical candidate dossier, guided/manual reviewed editing,
 > sanitized Markdown import/export, multiple snapshotted opportunities,
 > provenance, opt-in labeled persistent synthetic stories, and typed Behavioral
@@ -1427,7 +1427,7 @@ packaging, privacy, and transcription latency are launch-critical.
 
 **Self-contained implementation prompt.**
 
-> Implement P09 from P00-R3 after P05 on `phase/P09-audio`, macOS only. Build
+> Implement P09 from P00-R4 after P05 on `phase/P09-audio`, macOS only. Build
 > explicit two-source native capture, deterministic master/per-source controls,
 > contextual permission recovery, pinned offline whisper.cpp transcription,
 > explicit Apple Speech remote fallback, typed segments/attribution/correction,
@@ -1546,7 +1546,7 @@ must never become a capability or schema escape hatch.
 
 **Self-contained implementation prompt.**
 
-> Implement P10 from P00-R3 after P06/P07/P08 on
+> Implement P10 from P00-R4 after P06/P07/P08 on
 > `phase/P10-prompt-studio`. Build synchronized reviewed-diff Chat/Manage,
 > immutable built-ins, complete encrypted user CRUD, core-mode-only schemas,
 > deterministic recorded instruction resolution, Start snapshotting, protected
@@ -1663,7 +1663,7 @@ content and destructive user controls.
 
 **Self-contained implementation prompt.**
 
-> Implement P11 from P00-R3 after P06–P10 on
+> Implement P11 from P00-R4 after P06–P10 on
 > `phase/P11-history-recovery`. Add explicit crash Resume/Reset, complete
 > encrypted archive projection, Settings-only in-memory search/open/delete one/
 > all, safe consented individual Markdown/JSON export, read-only archive open,
@@ -1722,7 +1722,7 @@ pixel dimensions/scaling, and internal/external display type), never `latest`,
 a range, or a wildcard. Those exact passing tuples—and no neighboring patch,
 major version, browser, app build, architecture, or display mode—are the
 supported macOS/browser/app versions until separately qualified. Qualify each
-supported tuple separately. P00-R3 represents no version as supported before
+supported tuple separately. P00-R4 represents no version as supported before
 that committed matrix and its evidence pass. Entire-display and specific-window
 require confirmation from remote Meet view or
 second device and retained high-contrast moving-marker artifacts; one fail makes
@@ -1826,7 +1826,7 @@ for this gate.
 | P12-AC4: verification record contains exact app/commit/macOS/arch/Chrome/Meet/display/scopes/date/result plus evidence- and bundle-manifest digests, and state invalidates by specified changes. | `electron/privacy/verificationRecord.test.ts — versions verifies fails and stales exact tuples` |
 | P12-AC5: release-build Google Meet entire-display capture contains zero marker pixels while underlying control frames remain visible for every frozen tuple, with the accepted evidence bound by both independent role attestations and the final bundle digest. | `P12-M01 — remote Google Meet entire-display moving-marker qualification` |
 | P12-AC6: release-build Google Meet specific-window capture contains zero marker pixels while target-window control frames remain visible for every frozen tuple, with the accepted evidence bound by both independent role attestations and the final bundle digest. | `P12-M02 — remote Google Meet specific-window moving-marker qualification` |
-| P12-AC7: any missing/failed scope or artifact, noncanonical or extra manifest member, self-reference, digest/signature mismatch, or post-manifest mutation produces Failed/Not verified and makes release qualification nonzero; local preview can never produce pass. | `scripts/qualification/meet-artifact-validator.test.ts — rejects incomplete cyclic mutated or local-only evidence` |
+| P12-AC7: any missing/failed scope or artifact, noncanonical or extra manifest member, self-reference, final-byte size/hash mismatch, schema/identity/trust/signature failure, or required detached-review failure produces Failed/Not verified and makes release qualification nonzero; local preview can never produce pass. Historical second writes or mutate-and-restore are collector-runtime concerns and are not inferred from an identical accepted final state. | `scripts/qualification/meet-artifact-validator.test.ts — rejects incomplete cyclic final-byte-mutated untrusted or local-only evidence` |
 | P12-AC8: diagnostics exclude transcript/audio/screenshots/prompts/responses/profile/opportunity/credentials/tokens/device IDs, preview before manual export, and perform zero network upload. | `electron/diagnostics/diagnosticPrivacy.test.ts — previews redacted local-only diagnostic export` |
 | P12-AC9: provider/microphone/system-audio/screen-capture denial disables only affected action and explicit repair/retry preserves the session. | `tests/release/scopedRecovery.e2e.test.ts — preserves session through every permission/provider failure` |
 | P12-AC10: shipped copy/docs contain only qualified D-005g language and no 99%, undetectable, bypass, anti-cheat, process-hiding, monitoring-evasion, or unsupported-app/platform claim. | `tests/release/claimPolicy.test.ts — rejects unqualified privacy and platform language` |
@@ -1992,27 +1992,175 @@ this exact root for each run:
   bundle-manifest.sig (optional)
 ```
 
-`collection.json` contains `schemaVersion`, `procedureId`, matrix revision,
-tuple ID, scope, run ID, app semver/SHA/package hash, signing team/certificate/
-notarization ticket, exact OS build/arch/Chrome/Meet/display values, dedicated
-pseudonymous role IDs and distinct pre-registered Ed25519 public-key IDs/keys,
-UTC start/share-start/share-stop/end, monotonic offsets, duration,
-marker/control algorithms and seed, observer pairing challenge hash, validator
-version/SHA, content result, and the paths, byte sizes, and SHA-256 values of the
-other eight evidence members. NDJSON records carry schema version, sequence,
-RFC3339 UTC, monotonic nanoseconds, frame ID, and event payload. Source video is
-at least 1080p, 24 fps, includes 15/120/15-second segments, and retains original
+**Closed schema vocabulary and canonical bytes.** The following rules are
+normative for the matrix and every qualification protocol object. A listed key
+is required, key names are case-sensitive, and every object at every depth has
+`additionalProperties: false`; an absent listed key, a duplicate JSON key, or
+an outer or nested extra key is a schema failure. Arrays are ordered as stated,
+have no holes, and reject duplicate values unless a rule explicitly permits
+them. Strings must be valid Unicode scalar values in NFC with no NUL or control
+character. The protocol uses these exact lexical primitives:
+
+| Name | Exact representation |
+|---|---|
+| `Sha256` | string matching `^[0-9a-f]{64}$` |
+| `RcSha` | string matching `^[0-9a-f]{40}$`; it equals the checked-out RC commit |
+| `Token` | string matching `^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$` |
+| `RoleId` | string matching `^[a-z0-9][a-z0-9-]{15,63}$` |
+| `RunId` | string matching `^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$` |
+| `SemVer` | string matching `^(0\|[1-9][0-9]*)\.(0\|[1-9][0-9]*)\.(0\|[1-9][0-9]*)(-[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?(\+[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?$`, with no leading zero in a numeric prerelease identifier |
+| `Uint64String` | string matching `^(0\|[1-9][0-9]{0,19})$` whose mathematical value is at most `18446744073709551615` |
+| `UtcMillis` | a real Gregorian instant matching `^20[0-9]{2}-(0[1-9]\|1[0-2])-([0-2][0-9]\|3[01])T([01][0-9]\|2[0-3]):[0-5][0-9]:[0-5][0-9]\.[0-9]{3}Z$`; UTC `Z`, exactly milliseconds, and no leap second |
+| `Base64Url32` | string matching `^[A-Za-z0-9_-]{43}$` that decodes to exactly 32 bytes and re-encodes byte-for-byte |
+| `Base64Url64` | string matching `^[A-Za-z0-9_-]{86}$` that decodes to exactly 64 bytes and re-encodes byte-for-byte |
+
+No timestamp offset, omitted or extra fractional digit, numeric epoch, local
+time, or lower-case `z` is accepted. Nanoseconds, byte sizes, frame/sequence
+counters, and durations use `Uint64String`, never a JSON number, so no value can
+cross the IEEE-754 safe-integer boundary ambiguously. `schemaVersion` is the
+JSON integer `1`; no other protocol field is a JSON number unless its range is
+explicitly given below.
+
+SHA-256 over exact file bytes is the only digest algorithm. Every JSON protocol
+file is RFC 8785 JCS UTF-8 with no BOM or trailing newline, and stored bytes must
+equal JCS serialization of the already schema-valid value. JCS does not repair
+input: duplicate keys, non-NFC strings, alternate timestamp/counter spellings,
+unknown fields, and values outside the closed schema fail before
+canonicalization. Each NDJSON line is one independently schema-valid JCS value
+followed by exactly one LF, including the last line. The video is hashed as its
+original bytes. Two separately maintained conforming serializers—one Node
+implementation and one non-JavaScript implementation—must serialize every
+committed positive fixture to identical bytes and SHA-256. Negative fixtures
+cover key reordering stored without JCS, whitespace, `1.0`/exponent spellings,
+duplicate keys, Unicode variants, timestamp variants, numeric large counters,
+wrong array order, and every outer/nested extra field; semantic equivalence is
+not an acceptance rule.
+
+**RC-pinned matrix and trust registry.** The already required committed
+`docs/qualification/macos-google-meet.json` is the sole trust root; this adds no
+artifact or phase. Its top-level object contains exactly `schemaVersion: 1`,
+`matrixRevision: Token`, `rcSha: RcSha`, `trustRegistry`, and `entries`.
+`entries` is a nonempty array sorted by `tupleId`; each entry contains exactly
+`tupleId: Token`, `appSemver: SemVer` (without leading `v`),
+`appCommitSha: RcSha`, `packageSha256: Sha256`, `macOSProductVersion` (three
+dot-separated decimal components without leading zeroes),
+`macOSBuildVersion: Token`, `architecture` (`"arm64"` or `"x64"`),
+`chromeVersion` (four dot-separated decimal components without leading zeroes),
+`meetBuildId: Token`, `display`, and `scopes`. `display` contains exactly
+`displayId: Token`, `type` (`"internal"` or `"external"`), `pixelWidth` and
+`pixelHeight` (JSON integers 1–32768), and `scaleFactor` (string matching
+`^[1-4](\.[0-9]{1,3})?$`). `scopes` is exactly
+`["entire-display","specific-window"]`. Every `appCommitSha` and trust entry
+`rcSha` equals the top-level `rcSha`; tuple IDs are unique.
+
+`trustRegistry` is an array of 3–64 objects sorted by unsigned UTF-8 bytes of
+`keyId`. Each object contains exactly `keyId` (string matching
+`^[a-z0-9][a-z0-9._-]{15,63}$`), `publicKeyBase64Url: Base64Url32`, `purpose`,
+`role`, `status` (`"active"` or `"revoked"`), and `rcSha: RcSha`. The only legal
+purpose/role pairs are:
+
+| `purpose` | `role` |
+|---|---|
+| `"qualification-role-attestation"` | `"local-operator"` |
+| `"qualification-role-attestation"` | `"remote-observer"` |
+| `"qualification-independent-review"` | `"independent-reviewer"` |
+| `"qualification-release-bundle"` | `"release-bundle"` |
+
+There is at least one active key for each of the first three rows. A release-
+bundle key is optional, but every such key and every key referenced anywhere
+must occur exactly once in this registry at the exact RC SHA. `keyId` values and
+decoded public-key bytes are globally unique across the registry. A key cannot
+be reused for another role or purpose; local operator, remote observer,
+independent reviewer, and release signer must all be different keys. Unknown,
+revoked, wrong-purpose, wrong-role, duplicate-ID, reused-role, same-public-key,
+RC-mismatched, or malformed entries block acceptance. `collection.json` and
+signature files reference trusted `keyId` values; they never carry or override
+public-key bytes. Verification always loads the matrix from a clean checkout at
+its exact `rcSha`, closing the self-pinning dependency.
+
+**Exact `collection.json` schema.** The top-level object contains exactly these
+required keys and values:
+
+| Key | Type and constraint |
+|---|---|
+| `schemaVersion` | integer constant `1` |
+| `kind` | string constant `"qualification-collection"` |
+| `rcSha` | `RcSha` |
+| `procedureId` | `"P12-M01"` for entire-display or `"P12-M02"` for specific-window |
+| `matrixRevision`, `tupleId` | `Token`; exact matrix values |
+| `scope` | `"entire-display"` or `"specific-window"`; agrees with `procedureId` |
+| `runId` | `RunId` |
+| `app` | closed object defined below |
+| `environment` | closed object defined below |
+| `roles` | closed object defined below |
+| `timestamps` | closed object defined below |
+| `monotonicNs` | closed object defined below |
+| `marker` | closed object defined below |
+| `control` | closed object defined below |
+| `pairingChallengeSha256` | `Sha256` |
+| `validator` | closed object defined below |
+| `contentResult` | closed object defined below |
+| `evidenceMembers` | exact ordered eight-entry array defined below |
+
+`app` contains exactly `semver: SemVer`, `commitSha: RcSha`,
+`packageSha256: Sha256`, `signingTeamId` (string matching
+`^[A-Z0-9]{10}$`), `signingCertificateSha256: Sha256`, and
+`notarizationTicketId: Token`. `environment` contains exactly
+`macOSProductVersion`, `macOSBuildVersion`, `architecture`, `chromeVersion`,
+`meetBuildId`, and `display`, with values and nested display schema identical to
+the selected matrix entry. `roles` contains exactly `localOperator` and
+`remoteObserver`; each contains exactly `roleId: RoleId` and `keyId` matching an
+active trust-registry entry for that exact role. The two role IDs, key IDs, and
+public keys are pairwise different.
+
+`timestamps` contains exactly `startedAt`, `shareStartedAt`, `shareStoppedAt`,
+and `endedAt`, all `UtcMillis` and strictly increasing. `monotonicNs` contains
+the same four key names, all `Uint64String`, strictly increasing by mathematical
+value; `shareStoppedAt - shareStartedAt` is at least 120 seconds in both UTC and
+monotonic time. `marker` contains exactly `algorithm:
+"ic-marker-quadrants-v1"`, `seed: Sha256`, `cadenceHz: "4"`, and
+`sizePixels: "256"`. `control` contains exactly `algorithm:
+"ic-control-checker-v1"`, the same `seed`, `cadenceHz: "2"`, and
+`gridSize: "8"`. These small counters are strings intentionally; alternative
+numeric spellings fail.
+
+`validator` contains exactly `version` (canonical SemVer) and `commitSha:
+RcSha`, which equals the RC SHA. `contentResult` contains exactly `result:
+"pass"`, `markerDetectedFrames: "0"`, `markerContinuityPpm`,
+`controlRecognizedPpm`, and `validSharedIntervalFrames`, with the last three
+values as `Uint64String`; both ppm values are 995000–1000000 and the frame count
+is nonzero. An accepted bundle cannot encode a failure or abort.
+
+Each `evidenceMembers` element contains exactly `path`, `bytes:
+Uint64String`, and `sha256: Sha256`; `bytes` is mathematically nonzero. The array
+is exactly the following ASCII path order and never includes `collection.json`,
+which cannot describe its own bytes:
+
+```text
+derived/control-coverage.json
+derived/frame-analysis.ndjson
+raw/local-control-events.ndjson
+raw/local-marker-events.ndjson
+raw/local-preflight.json
+raw/remote-observer-events.ndjson
+raw/remote-observer.mov
+validation/report.json
+```
+
+NDJSON event records contain exactly `schemaVersion: 1`, `sequence:
+Uint64String`, `at: UtcMillis`, `monotonicNs: Uint64String`, `frameId:
+Uint64String`, `eventType`, and a closed event-type-specific `payload` from the
+committed schema inventory. Sequences start at `"0"`, increase by exactly one,
+and monotonic values strictly increase per file. Source video is at least
+1080p, 24 fps, includes the 15/120/15-second segments, and retains original
 timestamps; derived frames never replace it.
 
-**Canonical bytes and exact manifest membership.** SHA-256 over exact file
-bytes is the only digest algorithm; hashes are 64 lowercase hexadecimal
-characters. Every JSON file is RFC 8785 JSON Canonicalization Scheme (JCS) UTF-8
-with no BOM or trailing newline, and its stored bytes must equal canonicalized
-bytes. Each NDJSON line is one JCS value followed by exactly one LF, including
-the last line. The video is hashed as its original bytes. Manifest entries have
-exactly `path`, `bytes`, and `sha256`; entries sort by unsigned UTF-8 bytes of
-their ASCII POSIX relative `path`. Duplicate, absolute, empty, dot-segment,
-backslash, non-NFC, or case-colliding paths fail.
+**Exact manifest schemas and membership.** A manifest object contains exactly
+`schemaVersion: 1`, `kind`, `algorithm: "sha256"`, and `entries`. Every entry
+contains exactly `path`, `bytes: Uint64String`, and `sha256: Sha256`; byte size
+is nonzero. Entries sort by unsigned UTF-8 bytes of their ASCII POSIX relative
+`path`. Duplicate, absolute, empty, dot-segment, backslash, non-NFC, or case-
+colliding paths fail.
 
 `evidence-manifest.json` has exactly `schemaVersion: 1`, `kind: "evidence"`,
 `algorithm: "sha256"`, and an `entries` array containing exactly these nine
@@ -2037,23 +2185,54 @@ bytes; no member refers to that digest. `validation/report.json` is the frozen
 content-analysis result and does not claim to validate a manifest or
 attestation that does not yet exist.
 
-Each role attestation is a JCS object containing exactly `payload` and
-`signature`. The payload contains schema version, procedure/matrix/tuple/scope/
-run identity, role and pseudonymous role ID, every required acknowledgement,
-observed result, deviations/aborts, RFC3339 timestamp, and the exact lowercase
-`evidenceManifestSha256`. The signature contains exactly `algorithm:
-"Ed25519"`, the matching pre-registered `keyId`, and an unpadded base64url
-value. The role signs the ASCII domain separator
-`InterviewCopilot qualification attestation v1\n` followed by the JCS bytes of
-`payload`; Ed25519's deterministic signature and the pinned public key make the
-payload and stored attestation bytes independently verifiable. Local and remote
-roles, IDs, keys, and signatures must differ.
+**Closed role attestations and acknowledgements.** Each role-attestation file
+is a JCS signature envelope containing exactly `payload` and `signature`.
+`signature` contains exactly `algorithm: "Ed25519"`, `keyId`, and `value:
+Base64Url64`. The payload contains exactly `schemaVersion: 1`, `kind:
+"qualification-role-attestation"`, `rcSha: RcSha`, `procedureId`,
+`matrixRevision`, `tupleId`, `scope`, `runId`, `role` (`"local-operator"` or
+`"remote-observer"`), `roleId: RoleId`, `keyId`, `acknowledgements`,
+`observedResult: "pass"`, `deviations: []`, `aborts: []`, `attestedAt:
+UtcMillis`, and `evidenceManifestSha256: Sha256`. Identity fields exactly match
+`collection.json`; both payload and signature `keyId` values are equal and
+resolve to the active matrix key for the payload role. `attestedAt` is after
+that role's final acknowledgement and no later than collection `endedAt`.
 
-`bundle-metadata.json` is JCS and contains exactly `schemaVersion`,
+Every acknowledgement is a closed object containing exactly
+`acknowledgementId`, `role`, `scope`, `result: "acknowledged"`, `at:
+UtcMillis`, and `monotonicNs: Uint64String`. Its role/scope match the payload;
+times are strictly increasing within each array. The arrays have exactly these
+IDs in exactly this order (the slash selects the value for M01/M02):
+
+| Role/scope | Exact ordered `acknowledgementId` values |
+|---|---|
+| local operator / M01 entire-display | `preflight-ready`; `meet-two-party-confirmed`; `personal-content-absent`; `entire-display-share-selected`; `remote-observation-start-received`; `continuous-interval-complete`; `presentation-stop-commanded`; `raw-streams-finalized` |
+| local operator / M02 specific-window | `preflight-ready`; `meet-two-party-confirmed`; `personal-content-absent`; `specific-window-share-selected`; `remote-observation-start-received`; `continuous-interval-complete`; `presentation-stop-commanded`; `raw-streams-finalized` |
+| remote observer / M01 entire-display | `recorder-armed`; `meet-two-party-confirmed`; `entire-display-presentation-received`; `presentation-pinned`; `control-seed-readable`; `observation-start-acknowledged`; `continuous-interval-complete`; `presentation-stopped`; `raw-upload-complete` |
+| remote observer / M02 specific-window | `recorder-armed`; `meet-two-party-confirmed`; `specific-window-presentation-received`; `presentation-pinned`; `control-seed-readable`; `observation-start-acknowledged`; `continuous-interval-complete`; `presentation-stopped`; `raw-upload-complete` |
+
+The remote `observation-start-acknowledged.at` equals collection
+`shareStartedAt`; `presentation-stopped.at` equals collection `shareStoppedAt`.
+The local `raw-streams-finalized.at` is no later than collection `endedAt`.
+Acknowledgement order, role, scope, constant, timestamp representation, and
+monotonic progression are schema assertions, not free-form notes.
+
+The exact signed bytes are the UTF-8/ASCII bytes of
+`InterviewCopilot qualification role attestation v1\n` (one LF, no NUL),
+immediately followed by the JCS UTF-8 bytes of `payload`, with no trailing byte.
+Ed25519 signs those bytes directly, not their hexadecimal display or an extra
+hash. Local and remote roles, IDs, keys, payload bytes, and signatures differ.
+
+**Closed bundle metadata.** `bundle-metadata.json` contains exactly
+`schemaVersion: 1`, `kind: "qualification-bundle-metadata"`, `rcSha: RcSha`,
 `procedureId`, `matrixRevision`, `tupleId`, `scope`, `runId`,
-`evidenceManifestSha256`, `localAttestationSha256`,
-`remoteAttestationSha256`, `finalizedAt`, `retentionDeleteAt`, and
-`encryptedStoreId`. It cannot contain a bundle digest or signature.
+`evidenceManifestSha256: Sha256`, `localAttestationSha256: Sha256`,
+`remoteAttestationSha256: Sha256`, `finalizedAt: UtcMillis`,
+`retentionDeleteAt: UtcMillis`, and `encryptedStoreId` (string matching
+`^[a-z0-9][a-z0-9._-]{15,127}$`). Identity fields match the collection and
+attestations; the three hashes equal exact canonical file bytes;
+`retentionDeleteAt` is later than `finalizedAt`. It cannot contain a bundle
+digest, signature, public key, acknowledgement, or additional field.
 `bundle-manifest.json` has the same four manifest fields as the evidence
 manifest except `kind: "bundle"`, and its exact ordered membership is:
 
@@ -2066,13 +2245,22 @@ evidence-manifest.json
 
 The final bundle digest is SHA-256 of canonical `bundle-manifest.json` bytes.
 The manifest explicitly excludes itself, all nine evidence files already
-committed through the evidence manifest, and `bundle-manifest.sig`. If the
-optional detached JCS signature exists, it contains exactly `schemaVersion`,
-`algorithm: "Ed25519"`, release `keyId`, `bundleManifestSha256`, and unpadded
-base64url `signature`. The release key signs
-`InterviewCopilot qualification bundle v1\n` followed by the lowercase bundle
-digest. The signature file's own bytes are never in that digest. No other file
-is allowed in an accepted run root.
+committed through the evidence manifest, and `bundle-manifest.sig`.
+
+If `bundle-manifest.sig` is present, it is a closed JCS envelope with exactly
+`payload` and `signature`. Its payload contains exactly `schemaVersion: 1`,
+`kind: "qualification-release-bundle"`, `rcSha: RcSha`, `keyId`,
+`bundleManifestSha256: Sha256`, and `signedAt: UtcMillis`; its signature uses
+the exact common `{algorithm,keyId,value}` schema. Both key IDs are equal and
+resolve to an active `qualification-release-bundle`/`release-bundle` matrix
+entry. The signed bytes are exactly the ASCII/UTF-8 domain separator
+`InterviewCopilot qualification release bundle v1\n` followed immediately by
+JCS payload bytes, with no trailing byte. If the file is absent, no release
+signature is inferred or required and required role/reviewer checks still
+apply. If it is present, every schema, RC/key-purpose, digest, timestamp, and
+Ed25519 check is mandatory; any failure blocks acceptance. The signature file's
+own bytes are never in the digest. No other file is allowed in an accepted run
+root.
 
 **Acyclic finalization and overwrite rules.** The collector uses a newly and
 exclusively created sibling `<runId>.partial` directory; it never imports or
@@ -2084,8 +2272,9 @@ reuses a supplied run. It performs this sole legal order:
 3. Hash the exact nine-member allowlist, create `evidence-manifest.json`, rehash
    every member, and freeze both the members and manifest.
 4. Send only the evidence-manifest canonical bytes/digest to both roles. Create
-   each independently signed attestation once; verify its payload, pinned key,
-   canonical bytes, signature, and evidence digest before freezing it.
+   each independently signed attestation once; verify its payload, matrix-
+   trusted role key, canonical bytes, signature, acknowledgements, and evidence
+   digest before freezing it.
 5. Create and freeze `bundle-metadata.json`; hash exactly it, the evidence
    manifest, and both frozen attestations into `bundle-manifest.json`; then
    compute and freeze the final bundle digest.
@@ -2093,13 +2282,17 @@ reuses a supplied run. It performs this sole legal order:
    graph without writing inside it, set files to 0400 and directories to 0500,
    fsync, and atomically rename the staging directory to `<runId>`.
 
-Creation is exclusive and write-once. A collision, changed size/hash/mtime,
-second write, regenerated manifest or attestation, file with link count other
-than one, symlink, non-regular file, unexpected path, or failure after any
-freeze point rejects and retains the run as failed, except the privacy-deletion
-rule below; retry uses a new run ID. Neither collector nor validator repairs,
-normalizes, deletes, or overwrites an accepted or retained failed run. This gives
-the only dependency graph:
+Creation is exclusive and write-once. The live collector owns open file
+descriptors and an in-memory creation ledger; exclusive-create collisions,
+close-then-write attempts, a second create/write/rename for any path, changed
+size/hash/mtime while the collector is running, regenerated manifests or
+attestations, link count other than one, links/non-regular files, unexpected
+paths, or failure after a freeze point reject and retain the run as failed,
+except the privacy-deletion rule below. Retry uses a new run ID. Collector tests
+exercise first-touch, second-write, regeneration, and mutate-then-restore before
+finalization while the ledger and handles can observe that history. Neither
+collector nor validator repairs, normalizes, deletes, or overwrites an accepted
+or retained failed run. This gives the only dependency graph:
 
 ```text
 raw -> derived/content-validation -> collection -> evidence-manifest
@@ -2107,11 +2300,24 @@ evidence-manifest -> local-attestation
 evidence-manifest -> remote-attestation
 evidence-manifest + both-attestations -> bundle-metadata
 evidence-manifest + both-attestations + bundle-metadata -> bundle-manifest
-bundle-manifest-digest -> optional-detached-signature
+bundle-manifest-digest -> optional-release-signature
 ```
 
 Every edge points from an already frozen node to a newly created node; no node
 hashes itself or any descendant.
+
+The expanded commitment inventory has exactly 16 nodes: the nine evidence
+members, evidence manifest, two role attestations, bundle metadata, bundle
+manifest, optional bundle signature, and detached independent-review record.
+It has exactly 28 directed edges: the eight non-collection evidence members to
+collection; all nine evidence members to evidence manifest; evidence manifest
+to each role attestation; evidence manifest plus both attestations to bundle
+metadata; the four exact bundle members to bundle manifest; bundle manifest to
+the optional signature; and bundle manifest to detached review. The matrix
+trust registry and externally hashed reviewer work products are RC-pinned trust
+inputs, not accepted-run members or additional finalization nodes. A
+topological-sort fixture proves all 16 nodes are visited with 28 edges and zero
+cycle.
 
 **Privacy and redaction.** Use only the dedicated names, synthetic control
 content, and a disposable meeting. Do not enable audio/video/chat/captions or
@@ -2128,19 +2334,49 @@ documents encrypted access, named independent reviewers, and retention/deletion
 date; public evidence contains only hashes, tuple metadata, counts, and the
 redacted copy.
 
-**Validation, exits, and independent reproduction.** Within `qualify:meet`, the
-validator is read-only. Before content assertions it rejects any noncanonical
-serialization/path/order/mode, missing or extra file/entry, forbidden manifest
-member, self-reference, size/hash mismatch, evidence or bundle digest mismatch,
-unpinned/same-role/invalid attestation signature, identity/digest disagreement,
-invalid optional detached signature, post-freeze mutation, `.partial` root, or
-non-regular/linked file. It then verifies versions/signing, timing, frame
-decode/continuity, positive detector corpus, marker absence, control visibility,
-and M01/M02 completeness. The validator writes only to the reporter's separate
-log directory. Its tests construct the valid graph, reproduce identical
-manifest and signature bytes from canonical inputs, topologically prove the
-edge list above, and mutate every member class plus each include/exclude rule to
-prove a nonzero result.
+**Offline acceptance boundary.** Within `qualify:meet`, the final-state
+validator is read-only. Its acceptance proof is deliberately limited to the
+bytes and filesystem state it can observe: exact canonical bytes, closed
+schemas, byte sizes and hashes, path/order/membership, regular-file status,
+link-count-one/no-link constraints, final 0400/0500 modes, identities, matrix/RC
+trust lookup, key purpose/role/status/distinctness, and signatures. It then
+verifies versions/signing, timing expressed in the records, frame decode/
+continuity, the positive detector corpus, marker absence, control visibility,
+and M01/M02 completeness. It rejects `.partial` roots and writes only to the
+reporter's separate log directory.
+
+The offline validator does not claim to observe filesystem history. It cannot
+prove first touch, historical mtime changes, a prior second write,
+regeneration, or mutate-and-restore when the restored final bytes and observable
+metadata are identical. Those remain exclusive/write-once/freeze collector
+runtime rules and runtime tests. A changed final byte, size, hash, mode, path,
+link status, schema, identity, trust binding, or signature fails; an
+identical restored final state does not disclose how it was produced. No audit
+store is invented.
+
+The validator test suite constructs the valid graph, reproduces identical
+manifest/envelope bytes from canonical inputs, topologically proves the exact
+16-node/28-edge inventory, and applies final-state mutations to every member
+class plus every include/exclude, schema, identity, trust, key-purpose, domain-
+separator, and optional-signature rule. Mutation fixtures claim only observable
+final-state rejection; separate collector-runtime fixtures make the historical
+write assertions.
+
+`scripts/qualification/schema-inventory.test.ts` inventories the committed
+closed schemas for the matrix, each of the four NDJSON event payload families,
+local preflight, control coverage, frame analysis, content-validation report,
+collection, manifest/entry, acknowledgement, role attestation, bundle metadata,
+optional bundle signature, and detached review. It recursively fails any
+object schema missing `additionalProperties: false`, any unconstrained array,
+unknown union arm, unsafe integer counter, non-exact time format, or missing
+positive/negative fixture. `scripts/qualification/canonical-bytes.test.ts`
+runs the two independent serializer fixture sets and checks identical JCS bytes,
+digests, exact domain separators, and rejection of noncanonical semantic
+variants. `scripts/qualification/trust-registry.test.ts` probes unknown,
+revoked, wrong-purpose, wrong-role, reused-role, duplicate-ID, same-public-key,
+RC-mismatched, malformed, and collection-supplied-key cases. The artifact-
+validator suite covers optional bundle signature absent, valid-present, and
+invalid-present; only the first two pass.
 
 It prints one line per tuple/scope plus `passed=<n> failed=<n> skipped=<n>` and
 exits 0 only when every matrix tuple has exactly one accepted M01 and M02 bundle,
@@ -2149,23 +2385,67 @@ evidence, either attestation, either manifest, or the bundle metadata is a
 failure, never a skip. The P12 reporter preserves that raw exit and makes its
 aggregate nonzero otherwise.
 
-An independent reviewer starts from a fresh clone at the exact RC SHA, obtains
-the signed package and complete immutable bundle through the documented
-encrypted release channel, recomputes both manifest digests from canonical
-bytes, walks every allowlist edge, verifies both role signatures against the
-keys pinned in `collection.json`, and runs the complete P12 reporter command
-below. To reproduce collection rather than only validate, the reviewer uses a
-fresh checkout with no `.artifacts/qualification`, the same exact matrix
-hardware/software/display tuple, new dedicated accounts/meeting, and the two
-launch commands above; absent evidence automatically launches M01 then M02.
+**Detached independent review.** An independent reviewer starts from a fresh
+clone at the exact RC SHA, obtains the signed package and complete immutable
+bundle through the documented encrypted release channel, recomputes both
+manifest digests from canonical bytes, walks every allowlist edge, verifies both
+role signatures against the RC matrix registry, and runs the complete P12
+reporter command below. To reproduce collection rather than only validate, the
+reviewer uses a fresh checkout with no `.artifacts/qualification`, the exact
+matrix hardware/software/display tuple, new dedicated accounts/meeting, and the
+two launch commands above; absent evidence automatically launches M01 then M02.
 The reviewer watches the full remote shared intervals plus pre/post boundaries,
 checks at least the first/last and one frame from every 15-second marker-position
 epoch against `frame-analysis.ndjson`, and verifies ordinary underlying content
-remains readable. The review attestation signs the final bundle digest and is
-stored as a detached review record outside the accepted run root, so review
-cannot mutate or become a dependency of the bundle it reviews. Any disagreement,
-non-reproducible tuple, graph/byte mismatch, or changed version creates a new
-failed/retest-required record and blocks the claim.
+remains readable.
+
+For each accepted run the record is stored at exactly
+`.artifacts/qualification-reviews/<matrixRevision>/<tupleId>/<M01|M02>/<runId>/independent-review.json`.
+Every variable path segment must pass its schema lexical rule and exact identity
+match. This path is outside the run root, evidence manifest, bundle manifest,
+and optional bundle signature; it is never copied into accepted membership.
+
+The record is a closed JCS `{payload,signature}` envelope using the common
+signature schema. Its payload contains exactly `schemaVersion: 1`, `kind:
+"qualification-independent-review"`, `rcSha: RcSha`, `matrixRevision`,
+`tupleId`, `scope`, `runId`, `bundleManifestSha256: Sha256`, `reviewerId:
+RoleId`, `keyId`, `result: "pass"`, `reviewedAt: UtcMillis`, `reports`, and
+`observations`. `reports` contains exactly `artifactValidatorReportSha256`,
+`packagePolicyReportSha256`, `frameSamplingReportSha256`, and
+`claimScanReportSha256`, all `Sha256` of retained reviewer outputs outside the
+accepted run. `observations` contains exactly the following keys and pass
+values: `canonicalBytesReproduced: true`, `manifestGraphAcyclic: true`,
+`roleSignaturesValid: true`, `trustRegistryValid: true`,
+`remoteIntervalsWatched: true`, `firstAndLastFramesChecked: true`,
+`eachFifteenSecondEpochChecked: true`, `underlyingContentReadable: true`,
+`livePairingReproduced` (boolean), `sampledFrames: Uint64String` with
+mathematical value at least 10, and `reproductionRunId` (`RunId` when that
+boolean is true, otherwise JSON `null`). At least one accepted review record per
+matrix revision has `livePairingReproduced: true`, preserving the required one
+clean live-paired reproduction without pretending every retained run was
+recollected. Identity and bundle digest match the reviewed bundle. Both key IDs
+are equal and resolve only to an active
+`qualification-independent-review`/`independent-reviewer` key at the RC SHA,
+distinct from both role keys and any release-bundle key.
+
+The exact signed bytes are the ASCII/UTF-8 domain separator
+`InterviewCopilot qualification independent review v1\n` followed immediately
+by JCS payload bytes, with no trailing byte. Missing record, wrong external
+path, failed/unknown result, missing report hash or observation, identity/RC/
+digest disagreement, unknown/wrong-purpose/reused key, noncanonical bytes, or
+bad signature blocks `verify:release` and the P12 aggregate.
+
+No reporter plan entry or ad-hoc shell command is added. The existing
+`qualify:meet --collect-missing` child validates bundles and, when run by the
+configured independent reviewer after the required prompts/checks, writes and
+immediately verifies this detached record outside the run root. The already-
+planned final `verify:release` child requires and revalidates the exact record
+for every accepted M01/M02 run. An initial collector run may therefore finish
+collection but cannot make the release aggregate green until independent
+review exists; the final unchanged P12 reporter rerun must have all raw exits
+zero. Any disagreement, non-reproducible tuple, graph/byte mismatch, or changed
+version leaves external reporter failure evidence, produces no qualifying
+`result: "pass"` review envelope, and blocks the claim.
 
 **Clean-checkout setup.** Requires supported macOS, Chrome, Meet test account,
 remote observer/second device, signing/notarization credentials, and both
@@ -2199,7 +2479,9 @@ executes all three frozen cases. Every test-classified reporter entry prints
 passed/failed/skipped totals. **Regression suite.** the
 entire P01–P11 suite, native audio, all mode fixtures, migrations, storage
 plaintext scans, shell/capture integration, package smoke tests, and release
-claim/deferred-scope scans.
+claim/deferred-scope scans. The later existing `verify:release` entry makes the
+unchanged reporter aggregate nonzero unless every accepted run also has its
+valid external independent-review envelope.
 
 **Docs.** Exact supported tuple matrix/date, guided verification, stale rules,
 D-005g headline/qualifier, limitations/non-security-boundary, permissions,
@@ -2207,8 +2489,9 @@ provider/audio/storage/privacy, diagnostics, AGPL/source offer, macOS install/
 uninstall/update, release evidence, SBOM/vulnerability disposition, and explicit
 Windows/Linux/app/scope deferrals. Release docs also publish the exact parent/
 inherit entitlement tables, frozen Staff-live corpus hash/assertion summary,
-both manifest schemas/memberships/digests, signature verification result, and
-detached independent-review record.
+closed schema inventory, RC-pinned trust registry, both manifest schemas/
+memberships/digests, signature verification result, and detached independent-
+review record.
 
 **Completion evidence.** (1) SHAs/base/version; (2) every raw gate/count report;
 (3) signed/notarized arm64/x64 hashes and package-policy report; (4) role-by-
@@ -2216,11 +2499,14 @@ role extracted entitlement plist diff, SBOM, and vulnerability disposition;
 (5) protection trace; (6) exact no-wildcard matrix; (7) per-tuple P12-M01/M02
 raw recording/content analysis, exact evidence-manifest membership/digest, both
 canonical signed role attestations, bundle metadata, final bundle-manifest
-membership/digest, and optional detached signature; (8) validator proof of the
-acyclic graph plus mutation/include/exclude failure fixtures; (9) verification-
+membership/digest, and optional release signature absence/presence result; (8)
+validator proof of the 16-node/28-edge acyclic graph plus final-state mutation/
+include/exclude, recursive-schema, canonical-byte, trust/key-purpose, and exact-
+domain failure fixtures, alongside separate collector write-history tests; (9) verification-
 state/stale trace; (10) diagnostic preview/network-zero trace; (11) scoped
 recovery E2E; (12) claim/deferred scan; (13) frozen Staff-live corpus hash plus
-all case/assertion counts; (14) detached independent-review sign-off over the
+all case/assertion counts; (14) mandatory detached independent-review envelope,
+external path, report hashes, observations, key lookup, and signature over the
 final bundle digest that supports every public claim.
 
 **Risk/complexity.** Release-blocking/very high. External capture behavior and
@@ -2228,7 +2514,7 @@ signing infrastructure cannot be inferred from unit tests.
 
 **Self-contained implementation prompt.**
 
-> Implement P12 from P00-R3 after P01–P11 on
+> Implement P12 from P00-R4 after P01–P11 on
 > `phase/P12-macos-qualification`. Freeze the exact macOS/Chrome/Meet/build/
 > architecture matrix, harden macOS-only package/entitlements/identity, add
 > local-only redacted diagnostic preview/export, scoped failure recovery,
@@ -2240,11 +2526,15 @@ signing infrastructure cannot be inferred from unit tests.
 > plan including artifact validation and the SHA-pinned three-case Staff-live
 > corpus. Implement the exact write-once evidence-manifest → two independent
 > role attestations → final bundle-manifest/digest sequence, canonical bytes,
-> memberships, exclusions, detached-signature rule, and read-only validator.
-> Attach every enumerated artifact. A failed/incomplete tuple, cyclic/extra/
-> missing/mutated bundle member, invalid signature, extra or missing entitlement,
-> corpus assertion failure, or skipped case blocks release; never infer pass or
-> accept pre-existing files without complete read-only validation.
+> recursively closed schemas, matrix-pinned role/reviewer/release trust,
+> memberships, exclusions, exact signature domains, optional release-signature
+> absence/presence rules, mandatory external review, and read-only validator.
+> Enforce first-touch/write-once/freeze in the live collector while limiting
+> offline claims to observable final state. Attach every enumerated artifact. A
+> failed/incomplete tuple, cyclic/extra/missing member, observable final-byte or
+> trust/signature mismatch, missing review, extra or missing entitlement, corpus
+> assertion failure, or skipped case blocks release; never infer pass or accept
+> pre-existing files without complete read-only validation.
 
 **Self-contained review prompt.**
 
@@ -2255,14 +2545,18 @@ signing infrastructure cannot be inferred from unit tests.
 > verify remote Meet raw artifacts/control frames, canonical evidence manifest,
 > independently signed role attestations, bundle metadata/final digest, exact
 > include/exclude rules, and acyclic dependency graph for both scopes/
-> architectures, and reproduce one clean live-paired tuple. Verify
+> architectures, recursively closed schemas, RC-pinned key purposes, exact
+> signature domains, optional release-signature semantics, and reproduce one
+> clean live-paired tuple. Verify
 > the frozen Staff-live corpus hash and every structural assertion, force stale/
 > failed records, inspect diagnostic network/content traces, and scan every
 > shipped string. Reject missing tuple evidence, local-only confirmation,
 > broadened claim, unsupported platform/app/scope, entitlement drift, telemetry,
-> corpus mutation/failure, self-reference, post-signing mutation, invalid role or
-> bundle signature, skipped test, vulnerability without disposition, or any
-> nonzero child/aggregate gate. Store review sign-off outside the immutable run.
+> corpus mutation/failure, self-reference, observable final-byte mismatch,
+> invalid role/reviewer/release signature or trust binding, skipped test,
+> vulnerability without disposition, or any nonzero child/aggregate gate. Sign
+> the closed review envelope at its exact external path; do not claim the offline
+> validator proves write history.
 
 **Remediation prompt template.**
 
@@ -2273,8 +2567,8 @@ signing infrastructure cannot be inferred from unit tests.
 > `{P12 named test/validator}`, rebuild and rerun the complete P12 sequence and
 > both live-paired remote qualifications for every affected tuple, then return
 > every reporter raw exit/count and aggregate exit, entitlement diff, corpus
-> counts, both manifest memberships/digests, role/detached-signature results,
-> matrix revision, and new SHAs.
+> counts, both manifest memberships/digests, schema/canonical/trust probes,
+> role/release/reviewer signature results, matrix revision, and new SHAs.
 
 ## 8. Requirement ownership matrix
 
