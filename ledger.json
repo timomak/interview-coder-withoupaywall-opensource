@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-07-26T22:42:17+02:00",
+  "updatedAt": "2026-07-26T22:43:49+02:00",
   "repository": {
     "remote": "https://github.com/j4wg/interview-coder-withoupaywall-opensource",
     "pushRemote": "https://github.com/timomak/interview-coder-withoupaywall-opensource",
@@ -42,7 +42,9 @@
       "P00-R6-B01": {"severity": "CRITICAL", "rootCauseTag": "accepted-file-acl-writability-toctou", "disposition": "OPEN_HARD_LIMIT", "observableIn": "P00-R6", "requiredOutcome": "Require and descriptor-verify an empty ACL on every staged and accepted file and directory, reject inheritable ACLs on staging ancestors, include ACL state in before/after and final canonical reopen checks, apply the rule to CREATE, resume, REUSE, and both EEXIST paths without repair, and add a named macOS lifecycle mutation test proving an ACL granting the invoker write or append can never return zero."}
     },
     "prNumber": 154,
-    "prUrl": "https://github.com/j4wg/interview-coder-withoupaywall-opensource/pull/154"
+    "prUrl": "https://github.com/j4wg/interview-coder-withoupaywall-opensource/pull/154",
+    "prBodyRecordsReview6Blocker": true,
+    "hostedCodeQL": "SUCCESS"
   },
   "verificationBaseline": null,
   "prototype": {
@@ -110,6 +112,7 @@
       "reviewedRevision": "P00-R1",
       "reviewedSha": "899bc74e0648cf8cc7d774181e2f8e439505eace",
       "verdict": "CHANGES_REQUESTED",
+      "taskArchived": true,
       "blockingFindingIds": ["P00-R1-B01", "P00-R1-B02", "P00-R1-B03", "P00-R1-B04", "P00-R1-B05"]
     },
     "P00/remediate-1": {
