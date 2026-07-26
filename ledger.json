@@ -303,13 +303,15 @@
       }
     },
     "P00/remediate-5": {
-      "status": "QUEUED_AFTER_INFRASTRUCTURE_RETRY",
+      "status": "RESUMING_AFTER_INTERRUPTION",
       "clientThreadId": "client-new-thread:d0d96132-23a3-499c-9b2f-435177f74145",
-      "threadId": null,
+      "threadId": "019f9ff1-30d2-71b1-9eea-876fbf880753",
       "hostId": "local",
+      "worktreePath": "/Users/thirdfacedev/.codex/worktrees/4c21/TimoCodes",
       "infrastructureRetryCount": 1,
       "lastInfrastructureFailure": "Codex task entered systemError during startup before any assistant work, repository edit, commit, push, or remediation attempt.",
       "failedThreadId": "019f9fef-ba31-75e2-a5e2-a3277c99e055",
+      "lastObservedInterruption": "Retry 1 completed repository inspection and lifecycle reasoning but its turn was interrupted before any edit, commit, push, or remediation result; exact R5 worktree remains clean and is being resumed in place.",
       "baseRevision": "P00-R5",
       "baseSha": "8820b6c848d96162bb63315c329a52b328d415e5",
       "targetRevision": "P00-R6",
