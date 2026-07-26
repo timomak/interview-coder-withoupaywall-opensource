@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-07-26T22:48:01+02:00",
+  "updatedAt": "2026-07-26T22:48:51+02:00",
   "repository": {
     "remote": "https://github.com/j4wg/interview-coder-withoupaywall-opensource",
     "pushRemote": "https://github.com/timomak/interview-coder-withoupaywall-opensource",
@@ -9,6 +9,21 @@
   },
   "orchestrationStatus": "BLOCKED",
   "currentPhaseId": "P00",
+  "goalBlockedAudit": {
+    "blockingCondition": "P00-R6-B01 remains CRITICAL after the sole authorized hard-limit exception; packet approval, baseline capture, and P01-P12 execution require explicit authorization for the fully bounded P00-R7 exception.",
+    "consecutiveGoalTurns": 3,
+    "thresholdSatisfied": true,
+    "auditedAt": "2026-07-26T22:48:51+02:00",
+    "authoritativeState": {
+      "packetSha": "42925fb617a61a1149bdf1e027cf21c975b0f13a",
+      "prNumber": 154,
+      "prHeadMatched": true,
+      "hostedCodeQL": "SUCCESS",
+      "furtherPlanningRemediationAuthorized": false,
+      "safePreparationExhausted": true
+    },
+    "resumeAuthorizationPhrase": "Authorize one additional narrowly scoped P00-R7 exception for P00-R6-B01 only."
+  },
   "packet": {
     "status": "BLOCKED",
     "revision": "P00-R6",
