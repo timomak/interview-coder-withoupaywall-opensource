@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-07-26T16:47:00+02:00",
+  "updatedAt": "2026-07-26T16:48:57+02:00",
   "repository": {
     "remote": "https://github.com/j4wg/interview-coder-withoupaywall-opensource",
     "pushRemote": "https://github.com/timomak/interview-coder-withoupaywall-opensource",
@@ -81,7 +81,8 @@
       "prUrl": "https://github.com/j4wg/interview-coder-withoupaywall-opensource/pull/154"
     },
     "P00/review-1": {
-      "status": "PENDING",
+      "status": "QUEUED",
+      "clientThreadId": "client-new-thread:ec148235-aa12-4570-822e-b2186d0ffc28",
       "threadId": null,
       "hostId": null,
       "infrastructureRetryCount": 0
