@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-07-26T22:18:33+02:00",
+  "updatedAt": "2026-07-26T22:19:05+02:00",
   "repository": {
     "remote": "https://github.com/j4wg/interview-coder-withoupaywall-opensource",
     "pushRemote": "https://github.com/timomak/interview-coder-withoupaywall-opensource",
@@ -23,7 +23,7 @@
       "authorizedBy": "user",
       "scope": "One narrowly scoped P00-R6 remediation for P00-R5-B01, followed by fresh independent review; no implementation begins before approval."
     },
-    "reviewTask": null,
+    "reviewTask": "P00/review-6",
     "reviewVerdict": "PENDING",
     "openFindingIds": ["P00-R5-B01"],
     "findings": {
@@ -333,7 +333,21 @@
         "gitDiffCheckExit": 0,
         "checkerRerunsDisclosed": true
       },
+      "hostedCodeQL": "SUCCESS",
+      "prUpdatedToRevision": "P00-R6",
+      "taskArchivedAfterRootFinalization": true,
       "findingIds": ["P00-R5-B01"]
+    },
+    "P00/review-6": {
+      "status": "QUEUED",
+      "threadId": null,
+      "hostId": "local",
+      "infrastructureRetryCount": 0,
+      "reviewedRevision": "P00-R6",
+      "reviewedSha": "42925fb617a61a1149bdf1e027cf21c975b0f13a",
+      "prNumber": 154,
+      "prUrl": "https://github.com/j4wg/interview-coder-withoupaywall-opensource/pull/154",
+      "verdict": "PENDING"
     }
   },
   "blockers": [
