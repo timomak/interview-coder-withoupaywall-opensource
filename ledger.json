@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-07-26T20:46:29+02:00",
+  "updatedAt": "2026-07-26T20:48:28+02:00",
   "repository": {
     "remote": "https://github.com/j4wg/interview-coder-withoupaywall-opensource",
     "pushRemote": "https://github.com/timomak/interview-coder-withoupaywall-opensource",
@@ -305,7 +305,29 @@
       "rootCauseTag": "release-statement-exclusive-create-rerun-deadlock",
       "hardLimitReached": true,
       "blocks": ["PACKET_APPROVAL", "BASELINE", "P01-P12_IMPLEMENTATION"],
-      "requiredOutcome": "Define a constructible, identity-preserving two-run reporter lifecycle with explicit existing-statement validation/reuse semantics and no second exclusive creation."
+      "requiredOutcome": "Define a constructible, identity-preserving two-run reporter lifecycle with explicit existing-statement validation/reuse semantics and no second exclusive creation.",
+      "proposedException": {
+        "authorizationRequired": true,
+        "targetRevision": "P00-R6",
+        "scope": "Only the P12 package/release-statement lifecycle, its named tests, and directly conflicting prose; preserve every other R5 invariant and count.",
+        "stateMachine": [
+          "CREATE: when no release statement exists, package:mac builds, signs, notarizes, staples, seals the package set, and invokes the controller-owned exclusive writer exactly once as its final producer step.",
+          "REUSE: when the statement exists, package:mac must not rebuild, resign, renotarize, restaple, or invoke the writer; it securely reopens and validates the same immutable package set and statement against externally pinned HEAD and matrix identity, then returns zero only on exact agreement.",
+          "REJECT: any invalid statement, package/hash/identity mismatch, partial state, alternate path, link, writable artifact, wrong RC/matrix, or attempted replacement returns nonzero without repair, checkout movement, or new output."
+        ],
+        "requiredLifecycleProof": [
+          "Run 1 with no review: package:mac creates once and returns 0; collection succeeds; verify:release returns nonzero because review is absent; aggregate is nonzero.",
+          "After a valid independent review is added, the unchanged reporter rerun enters REUSE; package and statement bytes/inodes/hashes remain unchanged; writer invocation count remains one; all child exits and aggregate are zero.",
+          "A third identical rerun is also zero and mutation-free, proving idempotent validation rather than a special one-off bypass."
+        ],
+        "requiredNegativeTests": [
+          "Existing invalid or noncanonical statement",
+          "Missing, replaced, writable, linked, or hash-mismatched package",
+          "Wrong RC, matrix digest/revision/path, architecture set, signing identity, or notarization/staple/spctl result",
+          "Writer invocation, rebuild, resign, renotarize, restaple, statement replacement, checkout selection, or artifact mutation during REUSE",
+          "Concurrent exclusive-create collision that does not resolve to the exact already-valid immutable package/statement identity"
+        ]
+      }
     }
   ]
 }
