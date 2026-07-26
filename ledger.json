@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "updatedAt": "2026-07-26T16:20:13+02:00",
+  "repository": {
+    "remote": "https://github.com/j4wg/interview-coder-withoupaywall-opensource",
+    "baseBranch": "main",
+    "baseSha": "9dcb4b2d39607273a8528a24657cdb4f5bfc3412"
+  },
+  "orchestrationStatus": "PLANNING",
+  "currentPhaseId": "P00",
+  "packet": {
+    "status": "PLANNING",
+    "revision": null,
+    "path": null,
+    "branch": null,
+    "headSha": null,
+    "frozenAtSha": null,
+    "planningRemediationCycleCount": 0,
+    "reviewTask": null,
+    "reviewVerdict": null,
+    "openFindingIds": []
+  },
+  "verificationBaseline": null,
+  "prototype": {
+    "branch": "feat/subscription-cli-providers",
+    "headSha": "9dcb4b2d39607273a8528a24657cdb4f5bfc3412",
+    "dirty": true,
+    "disposition": "Input to packet planning; not independently reviewed and not treated as a completed phase."
+  },
+  "phases": [],
+  "tasks": {},
+  "blockers": []
+}
