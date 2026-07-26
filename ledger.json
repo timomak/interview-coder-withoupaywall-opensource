@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-07-26T17:38:04+02:00",
+  "updatedAt": "2026-07-26T18:47:52+02:00",
   "repository": {
     "remote": "https://github.com/j4wg/interview-coder-withoupaywall-opensource",
     "pushRemote": "https://github.com/timomak/interview-coder-withoupaywall-opensource",
@@ -127,7 +127,29 @@
       "threadId": "019f9f0a-0466-7b91-99ac-55b0b19aac9e",
       "hostId": "local",
       "infrastructureRetryCount": 1,
-      "lastInfrastructureFailure": "Task was archived while active and its worktree unloaded; task was unarchived and resumed without counting a remediation attempt."
+      "lastInfrastructureFailure": "Task was archived while active and its worktree unloaded; task was unarchived and resumed without counting a remediation attempt.",
+      "recoveryWorktreePath": "/Users/thirdfacedev/.codex/worktrees/p00-remediate-2-recovery",
+      "recoveryBaseSha": "5b885baed4f00eda89751a646e43793aa30e1154",
+      "recoveryState": "Full prior two-document R3 patch recovered; task approval loop bypassed by root orchestration without touching the dirty prototype checkout.",
+      "precommitValidation": {
+        "checksPassed": 20,
+        "checksFailed": 0,
+        "contracts": "12/12",
+        "criteria": 117,
+        "decisions": "96/96",
+        "migrations": 11,
+        "prototypePaths": "40/40",
+        "dependencyEdges": 18,
+        "cycles": 0,
+        "bashBlocks": "25/25",
+        "reporterPlans": 13,
+        "evidenceMembers": 9,
+        "bundleMembers": 4,
+        "evidenceGraphAcyclic": true,
+        "gitDiffCheckExit": 0,
+        "validationReruns": 1,
+        "rerunReason": "Initial checker counted two inline identifiers as prototype paths and missed a wrapped evidence-graph heading; corrected checker logic only, no packet change."
+      }
     }
   },
   "blockers": []
