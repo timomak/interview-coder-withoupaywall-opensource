@@ -1,6 +1,6 @@
 # InterviewCopilot phase-execution packet
 
-Packet revision: **P00-R2**
+Packet revision: **P00-R3**
 
 Planning base: `main@9dcb4b2d39607273a8528a24657cdb4f5bfc3412`
 
@@ -268,7 +268,8 @@ The P12 row is complete and therefore does not receive the default manifest or
 build suffix. Package, diagnostics, Meet collection/validation, and final
 release validation are child commands of the same reporter and cannot bypass
 its raw-exit aggregate. `qualify:meet` launches collection when evidence is
-absent as specified in P12-M01/M02; it is not an artifact-presence shortcut.
+absent and performs the write-once manifest/attestation/bundle finalization in
+P12-M01/M02; it is not an artifact-presence shortcut.
 The remote device also uses the reporter, with the exact invocation
 `npm run verify:phase -- --phase P12 --role meet-observer --pair
 <one-time-pairing-url> --artifacts .artifacts/qualification-observer`.
@@ -385,7 +386,7 @@ inside the single PR.
 
 **Self-contained implementation prompt.**
 
-> Implement P01 from P00-R2 on `phase/P01-local-gates`, based only on upstream
+> Implement P01 from P00-R3 on `phase/P01-local-gates`, based only on upstream
 > `main@9dcb4b2d…` plus merged planning docs. Do not import the dirty prototype.
 > Make local lint, strict type-check, real unit tests (including the unchanged
 > tracked CRA sample), manifest enforcement, and build green. Centralize and
@@ -397,7 +398,7 @@ inside the single PR.
 
 **Self-contained review prompt.**
 
-> Review P01 independently against P00-R2, not the author’s summary. From the
+> Review P01 independently against P00-R3, not the author’s summary. From the
 > clean PR checkout run the P01 reporter invocation, confirm the inherited CRA
 > test ran,
 > inspect all config/glob/ignore changes for hidden coverage loss, compare typed
@@ -526,7 +527,7 @@ and evolving; pin capabilities and fail explicitly on unsupported versions.
 
 **Self-contained implementation prompt.**
 
-> Implement P02 from P00-R2 after P01, on
+> Implement P02 from P00-R3 after P01, on
 > `phase/P02-subscription-runtime`. Build a provider-neutral persistent runtime
 > for Claude Code and Codex only, using one resumable session/thread, normalized
 > streaming/usage/compaction/stop/error events, explicit provider/model/Fast-
@@ -539,7 +540,7 @@ and evolving; pin capabilities and fail explicitly on unsupported versions.
 
 **Self-contained review prompt.**
 
-> Review P02 against P00-R2 from a clean checkout. Trace both fake providers
+> Review P02 against P00-R3 from a clean checkout. Trace both fake providers
 > through two turns, stop, compaction, driver/child restart, and caller-ID
 > resume; force every failure and prove the other provider never starts. Inspect
 > spawn/env/tool restrictions, IPC exposure, migration idempotence/file mode,
@@ -652,7 +653,7 @@ never custom cryptography.
 
 **Self-contained implementation prompt.**
 
-> Implement P03 from P00-R2 after P01 on
+> Implement P03 from P00-R3 after P01 on
 > `phase/P03-encrypted-persistence`. Build the Keychain-backed installation-key
 > service, versioned AES-256-GCM record/blob store, atomic writes, encrypted
 > in-memory-search source, typed recovery, raw-audio rejection, and journaled
@@ -800,7 +801,7 @@ boundary; no renderer or provider may keep a second authoritative session.
 
 **Self-contained implementation prompt.**
 
-> Implement P04 from P00-R2 after P02/P03 on
+> Implement P04 from P00-R3 after P02/P03 on
 > `phase/P04-session-orchestrator`. Replace global transient state with the
 > deterministic InterviewSession reducer, typed event/IPC contract, one
 > persistent-conversation orchestrator, context/delta policy, pending artifacts,
@@ -935,7 +936,7 @@ display behavior is platform-sensitive and directly touches privacy regression.
 
 **Self-contained implementation prompt.**
 
-> Implement P05 from P00-R2 after P04 on `phase/P05-live-shell`. Build the
+> Implement P05 from P00-R3 after P04 on `phase/P05-live-shell`. Build the
 > exact Quiet Signal hidden/compact/answer/expanded shell, command rail,
 > composer, input tray, explicit click-through/drag regions, final remappable
 > shortcuts, display-aware geometry, primary-display screenshot behavior,
@@ -1057,7 +1058,7 @@ regress silently; fixture contracts are merge-blocking.
 
 **Self-contained implementation prompt.**
 
-> Implement P06 from P00-R2 after P05 on `phase/P06-coding`. Add the exact
+> Implement P06 from P00-R3 after P05 on `phase/P06-coding`. Add the exact
 > typed Coding intents/schema/renderer, concise-first progressive answer,
 > language snapshot and six-family fixtures, read-only actions, New Question,
 > and isolated `Control+Shift+D` versioned Fix flow. Enforce no personal context,
@@ -1172,7 +1173,7 @@ must not become a second untyped document model.
 
 **Self-contained implementation prompt.**
 
-> Implement P07 from P00-R2 after P05 on `phase/P07-system-design`. Add the
+> Implement P07 from P00-R3 after P05 on `phase/P07-system-design`. Add the
 > fixed typed five-section progressive workflow, bounded material estimates,
 > safe vendor-neutral structured diagram, read-only accessible interactions,
 > assumption handling, dependency-scoped follow-up and What changed summary.
@@ -1293,7 +1294,7 @@ integrity are product trust boundaries.
 
 **Self-contained implementation prompt.**
 
-> Implement P08 from P00-R2 after P05 on `phase/P08-behavioral`. Build the
+> Implement P08 from P00-R3 after P05 on `phase/P08-behavioral`. Build the
 > encrypted canonical candidate dossier, guided/manual reviewed editing,
 > sanitized Markdown import/export, multiple snapshotted opportunities,
 > provenance, opt-in labeled persistent synthetic stories, and typed Behavioral
@@ -1426,7 +1427,7 @@ packaging, privacy, and transcription latency are launch-critical.
 
 **Self-contained implementation prompt.**
 
-> Implement P09 from P00-R2 after P05 on `phase/P09-audio`, macOS only. Build
+> Implement P09 from P00-R3 after P05 on `phase/P09-audio`, macOS only. Build
 > explicit two-source native capture, deterministic master/per-source controls,
 > contextual permission recovery, pinned offline whisper.cpp transcription,
 > explicit Apple Speech remote fallback, typed segments/attribution/correction,
@@ -1545,7 +1546,7 @@ must never become a capability or schema escape hatch.
 
 **Self-contained implementation prompt.**
 
-> Implement P10 from P00-R2 after P06/P07/P08 on
+> Implement P10 from P00-R3 after P06/P07/P08 on
 > `phase/P10-prompt-studio`. Build synchronized reviewed-diff Chat/Manage,
 > immutable built-ins, complete encrypted user CRUD, core-mode-only schemas,
 > deterministic recorded instruction resolution, Start snapshotting, protected
@@ -1662,7 +1663,7 @@ content and destructive user controls.
 
 **Self-contained implementation prompt.**
 
-> Implement P11 from P00-R2 after P06–P10 on
+> Implement P11 from P00-R3 after P06–P10 on
 > `phase/P11-history-recovery`. Add explicit crash Resume/Reset, complete
 > encrypted archive projection, Settings-only in-memory search/open/delete one/
 > all, safe consented individual Markdown/JSON export, read-only archive open,
@@ -1721,7 +1722,7 @@ pixel dimensions/scaling, and internal/external display type), never `latest`,
 a range, or a wildcard. Those exact passing tuples—and no neighboring patch,
 major version, browser, app build, architecture, or display mode—are the
 supported macOS/browser/app versions until separately qualified. Qualify each
-supported tuple separately. P00-R2 represents no version as supported before
+supported tuple separately. P00-R3 represents no version as supported before
 that committed matrix and its evidence pass. Entire-display and specific-window
 require confirmation from remote Meet view or
 second device and retained high-contrast moving-marker artifacts; one fail makes
@@ -1822,10 +1823,10 @@ for this gate.
 | P12-AC1: package config emits only macOS arm64/x64 launch artifacts with canonical identity; the signed parent and every nested executable match their exact allowlists above with a mechanical reject-on-extra/missing/wrong-role assertion; signing/notarization and AGPL metadata are valid; no Windows/Linux support claim exists. | `tests/release/macosPackagePolicy.test.ts — rejects any macOS entitlement allowlist mismatch` |
 | P12-AC2: every BrowserWindow in the packaged app enables content protection before first visible frame and after lifecycle reconfiguration. | `tests/release/packagedCaptureProtection.test.ts — traces protection in the packaged app` |
 | P12-AC3: guided Meet flow tests entire-display and specific-window separately with moving marker and requires remote/second-device confirmation; it never offers generic/browser-tab certification. | `src/features/privacy/MeetVerification.test.tsx — guides only qualified scopes with remote confirmation` |
-| P12-AC4: verification record contains exact app/commit/macOS/arch/Chrome/Meet/display/scopes/date/result/artifact hashes and state invalidates by specified changes. | `electron/privacy/verificationRecord.test.ts — versions verifies fails and stales exact tuples` |
-| P12-AC5: release-build Google Meet entire-display capture contains zero marker pixels while underlying control frames remain visible for every frozen tuple. | `P12-M01 — remote Google Meet entire-display moving-marker qualification` |
-| P12-AC6: release-build Google Meet specific-window capture contains zero marker pixels while target-window control frames remain visible for every frozen tuple. | `P12-M02 — remote Google Meet specific-window moving-marker qualification` |
-| P12-AC7: any missing/failed scope or artifact produces Failed/Not verified and makes release qualification command nonzero; local preview can never produce pass. | `scripts/qualification/meet-artifact-validator.test.ts — fails incomplete false or local-only evidence` |
+| P12-AC4: verification record contains exact app/commit/macOS/arch/Chrome/Meet/display/scopes/date/result plus evidence- and bundle-manifest digests, and state invalidates by specified changes. | `electron/privacy/verificationRecord.test.ts — versions verifies fails and stales exact tuples` |
+| P12-AC5: release-build Google Meet entire-display capture contains zero marker pixels while underlying control frames remain visible for every frozen tuple, with the accepted evidence bound by both independent role attestations and the final bundle digest. | `P12-M01 — remote Google Meet entire-display moving-marker qualification` |
+| P12-AC6: release-build Google Meet specific-window capture contains zero marker pixels while target-window control frames remain visible for every frozen tuple, with the accepted evidence bound by both independent role attestations and the final bundle digest. | `P12-M02 — remote Google Meet specific-window moving-marker qualification` |
+| P12-AC7: any missing/failed scope or artifact, noncanonical or extra manifest member, self-reference, digest/signature mismatch, or post-manifest mutation produces Failed/Not verified and makes release qualification nonzero; local preview can never produce pass. | `scripts/qualification/meet-artifact-validator.test.ts — rejects incomplete cyclic mutated or local-only evidence` |
 | P12-AC8: diagnostics exclude transcript/audio/screenshots/prompts/responses/profile/opportunity/credentials/tokens/device IDs, preview before manual export, and perform zero network upload. | `electron/diagnostics/diagnosticPrivacy.test.ts — previews redacted local-only diagnostic export` |
 | P12-AC9: provider/microphone/system-audio/screen-capture denial disables only affected action and explicit repair/retry preserves the session. | `tests/release/scopedRecovery.e2e.test.ts — preserves session through every permission/provider failure` |
 | P12-AC10: shipped copy/docs contain only qualified D-005g language and no 99%, undetectable, bypass, anti-cheat, process-hiding, monitoring-evasion, or unsupported-app/platform claim. | `tests/release/claimPolicy.test.ts — rejects unqualified privacy and platform language` |
@@ -1842,8 +1843,8 @@ P12 reporter's exact invocation launches the procedure for every incomplete
 matrix tuple and scope, blocks until collection and validation finish, and
 returns nonzero if a prerequisite, human step, raw artifact, count, or assertion
 is absent. A pre-existing artifact directory is accepted only after complete
-schema/hash validation; an empty or partial directory triggers collection or a
-nonzero failure, never a presumed pass.
+schema/canonical-byte/manifest/signature validation; an empty or partial
+directory triggers collection or a nonzero failure, never a presumed pass.
 
 **Supported version rule and release prerequisite.** Before the first run,
 `docs/qualification/macos-google-meet.json` must be committed at the RC SHA with
@@ -1945,7 +1946,8 @@ steps and records UTC plus monotonic timestamps for each acknowledgement:
 5. After the collector announces 120 valid seconds, choose Meet **Stop
    presenting**. The observer acknowledges presentation stopped and records 15
    more seconds. The collector then closes the test surfaces, finalizes the raw
-   streams, and immediately validates both scope evidence and attestations.
+   streams, executes the acyclic evidence/attestation/bundle sequence below, and
+   immediately validates the complete scope bundle.
 
 M01 and M02 run separately for every tuple, in that order, with a fresh Meet
 presentation and run ID. A pass in one scope never fills or waives the other.
@@ -1961,8 +1963,9 @@ unsupported) for a missing/invalid artifact or attestation; marker detected in
 one or more remote shared-interval frames; marker render continuity below
 99.5%; control sequence recognized in less than 99.5% of remote shared-interval
 frames; any one-second interval without a valid control frame; wrong seed/scope;
-local-only evidence; or hash/schema/timestamp/version inconsistency. Compression
-noise is not counted as a marker: the frozen validator detects the exact
+local-only evidence; or manifest/signature/hash/schema/timestamp/version
+inconsistency. Compression noise is not counted as a marker: the frozen
+validator detects the exact
 seeded color/geometry/temporal signature and reports
 `marker_detected_frames=0`; its detection corpus includes positive transcodes
 and must pass before real evidence is evaluated.
@@ -1978,36 +1981,147 @@ this exact root for each run:
   raw/local-control-events.ndjson
   raw/remote-observer.mov
   raw/remote-observer-events.ndjson
-  attestations/local-operator.json
-  attestations/remote-observer.json
   derived/frame-analysis.ndjson
   derived/control-coverage.json
   validation/report.json
-  hashes.sha256
+  evidence-manifest.json
+  attestations/local-operator.json
+  attestations/remote-observer.json
+  bundle-metadata.json
+  bundle-manifest.json
+  bundle-manifest.sig (optional)
 ```
 
 `collection.json` contains `schemaVersion`, `procedureId`, matrix revision,
 tuple ID, scope, run ID, app semver/SHA/package hash, signing team/certificate/
 notarization ticket, exact OS build/arch/Chrome/Meet/display values, dedicated
-pseudonymous role IDs, UTC start/share-start/share-stop/end, monotonic offsets,
-duration, marker/control algorithms and seed, observer pairing challenge hash,
-relative artifact paths, byte sizes, SHA-256 hashes, validator version/SHA, and
-result. NDJSON records carry schema version, sequence, RFC3339 UTC, monotonic
-nanoseconds, frame ID, and event payload. Attestations carry exact tuple/scope,
-role, steps acknowledged, observed result, aborts/deviations, timestamps, and a
-signature over `collection.json` plus `hashes.sha256`. `hashes.sha256` covers
-every raw, attestation, derived, and validation file except itself. Paths must
-be canonical, relative, inside the run root, non-symlinked, and mode 0600 (dirs
-0700). Source video is at least 1080p, 24 fps, includes 15/120/15-second
-segments, and retains original timestamps; derived frames never replace it.
+pseudonymous role IDs and distinct pre-registered Ed25519 public-key IDs/keys,
+UTC start/share-start/share-stop/end, monotonic offsets, duration,
+marker/control algorithms and seed, observer pairing challenge hash, validator
+version/SHA, content result, and the paths, byte sizes, and SHA-256 values of the
+other eight evidence members. NDJSON records carry schema version, sequence,
+RFC3339 UTC, monotonic nanoseconds, frame ID, and event payload. Source video is
+at least 1080p, 24 fps, includes 15/120/15-second segments, and retains original
+timestamps; derived frames never replace it.
+
+**Canonical bytes and exact manifest membership.** SHA-256 over exact file
+bytes is the only digest algorithm; hashes are 64 lowercase hexadecimal
+characters. Every JSON file is RFC 8785 JSON Canonicalization Scheme (JCS) UTF-8
+with no BOM or trailing newline, and its stored bytes must equal canonicalized
+bytes. Each NDJSON line is one JCS value followed by exactly one LF, including
+the last line. The video is hashed as its original bytes. Manifest entries have
+exactly `path`, `bytes`, and `sha256`; entries sort by unsigned UTF-8 bytes of
+their ASCII POSIX relative `path`. Duplicate, absolute, empty, dot-segment,
+backslash, non-NFC, or case-colliding paths fail.
+
+`evidence-manifest.json` has exactly `schemaVersion: 1`, `kind: "evidence"`,
+`algorithm: "sha256"`, and an `entries` array containing exactly these nine
+paths, no more and no fewer:
+
+```text
+collection.json
+derived/control-coverage.json
+derived/frame-analysis.ndjson
+raw/local-control-events.ndjson
+raw/local-marker-events.ndjson
+raw/local-preflight.json
+raw/remote-observer-events.ndjson
+raw/remote-observer.mov
+validation/report.json
+```
+
+It explicitly excludes itself, `attestations/**`, `bundle-metadata.json`,
+`bundle-manifest.json`, `bundle-manifest.sig`, reviewer records, reporter logs,
+and redacted/public copies. Its evidence digest is SHA-256 of its own canonical
+bytes; no member refers to that digest. `validation/report.json` is the frozen
+content-analysis result and does not claim to validate a manifest or
+attestation that does not yet exist.
+
+Each role attestation is a JCS object containing exactly `payload` and
+`signature`. The payload contains schema version, procedure/matrix/tuple/scope/
+run identity, role and pseudonymous role ID, every required acknowledgement,
+observed result, deviations/aborts, RFC3339 timestamp, and the exact lowercase
+`evidenceManifestSha256`. The signature contains exactly `algorithm:
+"Ed25519"`, the matching pre-registered `keyId`, and an unpadded base64url
+value. The role signs the ASCII domain separator
+`InterviewCopilot qualification attestation v1\n` followed by the JCS bytes of
+`payload`; Ed25519's deterministic signature and the pinned public key make the
+payload and stored attestation bytes independently verifiable. Local and remote
+roles, IDs, keys, and signatures must differ.
+
+`bundle-metadata.json` is JCS and contains exactly `schemaVersion`,
+`procedureId`, `matrixRevision`, `tupleId`, `scope`, `runId`,
+`evidenceManifestSha256`, `localAttestationSha256`,
+`remoteAttestationSha256`, `finalizedAt`, `retentionDeleteAt`, and
+`encryptedStoreId`. It cannot contain a bundle digest or signature.
+`bundle-manifest.json` has the same four manifest fields as the evidence
+manifest except `kind: "bundle"`, and its exact ordered membership is:
+
+```text
+attestations/local-operator.json
+attestations/remote-observer.json
+bundle-metadata.json
+evidence-manifest.json
+```
+
+The final bundle digest is SHA-256 of canonical `bundle-manifest.json` bytes.
+The manifest explicitly excludes itself, all nine evidence files already
+committed through the evidence manifest, and `bundle-manifest.sig`. If the
+optional detached JCS signature exists, it contains exactly `schemaVersion`,
+`algorithm: "Ed25519"`, release `keyId`, `bundleManifestSha256`, and unpadded
+base64url `signature`. The release key signs
+`InterviewCopilot qualification bundle v1\n` followed by the lowercase bundle
+digest. The signature file's own bytes are never in that digest. No other file
+is allowed in an accepted run root.
+
+**Acyclic finalization and overwrite rules.** The collector uses a newly and
+exclusively created sibling `<runId>.partial` directory; it never imports or
+reuses a supplied run. It performs this sole legal order:
+
+1. Create and close the five raw files; fsync them and prohibit overwrite.
+2. Create and freeze the two derived files and content-only validation report,
+   then create and freeze `collection.json` from those already immutable bytes.
+3. Hash the exact nine-member allowlist, create `evidence-manifest.json`, rehash
+   every member, and freeze both the members and manifest.
+4. Send only the evidence-manifest canonical bytes/digest to both roles. Create
+   each independently signed attestation once; verify its payload, pinned key,
+   canonical bytes, signature, and evidence digest before freezing it.
+5. Create and freeze `bundle-metadata.json`; hash exactly it, the evidence
+   manifest, and both frozen attestations into `bundle-manifest.json`; then
+   compute and freeze the final bundle digest.
+6. Optionally create the detached final-bundle signature, validate the entire
+   graph without writing inside it, set files to 0400 and directories to 0500,
+   fsync, and atomically rename the staging directory to `<runId>`.
+
+Creation is exclusive and write-once. A collision, changed size/hash/mtime,
+second write, regenerated manifest or attestation, file with link count other
+than one, symlink, non-regular file, unexpected path, or failure after any
+freeze point rejects and retains the run as failed, except the privacy-deletion
+rule below; retry uses a new run ID. Neither collector nor validator repairs,
+normalizes, deletes, or overwrites an accepted or retained failed run. This gives
+the only dependency graph:
+
+```text
+raw -> derived/content-validation -> collection -> evidence-manifest
+evidence-manifest -> local-attestation
+evidence-manifest -> remote-attestation
+evidence-manifest + both-attestations -> bundle-metadata
+evidence-manifest + both-attestations + bundle-metadata -> bundle-manifest
+bundle-manifest-digest -> optional-detached-signature
+```
+
+Every edge points from an already frozen node to a newly created node; no node
+hashes itself or any descendant.
 
 **Privacy and redaction.** Use only the dedicated names, synthetic control
 content, and a disposable meeting. Do not enable audio/video/chat/captions or
 show email addresses, calendars, notifications, browser profiles, interview
-content, or unrelated screens. If personal data appears, abort, securely delete
-the unaccepted run directory, record only the abort reason without the data, and
-rerun. Accepted raw evidence is immutable and validated before any redaction;
-it is never committed or publicly uploaded. A separately hashed review copy may
+content, or unrelated screens. If personal data appears, abort before creating
+either manifest, securely delete the unaccepted staging directory, record only
+the abort reason outside it without the data, and rerun. This is the sole
+failed-run retention exception. Accepted raw evidence is immutable and validated
+before any redaction; it is never committed or publicly uploaded. A separately
+hashed review copy may
 redact only meeting code/account chrome outside the presentation and marker/
 control analysis regions. Validation always uses raw evidence. Release storage
 documents encrypted access, named independent reviewers, and retention/deletion
@@ -2015,26 +2129,42 @@ date; public evidence contains only hashes, tuple metadata, counts, and the
 redacted copy.
 
 **Validation, exits, and independent reproduction.** Within `qualify:meet`, the
-validator verifies schemas, canonical paths/modes, hashes, versions/signing,
-two distinct signed roles, timing, frame decode/continuity, positive detector
-corpus, marker absence, control visibility, and M01/M02 completeness. It prints
-one line per tuple/scope plus `passed=<n> failed=<n> skipped=<n>` and exits 0
-only when every matrix tuple has exactly one accepted M01 and M02 run, all
-assertions pass, failed=0, and skipped=0. The P12 reporter preserves that raw
-exit and makes its aggregate nonzero otherwise.
+validator is read-only. Before content assertions it rejects any noncanonical
+serialization/path/order/mode, missing or extra file/entry, forbidden manifest
+member, self-reference, size/hash mismatch, evidence or bundle digest mismatch,
+unpinned/same-role/invalid attestation signature, identity/digest disagreement,
+invalid optional detached signature, post-freeze mutation, `.partial` root, or
+non-regular/linked file. It then verifies versions/signing, timing, frame
+decode/continuity, positive detector corpus, marker absence, control visibility,
+and M01/M02 completeness. The validator writes only to the reporter's separate
+log directory. Its tests construct the valid graph, reproduce identical
+manifest and signature bytes from canonical inputs, topologically prove the
+edge list above, and mutate every member class plus each include/exclude rule to
+prove a nonzero result.
+
+It prints one line per tuple/scope plus `passed=<n> failed=<n> skipped=<n>` and
+exits 0 only when every matrix tuple has exactly one accepted M01 and M02 bundle,
+the exact graph and all assertions pass, failed=0, and skipped=0. Missing raw
+evidence, either attestation, either manifest, or the bundle metadata is a
+failure, never a skip. The P12 reporter preserves that raw exit and makes its
+aggregate nonzero otherwise.
 
 An independent reviewer starts from a fresh clone at the exact RC SHA, obtains
-the signed package and immutable raw evidence through the documented encrypted
-release channel, verifies their published SHA-256 values, and runs the complete
-P12 reporter command below. To reproduce collection rather than only validate,
-the reviewer uses a fresh checkout with no `.artifacts/qualification`, the same
-exact matrix hardware/software/display tuple, new dedicated accounts/meeting,
-and the two launch commands above; absent evidence automatically launches M01
-then M02. The reviewer watches the full remote shared intervals plus pre/post
-boundaries, checks at least the first/last and one frame from every 15-second
-marker-position epoch against `frame-analysis.ndjson`, verifies ordinary
-underlying content remains readable, and signs a separate review attestation.
-Any disagreement, non-reproducible tuple, or changed version creates a new
+the signed package and complete immutable bundle through the documented
+encrypted release channel, recomputes both manifest digests from canonical
+bytes, walks every allowlist edge, verifies both role signatures against the
+keys pinned in `collection.json`, and runs the complete P12 reporter command
+below. To reproduce collection rather than only validate, the reviewer uses a
+fresh checkout with no `.artifacts/qualification`, the same exact matrix
+hardware/software/display tuple, new dedicated accounts/meeting, and the two
+launch commands above; absent evidence automatically launches M01 then M02.
+The reviewer watches the full remote shared intervals plus pre/post boundaries,
+checks at least the first/last and one frame from every 15-second marker-position
+epoch against `frame-analysis.ndjson`, and verifies ordinary underlying content
+remains readable. The review attestation signs the final bundle digest and is
+stored as a detached review record outside the accepted run root, so review
+cannot mutate or become a dependency of the bundle it reviews. Any disagreement,
+non-reproducible tuple, graph/byte mismatch, or changed version creates a new
 failed/retest-required record and blocks the claim.
 
 **Clean-checkout setup.** Requires supported macOS, Chrome, Meet test account,
@@ -2062,8 +2192,9 @@ npm run verify:phase -- --phase P12 --artifacts .artifacts/verification/P12
 Expected reporter aggregate exit is 0; every logged child raw exit is 0.
 
 `qualify:meet` launches P12-M01 and P12-M02 for absent evidence and exits 0 only
-after every frozen tuple has a live-paired, complete, validated run with
-`marker_detected_frames=0` and valid control coverage. `test:staff-live-corpus`
+after every frozen tuple has a live-paired, complete, read-only validated bundle
+with `marker_detected_frames=0`, valid control coverage, the exact acyclic
+manifest graph, and two valid role attestations. `test:staff-live-corpus`
 executes all three frozen cases. Every test-classified reporter entry prints
 passed/failed/skipped totals. **Regression suite.** the
 entire P01–P11 suite, native audio, all mode fixtures, migrations, storage
@@ -2075,24 +2206,29 @@ D-005g headline/qualifier, limitations/non-security-boundary, permissions,
 provider/audio/storage/privacy, diagnostics, AGPL/source offer, macOS install/
 uninstall/update, release evidence, SBOM/vulnerability disposition, and explicit
 Windows/Linux/app/scope deferrals. Release docs also publish the exact parent/
-inherit entitlement tables and frozen Staff-live corpus hash/assertion summary.
+inherit entitlement tables, frozen Staff-live corpus hash/assertion summary,
+both manifest schemas/memberships/digests, signature verification result, and
+detached independent-review record.
 
 **Completion evidence.** (1) SHAs/base/version; (2) every raw gate/count report;
 (3) signed/notarized arm64/x64 hashes and package-policy report; (4) role-by-
 role extracted entitlement plist diff, SBOM, and vulnerability disposition;
-(5) protection trace; (6) exact no-wildcard matrix; (7) P12-M01/M02 raw remote
-recordings, paired role attestations, control coverage, marker analysis, schema,
-and hashes per tuple; (8) verification-state/stale trace; (9) diagnostic
-preview/network-zero trace; (10) scoped recovery E2E; (11) claim/deferred scan;
-(12) frozen Staff-live corpus hash plus all case/assertion counts; (13)
-independent reviewer sign-off that evidence supports every public claim.
+(5) protection trace; (6) exact no-wildcard matrix; (7) per-tuple P12-M01/M02
+raw recording/content analysis, exact evidence-manifest membership/digest, both
+canonical signed role attestations, bundle metadata, final bundle-manifest
+membership/digest, and optional detached signature; (8) validator proof of the
+acyclic graph plus mutation/include/exclude failure fixtures; (9) verification-
+state/stale trace; (10) diagnostic preview/network-zero trace; (11) scoped
+recovery E2E; (12) claim/deferred scan; (13) frozen Staff-live corpus hash plus
+all case/assertion counts; (14) detached independent-review sign-off over the
+final bundle digest that supports every public claim.
 
 **Risk/complexity.** Release-blocking/very high. External capture behavior and
 signing infrastructure cannot be inferred from unit tests.
 
 **Self-contained implementation prompt.**
 
-> Implement P12 from P00-R2 after P01–P11 on
+> Implement P12 from P00-R3 after P01–P11 on
 > `phase/P12-macos-qualification`. Freeze the exact macOS/Chrome/Meet/build/
 > architecture matrix, harden macOS-only package/entitlements/identity, add
 > local-only redacted diagnostic preview/export, scoped failure recovery,
@@ -2102,9 +2238,13 @@ signing infrastructure cannot be inferred from unit tests.
 > signed/notarized arm64/x64 artifacts, launch and execute the full live-paired
 > P12-M01/M02 procedures on the release build, and run the complete P12 reporter
 > plan including artifact validation and the SHA-pinned three-case Staff-live
-> corpus. Attach every enumerated artifact. A failed/incomplete tuple, extra or
-> missing entitlement, corpus assertion failure, or skipped case blocks release;
-> never infer pass or accept pre-existing files without validation.
+> corpus. Implement the exact write-once evidence-manifest → two independent
+> role attestations → final bundle-manifest/digest sequence, canonical bytes,
+> memberships, exclusions, detached-signature rule, and read-only validator.
+> Attach every enumerated artifact. A failed/incomplete tuple, cyclic/extra/
+> missing/mutated bundle member, invalid signature, extra or missing entitlement,
+> corpus assertion failure, or skipped case blocks release; never infer pass or
+> accept pre-existing files without complete read-only validation.
 
 **Self-contained review prompt.**
 
@@ -2112,14 +2252,17 @@ signing infrastructure cannot be inferred from unit tests.
 > clean SHA, inspect signing/notarization/entitlements/SBOM, trace protection
 > before first frame, mechanically compare every signed parent/nested executable
 > with the exact role allowlist, rerun the complete reporter plan, personally
-> verify remote Meet raw artifacts/control frames/hashes/role attestations for
-> both scopes/architectures, and reproduce one clean live-paired tuple. Verify
+> verify remote Meet raw artifacts/control frames, canonical evidence manifest,
+> independently signed role attestations, bundle metadata/final digest, exact
+> include/exclude rules, and acyclic dependency graph for both scopes/
+> architectures, and reproduce one clean live-paired tuple. Verify
 > the frozen Staff-live corpus hash and every structural assertion, force stale/
 > failed records, inspect diagnostic network/content traces, and scan every
 > shipped string. Reject missing tuple evidence, local-only confirmation,
 > broadened claim, unsupported platform/app/scope, entitlement drift, telemetry,
-> corpus mutation/failure, skipped test, vulnerability without disposition, or
-> any nonzero child/aggregate gate.
+> corpus mutation/failure, self-reference, post-signing mutation, invalid role or
+> bundle signature, skipped test, vulnerability without disposition, or any
+> nonzero child/aggregate gate. Store review sign-off outside the immutable run.
 
 **Remediation prompt template.**
 
@@ -2130,7 +2273,8 @@ signing infrastructure cannot be inferred from unit tests.
 > `{P12 named test/validator}`, rebuild and rerun the complete P12 sequence and
 > both live-paired remote qualifications for every affected tuple, then return
 > every reporter raw exit/count and aggregate exit, entitlement diff, corpus
-> counts, artifact hashes, matrix revision, and new SHAs.
+> counts, both manifest memberships/digests, role/detached-signature results,
+> matrix revision, and new SHAs.
 
 ## 8. Requirement ownership matrix
 
