@@ -303,7 +303,7 @@
       }
     },
     "P00/remediate-5": {
-      "status": "RESUMING_AFTER_INTERRUPTION",
+      "status": "ROOT_FINALIZING_AFTER_ROUTINE_APPROVAL_BLOCK",
       "clientThreadId": "client-new-thread:d0d96132-23a3-499c-9b2f-435177f74145",
       "threadId": "019f9ff1-30d2-71b1-9eea-876fbf880753",
       "hostId": "local",
@@ -312,6 +312,7 @@
       "lastInfrastructureFailure": "Codex task entered systemError during startup before any assistant work, repository edit, commit, push, or remediation attempt.",
       "failedThreadId": "019f9fef-ba31-75e2-a5e2-a3277c99e055",
       "lastObservedInterruption": "Retry 1 completed repository inspection and lifecycle reasoning but its turn was interrupted before any edit, commit, push, or remediation result; exact R5 worktree remains clean and is being resumed in place.",
+      "lastApprovalBlock": "After completing the authorized two-file R6 draft and its staff-level validation, the task paused on routine command approval before staging/commit. Root orchestration is finalizing the validated detached diff to avoid asking for routine approval or starting a duplicate writer.",
       "baseRevision": "P00-R5",
       "baseSha": "8820b6c848d96162bb63315c329a52b328d415e5",
       "targetRevision": "P00-R6",
