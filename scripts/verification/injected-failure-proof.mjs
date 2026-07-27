@@ -21,11 +21,10 @@ const entries = [
     argv: [
       process.execPath,
       "-e",
-      "console.log('VERIFICATION_COUNTS {\"passed\":1,\"failed\":0,\"skipped\":0}'); process.exit(7)"
+      "process.exit(7)"
     ],
-    classification: "test",
-    expectedExit: 0,
-    minimumPassed: 1
+    classification: "command",
+    expectedExit: 0
   },
   {
     label: "build",

@@ -3,13 +3,9 @@ import fs from "node:fs"
 import path from "node:path"
 import process from "node:process"
 import { spawn } from "node:child_process"
-import { fileURLToPath, pathToFileURL } from "node:url"
 import { assertSourceInventory } from "./source-inventory.mjs"
 
-const REPORTER_DIRECTORY = path.dirname(fileURLToPath(import.meta.url))
-const REPOSITORY_ROOT = path.resolve(REPORTER_DIRECTORY, "../..")
-const PLAN_MANIFEST_SHA256 =
-  "b67a832da00933e0a8b89626f9a08de4ab2e19063146c5a9eaf07712ed38e6bf"
+const REPOSITORY_ROOT = process.cwd()
 const PLAN_IDS = [
   "P01",
   "P02",
@@ -75,40 +71,6 @@ const SHELL_EXECUTABLES = new Set([
   "zsh"
 ])
 const RESULT_PREFIX = "VERIFICATION_COORDINATOR_RESULT "
-const TRUSTED_TEST_SCRIPTS = {
-  "test": "node scripts/verification/trusted-vitest-runner.mjs all",
-  "test:legacy": "node scripts/verification/trusted-vitest-runner.mjs legacy",
-  "test:unit": "node scripts/verification/trusted-vitest-runner.mjs unit",
-  "test:p01": "node scripts/verification/trusted-vitest-runner.mjs p01"
-}
-const TRUSTED_TEST_OUTER_ARGUMENTS = {
-  "test": [],
-  "test:legacy": ["--", "--reporter=verbose"],
-  "test:unit": ["--", "--reporter=verbose"],
-  "test:p01": ["--", "--reporter=verbose"]
-}
-const TRUSTED_FILE_SHA256 = {
-  "scripts/verification/source-inventory.mjs":
-    "510273f267272ab3b2c95aa395fb3d32a08a746d54c933259497359f059d605e",
-  "scripts/verification/trusted-vitest-runner.mjs":
-    "d4d14f29bde175fde1c854fe71469ced8665ab16f2679200e89474098ccf0be1",
-  "scripts/verification/vitest-count-reporter.mjs":
-    "1a862e8ae98c57d1af251d69400bac06f8c7fdd4b1ca4340f4beb06fef90a3ff",
-  "vitest.config.ts":
-    "b25dce60e2facd110c3dd458304002dea228bc9e0e29ed388c182dd22108ceef"
-}
-const TRUSTED_VITEST = {
-  version: "2.1.9",
-  resolved: "https://registry.npmjs.org/vitest/-/vitest-2.1.9.tgz",
-  integrity:
-    "sha512-MSmPM9REYqDGBI8439mA4mWhV5sKmDlBKWIYbA3lRb2PTHACE0mgKwA8yQ2xq9vxDTuk4iPrECBAEW2aoFXY0Q==",
-  installedFiles: {
-    "node_modules/vitest/package.json":
-      "6ea35e567829660d9832744086c18526b9ddebd5358c4a0cadfb0a355925f917",
-    "node_modules/vitest/dist/node.js":
-      "99a767d7e1a4c8c0a524b48ce64b8536f4bad62baf65f1fe723f19c16f87cd98"
-  }
-}
 export function sha256(bytes) {
   return crypto.createHash("sha256").update(bytes).digest("hex")
 }
@@ -197,72 +159,6 @@ export function validatePlan(plan) {
   return errors
 }
 
-export function validatePlanManifest({
-  root = REPOSITORY_ROOT,
-  expectedManifestHash = PLAN_MANIFEST_SHA256
-} = {}) {
-  const manifestPath = path.join(
-    root,
-    "scripts/verification/plan-manifest.json"
-  )
-  const manifestBytes = fs.readFileSync(manifestPath)
-  const errors = []
-
-  if (sha256(manifestBytes) !== expectedManifestHash) {
-    errors.push("immutable plan-manifest hash drift")
-  }
-
-  let manifest
-  try {
-    manifest = JSON.parse(manifestBytes.toString("utf8"))
-  } catch {
-    return [...errors, "plan manifest is not valid JSON"]
-  }
-
-  if (manifest.schemaVersion !== 1) {
-    errors.push("plan manifest schemaVersion must be 1")
-  }
-  if (
-    JSON.stringify(Object.keys(manifest.plans ?? {})) !==
-    JSON.stringify(PLAN_IDS)
-  ) {
-    errors.push("plan manifest must list the exact frozen plan IDs in order")
-  }
-
-  for (const id of PLAN_IDS) {
-    const record = manifest.plans?.[id]
-    if (
-      !record ||
-      record.file !== `${id}.json` ||
-      !/^[a-f0-9]{64}$/.test(record.sha256)
-    ) {
-      errors.push(`invalid plan-manifest record for ${id}`)
-      continue
-    }
-    const planPath = path.join(
-      root,
-      "scripts/verification/plans",
-      record.file
-    )
-    if (!fs.existsSync(planPath)) {
-      errors.push(`missing frozen plan ${record.file}`)
-      continue
-    }
-    const planBytes = fs.readFileSync(planPath)
-    if (sha256(planBytes) !== record.sha256) {
-      errors.push(`immutable argv plan drift: ${record.file}`)
-      continue
-    }
-    try {
-      const planErrors = validatePlan(JSON.parse(planBytes.toString("utf8")))
-      errors.push(...planErrors.map((error) => `${record.file}: ${error}`))
-    } catch {
-      errors.push(`${record.file} is not valid JSON`)
-    }
-  }
-  return errors
-}
-
 function readJson(filePath) {
   try {
     return JSON.parse(fs.readFileSync(filePath, "utf8"))
@@ -277,56 +173,31 @@ function loadTestManifest(root) {
   )
 }
 
-function installedVitestVersion(root) {
-  const packageJson = readJson(path.join(root, "node_modules/vitest/package.json"))
-  return typeof packageJson?.version === "string" ? packageJson.version : null
-}
-
-function trustedFileFailures(root) {
-  const failures = []
-  for (const [relativePath, expectedHash] of Object.entries({
-    ...TRUSTED_FILE_SHA256,
-    ...TRUSTED_VITEST.installedFiles
-  })) {
-    const absolutePath = path.join(root, relativePath)
-    if (!fs.existsSync(absolutePath)) {
-      failures.push(`missing trusted test input: ${relativePath}`)
-    } else if (sha256(fs.readFileSync(absolutePath)) !== expectedHash) {
-      failures.push(`trusted test input hash mismatch: ${relativePath}`)
-    }
+export function validateTrustedTestRuntime(
+  root = REPOSITORY_ROOT,
+  trustContext
+) {
+  if (!trustContext || typeof trustContext.revalidate !== "function") {
+    return ["trusted test boundary is unavailable"]
   }
-  return failures
-}
-
-export function validateTrustedTestRuntime(root = REPOSITORY_ROOT) {
-  const failures = trustedFileFailures(root)
-  const packageJson = readJson(path.join(root, "package.json"))
-  const packageLock = readJson(path.join(root, "package-lock.json"))
-  for (const [scriptName, command] of Object.entries(TRUSTED_TEST_SCRIPTS)) {
-    if (packageJson?.scripts?.[scriptName] !== command) {
-      failures.push(`trusted npm script mismatch: ${scriptName}`)
-    }
-    for (const hook of [`pre${scriptName}`, `post${scriptName}`]) {
-      if (Object.hasOwn(packageJson?.scripts ?? {}, hook)) {
-        failures.push(`test lifecycle hook is forbidden: ${hook}`)
-      }
-    }
-  }
-
-  const lockRecord = packageLock?.packages?.["node_modules/vitest"]
-  for (const field of ["version", "resolved", "integrity"]) {
-    if (lockRecord?.[field] !== TRUSTED_VITEST[field]) {
-      failures.push(`trusted Vitest lock ${field} mismatch`)
-    }
-  }
-  if (installedVitestVersion(root) !== TRUSTED_VITEST.version) {
-    failures.push("trusted installed Vitest version mismatch")
-  }
+  const failures =
+    path.resolve(root) === trustContext.root
+      ? trustContext.revalidate({ requireInstalled: true })
+      : ["trusted test boundary root mismatch"]
   return [...new Set(failures)]
 }
 
-export function testCommandBinding(entry, root = REPOSITORY_ROOT) {
-  const failures = validateTrustedTestRuntime(root)
+export function testCommandBinding(
+  entry,
+  root = REPOSITORY_ROOT,
+  trustContext
+) {
+  const failures = validateTrustedTestRuntime(root, trustContext)
+  const anchor = trustContext?.anchor ?? {
+    packageScripts: {},
+    testOuterArguments: {},
+    vitest: {}
+  }
   let scriptName = null
   let scriptCommand = null
   const actualOuterArguments = entry.argv.slice(3)
@@ -341,15 +212,18 @@ export function testCommandBinding(entry, root = REPOSITORY_ROOT) {
     scriptName = entry.argv[2]
     const packageJson = readJson(path.join(root, "package.json"))
     scriptCommand = packageJson?.scripts?.[scriptName]
-    if (!Object.hasOwn(TRUSTED_TEST_SCRIPTS, scriptName)) {
+    if (
+      !Object.hasOwn(anchor.testOuterArguments, scriptName) ||
+      !Object.hasOwn(anchor.packageScripts, scriptName)
+    ) {
       failures.push(`untrusted package test script: ${String(scriptName)}`)
     } else {
-      if (scriptCommand !== TRUSTED_TEST_SCRIPTS[scriptName]) {
+      if (scriptCommand !== anchor.packageScripts[scriptName]) {
         failures.push(`trusted npm script mismatch: ${scriptName}`)
       }
       if (
         JSON.stringify(actualOuterArguments) !==
-        JSON.stringify(TRUSTED_TEST_OUTER_ARGUMENTS[scriptName])
+        JSON.stringify(anchor.testOuterArguments[scriptName])
       ) {
         failures.push(`trusted npm outer argv mismatch: ${scriptName}`)
       }
@@ -361,8 +235,8 @@ export function testCommandBinding(entry, root = REPOSITORY_ROOT) {
       argv: entry.argv,
       scriptName,
       scriptCommand,
-      trustedFiles: TRUSTED_FILE_SHA256,
-      vitest: TRUSTED_VITEST
+      trustAnchorDigest: trustContext?.anchorDigest ?? null,
+      vitest: anchor.vitest
     })
   )
   return { bindingHash, failures, runnerName: "vitest", scriptName }
@@ -442,9 +316,11 @@ export function validateTestResultRecord({
   entry,
   nonce,
   binding,
-  root = REPOSITORY_ROOT
+  root = REPOSITORY_ROOT,
+  trustContext
 }) {
   const failures = [...binding.failures]
+  const trustedVitestVersion = trustContext?.anchor?.vitest?.version
   if (
     !record ||
     record.schemaVersion !== 3 ||
@@ -464,7 +340,10 @@ export function validateTestResultRecord({
   if (record.bindingHash !== binding.bindingHash) {
     failures.push("test runner binding hash mismatch")
   }
-  if (record.runner?.name !== "vitest" || record.runner?.version !== TRUSTED_VITEST.version) {
+  if (
+    record.runner?.name !== "vitest" ||
+    record.runner?.version !== trustedVitestVersion
+  ) {
     failures.push("test result runner identity mismatch")
   }
   if (
@@ -623,7 +502,15 @@ function nextRunDirectory(artifactsDirectory) {
   throw new Error("verification artifact run limit reached")
 }
 
-function runChild({ entry, index, cwd, runDirectory, environment, quiet }) {
+function runChild({
+  entry,
+  index,
+  cwd,
+  runDirectory,
+  environment,
+  quiet,
+  trustContext
+}) {
   return new Promise((resolve) => {
     const commandText = formatCommand(entry.argv)
     const logName = `${String(index + 1).padStart(2, "0")}-${entry.label}.log`
@@ -631,7 +518,9 @@ function runChild({ entry, index, cwd, runDirectory, environment, quiet }) {
     const logStream = fs.createWriteStream(logPath, { flags: "wx" })
     const startedAt = new Date()
     const binding =
-      entry.classification === "test" ? testCommandBinding(entry, cwd) : null
+      entry.classification === "test"
+        ? testCommandBinding(entry, cwd, trustContext)
+        : null
     const header = [
       `label=${entry.label}`,
       `command=${commandText}`,
@@ -768,7 +657,8 @@ function runChild({ entry, index, cwd, runDirectory, environment, quiet }) {
           entry,
           nonce,
           binding,
-          root: cwd
+          root: cwd,
+          trustContext
         })
         evidence = {
           counts: validated.counts,
@@ -778,7 +668,7 @@ function runChild({ entry, index, cwd, runDirectory, environment, quiet }) {
             ...spawnIdentityFailures,
             ...parsed.failures,
             ...validated.failures,
-            ...validateTrustedTestRuntime(cwd).map(
+            ...validateTrustedTestRuntime(cwd, trustContext).map(
               (failure) => `post-run ${failure}`
             )
           ]
@@ -889,7 +779,8 @@ export async function runEntries({
   artifactsDirectory,
   cwd = REPOSITORY_ROOT,
   environment = process.env,
-  quiet = false
+  quiet = false,
+  trustContext
 }) {
   const runDirectory = nextRunDirectory(path.resolve(cwd, artifactsDirectory))
   fs.mkdirSync(path.join(runDirectory, "test-results"))
@@ -909,7 +800,8 @@ export async function runEntries({
         cwd,
         runDirectory,
         environment: entryEnvironment,
-        quiet
+        quiet,
+        trustContext
       })
     )
   }
@@ -961,7 +853,7 @@ function parseArguments(argv) {
   return options
 }
 
-function loadFrozenPlan(options) {
+function loadFrozenPlan(options, trustContext) {
   const planId =
     options.phase === "P12" && options.role === "meet-observer"
       ? "P12-observer"
@@ -969,20 +861,7 @@ function loadFrozenPlan(options) {
   if (!PLAN_IDS.includes(planId) || planId === "P12-observer" && !options.role) {
     throw new Error(`unknown phase plan: ${planId}`)
   }
-
-  const manifest = JSON.parse(
-    fs.readFileSync(
-      path.join(REPORTER_DIRECTORY, "plan-manifest.json"),
-      "utf8"
-    )
-  )
-  const record = manifest.plans[planId]
-  const plan = JSON.parse(
-    fs.readFileSync(
-      path.join(REPORTER_DIRECTORY, "plans", record.file),
-      "utf8"
-    )
-  )
+  const plan = structuredClone(trustContext.plans[planId])
   if (options.pair) {
     for (const entry of plan.entries) {
       entry.argv = entry.argv.map((argument) =>
@@ -990,26 +869,46 @@ function loadFrozenPlan(options) {
       )
     }
   }
-  return { planId, plan, planSha256: record.sha256 }
+  return {
+    planId,
+    plan,
+    planSha256: trustContext.planHashes[planId]
+  }
 }
 
-async function main() {
-  if (Number.parseInt(process.versions.node.split(".")[0], 10) !== 20) {
-    throw new Error(
-      `phase verification requires Node 20; received ${process.version}`
-    )
+export async function runVerifiedPhase({ argv, trustContext }) {
+  if (
+    !trustContext ||
+    typeof trustContext.revalidate !== "function" ||
+    !trustContext.anchor
+  ) {
+    throw new Error("verified phase execution requires the bootstrap trust root")
   }
-  const options = parseArguments(process.argv.slice(2))
-  const manifestErrors = validatePlanManifest()
-  if (manifestErrors.length > 0) {
-    throw new Error(manifestErrors.join("\n"))
+  const boundaryFailures = trustContext.revalidate({
+    requireInstalled: false
+  })
+  if (boundaryFailures.length > 0) {
+    throw new Error(boundaryFailures.join("\n"))
   }
-  const { planId, plan, planSha256 } = loadFrozenPlan(options)
+  for (const planId of PLAN_IDS) {
+    const planErrors = validatePlan(trustContext.plans[planId])
+    if (planErrors.length > 0) {
+      throw new Error(
+        planErrors.map((error) => `${planId}.json: ${error}`).join("\n")
+      )
+    }
+  }
+  const options = parseArguments(argv)
+  const { planId, plan, planSha256 } = loadFrozenPlan(
+    options,
+    trustContext
+  )
   const result = await runEntries({
     planId,
     planSha256,
     entries: plan.entries,
-    artifactsDirectory: options.artifacts
+    artifactsDirectory: options.artifacts,
+    trustContext
   })
   console.log(
     `\nAGGREGATE raw_exit=${result.report.aggregateExit} json=${path.relative(
@@ -1018,11 +917,5 @@ async function main() {
     )} text=${path.relative(REPOSITORY_ROOT, result.textPath)}`
   )
   process.exitCode = result.report.aggregateExit
-}
-
-if (import.meta.url === pathToFileURL(process.argv[1] ?? "").href) {
-  main().catch((error) => {
-    console.error(error instanceof Error ? error.message : String(error))
-    process.exitCode = 1
-  })
+  return result
 }

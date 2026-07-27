@@ -44,7 +44,7 @@
     {
       "path": "tests/policy/verificationReporter.test.ts",
       "name": "accumulates raw failures counts and immutable plan drift",
-      "sha256": "72c8c221b764fa4f664563c46dcb45e79302c62e90baa1ff18fcdcacd346b660"
+      "sha256": "d713bfe9e0909b8e28beb91e6bdc78c1916323f52fc930e70e10d69d35654c89"
     },
     {
       "path": "electron/windowOpenPolicy.test.ts",
@@ -114,7 +114,7 @@
     {
       "path": "tests/policy/verificationReporter.test.ts",
       "name": "P01-R1-B03 rejects forged stdout from a zero-test child",
-      "sha256": "72c8c221b764fa4f664563c46dcb45e79302c62e90baa1ff18fcdcacd346b660"
+      "sha256": "d713bfe9e0909b8e28beb91e6bdc78c1916323f52fc930e70e10d69d35654c89"
     },
     {
       "path": "tests/policy/packageInventory.test.ts",
@@ -124,17 +124,32 @@
     {
       "path": "tests/policy/verificationReporter.test.ts",
       "name": "P01-R1-B03 authenticates one coordinator record and rejects every channel substitution",
-      "sha256": "72c8c221b764fa4f664563c46dcb45e79302c62e90baa1ff18fcdcacd346b660"
+      "sha256": "d713bfe9e0909b8e28beb91e6bdc78c1916323f52fc930e70e10d69d35654c89"
     },
     {
       "path": "tests/policy/verificationReporter.test.ts",
       "name": "P01-R1-B03 fails closed on script wrapper config reporter and runner tampering",
-      "sha256": "72c8c221b764fa4f664563c46dcb45e79302c62e90baa1ff18fcdcacd346b660"
+      "sha256": "d713bfe9e0909b8e28beb91e6bdc78c1916323f52fc930e70e10d69d35654c89"
     },
     {
       "path": "tests/policy/verificationReporter.test.ts",
       "name": "P01-R1-B03 records the exact npm argv that was actually spawned",
-      "sha256": "72c8c221b764fa4f664563c46dcb45e79302c62e90baa1ff18fcdcacd346b660"
+      "sha256": "d713bfe9e0909b8e28beb91e6bdc78c1916323f52fc930e70e10d69d35654c89"
+    },
+    {
+      "path": "tests/policy/verificationReporter.test.ts",
+      "name": "P01-R1-B03 rejects the exact manifest-forging runner plus synthesized current hashes before evidence",
+      "sha256": "d713bfe9e0909b8e28beb91e6bdc78c1916323f52fc930e70e10d69d35654c89"
+    },
+    {
+      "path": "tests/policy/verificationReporter.test.ts",
+      "name": "P01-R1-B03 rejects independent and joint bootstrap plan anchor and manifest mutations",
+      "sha256": "d713bfe9e0909b8e28beb91e6bdc78c1916323f52fc930e70e10d69d35654c89"
+    },
+    {
+      "path": "tests/policy/verificationReporter.test.ts",
+      "name": "preserves all thirteen frozen plan entry contracts from review-3",
+      "sha256": "d713bfe9e0909b8e28beb91e6bdc78c1916323f52fc930e70e10d69d35654c89"
     }
   ]
 }

@@ -12,7 +12,7 @@ const SCRIPT_DIRECTORY = path.dirname(fileURLToPath(import.meta.url))
 const REPOSITORY_ROOT = path.resolve(SCRIPT_DIRECTORY, "../..")
 const FROZEN_P01_TEST_COUNT = 23
 const FROZEN_P01_TESTS_SHA256 =
-  "20c2e8734acc8f851ab6d220a7f132e177e39cd89be9b904d8e2089ee16abf64"
+  "e076415d88ac64da370b1c3bd143a8699ec41cf2ade2dab65ddeb8b0da4c4d63"
 const FORBIDDEN_TEST_FORMS = [
   {
     label: "skip",

@@ -19,7 +19,7 @@
     "verify:node": "node scripts/verification/require-node20.mjs",
     "verify:policy": "node scripts/verification/product-policy.mjs",
     "verify:test-manifest": "node scripts/verification/test-manifest.mjs",
-    "verify:phase": "node scripts/verification/phase-reporter.mjs",
+    "verify:phase": "node --input-type=module --eval \"import crypto from'node:crypto';import fs from'node:fs';const p='scripts/verification/phase-bootstrap.mjs',q='scripts/verification/plan-manifest.json',b=fs.readFileSync(p),m=fs.readFileSync(q),h=x=>crypto.createHash('sha256').update(x).digest('hex');if(h(b)!=='f82becacaa376ad7364114e66460acb4d64c7cdc2b4f9bb3a05d1163e377a19a')throw new Error('immutable phase bootstrap hash drift');if(h(m)!=='67240e51f8b6da61b2f59171576a054c15a57a57ca03a56cc1277bb930581901')throw new Error('immutable plan-manifest hash drift');const x=await import('data:text/javascript;base64,'+b.toString('base64'));await x.main(process.argv.slice(1),{manifestBytes:m,bootstrapSha256:'f82becacaa376ad7364114e66460acb4d64c7cdc2b4f9bb3a05d1163e377a19a',manifestSha256:'67240e51f8b6da61b2f59171576a054c15a57a57ca03a56cc1277bb930581901'})\" --",
     "verify:reporter-injected-failure": "node scripts/verification/injected-failure-proof.mjs",
     "start": "cross-env NODE_ENV=development concurrently \"tsc -p tsconfig.electron.json\" \"vite\" \"wait-on -t 30000 http://localhost:54321 && electron ./dist-electron/main.js\"",
     "build": "npm run build:runtime && npm run verify:package-inventory",

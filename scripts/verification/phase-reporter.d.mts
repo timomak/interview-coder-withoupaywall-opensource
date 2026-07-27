@@ -14,6 +14,7 @@ export interface EntryResult {
   spawned: boolean
   rawExit: number | null
   signal: string | null
+  logPath: string
   counts: { passed: number; failed: number; skipped: number } | null
   includeFiles: string[]
   tests: Array<{
@@ -27,15 +28,41 @@ export interface EntryResult {
   failures: string[]
 }
 
+export interface TestEvidenceTrustAnchor {
+  schemaVersion: 1
+  contract: "p01-test-evidence-v1"
+  files: Record<string, string>
+  plans: Record<string, string>
+  packageScripts: Record<string, string>
+  testOuterArguments: Record<string, string[]>
+  forbiddenLifecycleHooks: string[]
+  vitest: {
+    version: string
+    resolved: string
+    integrity: string
+    installedFiles: Record<string, string>
+  }
+}
+
+export interface TrustContext {
+  root: string
+  anchor: TestEvidenceTrustAnchor
+  anchorDigest: string
+  manifestSha256: string
+  planHashes: Record<string, string>
+  plans: Record<string, { entries: PlanEntry[] }>
+  revalidate(options?: { requireInstalled?: boolean }): string[]
+}
+
 export function validatePlan(plan: unknown): string[]
-export function validatePlanManifest(options?: {
-  root?: string
-  expectedManifestHash?: string
-}): string[]
-export function validateTrustedTestRuntime(root?: string): string[]
+export function validateTrustedTestRuntime(
+  root?: string,
+  trustContext?: TrustContext
+): string[]
 export function testCommandBinding(
   entry: PlanEntry,
-  root?: string
+  root?: string,
+  trustContext?: TrustContext
 ): {
   bindingHash: string
   failures: string[]
@@ -58,6 +85,7 @@ export function validateTestResultRecord(options: {
   nonce: string
   binding: ReturnType<typeof testCommandBinding>
   root?: string
+  trustContext?: TrustContext
 }): {
   counts: { passed: number; failed: number; skipped: number } | null
   includeFiles: string[]
@@ -85,6 +113,7 @@ export function runEntries(options: {
   cwd?: string
   environment?: NodeJS.ProcessEnv
   quiet?: boolean
+  trustContext?: TrustContext
 }): Promise<{
   report: {
     aggregateExit: number
@@ -94,3 +123,7 @@ export function runEntries(options: {
   textPath: string
   runDirectory: string
 }>
+export function runVerifiedPhase(options: {
+  argv: string[]
+  trustContext: TrustContext
+}): ReturnType<typeof runEntries>
