@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-07-27T13:34:08+02:00",
+  "updatedAt": "2026-07-27T13:42:56+02:00",
   "repository": {
     "remote": "https://github.com/j4wg/interview-coder-withoupaywall-opensource",
     "pushRemote": "https://github.com/timomak/interview-coder-withoupaywall-opensource",
     "baseBranch": "main",
     "baseSha": "9dcb4b2d39607273a8528a24657cdb4f5bfc3412"
   },
-  "orchestrationStatus": "CONVERGENCE_REVIEW_ACTIVE",
+  "orchestrationStatus": "BLOCKED_VERIFICATION_PROTOCOL_DECISION",
   "currentPhaseId": "P01",
   "goalBlockedAudit": {
     "status": "RESUMED_BY_USER_AUTHORIZATION",
@@ -271,7 +271,7 @@
     {
       "id": "P01",
       "title": "Green local gates and policy rails",
-      "status": "CONVERGENCE_REVIEW_ACTIVE",
+      "status": "BLOCKED_VERIFICATION_PROTOCOL_DECISION",
       "dependencies": [],
       "baseBranch": "main",
       "baseSha": "9dcb4b2d39607273a8528a24657cdb4f5bfc3412",
@@ -928,8 +928,23 @@
         "reviewScopeCompleted": false,
         "controllerDisposition": "The exact-SHA B03 bypass is concrete CHANGES_REQUESTED evidence. B01, B02, B04, B05, and B06 remain unapproved because the reviewer returned no final dispositions. No further review-4 retry or replacement is permitted."
       },
+      "convergenceVerification": {
+        "completedAt": "2026-07-27T13:42:08+02:00",
+        "threadId": "019fa35a-5465-78d1-83b0-38d47cdcb427",
+        "assessedSha": "b2b35d56d8d396591bdc2e6b7b9193bcde947de5",
+        "result": "STOP",
+        "materialAndEvidenceBacked": true,
+        "measurablyConverging": false,
+        "sameRootCauseSurvivedThreeAttempts": true,
+        "rootCause": "The acceptance trust root remains candidate-controlled: stdout counts became structured records, then a colocated runner/hash authority, then an inward bootstrap that still begins after npm lifecycle execution. The independently reproduced preverify:phase path still fabricates aggregate-zero acceptance.",
+        "minimalCorrectionScope": null,
+        "reentryDecisionRequired": "Amend the frozen P00 verification protocol so the first trusted instruction is controller-owned and runs before any candidate-controlled npm lifecycle code, or explicitly narrow the threat model.",
+        "mandatoryFutureReview": "A new immutable candidate requires a fresh full B01-B06 independent review including the original probes plus forged stdout, forged structured record, joint runner/hash, lifecycle-hook aggregate-zero, joint package/bootstrap/plan/manifest/gate mutation, TOCTOU, and exact spawned [7,0] evidence.",
+        "repositoryMutations": 0,
+        "worktreeClean": true
+      },
       "reviewerVerifiedSha": "b2b35d56d8d396591bdc2e6b7b9193bcde947de5",
-      "reviewerVerdict": "CHANGES_REQUESTED_EVIDENCE_REQUIRES_SENIOR_CONVERGENCE",
+      "reviewerVerdict": "CONVERGENCE_STOP_VERIFICATION_PROTOCOL_DECISION_REQUIRED",
       "openFindingIds": [
         "P01-R1-B01",
         "P01-R1-B02",
@@ -2308,7 +2323,7 @@
       "controllerReconciled": true
     },
     "P01/convergence": {
-      "status": "ACTIVE",
+      "status": "COMPLETE",
       "clientThreadId": "client-new-thread:2f85a303-b166-4e2e-a9e2-f8170cb8b28d",
       "threadId": "019fa35a-5465-78d1-83b0-38d47cdcb427",
       "hostId": "local",
@@ -2325,8 +2340,17 @@
       "queuedAt": "2026-07-27T13:32:06+02:00",
       "dispatchedAt": "2026-07-27T13:34:08+02:00",
       "startedAt": "2026-07-27T13:34:08+02:00",
+      "completedAt": "2026-07-27T13:42:08+02:00",
       "trigger": "P01-R1-B03 remained materially open after remediation cycle 3 and was independently reproduced by the exhausted review-4 replacement lifecycle.",
-      "requiredOutcome": "Decide CONTINUE or STOP from evidence: whether the remediation sequence is materially and measurably converging, whether the same root cause survived three attempts, and, only if CONTINUE, the narrowest correction and exact independent-review scope. No repository, branch, PR, or ledger mutations."
+      "requiredOutcome": "Decide CONTINUE or STOP from evidence: whether the remediation sequence is materially and measurably converging, whether the same root cause survived three attempts, and, only if CONTINUE, the narrowest correction and exact independent-review scope. No repository, branch, PR, or ledger mutations.",
+      "result": "STOP",
+      "materialAndEvidenceBacked": true,
+      "measurablyConverging": false,
+      "sameRootCauseSurvivedThreeAttempts": true,
+      "minimalCorrectionScope": null,
+      "reentryDecisionRequired": "Amend the frozen P00 verification protocol so the first trusted instruction is controller-owned and runs before any candidate-controlled npm lifecycle code, or explicitly narrow the threat model.",
+      "repositoryMutations": 0,
+      "worktreeClean": true
     }
   },
   "blockers": [
@@ -2626,6 +2650,25 @@
       "remediationCandidateSha": "b2b35d56d8d396591bdc2e6b7b9193bcde947de5",
       "review2Evidence": "A lint/type-clean raw project TS file injected through extraResources shipped under Contents/Resources/leaks while npm run build and inventory returned zero.",
       "review3Disposition": "Independent review-3 was interrupted by infrastructure after its authoritative run and did not return a complete B06 disposition; review-4 must recheck closure."
+    },
+    {
+      "id": "P01-CV-B01",
+      "scope": "P01",
+      "severity": "RELEASE_BLOCKING",
+      "rootCauseTag": "MUTABLE_ACCEPTANCE_TRUST_ROOT",
+      "active": true,
+      "hardLimitReached": true,
+      "blocks": [
+        "P01_FURTHER_REMEDIATION",
+        "P01_APPROVAL_AND_MERGE",
+        "P02_P12_IMPLEMENTATION"
+      ],
+      "assessedSha": "b2b35d56d8d396591bdc2e6b7b9193bcde947de5",
+      "evidence": "Senior convergence found the same candidate-controlled acceptance trust root survived three correction attempts. An independently reproduced preverify:phase mutation bypassed policy, lint, typecheck, and build while producing aggregate zero and restoring clean package bytes.",
+      "requiredDecision": "Authorize a new P00 verification-protocol revision with a controller-owned first instruction before npm lifecycle code, or explicitly narrow the threat model. The approved and frozen P00-R7 packet does not authorize either change.",
+      "furtherRemediationAuthorized": false,
+      "convergenceTaskName": "P01/convergence",
+      "convergenceThreadId": "019fa35a-5465-78d1-83b0-38d47cdcb427"
     }
   ]
 }
