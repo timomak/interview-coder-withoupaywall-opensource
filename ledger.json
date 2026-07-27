@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-07-27T16:42:44+02:00",
+  "updatedAt": "2026-07-27T16:55:16+02:00",
   "repository": {
     "remote": "https://github.com/j4wg/interview-coder-withoupaywall-opensource",
     "pushRemote": "https://github.com/timomak/interview-coder-withoupaywall-opensource",
     "baseBranch": "main",
     "baseSha": "9dcb4b2d39607273a8528a24657cdb4f5bfc3412"
   },
-  "orchestrationStatus": "P01_REMEDIATION_PLANNING",
+  "orchestrationStatus": "P01_REMEDIATION_IMPLEMENTATION_AUTHORIZED",
   "currentPhaseId": "P01",
   "goalBlockedAudit": {
     "status": "RESUMED_BY_USER_AUTONOMY_AUTHORIZATION",
@@ -312,7 +312,7 @@
     {
       "id": "P01",
       "title": "Green local gates and policy rails",
-      "status": "REMEDIATION_PLANNING_QUEUED",
+      "status": "REMEDIATION_IMPLEMENTATION_AUTHORIZED",
       "dependencies": [],
       "baseBranch": "main",
       "baseSha": "9dcb4b2d39607273a8528a24657cdb4f5bfc3412",
@@ -2394,7 +2394,7 @@
       "worktreeClean": true
     },
     "P01/remediate-4": {
-      "status": "PLANNING",
+      "status": "IMPLEMENTATION_AUTHORIZED",
       "clientThreadId": "client-new-thread:ab5b24c4-055a-4c8f-b7c7-e0d0cbc4d8c6",
       "threadId": "019fa407-0732-7b93-b92c-c1a36d84fa02",
       "hostId": "local",
@@ -2418,9 +2418,19 @@
       "queuedAt": "2026-07-27T16:41:45+02:00",
       "dispatchedAt": "2026-07-27T16:42:44+02:00",
       "startedAt": "2026-07-27T16:42:44+02:00",
-      "planningOnly": true,
+      "planningOnly": false,
       "staffChallengeRequired": true,
-      "implementationAuthorized": false,
+      "planningCompletedAt": "2026-07-27T16:54:58+02:00",
+      "planStatus": "SOUND",
+      "staffChallengeCompleted": true,
+      "staffChallengeDisposition": "Candidate-owned wrappers, npm-first bootstraps, colocated hash authorities, deletion-only lifecycle fixes, clean-Git-status claims, uncorrelated stdout/HMAC records, author-worktree execution, and weak chmod/process-group containment were rejected. The accepted plan provisions two native controller entrypoints plus a pinned Node/npm closure outside the candidate, preserves the effective B01/B02/B04/B05/B06 cures, and replaces B03 acceptance, spawning, evidence, binding, containment, and terminal authority end to end.",
+      "revisedPlanRequiredAndReceived": true,
+      "unresolvedMaterialDecisions": [],
+      "controllerInstallRoot": "/Users/Shared/InterviewCopilot/verification-controller/v1",
+      "controllerEvidenceRoot": "/Users/thirdfacedev/.codex/orchestration/TimoCodes-evidence/P01-controller-P00-R9",
+      "implementationAuthorized": true,
+      "implementationAuthorizedAt": "2026-07-27T16:55:16+02:00",
+      "implementationAuthority": "User authorized autonomous end-to-end completion; controller accepted the revised staff-challenged plan and authorized the external controller runtime installation required by approved P00-R9.",
       "singleActiveWriterReservation": true,
       "controllerRuntimeRequired": true,
       "requiredOutcome": "Produce a staff-challenged remediation plan for an immutable P01 candidate that implements the approved P00-R9 controller runtime as the first trusted instruction, closes all six P01 findings, preserves exact evidence and negative-control contracts, and is suitable for one isolated implementation commit followed by fresh full exact-SHA independent review."
