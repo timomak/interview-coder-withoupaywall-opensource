@@ -1,0 +1,126 @@
+{
+  "schemaVersion": 1,
+  "phase": "P11",
+  "entries": [
+    {
+      "label": "install",
+      "argv": [
+        "npm",
+        "ci"
+      ],
+      "classification": "command",
+      "expectedExit": 0
+    },
+    {
+      "label": "policy",
+      "argv": [
+        "npm",
+        "run",
+        "verify:policy"
+      ],
+      "classification": "command",
+      "expectedExit": 0
+    },
+    {
+      "label": "lint",
+      "argv": [
+        "npm",
+        "run",
+        "lint"
+      ],
+      "classification": "command",
+      "expectedExit": 0
+    },
+    {
+      "label": "typecheck",
+      "argv": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "classification": "command",
+      "expectedExit": 0
+    },
+    {
+      "label": "legacy",
+      "argv": [
+        "npm",
+        "run",
+        "test:legacy",
+        "--",
+        "--reporter=verbose"
+      ],
+      "classification": "test",
+      "expectedExit": 0,
+      "minimumPassed": 1
+    },
+    {
+      "label": "unit",
+      "argv": [
+        "npm",
+        "run",
+        "test:unit",
+        "--",
+        "--reporter=verbose"
+      ],
+      "classification": "test",
+      "expectedExit": 0,
+      "minimumPassed": 1
+    },
+    {
+      "label": "p11",
+      "argv": [
+        "npm",
+        "run",
+        "test:p11",
+        "--",
+        "--reporter=verbose"
+      ],
+      "classification": "test",
+      "expectedExit": 0,
+      "minimumPassed": 8
+    },
+    {
+      "label": "history-roundtrip",
+      "argv": [
+        "npm",
+        "run",
+        "test:history-roundtrip"
+      ],
+      "classification": "test",
+      "expectedExit": 0,
+      "minimumPassed": 1
+    },
+    {
+      "label": "plaintext-scan",
+      "argv": [
+        "npm",
+        "run",
+        "test:plaintext-scan"
+      ],
+      "classification": "test",
+      "expectedExit": 0,
+      "minimumPassed": 1
+    },
+    {
+      "label": "manifest",
+      "argv": [
+        "npm",
+        "run",
+        "verify:test-manifest"
+      ],
+      "classification": "command",
+      "expectedExit": 0
+    },
+    {
+      "label": "build",
+      "argv": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "classification": "command",
+      "expectedExit": 0
+    }
+  ]
+}

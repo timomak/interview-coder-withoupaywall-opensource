@@ -1,4 +1,10 @@
-import { app, BrowserWindow, screen, shell, ipcMain } from "electron"
+import {
+  app,
+  BrowserWindow,
+  screen,
+  shell,
+  type BrowserWindowConstructorOptions
+} from "electron"
 import path from "path"
 import fs from "fs"
 import { initializeIpcHandlers } from "./ipcHandlers"
@@ -7,10 +13,22 @@ import { ScreenshotHelper } from "./ScreenshotHelper"
 import { ShortcutsHelper } from "./shortcuts"
 import { initAutoUpdater } from "./autoUpdater"
 import { configHelper } from "./ConfigHelper"
+import {
+  createCaptureProtectedWindow,
+  revealCaptureProtectedWindow
+} from "./captureProtection"
 import * as dotenv from "dotenv"
 
 // Constants
 const isDev = process.env.NODE_ENV === "development"
+
+export interface ProblemInfo {
+  problem_statement?: string
+  constraints?: string
+  example_input?: string
+  example_output?: string
+  [key: string]: unknown
+}
 
 // Application State
 const state = {
@@ -32,7 +50,7 @@ const state = {
 
   // View and state management
   view: "queue" as "queue" | "solutions" | "debug",
-  problemInfo: null as any,
+  problemInfo: null as ProblemInfo | null,
   hasDebugged: false,
 
   // Processing events
@@ -57,8 +75,8 @@ export interface IProcessingHelperDeps {
   getMainWindow: () => BrowserWindow | null
   getView: () => "queue" | "solutions" | "debug"
   setView: (view: "queue" | "solutions" | "debug") => void
-  getProblemInfo: () => any
-  setProblemInfo: (info: any) => void
+  getProblemInfo: () => ProblemInfo | null
+  setProblemInfo: (info: ProblemInfo | null) => void
   getScreenshotQueue: () => string[]
   getExtraScreenshotQueue: () => string[]
   clearQueues: () => void
@@ -178,11 +196,10 @@ const gotTheLock = app.requestSingleInstanceLock()
 if (!gotTheLock) {
   app.quit()
 } else {
-  app.on("second-instance", (event, commandLine) => {
+  app.on("second-instance", () => {
     // Someone tried to run a second instance, we should focus our window.
     if (state.mainWindow) {
-      if (state.mainWindow.isMinimized()) state.mainWindow.restore()
-      state.mainWindow.focus()
+      focusMainWindow(state.mainWindow)
 
       // Protocol handler removed - no longer using auth callbacks
     }
@@ -192,10 +209,22 @@ if (!gotTheLock) {
 // Auth callback removed as we no longer use Supabase authentication
 
 // Window management functions
+function focusMainWindow(mainWindow: BrowserWindow): void {
+  revealCaptureProtectedWindow(mainWindow, (protectedWindow) => {
+    if (protectedWindow.isMinimized()) protectedWindow.restore()
+    protectedWindow.focus()
+  })
+}
+
+function showMainWindowInactive(mainWindow: BrowserWindow): void {
+  revealCaptureProtectedWindow(mainWindow, (protectedWindow) => {
+    protectedWindow.showInactive()
+  })
+}
+
 async function createWindow(): Promise<void> {
   if (state.mainWindow) {
-    if (state.mainWindow.isMinimized()) state.mainWindow.restore()
-    state.mainWindow.focus()
+    focusMainWindow(state.mainWindow)
     return
   }
 
@@ -206,7 +235,7 @@ async function createWindow(): Promise<void> {
   state.step = 60
   state.currentY = 50
 
-  const windowSettings: Electron.BrowserWindowConstructorOptions = {
+  const windowSettings: BrowserWindowConstructorOptions = {
     width: 800,
     height: 600,
     minWidth: 750,
@@ -222,7 +251,7 @@ async function createWindow(): Promise<void> {
         : path.join(__dirname, "preload.js"),
       scrollBounce: true
     },
-    show: true,
+    show: false,
     frame: false,
     transparent: true,
     fullscreenable: false,
@@ -238,13 +267,16 @@ async function createWindow(): Promise<void> {
     movable: true
   }
 
-  state.mainWindow = new BrowserWindow(windowSettings)
+  const mainWindow = createCaptureProtectedWindow(
+    () => new BrowserWindow(windowSettings)
+  )
+  state.mainWindow = mainWindow
 
   // Add more detailed logging for window events
-  state.mainWindow.webContents.on("did-finish-load", () => {
+  mainWindow.webContents.on("did-finish-load", () => {
     console.log("Window finished loading")
   })
-  state.mainWindow.webContents.on(
+  mainWindow.webContents.on(
     "did-fail-load",
     async (event, errorCode, errorDescription) => {
       console.error("Window failed to load:", errorCode, errorDescription)
@@ -252,7 +284,7 @@ async function createWindow(): Promise<void> {
         // In development, retry loading after a short delay
         console.log("Retrying to load development server...")
         setTimeout(() => {
-          state.mainWindow?.loadURL("http://localhost:54321").catch((error) => {
+          mainWindow.loadURL("http://localhost:54321").catch((error) => {
             console.error("Failed to load dev server on retry:", error)
           })
         }, 1000)
@@ -263,13 +295,13 @@ async function createWindow(): Promise<void> {
   if (isDev) {
     // In development, load from the dev server
     console.log("Loading from development server: http://localhost:54321")
-    state.mainWindow.loadURL("http://localhost:54321").catch((error) => {
+    mainWindow.loadURL("http://localhost:54321").catch((error) => {
       console.error("Failed to load dev server, falling back to local file:", error)
       // Fallback to local file if dev server is not available
       const indexPath = path.join(__dirname, "../dist/index.html")
       console.log("Falling back to:", indexPath)
       if (fs.existsSync(indexPath)) {
-        state.mainWindow.loadFile(indexPath)
+        mainWindow.loadFile(indexPath)
       } else {
         console.error("Could not find index.html in dist folder")
       }
@@ -280,18 +312,18 @@ async function createWindow(): Promise<void> {
     console.log("Loading production build:", indexPath)
     
     if (fs.existsSync(indexPath)) {
-      state.mainWindow.loadFile(indexPath)
+      mainWindow.loadFile(indexPath)
     } else {
       console.error("Could not find index.html in dist folder")
     }
   }
 
   // Configure window behavior
-  state.mainWindow.webContents.setZoomFactor(1)
+  mainWindow.webContents.setZoomFactor(1)
   if (isDev) {
-    state.mainWindow.webContents.openDevTools()
+    mainWindow.webContents.openDevTools()
   }
-  state.mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
     console.log("Attempting to open URL:", url)
     try {
       const parsedURL = new URL(url);
@@ -308,39 +340,34 @@ async function createWindow(): Promise<void> {
     return { action: "allow" };
   })
 
-  // Enhanced screen capture resistance
-  state.mainWindow.setContentProtection(true)
-
-  state.mainWindow.setVisibleOnAllWorkspaces(true, {
+  mainWindow.setVisibleOnAllWorkspaces(true, {
     visibleOnFullScreen: true
   })
-  state.mainWindow.setAlwaysOnTop(true, "screen-saver", 1)
+  mainWindow.setAlwaysOnTop(true, "screen-saver", 1)
 
-  // Additional screen capture resistance settings
+  // Preserve the existing macOS window presentation settings.
   if (process.platform === "darwin") {
-    // Prevent window from being captured in screenshots
-    state.mainWindow.setHiddenInMissionControl(true)
-    state.mainWindow.setWindowButtonVisibility(false)
-    state.mainWindow.setBackgroundColor("#00000000")
+    mainWindow.setHiddenInMissionControl(true)
+    mainWindow.setWindowButtonVisibility(false)
+    mainWindow.setBackgroundColor("#00000000")
 
     // Prevent window from being included in window switcher
-    state.mainWindow.setSkipTaskbar(true)
+    mainWindow.setSkipTaskbar(true)
 
     // Disable window shadow
-    state.mainWindow.setHasShadow(false)
+    mainWindow.setHasShadow(false)
   }
 
-  // Prevent the window from being captured by screen recording
-  state.mainWindow.webContents.setBackgroundThrottling(false)
-  state.mainWindow.webContents.setFrameRate(60)
+  mainWindow.webContents.setBackgroundThrottling(false)
+  mainWindow.webContents.setFrameRate(60)
 
   // Set up window listeners
-  state.mainWindow.on("move", handleWindowMove)
-  state.mainWindow.on("resize", handleWindowResize)
-  state.mainWindow.on("closed", handleWindowClosed)
+  mainWindow.on("move", handleWindowMove)
+  mainWindow.on("resize", handleWindowResize)
+  mainWindow.on("closed", handleWindowClosed)
 
   // Initialize window state
-  const bounds = state.mainWindow.getBounds()
+  const bounds = mainWindow.getBounds()
   state.windowPosition = { x: bounds.x, y: bounds.y }
   state.windowSize = { width: bounds.width, height: bounds.height }
   state.currentX = bounds.x
@@ -353,15 +380,15 @@ async function createWindow(): Promise<void> {
   console.log(`Initial opacity from config: ${savedOpacity}`);
   
   // Always make sure window is shown first
-  state.mainWindow.showInactive(); // Use showInactive for consistency
+  showMainWindowInactive(mainWindow)
   
   if (savedOpacity <= 0.1) {
     console.log('Initial opacity too low, setting to 0 and hiding window');
-    state.mainWindow.setOpacity(0);
+    mainWindow.setOpacity(0);
     state.isWindowVisible = false;
   } else {
     console.log(`Setting initial opacity to ${savedOpacity}`);
-    state.mainWindow.setOpacity(savedOpacity);
+    mainWindow.setOpacity(savedOpacity);
     state.isWindowVisible = true;
   }
 }
@@ -389,34 +416,35 @@ function handleWindowClosed(): void {
 
 // Window visibility functions
 function hideMainWindow(): void {
-  if (!state.mainWindow?.isDestroyed()) {
-    const bounds = state.mainWindow.getBounds();
+  const mainWindow = state.mainWindow
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    const bounds = mainWindow.getBounds();
     state.windowPosition = { x: bounds.x, y: bounds.y };
     state.windowSize = { width: bounds.width, height: bounds.height };
-    state.mainWindow.setIgnoreMouseEvents(true, { forward: true });
-    state.mainWindow.setOpacity(0);
+    mainWindow.setIgnoreMouseEvents(true, { forward: true });
+    mainWindow.setOpacity(0);
     state.isWindowVisible = false;
     console.log('Window hidden, opacity set to 0');
   }
 }
 
 function showMainWindow(): void {
-  if (!state.mainWindow?.isDestroyed()) {
+  const mainWindow = state.mainWindow
+  if (mainWindow && !mainWindow.isDestroyed()) {
     if (state.windowPosition && state.windowSize) {
-      state.mainWindow.setBounds({
+      mainWindow.setBounds({
         ...state.windowPosition,
         ...state.windowSize
       });
     }
-    state.mainWindow.setIgnoreMouseEvents(false);
-    state.mainWindow.setAlwaysOnTop(true, "screen-saver", 1);
-    state.mainWindow.setVisibleOnAllWorkspaces(true, {
+    mainWindow.setIgnoreMouseEvents(false);
+    mainWindow.setAlwaysOnTop(true, "screen-saver", 1);
+    mainWindow.setVisibleOnAllWorkspaces(true, {
       visibleOnFullScreen: true
     });
-    state.mainWindow.setContentProtection(true);
-    state.mainWindow.setOpacity(0); // Set opacity to 0 before showing
-    state.mainWindow.showInactive(); // Use showInactive instead of show+focus
-    state.mainWindow.setOpacity(1); // Then set opacity to 1 after showing
+    mainWindow.setOpacity(0); // Set opacity to 0 before showing
+    showMainWindowInactive(mainWindow)
+    mainWindow.setOpacity(1); // Then set opacity to 1 after showing
     state.isWindowVisible = true;
     console.log('Window shown with showInactive(), opacity set to 1');
   }
@@ -472,13 +500,14 @@ function moveWindowVertical(updateFn: (y: number) => number): void {
 
 // Window dimension functions
 function setWindowDimensions(width: number, height: number): void {
-  if (!state.mainWindow?.isDestroyed()) {
-    const [currentX, currentY] = state.mainWindow.getPosition()
+  const mainWindow = state.mainWindow
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    const [currentX, currentY] = mainWindow.getPosition()
     const primaryDisplay = screen.getPrimaryDisplay()
     const workArea = primaryDisplay.workAreaSize
     const maxWidth = Math.floor(workArea.width * 0.5)
 
-    state.mainWindow.setBounds({
+    mainWindow.setBounds({
       x: Math.min(currentX, workArea.width - maxWidth),
       y: currentY,
       width: Math.min(width + 32, maxWidth),
@@ -589,8 +618,7 @@ app.on("second-instance", (event, commandLine) => {
   if (!state.mainWindow) {
     createWindow()
   } else {
-    if (state.mainWindow.isMinimized()) state.mainWindow.restore()
-    state.mainWindow.focus()
+    focusMainWindow(state.mainWindow)
   }
 })
 
@@ -630,11 +658,11 @@ function getScreenshotHelper(): ScreenshotHelper | null {
   return state.screenshotHelper
 }
 
-function getProblemInfo(): any {
+function getProblemInfo(): ProblemInfo | null {
   return state.problemInfo
 }
 
-function setProblemInfo(problemInfo: any): void {
+function setProblemInfo(problemInfo: ProblemInfo | null): void {
   state.problemInfo = problemInfo
 }
 

@@ -16,16 +16,16 @@
 }
 
 /* Custom styling for dropdowns */
-select {
+:root select {
   appearance: menulist;
-  background-color: #000000 !important;
-  color: white !important;
+  background-color: #000000;
+  color: white;
 }
 
-option {
-  background-color: #1a1a1a !important;
-  color: white !important;
-  padding: 8px !important;
+:root option {
+  background-color: #1a1a1a;
+  color: white;
+  padding: 8px;
 }
 
 .frosted-glass {

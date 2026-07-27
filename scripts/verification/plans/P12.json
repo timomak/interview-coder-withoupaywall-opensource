@@ -1,0 +1,183 @@
+{
+  "schemaVersion": 1,
+  "phase": "P12",
+  "entries": [
+    {
+      "label": "install",
+      "argv": [
+        "npm",
+        "ci"
+      ],
+      "classification": "command",
+      "expectedExit": 0
+    },
+    {
+      "label": "policy",
+      "argv": [
+        "npm",
+        "run",
+        "verify:policy"
+      ],
+      "classification": "command",
+      "expectedExit": 0
+    },
+    {
+      "label": "lint",
+      "argv": [
+        "npm",
+        "run",
+        "lint"
+      ],
+      "classification": "command",
+      "expectedExit": 0
+    },
+    {
+      "label": "typecheck",
+      "argv": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "classification": "command",
+      "expectedExit": 0
+    },
+    {
+      "label": "legacy",
+      "argv": [
+        "npm",
+        "run",
+        "test:legacy",
+        "--",
+        "--reporter=verbose"
+      ],
+      "classification": "test",
+      "expectedExit": 0,
+      "minimumPassed": 1
+    },
+    {
+      "label": "unit",
+      "argv": [
+        "npm",
+        "run",
+        "test:unit",
+        "--",
+        "--reporter=verbose"
+      ],
+      "classification": "test",
+      "expectedExit": 0,
+      "minimumPassed": 1
+    },
+    {
+      "label": "p12",
+      "argv": [
+        "npm",
+        "run",
+        "test:p12",
+        "--",
+        "--reporter=verbose"
+      ],
+      "classification": "test",
+      "expectedExit": 0,
+      "minimumPassed": 14
+    },
+    {
+      "label": "e2e-macos",
+      "argv": [
+        "npm",
+        "run",
+        "test:e2e-macos"
+      ],
+      "classification": "test",
+      "expectedExit": 0,
+      "minimumPassed": 1
+    },
+    {
+      "label": "staff-live-corpus",
+      "argv": [
+        "npm",
+        "run",
+        "test:staff-live-corpus"
+      ],
+      "classification": "test",
+      "expectedExit": 0,
+      "minimumPassed": 1
+    },
+    {
+      "label": "build",
+      "argv": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "classification": "command",
+      "expectedExit": 0
+    },
+    {
+      "label": "package-mac",
+      "argv": [
+        "npm",
+        "run",
+        "package:mac"
+      ],
+      "classification": "command",
+      "expectedExit": 0
+    },
+    {
+      "label": "mac-package",
+      "argv": [
+        "npm",
+        "run",
+        "verify:mac-package"
+      ],
+      "classification": "command",
+      "expectedExit": 0
+    },
+    {
+      "label": "diagnostics",
+      "argv": [
+        "npm",
+        "run",
+        "verify:diagnostics"
+      ],
+      "classification": "command",
+      "expectedExit": 0
+    },
+    {
+      "label": "meet",
+      "argv": [
+        "npm",
+        "run",
+        "qualify:meet",
+        "--",
+        "--matrix",
+        "docs/qualification/macos-google-meet.json",
+        "--artifacts",
+        ".artifacts/qualification",
+        "--collect-missing"
+      ],
+      "classification": "test",
+      "expectedExit": 0,
+      "minimumPassed": 1
+    },
+    {
+      "label": "manifest",
+      "argv": [
+        "npm",
+        "run",
+        "verify:test-manifest"
+      ],
+      "classification": "command",
+      "expectedExit": 0
+    },
+    {
+      "label": "release",
+      "argv": [
+        "npm",
+        "run",
+        "verify:release"
+      ],
+      "classification": "command",
+      "expectedExit": 0
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+export interface PlanEntry {
+  label: string
+  argv: string[]
+  classification: "command" | "test"
+  expectedExit: number
+  minimumPassed?: number
+}
+
+export interface EntryResult {
+  label: string
+  rawExit: number | null
+  signal: string | null
+  counts: { passed: number; failed: number; skipped: number } | null
+  failures: string[]
+}
+
+export function validatePlan(plan: unknown): string[]
+export function validatePlanManifest(options?: {
+  root?: string
+  expectedManifestHash?: string
+}): string[]
+export function parseTestCounts(
+  output: string
+): { passed: number; failed: number; skipped: number } | null
+export function entryFailures(
+  entry: PlanEntry,
+  result: Pick<EntryResult, "rawExit" | "signal" | "counts">
+): string[]
+export function aggregateExit(
+  results: Array<Pick<EntryResult, "failures">>
+): number
+export function runEntries(options: {
+  planId: string
+  planSha256?: string
+  entries: PlanEntry[]
+  artifactsDirectory: string
+  cwd?: string
+  environment?: NodeJS.ProcessEnv
+  quiet?: boolean
+}): Promise<{
+  report: {
+    aggregateExit: number
+    entries: EntryResult[]
+  }
+  jsonPath: string
+  textPath: string
+  runDirectory: string
+}>

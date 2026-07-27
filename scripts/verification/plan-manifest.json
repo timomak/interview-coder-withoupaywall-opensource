@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "plans": {
+    "P01": {
+      "file": "P01.json",
+      "sha256": "f5d5253d5c181ed97887ba20dbdaf397f78e25f29c88ab584ab1af6187eb625f"
+    },
+    "P02": {
+      "file": "P02.json",
+      "sha256": "6de5f5e316c54385f4f61bc8bcde819a1880aff6c85bbf69c0025a8f930f38dd"
+    },
+    "P03": {
+      "file": "P03.json",
+      "sha256": "9fcb0381a00c05c3b42c7f13701406277cff97019d8aef41f718dd452c1b35c3"
+    },
+    "P04": {
+      "file": "P04.json",
+      "sha256": "ab19354bc08377e76e379c9ba6d2e58572dc2e9d8ddadbc22c4ecce7de610bc6"
+    },
+    "P05": {
+      "file": "P05.json",
+      "sha256": "f31f2c1aa3a851081b73618e0b2616b6b39225ab8144593c9bd720960ae83cf1"
+    },
+    "P06": {
+      "file": "P06.json",
+      "sha256": "30311c77bfa3d67dbe3e77815e34c9c4c51e24fabcd06d92ffba18575db6ad8e"
+    },
+    "P07": {
+      "file": "P07.json",
+      "sha256": "6c252bbfff6d16b66bc80c330ddb41d398be970a51b5ae75bc63c326d9b6384e"
+    },
+    "P08": {
+      "file": "P08.json",
+      "sha256": "7f064eb8989214afeb894e5affafb4730478423e33dd0f538d021f92fa9fb6da"
+    },
+    "P09": {
+      "file": "P09.json",
+      "sha256": "4677916877719fb599ff592de14cde27263ad185bfd12d6453d0a38f09ee77a2"
+    },
+    "P10": {
+      "file": "P10.json",
+      "sha256": "385163ed441717e619774ad140f8ad4fdc7919838dc319863acebbdb86cf158d"
+    },
+    "P11": {
+      "file": "P11.json",
+      "sha256": "295718b4b1e59210cd8722536bc4a4bb50e0349ce0b6fa16fe1d3595e19f8732"
+    },
+    "P12": {
+      "file": "P12.json",
+      "sha256": "55cc03996f171c23ef56ecc9cd14f755c961ba84cb48178a6681126d0d20b640"
+    },
+    "P12-observer": {
+      "file": "P12-observer.json",
+      "sha256": "011911987152e3c14bc439a1a7ff4c55c99270ab009a1b3387f18170e10ff375"
+    }
+  }
+}

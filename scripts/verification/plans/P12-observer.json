@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "phase": "P12-observer",
+  "entries": [
+    {
+      "label": "install",
+      "argv": [
+        "npm",
+        "ci"
+      ],
+      "classification": "command",
+      "expectedExit": 0
+    },
+    {
+      "label": "policy",
+      "argv": [
+        "npm",
+        "run",
+        "verify:policy"
+      ],
+      "classification": "command",
+      "expectedExit": 0
+    },
+    {
+      "label": "meet-observer",
+      "argv": [
+        "npm",
+        "run",
+        "qualify:meet:observer",
+        "--",
+        "--pair",
+        "<one-time-pairing-url>"
+      ],
+      "classification": "test",
+      "expectedExit": 0,
+      "minimumPassed": 1
+    }
+  ]
+}

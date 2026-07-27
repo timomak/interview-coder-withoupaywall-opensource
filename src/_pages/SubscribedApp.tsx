@@ -1,6 +1,6 @@
 // file: src/components/SubscribedApp.tsx
 import { useQueryClient } from "@tanstack/react-query"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState, type FC } from "react"
 import Queue from "../_pages/Queue"
 import Solutions from "../_pages/Solutions"
 import { useToast } from "../contexts/toast"
@@ -11,7 +11,7 @@ interface SubscribedAppProps {
   setLanguage: (language: string) => void
 }
 
-const SubscribedApp: React.FC<SubscribedAppProps> = ({
+const SubscribedApp: FC<SubscribedAppProps> = ({
   credits,
   currentLanguage,
   setLanguage
@@ -119,7 +119,7 @@ const SubscribedApp: React.FC<SubscribedAppProps> = ({
       window.electronAPI.onResetView(() => {
         queryClient.setQueryData(["problem_statement"], null)
       }),
-      window.electronAPI.onProblemExtracted((data: any) => {
+      window.electronAPI.onProblemExtracted((data) => {
         if (view === "queue") {
           queryClient.invalidateQueries({
             queryKey: ["problem_statement"]

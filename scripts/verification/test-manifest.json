@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "tests": [
+    {
+      "path": "renderer/src/App.test.tsx",
+      "name": "renders learn react link",
+      "sha256": "1f0914ca057e799130da87a78d48021657aba67e01fcbcb50b099944ee2ea864"
+    },
+    {
+      "path": "electron/captureProtection.test.ts",
+      "name": "protects creation and reveal lifecycle paths",
+      "sha256": "645417518a8669a6c1c7a4e383e201ed738926f981df13bc6cb812193bae3b9c"
+    },
+    {
+      "path": "electron/captureProtection.test.ts",
+      "name": "only enables the underlying Electron content-protection flag",
+      "sha256": "645417518a8669a6c1c7a4e383e201ed738926f981df13bc6cb812193bae3b9c"
+    },
+    {
+      "path": "tests/policy/gateContract.test.ts",
+      "name": "executes the inherited CRA test and rejects a zero-test run",
+      "sha256": "42f8a2efa5fade5d2e755519f81352e4aaa831b3d49035ee7e00a1dff66a0db5"
+    },
+    {
+      "path": "tests/policy/gateContract.test.ts",
+      "name": "propagates every child gate exit code",
+      "sha256": "42f8a2efa5fade5d2e755519f81352e4aaa831b3d49035ee7e00a1dff66a0db5"
+    },
+    {
+      "path": "tests/policy/testManifest.test.ts",
+      "name": "rejects missing renamed skipped and unexecuted tests",
+      "sha256": "e48a9849e8974aa4851f39816e1ede981f1be114256bc64e11e73aef81c724d7"
+    },
+    {
+      "path": "tests/policy/productPolicy.test.ts",
+      "name": "enforces canonical identity and AGPL metadata",
+      "sha256": "87d2a7c825c3400008345fd56e5ce590b9530d23c006e9310acd32b0aa41f4e4"
+    },
+    {
+      "path": "tests/policy/productPolicy.test.ts",
+      "name": "rejects telemetry crash upload and secret logging entry points",
+      "sha256": "87d2a7c825c3400008345fd56e5ce590b9530d23c006e9310acd32b0aa41f4e4"
+    },
+    {
+      "path": "tests/policy/verificationReporter.test.ts",
+      "name": "accumulates raw failures counts and immutable plan drift",
+      "sha256": "0afa4374743996b1eb13a85ded057e18418597f5d9a72177cc794464166a8764"
+    }
+  ]
+}

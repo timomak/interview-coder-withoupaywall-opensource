@@ -1,0 +1,115 @@
+{
+  "schemaVersion": 1,
+  "phase": "P07",
+  "entries": [
+    {
+      "label": "install",
+      "argv": [
+        "npm",
+        "ci"
+      ],
+      "classification": "command",
+      "expectedExit": 0
+    },
+    {
+      "label": "policy",
+      "argv": [
+        "npm",
+        "run",
+        "verify:policy"
+      ],
+      "classification": "command",
+      "expectedExit": 0
+    },
+    {
+      "label": "lint",
+      "argv": [
+        "npm",
+        "run",
+        "lint"
+      ],
+      "classification": "command",
+      "expectedExit": 0
+    },
+    {
+      "label": "typecheck",
+      "argv": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "classification": "command",
+      "expectedExit": 0
+    },
+    {
+      "label": "legacy",
+      "argv": [
+        "npm",
+        "run",
+        "test:legacy",
+        "--",
+        "--reporter=verbose"
+      ],
+      "classification": "test",
+      "expectedExit": 0,
+      "minimumPassed": 1
+    },
+    {
+      "label": "unit",
+      "argv": [
+        "npm",
+        "run",
+        "test:unit",
+        "--",
+        "--reporter=verbose"
+      ],
+      "classification": "test",
+      "expectedExit": 0,
+      "minimumPassed": 1
+    },
+    {
+      "label": "p07",
+      "argv": [
+        "npm",
+        "run",
+        "test:p07",
+        "--",
+        "--reporter=verbose"
+      ],
+      "classification": "test",
+      "expectedExit": 0,
+      "minimumPassed": 8
+    },
+    {
+      "label": "system-design-fixtures",
+      "argv": [
+        "npm",
+        "run",
+        "test:system-design-fixtures"
+      ],
+      "classification": "test",
+      "expectedExit": 0,
+      "minimumPassed": 1
+    },
+    {
+      "label": "manifest",
+      "argv": [
+        "npm",
+        "run",
+        "verify:test-manifest"
+      ],
+      "classification": "command",
+      "expectedExit": 0
+    },
+    {
+      "label": "build",
+      "argv": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "classification": "command",
+      "expectedExit": 0
+    }
+  ]
+}

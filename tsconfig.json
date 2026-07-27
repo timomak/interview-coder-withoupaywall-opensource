@@ -17,8 +17,8 @@
     "allowJs": true,
     "esModuleInterop": true,
     "allowImportingTsExtensions": true,
-    "types": ["vite/client"]
+    "types": ["vite/client", "vitest/globals"]
   },
-  "include": ["electron/**/*", "src/**/*"],
+  "include": ["electron/**/*", "src/**/*", "tests/**/*", "vitest.config.ts"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

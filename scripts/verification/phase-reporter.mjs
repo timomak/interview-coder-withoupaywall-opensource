@@ -1,0 +1,556 @@
+import crypto from "node:crypto"
+import fs from "node:fs"
+import path from "node:path"
+import process from "node:process"
+import { spawn } from "node:child_process"
+import { fileURLToPath, pathToFileURL } from "node:url"
+
+const REPORTER_DIRECTORY = path.dirname(fileURLToPath(import.meta.url))
+const REPOSITORY_ROOT = path.resolve(REPORTER_DIRECTORY, "../..")
+const PLAN_MANIFEST_SHA256 =
+  "b67a832da00933e0a8b89626f9a08de4ab2e19063146c5a9eaf07712ed38e6bf"
+const PLAN_IDS = [
+  "P01",
+  "P02",
+  "P03",
+  "P04",
+  "P05",
+  "P06",
+  "P07",
+  "P08",
+  "P09",
+  "P10",
+  "P11",
+  "P12",
+  "P12-observer"
+]
+const ALLOWED_LABELS = new Set([
+  "install",
+  "policy",
+  "lint",
+  "typecheck",
+  "legacy",
+  "unit",
+  "p01",
+  "p02",
+  "p03",
+  "p04",
+  "p05",
+  "p06",
+  "p07",
+  "p08",
+  "p09",
+  "p10",
+  "p11",
+  "p12",
+  "electron-shell",
+  "coding-fixtures",
+  "system-design-fixtures",
+  "behavioral-fixtures",
+  "audio-native",
+  "audio-retention",
+  "prompt-adversarial",
+  "history-roundtrip",
+  "plaintext-scan",
+  "e2e-macos",
+  "staff-live-corpus",
+  "build",
+  "package-mac",
+  "mac-package",
+  "diagnostics",
+  "meet",
+  "manifest",
+  "release",
+  "meet-observer"
+])
+const SHELL_EXECUTABLES = new Set([
+  "bash",
+  "cmd",
+  "cmd.exe",
+  "fish",
+  "powershell",
+  "pwsh",
+  "sh",
+  "zsh"
+])
+export function sha256(bytes) {
+  return crypto.createHash("sha256").update(bytes).digest("hex")
+}
+
+export function shellEscape(argument) {
+  if (/^[A-Za-z0-9_./:=,@%+-]+$/.test(argument)) return argument
+  return `'${argument.replaceAll("'", "'\\''")}'`
+}
+
+export function formatCommand(argv) {
+  return argv.map(shellEscape).join(" ")
+}
+
+export function validatePlan(plan) {
+  const errors = []
+  if (
+    !plan ||
+    typeof plan !== "object" ||
+    Array.isArray(plan) ||
+    plan.schemaVersion !== 1
+  ) {
+    return ["plan must be a schemaVersion 1 object"]
+  }
+  if (!PLAN_IDS.includes(plan.phase)) {
+    errors.push(`unknown phase: ${String(plan.phase)}`)
+  }
+  if (!Array.isArray(plan.entries) || plan.entries.length === 0) {
+    errors.push("plan entries must be a non-empty array")
+    return errors
+  }
+
+  const labels = new Set()
+  let lastTestIndex = -1
+  let manifestIndex = -1
+  plan.entries.forEach((entry, index) => {
+    if (!entry || typeof entry !== "object" || Array.isArray(entry)) {
+      errors.push(`entry ${index + 1} must be an object`)
+      return
+    }
+    if ("command" in entry || "shell" in entry) {
+      errors.push(`entry ${index + 1} contains a forbidden shell string`)
+    }
+    if (typeof entry.label !== "string" || !ALLOWED_LABELS.has(entry.label)) {
+      errors.push(`entry ${index + 1} has unknown label ${String(entry.label)}`)
+    } else if (labels.has(entry.label)) {
+      errors.push(`entry ${index + 1} duplicates label ${entry.label}`)
+    } else {
+      labels.add(entry.label)
+    }
+    if (
+      !Array.isArray(entry.argv) ||
+      entry.argv.length === 0 ||
+      entry.argv.some((value) => typeof value !== "string" || value.length === 0)
+    ) {
+      errors.push(`entry ${index + 1} argv must be non-empty strings`)
+    } else if (SHELL_EXECUTABLES.has(path.basename(entry.argv[0]))) {
+      errors.push(`entry ${index + 1} may not invoke a shell`)
+    }
+    if (!["command", "test"].includes(entry.classification)) {
+      errors.push(`entry ${index + 1} has invalid classification`)
+    }
+    if (!Number.isInteger(entry.expectedExit)) {
+      errors.push(`entry ${index + 1} expectedExit must be an integer`)
+    }
+    if (entry.classification === "test") {
+      lastTestIndex = index
+      if (
+        !Number.isInteger(entry.minimumPassed) ||
+        entry.minimumPassed < 1
+      ) {
+        errors.push(`entry ${index + 1} minimumPassed must be at least one`)
+      }
+    } else if ("minimumPassed" in entry) {
+      errors.push(`entry ${index + 1} is not a test but has minimumPassed`)
+    }
+    if (entry.label === "manifest") manifestIndex = index
+  })
+
+  if (plan.phase !== "P12-observer") {
+    if (manifestIndex === -1) {
+      errors.push("plan is missing the manifest gate")
+    } else if (manifestIndex <= lastTestIndex) {
+      errors.push("manifest gate must run after every test entry")
+    }
+  }
+  return errors
+}
+
+export function validatePlanManifest({
+  root = REPOSITORY_ROOT,
+  expectedManifestHash = PLAN_MANIFEST_SHA256
+} = {}) {
+  const manifestPath = path.join(
+    root,
+    "scripts/verification/plan-manifest.json"
+  )
+  const manifestBytes = fs.readFileSync(manifestPath)
+  const errors = []
+
+  if (sha256(manifestBytes) !== expectedManifestHash) {
+    errors.push("immutable plan-manifest hash drift")
+  }
+
+  let manifest
+  try {
+    manifest = JSON.parse(manifestBytes.toString("utf8"))
+  } catch {
+    return [...errors, "plan manifest is not valid JSON"]
+  }
+
+  if (manifest.schemaVersion !== 1) {
+    errors.push("plan manifest schemaVersion must be 1")
+  }
+  if (
+    JSON.stringify(Object.keys(manifest.plans ?? {})) !==
+    JSON.stringify(PLAN_IDS)
+  ) {
+    errors.push("plan manifest must list the exact frozen plan IDs in order")
+  }
+
+  for (const id of PLAN_IDS) {
+    const record = manifest.plans?.[id]
+    if (
+      !record ||
+      record.file !== `${id}.json` ||
+      !/^[a-f0-9]{64}$/.test(record.sha256)
+    ) {
+      errors.push(`invalid plan-manifest record for ${id}`)
+      continue
+    }
+    const planPath = path.join(
+      root,
+      "scripts/verification/plans",
+      record.file
+    )
+    if (!fs.existsSync(planPath)) {
+      errors.push(`missing frozen plan ${record.file}`)
+      continue
+    }
+    const planBytes = fs.readFileSync(planPath)
+    if (sha256(planBytes) !== record.sha256) {
+      errors.push(`immutable argv plan drift: ${record.file}`)
+      continue
+    }
+    try {
+      const planErrors = validatePlan(JSON.parse(planBytes.toString("utf8")))
+      errors.push(...planErrors.map((error) => `${record.file}: ${error}`))
+    } catch {
+      errors.push(`${record.file} is not valid JSON`)
+    }
+  }
+  return errors
+}
+
+export function parseTestCounts(output) {
+  const matches = [...output.matchAll(/^VERIFICATION_COUNTS (.+)$/gm)]
+  if (matches.length !== 1) return null
+  try {
+    const counts = JSON.parse(matches[0][1])
+    if (
+      !Number.isInteger(counts.passed) ||
+      !Number.isInteger(counts.failed) ||
+      !Number.isInteger(counts.skipped) ||
+      counts.passed < 0 ||
+      counts.failed < 0 ||
+      counts.skipped < 0
+    ) {
+      return null
+    }
+    return {
+      passed: counts.passed,
+      failed: counts.failed,
+      skipped: counts.skipped
+    }
+  } catch {
+    return null
+  }
+}
+
+export function entryFailures(entry, result) {
+  const failures = []
+  if (result.signal !== null) {
+    failures.push(`terminated by signal ${result.signal}`)
+  } else if (result.rawExit !== entry.expectedExit) {
+    failures.push(
+      `raw exit ${String(result.rawExit)} did not equal ${entry.expectedExit}`
+    )
+  }
+  if (entry.classification === "test") {
+    if (!result.counts) {
+      failures.push("missing or ambiguous passed/failed/skipped counts")
+    } else {
+      if (result.counts.failed !== 0) {
+        failures.push(`failed=${result.counts.failed}`)
+      }
+      if (result.counts.skipped !== 0) {
+        failures.push(`skipped=${result.counts.skipped}`)
+      }
+      if (result.counts.passed < entry.minimumPassed) {
+        failures.push(
+          `passed=${result.counts.passed} below minimum=${entry.minimumPassed}`
+        )
+      }
+    }
+  }
+  return failures
+}
+
+export function aggregateExit(results) {
+  return results.some((result) => result.failures.length > 0) ? 1 : 0
+}
+
+function nextRunDirectory(artifactsDirectory) {
+  fs.mkdirSync(artifactsDirectory, { recursive: true })
+  for (let index = 1; index < 10000; index += 1) {
+    const candidate = path.join(
+      artifactsDirectory,
+      `run-${String(index).padStart(3, "0")}`
+    )
+    try {
+      fs.mkdirSync(candidate)
+      return candidate
+    } catch (error) {
+      if (error?.code !== "EEXIST") throw error
+    }
+  }
+  throw new Error("verification artifact run limit reached")
+}
+
+function runChild({ entry, index, cwd, runDirectory, environment, quiet }) {
+  return new Promise((resolve) => {
+    const commandText = formatCommand(entry.argv)
+    const logName = `${String(index + 1).padStart(2, "0")}-${entry.label}.log`
+    const logPath = path.join(runDirectory, logName)
+    const logStream = fs.createWriteStream(logPath, { flags: "wx" })
+    const startedAt = new Date()
+    const output = []
+    const header = [
+      `label=${entry.label}`,
+      `command=${commandText}`,
+      `started_at=${startedAt.toISOString()}`,
+      ""
+    ].join("\n")
+
+    if (!quiet) process.stdout.write(`\n[${index + 1}] ${commandText}\n`)
+    logStream.write(header)
+
+    const child = spawn(entry.argv[0], entry.argv.slice(1), {
+      cwd,
+      env: {
+        ...environment,
+        VERIFICATION_ENTRY_LABEL: entry.label,
+        VERIFICATION_TEST_RESULTS_DIR: path.join(runDirectory, "test-results")
+      },
+      shell: false,
+      stdio: ["ignore", "pipe", "pipe"]
+    })
+
+    const tee = (stream, destination) => {
+      stream.on("data", (chunk) => {
+        output.push(chunk)
+        if (!quiet) destination.write(chunk)
+        logStream.write(chunk)
+      })
+    }
+    tee(child.stdout, process.stdout)
+    tee(child.stderr, process.stderr)
+
+    child.on("error", (error) => {
+      const bytes = Buffer.from(`\nchild spawn error: ${error.message}\n`)
+      output.push(bytes)
+      process.stderr.write(bytes)
+      logStream.write(bytes)
+    })
+    child.on("close", (code, signal) => {
+      const endedAt = new Date()
+      const combinedOutput = Buffer.concat(output).toString("utf8")
+      const result = {
+        label: entry.label,
+        argv: entry.argv,
+        command: commandText,
+        classification: entry.classification,
+        expectedExit: entry.expectedExit,
+        rawExit: code,
+        signal: signal ?? null,
+        counts:
+          entry.classification === "test"
+            ? parseTestCounts(combinedOutput)
+            : null,
+        startedAt: startedAt.toISOString(),
+        endedAt: endedAt.toISOString(),
+        durationMs: endedAt.getTime() - startedAt.getTime(),
+        logPath: path.relative(cwd, logPath)
+      }
+      result.failures = entryFailures(entry, result)
+      const footer = [
+        "",
+        `ended_at=${result.endedAt}`,
+        `duration_ms=${result.durationMs}`,
+        `raw_exit=${String(result.rawExit)}`,
+        `signal=${result.signal ?? ""}`,
+        result.counts
+          ? `passed=${result.counts.passed} failed=${result.counts.failed} skipped=${result.counts.skipped}`
+          : "passed=missing failed=missing skipped=missing",
+        `entry_failures=${JSON.stringify(result.failures)}`,
+        ""
+      ].join("\n")
+      logStream.end(footer, () => resolve(result))
+    })
+  })
+}
+
+function textReport(report) {
+  const lines = [
+    `plan=${report.plan}`,
+    `plan_sha256=${report.planSha256}`,
+    `started_at=${report.startedAt}`,
+    `ended_at=${report.endedAt}`,
+    `aggregate_raw_exit=${report.aggregateExit}`,
+    ""
+  ]
+  report.entries.forEach((entry, index) => {
+    lines.push(
+      `[${index + 1}] label=${entry.label}`,
+      `command=${entry.command}`,
+      `raw_exit=${String(entry.rawExit)}`,
+      `expected_exit=${entry.expectedExit}`,
+      `signal=${entry.signal ?? ""}`,
+      entry.counts
+        ? `passed=${entry.counts.passed} failed=${entry.counts.failed} skipped=${entry.counts.skipped}`
+        : "passed=n/a failed=n/a skipped=n/a",
+      `started_at=${entry.startedAt}`,
+      `ended_at=${entry.endedAt}`,
+      `duration_ms=${entry.durationMs}`,
+      `log=${entry.logPath}`,
+      `failures=${JSON.stringify(entry.failures)}`,
+      ""
+    )
+  })
+  return `${lines.join("\n")}\n`
+}
+
+export async function runEntries({
+  planId,
+  planSha256 = "injected-test-plan",
+  entries,
+  artifactsDirectory,
+  cwd = REPOSITORY_ROOT,
+  environment = process.env,
+  quiet = false
+}) {
+  const runDirectory = nextRunDirectory(path.resolve(cwd, artifactsDirectory))
+  fs.mkdirSync(path.join(runDirectory, "test-results"))
+  const startedAt = new Date()
+  const results = []
+
+  for (const [index, entry] of entries.entries()) {
+    results.push(
+      await runChild({
+        entry,
+        index,
+        cwd,
+        runDirectory,
+        environment,
+        quiet
+      })
+    )
+  }
+
+  const report = {
+    schemaVersion: 1,
+    plan: planId,
+    planSha256,
+    startedAt: startedAt.toISOString(),
+    endedAt: new Date().toISOString(),
+    aggregateExit: aggregateExit(results),
+    entries: results
+  }
+  const jsonPath = path.join(runDirectory, "aggregate.json")
+  const textPath = path.join(runDirectory, "aggregate.txt")
+  fs.writeFileSync(jsonPath, `${JSON.stringify(report, null, 2)}\n`, {
+    flag: "wx"
+  })
+  fs.writeFileSync(textPath, textReport(report), { flag: "wx" })
+  return { report, jsonPath, textPath, runDirectory }
+}
+
+function parseArguments(argv) {
+  const options = {}
+  for (let index = 0; index < argv.length; index += 1) {
+    const flag = argv[index]
+    if (!["--phase", "--artifacts", "--role", "--pair"].includes(flag)) {
+      throw new Error(`unknown argument: ${flag}`)
+    }
+    const value = argv[index + 1]
+    if (!value || value.startsWith("--")) {
+      throw new Error(`missing value for ${flag}`)
+    }
+    options[flag.slice(2)] = value
+    index += 1
+  }
+  if (!options.phase || !options.artifacts) {
+    throw new Error("--phase and --artifacts are required")
+  }
+  if (options.role && options.role !== "meet-observer") {
+    throw new Error(`unknown role: ${options.role}`)
+  }
+  if (options.role === "meet-observer" && (!options.pair || options.phase !== "P12")) {
+    throw new Error("P12 meet-observer requires --pair")
+  }
+  if (!options.role && options.pair) {
+    throw new Error("--pair is only valid for the meet-observer role")
+  }
+  return options
+}
+
+function loadFrozenPlan(options) {
+  const planId =
+    options.phase === "P12" && options.role === "meet-observer"
+      ? "P12-observer"
+      : options.phase
+  if (!PLAN_IDS.includes(planId) || planId === "P12-observer" && !options.role) {
+    throw new Error(`unknown phase plan: ${planId}`)
+  }
+
+  const manifest = JSON.parse(
+    fs.readFileSync(
+      path.join(REPORTER_DIRECTORY, "plan-manifest.json"),
+      "utf8"
+    )
+  )
+  const record = manifest.plans[planId]
+  const plan = JSON.parse(
+    fs.readFileSync(
+      path.join(REPORTER_DIRECTORY, "plans", record.file),
+      "utf8"
+    )
+  )
+  if (options.pair) {
+    for (const entry of plan.entries) {
+      entry.argv = entry.argv.map((argument) =>
+        argument === "<one-time-pairing-url>" ? options.pair : argument
+      )
+    }
+  }
+  return { planId, plan, planSha256: record.sha256 }
+}
+
+async function main() {
+  if (Number.parseInt(process.versions.node.split(".")[0], 10) !== 20) {
+    throw new Error(
+      `phase verification requires Node 20; received ${process.version}`
+    )
+  }
+  const options = parseArguments(process.argv.slice(2))
+  const manifestErrors = validatePlanManifest()
+  if (manifestErrors.length > 0) {
+    throw new Error(manifestErrors.join("\n"))
+  }
+  const { planId, plan, planSha256 } = loadFrozenPlan(options)
+  const result = await runEntries({
+    planId,
+    planSha256,
+    entries: plan.entries,
+    artifactsDirectory: options.artifacts
+  })
+  console.log(
+    `\nAGGREGATE raw_exit=${result.report.aggregateExit} json=${path.relative(
+      REPOSITORY_ROOT,
+      result.jsonPath
+    )} text=${path.relative(REPOSITORY_ROOT, result.textPath)}`
+  )
+  process.exitCode = result.report.aggregateExit
+}
+
+if (import.meta.url === pathToFileURL(process.argv[1] ?? "").href) {
+  main().catch((error) => {
+    console.error(error instanceof Error ? error.message : String(error))
+    process.exitCode = 1
+  })
+}

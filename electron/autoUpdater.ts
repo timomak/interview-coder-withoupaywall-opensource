@@ -1,6 +1,7 @@
 import { autoUpdater } from "electron-updater"
 import { BrowserWindow, ipcMain, app } from "electron"
 import log from "electron-log"
+import { errorMessage } from "./errorUtils"
 
 export function initAutoUpdater() {
   console.log("Initializing auto-updater...")
@@ -98,7 +99,7 @@ export function initAutoUpdater() {
       return { success: true }
     } catch (error) {
       console.error("Failed to start update:", error)
-      return { success: false, error: error.message }
+      return { success: false, error: errorMessage(error) }
     }
   })
 

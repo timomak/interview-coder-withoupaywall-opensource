@@ -1,8 +1,6 @@
 import Store from "electron-store"
 
-interface StoreSchema {
-  // Empty for now, we can add other store items here later
-}
+type StoreSchema = Record<string, never>
 
 const store = new Store<StoreSchema>({
   defaults: {},

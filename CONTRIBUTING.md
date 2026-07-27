@@ -1,113 +1,74 @@
-# Contributing to Interview Coder - Unlocked Edition
+# Contributing to InterviewCopilot
 
-Thank you for your interest in contributing to Interview Coder - Unlocked Edition! This free, open-source tool exists to empower the coding community with accessible interview preparation resources, and your efforts can make it even better. We're thrilled to have you join us in this collaborative journey!
+Thank you for contributing. Keep changes narrowly scoped, preserve existing
+behavior unless the owning change explicitly says otherwise, and do not include
+credentials, screenshots, interview content, or other sensitive data.
 
-## Our Community Values
+## Clean setup
 
-We're building a supportive and inclusive environment based on the following principles:
+Use Node.js major version 20 and the committed npm lockfile:
 
-- **Collaborative Development**: We grow stronger by working together—let's avoid duplicating efforts and unite our skills.
-- **Open Access**: This tool is for everyone, and we aim to keep it free and accessible to all who need it.
-- **Continuous Improvement**: Every contribution, big or small, helps refine features like AI-powered analysis, invisibility, and debugging assistance.
+```bash
+nvm install 20
+nvm use 20
+node -e 'if (Number(process.versions.node.split(".")[0]) !== 20) process.exit(1)'
+npm ci
+```
 
-## How to Get Started
+The install fails closed on any other Node major. Do not relax the engine check
+or replace `npm ci` with `npm install` in acceptance evidence.
 
-### 1. Fork the Repository
+## Required local verification
 
-- Visit the repository at [github.com/Ornithopter-pilot/interview-coder-withoupaywall-opensource](https://github.com/Ornithopter-pilot/interview-coder-withoupaywall-opensource).
-- Click the "Fork" button to create your own copy.
-- Clone your fork locally:
-  ```bash
-  git clone https://github.com/YOUR-USERNAME/interview-coder-withoupaywall-opensource.git
-  ```
-- Set up the upstream remote to sync with the original:
-  ```bash
-  git remote add upstream https://github.com/Ornithopter-pilot/interview-coder-withoupaywall-opensource.git
-  ```
+Local verification is authoritative. For P01:
 
-### 2. Create a Branch
+```bash
+npm run verify:phase -- --phase P01 --artifacts .artifacts/verification/P01
+```
 
-- Create a descriptive branch for your work:
-  ```bash
-  git checkout -b feature/your-feature-name
-  ```
-- Examples: `feature/add-python-support`, `bugfix/fix-screenshot-capture`.
-- Keep branches focused on a single feature or fix to streamline reviews.
+The command runs the frozen P01 argv plan in order: deterministic install,
+policy scan, lint, strict type-check, inherited renderer test, root unit suite,
+P01 policy suite, immutable test-manifest validation, and production build.
+Every raw child exit must be zero, every test count must have failed=0 and
+skipped=0, and the aggregate exit must be zero.
 
-### 3. Make and Test Your Changes
+Hosted CI mirrors this command and is useful review evidence, but it cannot
+waive or replace the complete local artifact set.
 
-- Implement your improvements or fixes in the codebase (e.g., `electron/ProcessingHelper.ts`, `src/components/Settings/SettingsDialog.tsx`).
-- Test thoroughly, especially for features like screenshot capture or AI integration, to ensure compatibility with macOS, Windows, and Linux.
-- Follow the existing code style (TypeScript, React, Tailwind CSS) and run:
+## Test contract
 
-### 4. Commit and Push
+- Add real tests for behavior or policy changes.
+- Do not use skip, todo, `xit`, or `xdescribe` forms.
+- Do not remove, rename, or make a manifest test undiscoverable.
+- Do not weaken assertions, thresholds, source globs, or parser coverage.
+- Add new tests to the manifest without changing existing frozen entries.
+- Preserve `renderer/src/App.test.tsx` unchanged.
 
-- Commit your changes with clear messages:
-  ```bash
-  git commit -m "feat: add Python language support with detailed testing"
-  ```
-- Push to your fork:
-  ```bash
-  git push origin feature/your-feature-name
-  ```
+The phase reporter records exact argv commands and raw exits and requires
+machine-readable passed/failed/skipped counts. It deliberately continues after
+child failure so later raw results are not masked.
 
-### 5. Submit a Pull Request (PR)
+## Lint and type cleanup
 
-- Go to the original repository and click "New Pull Request".
-- Select your branch and create the PR.
-- Provide a detailed description:
-  - What problem does it solve?
-  - How was it tested?
-  - Reference related issues (e.g., `Fixes #123`).
-- Assign reviewers (e.g., `@anshumansingh01`, `@bhaumikmaan`) if applicable.
+ESLint covers JavaScript, TypeScript, JSON, Markdown, and CSS with file-specific
+parsers. Only dependencies and generated build, release, coverage, and
+verification artifacts are ignored. Do not hide product source to make lint or
+strict TypeScript pass. Keep cleanup mechanical and review it for behavior
+changes.
 
-## Contribution Guidelines
+## Privacy, telemetry, and capture protection
 
-To ensure a smooth and high-quality collaboration, please follow these guidelines:
+Do not add analytics SDKs, device identifiers or fingerprinting, product
+entitlements, credits, quotas, automatic crash upload, or logging of environment
+secrets. Manual diagnostic work must be explicitly scoped and redacted.
 
-### Code Quality
+Every Electron `BrowserWindow` creation and reveal path must use
+`applyCaptureProtection`; the helper only calls `setContentProtection(true)`.
+Do not add a false path. Unit coverage of this invariant does not establish
+external capture privacy and must not be described as proof that the window is
+hidden from a particular capture product.
 
-- Write clear, well-documented code. Add comments for complex logic (e.g., AI model integration in `ProcessingHelper.ts`).
-- Test your changes locally using the provided `stealth-run.sh` or `stealth-run.bat` scripts.
-- Avoid breaking existing features (e.g., invisibility, screenshot capture).
+## License
 
-### PR Workflow
-
-- All changes must be submitted via a PR to the main branch, as required by our branch protection rules.
-- PRs require 2 approving reviews, including an independent approval of the most recent push (someone other than the pusher).
-- Resolve all code-related conversations before merging—unresolved feedback will block the PR.
-- Expect stale approvals to be dismissed if new commits are pushed, ensuring reviews reflect the latest code.
-
-## Licensing and Attribution
-
-This project is licensed under the GNU Affero General Public License v3.0 (AGPL-3.0). As a contributor:
-
-- **Contribute Back**: Submit your improvements as PRs to the main repository to benefit the community.
-- **Share Openly**: If you modify and deploy the software (e.g., on a server), make your source code available to users under AGPL-3.0.
-- **Maintain Attribution**: Preserve original copyright notices and license text in your modifications.
-
-## Community Etiquette
-
-- Be respectful and constructive in comments and reviews.
-- Actively review others' PRs to share the workload—your input is valuable!
-- Report bugs or suggest features by opening an issue with:
-  - A clear title.
-  - Steps to reproduce.
-  - Expected vs. actual behavior.
-
-## Development Tips
-
-- **Environment Setup**: Ensure Node.js (v16+) and npm/bun are installed. Grant screen recording permissions (see README.md for details).
-- **API Usage**: Be mindful of OpenAI API costs when testing AI features.
-- **Troubleshooting**: Run `npm run clean` before builds if issues arise, and use Ctrl+B/Cmd+B to toggle visibility.
-
-## Maintainer Notes
-
-As the primary maintainer, I (Ornithopter-pilot) oversee merges and ensure stability. Your PRs will be reviewed, but I rely on your help to maintain quality. Please:
-
-- Ping me (@Ornithopter-pilot) if a PR is urgent.
-- Be patient—high PR volume may delay responses.
-
-## Thank You!
-
-Your contributions make Interview Coder - Unlocked Edition a powerful, community-owned tool. Whether it's adding language support, enhancing UI, or fixing bugs, every effort counts. Let's build something amazing together!
+All contributions remain available under `AGPL-3.0-or-later`. Preserve
+[LICENSE](LICENSE), source notices, and the package license metadata.
