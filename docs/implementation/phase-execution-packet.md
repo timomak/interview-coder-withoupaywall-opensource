@@ -1,6 +1,10 @@
 # InterviewCopilot phase-execution packet
 
-Packet revision: **P00-R8**
+Packet revision: **P00-R9**
+
+P00-R9 is a packet-only correction to P00-R8's execution protocol. It changes
+no product decision, phase inventory, or requirement owner, so `design.md`
+remains byte-for-byte unchanged.
 
 Planning base: `main@9dcb4b2d39607273a8528a24657cdb4f5bfc3412`
 
@@ -248,7 +252,7 @@ author or a candidate process, arms one phase from the independently observed
 PR head with exact command
 `/Users/Shared/InterviewCopilot/verification-controller/v1/bin/arm-phase
 --phase <P01-P12> --pr <phase-pr-number> --expected-head
-<exact-40-hex-pr-head> --approved-packet <exact-approved-P00-R8-sha>`.
+<exact-40-hex-pr-head> --approved-packet <exact-approved-P00-R9-sha>`.
 
 The privileged command independently resolves the live PR head, requires exact
 agreement with `expected-head`, fetches that commit into the controller-owned
@@ -278,10 +282,18 @@ closed path/name maps whose values carry Git mode where applicable, byte
 length, and SHA-256. `toolchain` carries OS/build/architecture plus Node/npm
 realpath, version, and SHA-256. `environment` is a closed allowlist with the
 fixed npm lifecycle-suppression and shell values. `writableRoots` is a closed
-list derived by the controller, never a candidate path. The controller stores
-the canonical anchor bytes as `anchor.json` and its lowercase-hex digest as
-`anchor.sha256` under the fixed `anchors/active/<phase>/local/` slot. Arming
-P12 atomically installs the same candidate/input identity with role
+list derived by the controller, never a candidate path. The closed active
+anchor has no `runId` or other current-run value; a result/evidence schema may
+describe such a later field but cannot supply its value. Only `arm-phase` may
+atomically install an active anchor. After `verify-phase` selects and opens one,
+that invocation treats its canonical bytes and digest as immutable and never
+rewrites, augments, repairs, replaces, or re-arms it. It holds the
+controller-owned phase/role anchor-slot lock through terminal finalization and
+return; `arm-phase` requires the exclusive lock and returns nonzero without
+installing when a run holds it. The controller stores the canonical anchor bytes
+as `anchor.json` and its lowercase-hex digest as `anchor.sha256` under the fixed
+`anchors/active/<phase>/local/` slot. Arming P12 atomically installs the same
+candidate/input identity with role
 `meet-observer` under `anchors/active/P12/meet-observer/`; no other role slot is
 valid. The local and observer anchors differ only in role-bound plan/result
 fields. Any schema, canonical-byte, field, or digest disagreement rejects.
@@ -293,6 +305,43 @@ checkout, commit, tree, packet, toolchain, phase plan, or evidence root. The
 controller rejects a changed live PR head before execution and repeats that
 comparison before zero. It never fetches, checks out, resets, switches, repairs,
 or re-arms from candidate output.
+
+**Per-run binding and run-root creation.** Only after the controller has opened,
+schema-validated, digest-validated, and selected the immutable active anchor and
+confirmed the live PR head does it generate a `ControllerRunId`: exactly 16
+bytes from the controller CSPRNG encoded as 32 lowercase hexadecimal characters
+matching `^[0-9a-f]{32}$`. The controller derives, without a candidate value,
+the exact run path
+`/Users/Shared/InterviewCopilot/verification-controller/runs/<candidateCommitSha>/<phase>/<runId>/`
+from the selected anchor's commit and phase plus that generated ID. It creates
+the final run directory exclusively beneath descriptor-opened controller-owned
+ancestors. `EEXIST`, CSPRNG failure, unsafe ancestry, or any ownership, mode,
+ACL, link, flag, mount, or descriptor disagreement is an integrity failure; the
+controller never adopts an existing root or retries the same ID.
+
+Before materialization or any candidate process, the controller exclusively
+creates a byte-identical `anchor.json` snapshot from its held active-anchor
+descriptor and a separate JCS-canonical `run-binding.json`. The snapshot is not
+the active anchor and also has no run ID. The binding rejects duplicate or
+unknown keys and contains exactly `schemaVersion` (JSON integer `1`), `kind`
+(`"verification-run-binding"`), `runId: ControllerRunId`, `anchorSha256`
+(lowercase SHA-256 of the selected canonical active-anchor bytes),
+`candidateCommitSha` (the anchor's exact 40-lowercase-hex commit), `phase`
+(`"P01"` through `"P12"`), `role` (`"local"` or `"meet-observer"`), and
+`createdAt` (a real UTC timestamp with exactly milliseconds and terminal `Z`,
+created after anchor selection and before the first spawn). Every repeated
+identity exactly equals the held anchor. The binding is evidence and never a
+checkout, plan, role, toolchain, writable-root, or evidence-root selector; its
+SHA-256 is computed over its canonical bytes and is not stored inside itself.
+
+The service identity creates both files with exclusive no-follow operations,
+fsyncs their complete bytes, freezes `run-binding.json` as a controller-owned
+mode-0400 regular link-count-one file with no write bit, ACL entry, or file
+flag, fsyncs the run directory, reopens both canonical names by descriptor, and
+compares bytes, digests, ownership, device/inode, mode, flags, ACL state, size,
+and link count. It retains the descriptors for the entire invocation. Candidate
+processes inherit neither descriptor nor controller evidence path. Only after
+these steps succeed may sealed materialization begin.
 
 **Sealed materialization and lifecycle containment.** `verify-phase`
 materializes the active commit from the controller object store into a fresh
@@ -344,23 +393,27 @@ Plan children inherit neither those descriptors nor a controller evidence path.
 Candidate stdout, environment, artifact paths, duplicate/replayed records, and
 unframed structured output are never result authority.
 
-The authoritative run root is exactly
-`/Users/Shared/InterviewCopilot/verification-controller/runs/<candidateCommitSha>/<phase>/<runId>/`,
-where `runId` is a controller-generated 128-bit random lowercase-hex value. Its
-closed controller-owned layout is `anchor.json`, `input-inventory.json`,
+The authoritative run root created above has the closed controller-owned layout
+`anchor.json`, `run-binding.json`, `input-inventory.json`,
 `controller-transcript.json`, `reporter-aggregate.json`,
 `reporter-aggregate.txt`, `output-inventory.json`, numbered stdout/stderr logs,
 and either `success.json` or `failure.json`, never both. These controller files
 are external gate evidence, not additions to the nine-member P12 qualification
-evidence set or four-member release bundle. Each transcript entry contains
+evidence set, four-member release bundle, or 16-node/28-edge qualification
+graph. Each transcript entry contains
 exactly `index`, `label`, `plannedArgv`, `resolvedExecutable`,
 `resolvedExecutableSha256`, `actualSpawnArgv`, `startedAt`, `endedAt`,
 `durationMs`, `rawExit`, `signal`, `stdoutLog`, `stdoutSha256`, `stderrLog`,
-`stderrSha256`, optional `counts`, and `reporterRecordSha256`. The terminal
-record binds the anchor/run/transcript/aggregate/inventory hashes,
+`stderrSha256`, optional `counts`, and `reporterRecordSha256`. Both closed
+terminal-record variants require `runId`, `runBindingSha256`, and
+`anchorSha256` to match the binding and held active anchor, and bind the
+unchanged transcript/aggregate/inventory hashes,
 `reporterStarted`, `candidateProcessesSpawned`, controller and reporter
 aggregate exits, integrity-failure class if any, final-reopen result, survivor
-count, and UTC completion. Unknown, missing, duplicate, unframed, reordered, or
+count, and UTC completion. `success.json` requires matching identities, complete
+hashes, both zero aggregates, zero survivors, and a passing final reopen;
+`failure.json` records unavailable later hashes/exits as null and can never be
+interpreted as success. Unknown, missing, duplicate, unframed, reordered, or
 hash-disagreeing data rejects.
 
 The reporter exits 0 only when every child raw exit equals its expected value,
@@ -369,19 +422,35 @@ phase-owned, fixture, native, E2E, and manual procedure entry ran. Otherwise it
 exits 1 after the last ordinary entry. The controller independently correlates
 the reporter records with its broker transcript and is the sole acceptance
 authority. Immediately before zero it requires exact candidate/PR/anchor
-identity, reopens every protected canonical name and compares its descriptor
-identity/bytes/metadata, validates closed writable-root inventories and both
-aggregate formats, and proves that no descendant remains. Any mismatch returns
-nonzero; reporter zero can never override it.
+identity, reopens the fixed active-anchor slot and digest, run-root anchor
+snapshot, `run-binding.json`, and every other protected canonical name, and
+compares their descriptor identity/bytes/metadata. It validates closed
+writable-root inventories and both aggregate formats and proves that no
+descendant remains. Any forced anchor-slot replacement or live-head change
+during the invocation is therefore a final-reopen failure. Only after those
+checks may it exclusively create, fsync, and reopen `success.json`; it then
+rechecks the held anchor and binding immediately before returning zero and
+releases the anchor-slot lock only after the return result is fixed. Any
+mismatch returns nonzero; reporter zero can never override it.
 
 **Failure classes and negative controls.** Candidate/PR/packet, controller,
-anchor, ownership, lifecycle, package/bootstrap/plan/manifest/gate,
+anchor, run-root/binding creation, ownership, lifecycle,
+package/bootstrap/plan/manifest/gate,
 runner/hash, executable/environment, result-channel, descriptor, process-group,
 or TOCTOU disagreement before reporter start returns 1 with
 `reporterStarted=false` and `candidateProcessesSpawned=0`. An integrity or
 result-authority loss after start terminates the complete process group, stops
 further entries, preserves the external controller failure record, and returns
 1 without repair, restoration, unlink, retry, or aggregate-zero output.
+Failure before a complete binding is frozen preserves the incomplete root as
+non-acceptable audit state and uses the existing external preflight-failure
+record; the root is never resumed, repaired, removed, or reused. After binding
+freeze, every orderly exit has exactly one closed terminal record. A controller
+crash may leave no terminal record; that root remains non-accepting and is never
+resumed or reused. Any missing, partial, or mismatched terminal record is
+non-accepting. The controller
+descriptor-validates the binding before the first candidate spawn and after
+each broker-owned process group is fully reaped.
 Ordinary child failures retain the existing continue-and-aggregate behavior.
 Injected-failure tests must prove exact children with raw exits 7 then 0 both
 spawn, the later result remains visible, the 7 remains exact in JSON/text and
@@ -404,6 +473,17 @@ criterion or reporter plan, with these mandatory named cases:
 - `continues exact injected exits seven then zero and aggregates one`;
 - `preserves every P01-R1-B01 through P01-R1-B06 hostile probe`; and
 - `rejects any surviving child or detached descendant before zero`.
+
+Without adding a fourteenth case, reporter child, criterion, or plan, this same
+thirteen-case suite also proves that a valid active anchor rejects an injected
+`runId`; two invocations under byte-identical anchor bytes receive distinct
+controller IDs, roots, bindings, and terminal records; root collision or a
+partial binding fails before candidate spawn; binding byte/metadata replacement
+fails at creation, post-child validation, and final reopen; concurrent re-arm
+is rejected without changing the slot and any forced slot replacement fails the
+old run's final reopen; candidate argv/environment/output/pairing cannot select
+a binding; and P12's three reporter invocations use three fresh controller
+bindings without changing its qualification-run identities.
 
 Independent P01 review reuses the exact P01-CV-B01 hostile lifecycle fixture
 with SHA-256
@@ -552,7 +632,7 @@ integrity or result-authority loss terminates the run immediately.
 | P01-AC4: every BrowserWindow creation and reveal path invokes `applyCaptureProtection`, which calls `setContentProtection(true)` and never false. | `electron/captureProtection.test.ts — protects creation and reveal lifecycle paths` |
 | P01-AC5: package metadata and visible identity use InterviewCopilot and retain `AGPL-3.0-or-later`. | `tests/policy/productPolicy.test.ts — enforces canonical identity and AGPL metadata` |
 | P01-AC6: shipped source has no analytics SDK, device fingerprint, automatic crash-upload initialization, or environment-based secret logging. | `tests/policy/productPolicy.test.ts — rejects telemetry crash upload and secret logging entry points` |
-| P01-AC7: the controller-owned first instruction anchors the exact candidate/toolchain/verification closure before npm, directly invokes the bootstrap/reporter without package pre/post dispatch, brokers and logs every exact planned/resolved/actual argv and OS raw exit/signal, suppresses planned-target companion hooks without changing child argv, prints passed/failed/skipped for every test entry, gives children no authoritative result path/descriptor, rejects lifecycle, package/bootstrap/plan/manifest/gate, runner/hash, environment, result-channel, survivor-process, and TOCTOU/mutate-restore drift before any zero, and preserves ordinary injected exits 7 then 0 in JSON/text/controller evidence with aggregate 1; missing counts, plan drift, or controller/reporter disagreement also fail. | `tests/policy/verificationReporter.test.ts — accumulates raw failures counts and immutable plan drift` |
+| P01-AC7: the controller-owned first instruction anchors the exact candidate/toolchain/verification closure before npm, selects an immutable active anchor with no per-run value, exclusively creates and descriptor-validates the closed non-selecting per-run binding, directly invokes the bootstrap/reporter without package pre/post dispatch, brokers and logs every exact planned/resolved/actual argv and OS raw exit/signal, suppresses planned-target companion hooks without changing child argv, prints passed/failed/skipped for every test entry, gives children no authoritative result path/descriptor, rejects lifecycle, package/bootstrap/plan/manifest/gate, runner/hash, environment, result-channel, binding, survivor-process, and TOCTOU/mutate-restore drift before any zero, and preserves ordinary injected exits 7 then 0 in JSON/text/controller evidence with aggregate 1; missing counts, plan drift, or controller/reporter/binding disagreement also fail. | `tests/policy/verificationReporter.test.ts — accumulates raw failures counts and immutable plan drift` |
 
 **Clean-checkout setup.** Every command must exit 0.
 
@@ -592,8 +672,9 @@ artifact proving aggregate exit 1;
 (5) manifest diff proving the inherited test remains; (6) capture lifecycle
 test output; (7) build artifact list; (8) reviewer sign-off that no lint/type
 rule or source glob was weakened; (9) controller executable/ancestor
-ownership-mode-ACL/hash evidence, active-anchor bytes/hash, sealed-root
-inventory, broker transcript, and final reopen/process-group proof; (10) the
+ownership-mode-ACL/hash evidence, active-anchor bytes/hash, per-run binding
+bytes/hash, sealed-root inventory, broker transcript, and final reopen/process-
+group proof; (10) the
 archived lifecycle exploit plus the complete joint-mutation/result-channel/
 TOCTOU matrix and exact exits-7-then-0 negative control.
 
@@ -603,7 +684,7 @@ inside the single PR.
 
 **Self-contained implementation prompt.**
 
-> Implement P01 from P00-R8 on `phase/P01-local-gates`, based only on upstream
+> Implement P01 from P00-R9 on `phase/P01-local-gates`, based only on upstream
 > `main@9dcb4b2d…` plus merged planning docs. Do not import the dirty prototype.
 > Make local lint, strict type-check, real unit tests (including the unchanged
 > tracked CRA sample), manifest enforcement, and build green. Centralize and
@@ -618,7 +699,7 @@ inside the single PR.
 
 **Self-contained review prompt.**
 
-> Review P01 independently against P00-R8, not the author’s summary. Select and
+> Review P01 independently against P00-R9, not the author’s summary. Select and
 > arm the exact live PR head independently, then run the fixed P01 controller
 > invocation from a clean checkout and sealed root. Confirm the inherited CRA
 > test ran,
@@ -639,7 +720,7 @@ inside the single PR.
 > files, add/strengthen `{named regression test}`, preserve every inherited
 > gate and capture invariant, rerun the complete P01 plan (which begins with
 > `npm ci`) through a freshly armed fixed controller entrypoint, and return the
-> active-anchor/controller identities, every child planned/resolved/actual
+> active-anchor/per-run-binding/controller identities, every child planned/resolved/actual
 > argv/raw exit/count, controller and reporter aggregate exits, mutation-matrix
 > results, and the before/after commit SHAs.
 
@@ -756,7 +837,7 @@ and evolving; pin capabilities and fail explicitly on unsupported versions.
 
 **Self-contained implementation prompt.**
 
-> Implement P02 from P00-R8 after P01, on
+> Implement P02 from P00-R9 after P01, on
 > `phase/P02-subscription-runtime`. Build a provider-neutral persistent runtime
 > for Claude Code and Codex only, using one resumable session/thread, normalized
 > streaming/usage/compaction/stop/error events, explicit provider/model/Fast-
@@ -770,7 +851,7 @@ and evolving; pin capabilities and fail explicitly on unsupported versions.
 
 **Self-contained review prompt.**
 
-> Review P02 against P00-R8 from a clean checkout and a controller-selected,
+> Review P02 against P00-R9 from a clean checkout and a controller-selected,
 > sealed exact PR head. Trace both fake providers
 > through two turns, stop, compaction, driver/child restart, and caller-ID
 > resume; force every failure and prove the other provider never starts. Inspect
@@ -887,7 +968,7 @@ never custom cryptography.
 
 **Self-contained implementation prompt.**
 
-> Implement P03 from P00-R8 after P01 on
+> Implement P03 from P00-R9 after P01 on
 > `phase/P03-encrypted-persistence`. Build the Keychain-backed installation-key
 > service, versioned AES-256-GCM record/blob store, atomic writes, encrypted
 > in-memory-search source, typed recovery, raw-audio rejection, and journaled
@@ -1039,7 +1120,7 @@ boundary; no renderer or provider may keep a second authoritative session.
 
 **Self-contained implementation prompt.**
 
-> Implement P04 from P00-R8 after P02/P03 on
+> Implement P04 from P00-R9 after P02/P03 on
 > `phase/P04-session-orchestrator`. Replace global transient state with the
 > deterministic InterviewSession reducer, typed event/IPC contract, one
 > persistent-conversation orchestrator, context/delta policy, pending artifacts,
@@ -1178,7 +1259,7 @@ display behavior is platform-sensitive and directly touches privacy regression.
 
 **Self-contained implementation prompt.**
 
-> Implement P05 from P00-R8 after P04 on `phase/P05-live-shell`. Build the
+> Implement P05 from P00-R9 after P04 on `phase/P05-live-shell`. Build the
 > exact Quiet Signal hidden/compact/answer/expanded shell, command rail,
 > composer, input tray, explicit click-through/drag regions, final remappable
 > shortcuts, display-aware geometry, primary-display screenshot behavior,
@@ -1303,7 +1384,7 @@ regress silently; fixture contracts are merge-blocking.
 
 **Self-contained implementation prompt.**
 
-> Implement P06 from P00-R8 after P05 on `phase/P06-coding`. Add the exact
+> Implement P06 from P00-R9 after P05 on `phase/P06-coding`. Add the exact
 > typed Coding intents/schema/renderer, concise-first progressive answer,
 > language snapshot and six-family fixtures, read-only actions, New Question,
 > and isolated `Control+Shift+D` versioned Fix flow. Enforce no personal context,
@@ -1422,7 +1503,7 @@ must not become a second untyped document model.
 
 **Self-contained implementation prompt.**
 
-> Implement P07 from P00-R8 after P05 on `phase/P07-system-design`. Add the
+> Implement P07 from P00-R9 after P05 on `phase/P07-system-design`. Add the
 > fixed typed five-section progressive workflow, bounded material estimates,
 > safe vendor-neutral structured diagram, read-only accessible interactions,
 > assumption handling, dependency-scoped follow-up and What changed summary.
@@ -1547,7 +1628,7 @@ integrity are product trust boundaries.
 
 **Self-contained implementation prompt.**
 
-> Implement P08 from P00-R8 after P05 on `phase/P08-behavioral`. Build the
+> Implement P08 from P00-R9 after P05 on `phase/P08-behavioral`. Build the
 > encrypted canonical candidate dossier, guided/manual reviewed editing,
 > sanitized Markdown import/export, multiple snapshotted opportunities,
 > provenance, opt-in labeled persistent synthetic stories, and typed Behavioral
@@ -1683,7 +1764,7 @@ packaging, privacy, and transcription latency are launch-critical.
 
 **Self-contained implementation prompt.**
 
-> Implement P09 from P00-R8 after P05 on `phase/P09-audio`, macOS only. Build
+> Implement P09 from P00-R9 after P05 on `phase/P09-audio`, macOS only. Build
 > explicit two-source native capture, deterministic master/per-source controls,
 > contextual permission recovery, pinned offline whisper.cpp transcription,
 > explicit Apple Speech remote fallback, typed segments/attribution/correction,
@@ -1804,7 +1885,7 @@ must never become a capability or schema escape hatch.
 
 **Self-contained implementation prompt.**
 
-> Implement P10 from P00-R8 after P06/P07/P08 on
+> Implement P10 from P00-R9 after P06/P07/P08 on
 > `phase/P10-prompt-studio`. Build synchronized reviewed-diff Chat/Manage,
 > immutable built-ins, complete encrypted user CRUD, core-mode-only schemas,
 > deterministic recorded instruction resolution, Start snapshotting, protected
@@ -1925,7 +2006,7 @@ content and destructive user controls.
 
 **Self-contained implementation prompt.**
 
-> Implement P11 from P00-R8 after P06–P10 on
+> Implement P11 from P00-R9 after P06–P10 on
 > `phase/P11-history-recovery`. Add explicit crash Resume/Reset, complete
 > encrypted archive projection, Settings-only in-memory search/open/delete one/
 > all, safe consented individual Markdown/JSON export, read-only archive open,
@@ -1989,7 +2070,7 @@ detached statement binds its app semver and post-build package identity. Those
 exact passing tuples—and no neighboring patch, major version, browser, app
 build, architecture, or display mode—are the supported macOS/browser/app
 versions until separately qualified. Qualify each supported tuple separately.
-P00-R8 represents no version as supported before the committed matrix, detached
+P00-R9 represents no version as supported before the committed matrix, detached
 release statement, and evidence pass. Entire-display and specific-window
 require confirmation from remote Meet view or
 second device and retained high-contrast moving-marker artifacts; one fail makes
@@ -2760,6 +2841,18 @@ invocations are validators:
 | Add one valid independent review, then exact unchanged run 2 | REUSE: `package:mac=0`; pre-existing collection is fully validated; every child raw exit including `verify:release=0`; aggregate `=0`. | All snapshotted statement/package values, including ACL-free state, are identical before and after; no producer or writer runs, so all producer counts remain one. |
 | Exact unchanged run 3 | REUSE again; every child raw exit and the aggregate are exactly `0`. | The same snapshots, including ACL-free state, are identical and producer/writer counts remain one. |
 
+These are three separate `verify-phase` controller invocations under the same
+unchanged active-anchor bytes. Each has a fresh `ControllerRunId`, run root,
+closed binding, and terminal record: run 1 ends in `failure.json` because the
+reporter aggregate is exactly 1, while runs 2 and 3 end in `success.json`.
+Controller IDs are not the P12 qualification `RunId`, whose UUIDv4 lexical
+schema and M01/M02 identity remain unchanged. Run 1 may create the fresh M01/M02
+qualification runs required by collection; runs 2 and 3 validate and reuse
+those same accepted qualification roots and never mint a replacement
+qualification ID, evidence member, bundle member, package, or statement. A
+remote observer invocation independently receives a fresh role-bound controller
+binding; the pairing challenge cannot supply or correlate controller run IDs.
+
 The lifecycle model and mutation suite must instrument every producer and the
 writer, attempt statement/package/binding/status/path/root/mode/flag/ACL/link/
 canonicalization/signature changes, force checkout-selection attempts, crash
@@ -3317,7 +3410,7 @@ signing infrastructure cannot be inferred from unit tests.
 
 **Self-contained implementation prompt.**
 
-> Implement P12 from P00-R8 after P01–P11 on
+> Implement P12 from P00-R9 after P01–P11 on
 > `phase/P12-macos-qualification`. Freeze the exact macOS/Chrome/Meet/build/
 > architecture matrix, harden macOS-only package/entitlements/identity, add
 > local-only redacted diagnostic preview/export, scoped failure recovery,
@@ -3485,12 +3578,16 @@ product contract:
    evidence roots, ownership/mode/ACL/link/mount invariants, and hostile-probe
    behavior. At each phase/review branch cut the controller freezes the exact
    entrypoint hash, approved packet SHA, live PR head, Node/npm/macOS identities,
-   dependency closure, and run ID in the active anchor. These are time-bound
-   execution values, not permission to move the trust root into the candidate
-   repository or alter the controller contract.
+   and dependency closure in the active anchor. That closed immutable object
+   never contains a run ID. Only after selecting it for an invocation may
+   `verify-phase` generate a fresh controller run ID and bind it to the anchor
+   digest in the separate closed per-run controller/terminal evidence defined
+   in section 6. These are time-bound execution values, not permission to move
+   the trust root into the candidate repository or alter the controller
+   contract.
 
-There is no unresolved material decision and no blocker to the P00-R8 planning
-PR. Controller installation plus fresh P00/review-8 executable proof is a hard
+There is no unresolved material decision and no blocker to the P00-R9 planning
+PR. Controller installation plus fresh P00/review-9 executable proof is a hard
 P01 admission prerequisite. Future phases must report an unmet prerequisite
 instead of weakening a criterion.
 
@@ -3524,9 +3621,9 @@ phase:
    records the immutable anchor/entrypoint identities; author cwd, SHA,
    artifacts, or reports are never selection authority.
 5. Produce every named test and completion artifact only through the fixed
-   controller invocation. Retain its anchor, sealed-root inventory, broker
-   exact-command/raw-exit/count/process transcript, reporter JSON/text
-   aggregates, mutation-matrix results, and final-reopen evidence.
+   controller invocation. Retain its anchor, per-run binding, sealed-root
+   inventory, broker exact-command/raw-exit/count/process transcript, reporter
+   JSON/text aggregates, mutation-matrix results, and final-reopen evidence.
 6. Have an independent reviewer re-resolve and freshly arm the exact live PR
    head, execute the self-contained review prompt from a fresh sealed
    materialization, reproduce the required hostile/negative controls, and
@@ -3543,8 +3640,8 @@ phase:
 
 An implementation PR description must list packet revision, phase ID, base and
 head SHAs, dependencies, scope/non-goals, migration owner, controller
-entrypoint/anchor/run identities, planned/resolved/actual command outputs and
-counts, completion-artifact links/hashes, mutation-matrix evidence, risks, and
-any external prerequisite. “CI green,” a screenshot, a package-owned gate, a
-candidate evidence path, or the author’s assurance alone is never completion
-evidence.
+entrypoint/anchor/per-run-binding identities, planned/resolved/actual command
+outputs and counts, completion-artifact links/hashes, mutation-matrix evidence,
+risks, and any external prerequisite. “CI green,” a screenshot, a package-owned
+gate, a candidate evidence path, or the author’s assurance alone is never
+completion evidence.
