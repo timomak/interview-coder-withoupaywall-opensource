@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-07-27T07:55:50+02:00",
+  "updatedAt": "2026-07-27T07:56:20+02:00",
   "repository": {
     "remote": "https://github.com/j4wg/interview-coder-withoupaywall-opensource",
     "pushRemote": "https://github.com/timomak/interview-coder-withoupaywall-opensource",
@@ -490,10 +490,11 @@
       }
     },
     "P00/review-7": {
-      "status": "SETTING_UP",
+      "status": "ACTIVE",
       "clientThreadId": "client-new-thread:92327b6c-fdcd-480c-8eea-d46b2a952096",
-      "threadId": null,
+      "threadId": "019fa224-c465-7f73-a389-828db8131437",
       "hostId": "local",
+      "worktreePath": "/Users/thirdfacedev/.codex/worktrees/ccd2/TimoCodes",
       "infrastructureRetryCount": 0,
       "reviewedRevision": "P00-R7",
       "reviewedSha": "494e518f62d636e6af4e455ba615596d95b4d06b",
