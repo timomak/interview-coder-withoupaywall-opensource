@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-07-27T07:24:54+02:00",
+  "updatedAt": "2026-07-27T07:29:13+02:00",
   "repository": {
     "remote": "https://github.com/j4wg/interview-coder-withoupaywall-opensource",
     "pushRemote": "https://github.com/timomak/interview-coder-withoupaywall-opensource",
@@ -11,7 +11,7 @@
   "currentPhaseId": "P00",
   "goalBlockedAudit": {
     "status": "RESUMED_BY_USER_AUTHORIZATION",
-    "blockingCondition": "P00-R6-B01 remains CRITICAL after the sole authorized hard-limit exception; packet approval, baseline capture, and P01-P12 execution require explicit authorization for the fully bounded P00-R7 exception.",
+    "blockingCondition": "P00-R6-B01, P00-R6-B02, and P00-R6-B03 remain blocking after the sole authorized hard-limit exception; the user expanded the single P00-R7 exception to all three same-lifecycle findings before repository edits began.",
     "consecutiveGoalTurns": 3,
     "thresholdSatisfied": true,
     "auditedAt": "2026-07-26T22:48:51+02:00",
@@ -25,7 +25,9 @@
       "furtherPlanningRemediationAuthorized": true,
       "safePreparationExhausted": true
     },
-    "resumeAuthorizationPhrase": "Authorize one additional narrowly scoped P00-R7 exception for P00-R6-B01 only."
+    "resumeAuthorizationPhrase": "Authorize one additional narrowly scoped P00-R7 exception for P00-R6-B01 only.",
+    "scopeExpandedAt": "2026-07-27T07:29:13+02:00",
+    "scopeExpansionSource": "User-delivered coordination delegation explicitly authorizing consolidation of P00-R6-B01, P00-R6-B02, and P00-R6-B03 into the same P00-R7 cycle."
   },
   "packet": {
     "status": "REMEDIATING",
@@ -46,12 +48,13 @@
       "authorizedAt": "2026-07-27T07:24:54+02:00",
       "authorizedBy": "user",
       "targetRevision": "P00-R7",
-      "findingId": "P00-R6-B01",
-      "scope": "One additional narrowly scoped P00-R7 remediation for accepted/staged ACL invariants only, followed by fresh P00/review-7; no baseline or implementation begins before exact-SHA approval."
+      "findingIds": ["P00-R6-B01", "P00-R6-B02", "P00-R6-B03"],
+      "scopeExpandedAt": "2026-07-27T07:29:13+02:00",
+      "scope": "One additional P00-R7 remediation limited to the three independently reported P12 release-statement lifecycle blockers: ACL invariants, statement-independent sealed-set crash-resume validation, and exact three-run exit codes. Fresh P00/review-7 remains mandatory; no baseline or implementation begins before exact-SHA approval."
     },
     "reviewTask": null,
     "reviewVerdict": "PENDING_REMEDIATION",
-    "openFindingIds": ["P00-R6-B01"],
+    "openFindingIds": ["P00-R6-B01", "P00-R6-B02", "P00-R6-B03"],
     "findings": {
       "P00-R1-B01": {"severity": "HIGH", "rootCauseTag": "verification-raw-exit", "disposition": "RESOLVED", "resolvedInSha": "5b885baed4f00eda89751a646e43793aa30e1154", "requiredOutcome": "Use a tested reporter for every phase command, emit per-command raw exits/counts, and fail the aggregate."},
       "P00-R1-B02": {"severity": "RELEASE_BLOCKING", "rootCauseTag": "qualification-procedure", "disposition": "REOPENED_BY_P00_R5_B01", "resolvedInSha": "8820b6c848d96162bb63315c329a52b328d415e5", "requiredOutcome": "Define executable M01/M02 procedures, prerequisites, remote-observer steps, artifact schema, validation, and exits."},
@@ -65,7 +68,9 @@
       "P00-R3-B04": {"severity": "MEDIUM", "rootCauseTag": "release-signature-trust-anchor", "disposition": "RESOLVED", "observableIn": "P00-R3", "resolvedInSha": "66b5b14c00cc8b6573fb675f965b6109e0f730a1", "requiredOutcome": "Pin the release verification key or certificate fingerprint and exact signed-byte representation for the optional bundle signature."},
       "P00-R4-B01": {"severity": "HIGH", "rootCauseTag": "rc-sha-fixed-point", "disposition": "RESOLVED", "observableIn": "P00-R4", "resolvedInSha": "8820b6c848d96162bb63315c329a52b328d415e5", "requiredOutcome": "Replace the matrix-contained same-commit RC SHA fixed point with a constructible authenticated non-self-referential matrix/registry plus detached post-RC statement while preserving sole authority, RC binding, purpose separation, and keyId-only bundle references."},
       "P00-R5-B01": {"severity": "CRITICAL", "rootCauseTag": "release-statement-exclusive-create-rerun-deadlock", "disposition": "RESOLVED_IN_R6", "observableIn": "P00-R5", "resolvedInSha": "42925fb617a61a1149bdf1e027cf21c975b0f13a", "requiredOutcome": "Specify and test a constructible two-run P12 lifecycle in which the post-review unchanged reporter validates and reuses the already-created statement and package identity without a second exclusive creation or rebuild, while preserving the single-writer boundary."},
-      "P00-R6-B01": {"severity": "CRITICAL", "rootCauseTag": "accepted-file-acl-writability-toctou", "disposition": "AUTHORIZED_FOR_P00_R7_REMEDIATION", "observableIn": "P00-R6", "authorizedAt": "2026-07-27T07:24:54+02:00", "requiredOutcome": "Require and descriptor-verify an empty ACL on every staged and accepted file and directory, reject inheritable ACLs on staging ancestors, include ACL state in before/after and final canonical reopen checks, apply the rule to CREATE, resume, REUSE, and both EEXIST paths without repair, and add a named macOS lifecycle mutation test proving an ACL granting the invoker write or append can never return zero."}
+      "P00-R6-B01": {"severity": "CRITICAL", "rootCauseTag": "accepted-file-acl-writability-toctou", "disposition": "AUTHORIZED_FOR_P00_R7_REMEDIATION", "observableIn": "P00-R6", "authorizedAt": "2026-07-27T07:24:54+02:00", "requiredOutcome": "Require and descriptor-verify an empty ACL on every staged and accepted file and directory, reject inheritable ACLs on staging ancestors, include ACL state in before/after and final canonical reopen checks, apply the rule to CREATE, resume, REUSE, and both EEXIST paths without repair, and add a named macOS lifecycle mutation test proving an ACL granting the invoker write or append can never return zero."},
+      "P00-R6-B02": {"severity": "CRITICAL", "rootCauseTag": "sealed-set-resume-requires-absent-statement", "disposition": "AUTHORIZED_FOR_P00_R7_REMEDIATION", "observableIn": "P00-R6", "authorizedAt": "2026-07-27T07:29:13+02:00", "sourceThreadId": "019fa01e-918d-7082-9a60-073bf2a607d1", "requiredOutcome": "Define a separate anchored sealed-set validator parameterized by the pinned/local candidate payload that validates packages, raw results, filesystem properties, statuses, and producer-record fields without requiring the absent statement; only after success may the exclusive writer run, and the transition must be exercised at every crash and EEXIST boundary."},
+      "P00-R6-B03": {"severity": "HIGH", "rootCauseTag": "first-run-exits-not-exact", "disposition": "AUTHORIZED_FOR_P00_R7_REMEDIATION", "observableIn": "P00-R6", "authorizedAt": "2026-07-27T07:29:13+02:00", "sourceThreadId": "019fa01e-918d-7082-9a60-073bf2a607d1", "requiredOutcome": "Require and test exact run-1 exits package:mac=0, collection/qualification=0, verify:release=1, aggregate=1, plus exact all-zero exits for runs 2 and 3."}
     },
     "prNumber": 154,
     "prUrl": "https://github.com/j4wg/interview-coder-withoupaywall-opensource/pull/154",
@@ -414,19 +419,36 @@
         "repositoryMutations": 0,
         "finalWorktreeClean": true,
         "rerunsDisclosed": true
+      },
+      "lateReadOnlyDuplicate": {
+        "threadId": "019fa01e-918d-7082-9a60-073bf2a607d1",
+        "hostId": "local",
+        "worktreePath": "/Users/thirdfacedev/.codex/worktrees/078d/TimoCodes",
+        "status": "COMPLETE",
+        "reviewedSha": "42925fb617a61a1149bdf1e027cf21c975b0f13a",
+        "completedAtObserved": "2026-07-27T07:29:13+02:00",
+        "repositoryMutations": 0,
+        "stableIdConsolidation": {
+          "duplicateReviewerP00-R6-B01": "P00-R6-B02",
+          "duplicateReviewerP00-R6-B02": "P00-R6-B03"
+        },
+        "blockingFindingIds": ["P00-R6-B02", "P00-R6-B03"]
       }
     },
     "P00/remediate-6": {
-      "status": "QUEUED",
-      "threadId": null,
+      "status": "ACTIVE",
+      "clientThreadId": "client-new-thread:4db4d612-cde3-428f-ad78-96cb8c9bc499",
+      "threadId": "019fa209-e762-7be2-a7f1-a9659b3148df",
       "hostId": "local",
+      "worktreePath": "/Users/thirdfacedev/.codex/worktrees/db39/TimoCodes",
       "infrastructureRetryCount": 0,
       "baseRevision": "P00-R6",
       "baseSha": "42925fb617a61a1149bdf1e027cf21c975b0f13a",
       "targetRevision": "P00-R7",
       "exceptionAuthorized": true,
       "authorizedAt": "2026-07-27T07:24:54+02:00",
-      "findingIds": ["P00-R6-B01"]
+      "scopeExpandedAt": "2026-07-27T07:29:13+02:00",
+      "findingIds": ["P00-R6-B01", "P00-R6-B02", "P00-R6-B03"]
     }
   },
   "blockers": [
@@ -454,14 +476,19 @@
         "remediationTaskName": "P00/remediate-6",
         "reviewTaskName": "P00/review-7",
         "baseSha": "42925fb617a61a1149bdf1e027cf21c975b0f13a",
-        "scope": "Only accepted/staged filesystem ACL invariants in the P12 release-statement lifecycle, the existing lifecycle/constructibility test prose, and directly conflicting design prose. Only design.md and docs/implementation/phase-execution-packet.md may change.",
+        "scopeExpandedAt": "2026-07-27T07:29:13+02:00",
+        "findingIds": ["P00-R6-B01", "P00-R6-B02", "P00-R6-B03"],
+        "scope": "Only the three independently reported P12 release-statement lifecycle blockers: accepted/staged filesystem ACL invariants, statement-independent sealed-set crash-resume validation, and exact three-run exits, plus their existing lifecycle/constructibility test prose and directly conflicting design prose. Only design.md and docs/implementation/phase-execution-packet.md may change.",
         "normativeAmendments": [
           "Require the pre-provisioned lock, every canonical and staging ancestor, every staged directory/file, every accepted directory/file, producer-record.json, release-statement.json, raw-result file, and package to have no extended ACL entries.",
           "Use descriptor-based macOS ACL inspection with acl_get_fd_np(fd, ACL_TYPE_EXTENDED) and acl_get_entry; define and fixture-prove the canonical no-ACL sentinel for the pinned macOS version, free returned ACL objects, and fail closed on any entry or unexpected retrieval result.",
           "Before CREATE makes any staged identity, verify the controller-owned staging ancestors and nonce root are ACL-free so no inheritable ACL can reach a child. Verify each newly created entry is ACL-free before content production and again after its final mode; reject rather than sanitize or repair a noncanonical staged or accepted path.",
           "Add ACL state to every descriptor before/after snapshot and to the final canonical-name reopen. Repeat the check after read-only verification tools and before every zero return.",
           "Apply the same ACL-free validation to CREATE install inputs, sealed-set crash resume, REUSE, package-set RENAME_EXCL EEXIST convergence, statement RENAME_EXCL EEXIST convergence, and every validator. An ACL-bearing existing object is REJECT, never absence or repairable state.",
-          "Keep unaccepted staging cleanup separate from accepted-state validation; no cleanup job may discover, promote, sanitize, or select release identity."
+          "Keep unaccepted staging cleanup separate from accepted-state validation; no cleanup job may discover, promote, sanitize, or select release identity.",
+          "Define a separate anchored sealed-set validator parameterized by the pinned/local candidate payload; it validates packages, raw results, filesystem properties, statuses, and producer-record fields without requiring a release statement. Only after this validator succeeds may the exclusive statement writer run; full REUSE validation remains statement-dependent.",
+          "Exercise the statement-absent sealed-set validator at every safe crash-resume and package-set EEXIST boundary, rejecting partial, ambiguous, or mismatched state without repair.",
+          "Require exact first-run exits package:mac=0, collection/qualification=0, verify:release=1, aggregate=1, and exact all-zero exits for runs 2 and 3."
         ],
         "requiredTestExtension": {
           "existingSuite": "scripts/qualification/release-statement-constructibility.test.ts",
@@ -497,7 +524,8 @@
           "aclPresentObservation": "After chmod +a granted the invoking user write,append, acl_get_fd_np plus acl_get_entry enumerated one entry while ls -le still showed mode 0444.",
           "repositoryMutations": 0
         },
-        "authorizationPhrase": "Authorize one additional narrowly scoped P00-R7 exception for P00-R6-B01 only."
+        "authorizationPhrase": "Authorize one additional narrowly scoped P00-R7 exception for P00-R6-B01 only.",
+        "scopeExpansionAuthorization": "User-delivered coordination delegation: fold P00-R6-B01, P00-R6-B02, and P00-R6-B03 into the one P00-R7 cycle."
       },
       "consumedR6Exception": {
         "authorizationRequired": false,
@@ -523,6 +551,44 @@
           "Concurrent exclusive-create collision that does not resolve to the exact already-valid immutable package/statement identity"
         ]
       }
+    },
+    {
+      "id": "P00-R6-B02",
+      "scope": "P00",
+      "severity": "CRITICAL",
+      "rootCauseTag": "sealed-set-resume-requires-absent-statement",
+      "hardLimitReached": true,
+      "blocks": ["PACKET_APPROVAL", "BASELINE", "P01-P12_IMPLEMENTATION"],
+      "requiredOutcome": "Define and exercise a separate anchored statement-independent sealed-set validator parameterized by the pinned/local candidate payload before invoking the exclusive writer; keep full REUSE validation statement-dependent.",
+      "blockingEvidence": {
+        "reviewedSha": "42925fb617a61a1149bdf1e027cf21c975b0f13a",
+        "sourceThreadId": "019fa01e-918d-7082-9a60-073bf2a607d1",
+        "packetLines": [2201, 2268, 2279, 2306],
+        "contradiction": "The only permitted complete-seal/no-statement recovery path invokes full REUSE validation, while that validator requires package identity and producer-record equality to the absent statement."
+      },
+      "furtherPlanningRemediationAuthorized": true,
+      "authorizedTargetRevision": "P00-R7",
+      "remediationTaskName": "P00/remediate-6",
+      "reviewTaskName": "P00/review-7"
+    },
+    {
+      "id": "P00-R6-B03",
+      "scope": "P00",
+      "severity": "HIGH",
+      "rootCauseTag": "first-run-exits-not-exact",
+      "hardLimitReached": true,
+      "blocks": ["PACKET_APPROVAL", "BASELINE", "P01-P12_IMPLEMENTATION"],
+      "requiredOutcome": "Require and test exact run-1 exits package:mac=0, collection/qualification=0, verify:release=1, aggregate=1 and exact all-zero exits for runs 2 and 3.",
+      "blockingEvidence": {
+        "reviewedSha": "42925fb617a61a1149bdf1e027cf21c975b0f13a",
+        "sourceThreadId": "019fa01e-918d-7082-9a60-073bf2a607d1",
+        "packetLine": 2384,
+        "underspecification": "The R6 contract accepts verify:release!=0 and merely a nonzero aggregate, allowing unintended error codes to satisfy run 1."
+      },
+      "furtherPlanningRemediationAuthorized": true,
+      "authorizedTargetRevision": "P00-R7",
+      "remediationTaskName": "P00/remediate-6",
+      "reviewTaskName": "P00/review-7"
     }
   ]
 }
