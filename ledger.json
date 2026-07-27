@@ -1,45 +1,56 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-07-26T22:48:51+02:00",
+  "updatedAt": "2026-07-27T07:24:54+02:00",
   "repository": {
     "remote": "https://github.com/j4wg/interview-coder-withoupaywall-opensource",
     "pushRemote": "https://github.com/timomak/interview-coder-withoupaywall-opensource",
     "baseBranch": "main",
     "baseSha": "9dcb4b2d39607273a8528a24657cdb4f5bfc3412"
   },
-  "orchestrationStatus": "BLOCKED",
+  "orchestrationStatus": "REMEDIATING",
   "currentPhaseId": "P00",
   "goalBlockedAudit": {
+    "status": "RESUMED_BY_USER_AUTHORIZATION",
     "blockingCondition": "P00-R6-B01 remains CRITICAL after the sole authorized hard-limit exception; packet approval, baseline capture, and P01-P12 execution require explicit authorization for the fully bounded P00-R7 exception.",
     "consecutiveGoalTurns": 3,
     "thresholdSatisfied": true,
     "auditedAt": "2026-07-26T22:48:51+02:00",
+    "resumedAt": "2026-07-27T07:24:54+02:00",
+    "resumedBy": "user",
     "authoritativeState": {
       "packetSha": "42925fb617a61a1149bdf1e027cf21c975b0f13a",
       "prNumber": 154,
       "prHeadMatched": true,
       "hostedCodeQL": "SUCCESS",
-      "furtherPlanningRemediationAuthorized": false,
+      "furtherPlanningRemediationAuthorized": true,
       "safePreparationExhausted": true
     },
     "resumeAuthorizationPhrase": "Authorize one additional narrowly scoped P00-R7 exception for P00-R6-B01 only."
   },
   "packet": {
-    "status": "BLOCKED",
+    "status": "REMEDIATING",
     "revision": "P00-R6",
     "path": "docs/implementation/phase-execution-packet.md",
     "branch": "phase/P00-execution-packet",
     "headSha": "42925fb617a61a1149bdf1e027cf21c975b0f13a",
     "frozenAtSha": null,
-    "planningRemediationCycleCount": 6,
+    "planningRemediationCycleCount": 7,
     "planningException": {
       "authorized": true,
       "authorizedAt": "2026-07-26T21:37:19+02:00",
       "authorizedBy": "user",
       "scope": "One narrowly scoped P00-R6 remediation for P00-R5-B01, followed by fresh independent review; no implementation begins before approval."
     },
-    "reviewTask": "P00/review-6",
-    "reviewVerdict": "CHANGES_REQUESTED",
+    "currentPlanningException": {
+      "authorized": true,
+      "authorizedAt": "2026-07-27T07:24:54+02:00",
+      "authorizedBy": "user",
+      "targetRevision": "P00-R7",
+      "findingId": "P00-R6-B01",
+      "scope": "One additional narrowly scoped P00-R7 remediation for accepted/staged ACL invariants only, followed by fresh P00/review-7; no baseline or implementation begins before exact-SHA approval."
+    },
+    "reviewTask": null,
+    "reviewVerdict": "PENDING_REMEDIATION",
     "openFindingIds": ["P00-R6-B01"],
     "findings": {
       "P00-R1-B01": {"severity": "HIGH", "rootCauseTag": "verification-raw-exit", "disposition": "RESOLVED", "resolvedInSha": "5b885baed4f00eda89751a646e43793aa30e1154", "requiredOutcome": "Use a tested reporter for every phase command, emit per-command raw exits/counts, and fail the aggregate."},
@@ -54,7 +65,7 @@
       "P00-R3-B04": {"severity": "MEDIUM", "rootCauseTag": "release-signature-trust-anchor", "disposition": "RESOLVED", "observableIn": "P00-R3", "resolvedInSha": "66b5b14c00cc8b6573fb675f965b6109e0f730a1", "requiredOutcome": "Pin the release verification key or certificate fingerprint and exact signed-byte representation for the optional bundle signature."},
       "P00-R4-B01": {"severity": "HIGH", "rootCauseTag": "rc-sha-fixed-point", "disposition": "RESOLVED", "observableIn": "P00-R4", "resolvedInSha": "8820b6c848d96162bb63315c329a52b328d415e5", "requiredOutcome": "Replace the matrix-contained same-commit RC SHA fixed point with a constructible authenticated non-self-referential matrix/registry plus detached post-RC statement while preserving sole authority, RC binding, purpose separation, and keyId-only bundle references."},
       "P00-R5-B01": {"severity": "CRITICAL", "rootCauseTag": "release-statement-exclusive-create-rerun-deadlock", "disposition": "RESOLVED_IN_R6", "observableIn": "P00-R5", "resolvedInSha": "42925fb617a61a1149bdf1e027cf21c975b0f13a", "requiredOutcome": "Specify and test a constructible two-run P12 lifecycle in which the post-review unchanged reporter validates and reuses the already-created statement and package identity without a second exclusive creation or rebuild, while preserving the single-writer boundary."},
-      "P00-R6-B01": {"severity": "CRITICAL", "rootCauseTag": "accepted-file-acl-writability-toctou", "disposition": "OPEN_HARD_LIMIT", "observableIn": "P00-R6", "requiredOutcome": "Require and descriptor-verify an empty ACL on every staged and accepted file and directory, reject inheritable ACLs on staging ancestors, include ACL state in before/after and final canonical reopen checks, apply the rule to CREATE, resume, REUSE, and both EEXIST paths without repair, and add a named macOS lifecycle mutation test proving an ACL granting the invoker write or append can never return zero."}
+      "P00-R6-B01": {"severity": "CRITICAL", "rootCauseTag": "accepted-file-acl-writability-toctou", "disposition": "AUTHORIZED_FOR_P00_R7_REMEDIATION", "observableIn": "P00-R6", "authorizedAt": "2026-07-27T07:24:54+02:00", "requiredOutcome": "Require and descriptor-verify an empty ACL on every staged and accepted file and directory, reject inheritable ACLs on staging ancestors, include ACL state in before/after and final canonical reopen checks, apply the rule to CREATE, resume, REUSE, and both EEXIST paths without repair, and add a named macOS lifecycle mutation test proving an ACL granting the invoker write or append can never return zero."}
     },
     "prNumber": 154,
     "prUrl": "https://github.com/j4wg/interview-coder-withoupaywall-opensource/pull/154",
@@ -404,6 +415,18 @@
         "finalWorktreeClean": true,
         "rerunsDisclosed": true
       }
+    },
+    "P00/remediate-6": {
+      "status": "QUEUED",
+      "threadId": null,
+      "hostId": "local",
+      "infrastructureRetryCount": 0,
+      "baseRevision": "P00-R6",
+      "baseSha": "42925fb617a61a1149bdf1e027cf21c975b0f13a",
+      "targetRevision": "P00-R7",
+      "exceptionAuthorized": true,
+      "authorizedAt": "2026-07-27T07:24:54+02:00",
+      "findingIds": ["P00-R6-B01"]
     }
   },
   "blockers": [
@@ -421,9 +444,12 @@
         "mutationModel": "46/48 rejected; statement.acl and sealed.packageAcl were accepted.",
         "toctou": "An ACL present before validation becomes part of baseline ctime, allowing a post-check write before the final PIN check and return."
       },
-      "furtherPlanningRemediationAuthorized": false,
+      "furtherPlanningRemediationAuthorized": true,
       "proposedR7Exception": {
-        "authorizationRequired": true,
+        "authorizationRequired": false,
+        "authorized": true,
+        "authorizedAt": "2026-07-27T07:24:54+02:00",
+        "authorizedBy": "user",
         "targetRevision": "P00-R7",
         "remediationTaskName": "P00/remediate-6",
         "reviewTaskName": "P00/review-7",
