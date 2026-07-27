@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-07-27T13:12:33+02:00",
+  "updatedAt": "2026-07-27T13:13:40+02:00",
   "repository": {
     "remote": "https://github.com/j4wg/interview-coder-withoupaywall-opensource",
     "pushRemote": "https://github.com/timomak/interview-coder-withoupaywall-opensource",
@@ -2122,8 +2122,8 @@
       "mandatoryTrustRootReview": "Challenge the package-command trust root and every joint package/bootstrap/plan/manifest/current-value mutation; verify no self-hash cycle, TOCTOU reopen, npm hook, wrapper/config/reporter/runner/lock/install forgery, or worker channel can fabricate acceptance.",
       "queuedAt": "2026-07-27T12:39:44+02:00",
       "startedAt": "2026-07-27T12:44:27+02:00",
-      "infrastructureRetryCount": 1,
-      "lastInfrastructureFailure": "P01/review-4 first turn ended in task-level systemError after the exact-SHA authoritative run, injected proof, and a concrete P01-R1-B03 hostile lifecycle-hook bypass. The review worktree remained clean at b2b35d56; retry 1 resumes the same read-only task and SHA to complete all finding dispositions and seal evidence."
+      "infrastructureRetryCount": 2,
+      "lastInfrastructureFailure": "P01/review-4 first turn ended in task-level systemError after the exact-SHA authoritative run, injected proof, and a concrete P01-R1-B03 hostile lifecycle-hook bypass. Retry 1 then ended immediately in task-level systemError with no assistant or tool output. The review worktree remained clean at b2b35d56; retry 2 is the final allowed infrastructure retry and resumes the same read-only task and SHA."
     }
   },
   "blockers": [
