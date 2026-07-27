@@ -10,12 +10,12 @@
     "preinstall": "node scripts/verification/require-node20.mjs",
     "clean": "npx rimraf dist dist-electron",
     "dev": "cross-env NODE_ENV=development npm run clean && concurrently \"tsc -w -p tsconfig.electron.json\" \"vite\" \"wait-on -t 30000 http://localhost:54321 && electron ./dist-electron/main.js\"",
-    "test": "vitest run --config vitest.config.ts --reporter=verbose --reporter=./scripts/verification/vitest-count-reporter.mjs",
-    "test:legacy": "vitest run --config vitest.config.ts renderer/src/App.test.tsx --reporter=./scripts/verification/vitest-count-reporter.mjs",
-    "test:unit": "vitest run --config vitest.config.ts --reporter=./scripts/verification/vitest-count-reporter.mjs",
-    "test:p01": "vitest run --config vitest.config.ts tests/policy electron/captureProtection.test.ts electron/windowOpenPolicy.test.ts --reporter=./scripts/verification/vitest-count-reporter.mjs",
-    "lint": "eslint .",
-    "typecheck": "tsc --noEmit && tsc -p tsconfig.electron.json --noEmit",
+    "test": "node scripts/verification/trusted-vitest-runner.mjs all",
+    "test:legacy": "node scripts/verification/trusted-vitest-runner.mjs legacy",
+    "test:unit": "node scripts/verification/trusted-vitest-runner.mjs unit",
+    "test:p01": "node scripts/verification/trusted-vitest-runner.mjs p01",
+    "lint": "node scripts/verification/source-inventory.mjs && eslint .",
+    "typecheck": "node scripts/verification/typecheck-inventory.mjs && tsc -p tsconfig.electron.json --noEmit",
     "verify:node": "node scripts/verification/require-node20.mjs",
     "verify:policy": "node scripts/verification/product-policy.mjs",
     "verify:test-manifest": "node scripts/verification/test-manifest.mjs",
@@ -24,7 +24,7 @@
     "start": "cross-env NODE_ENV=development concurrently \"tsc -p tsconfig.electron.json\" \"vite\" \"wait-on -t 30000 http://localhost:54321 && electron ./dist-electron/main.js\"",
     "build": "npm run build:runtime && npm run verify:package-inventory",
     "build:runtime": "cross-env NODE_ENV=production npm run clean && vite build && tsc -p tsconfig.electron.json",
-    "verify:package-inventory": "electron-builder --dir --config.mac.identity=null && node scripts/verification/package-inventory.mjs",
+    "verify:package-inventory": "node scripts/verification/build-package-inventory.mjs",
     "run-prod": "cross-env NODE_ENV=production electron ./dist-electron/main.js",
     "package": "npm run build && electron-builder build",
     "package-mac": "npm run build && electron-builder build --mac",
@@ -115,15 +115,6 @@
         "repo": "interview-coder",
         "private": false,
         "releaseType": "release"
-      }
-    ],
-    "extraResources": [
-      {
-        "from": ".env",
-        "to": ".env",
-        "filter": [
-          "**/*"
-        ]
       }
     ],
     "extraMetadata": {

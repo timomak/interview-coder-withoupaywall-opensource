@@ -271,6 +271,9 @@ async function createWindow(): Promise<void> {
   const mainWindow = createCaptureProtectedWindow(
     () => new BrowserWindow(windowSettings)
   )
+  mainWindow.webContents.setWindowOpenHandler(
+    createWindowOpenHandler((url) => shell.openExternal(url))
+  )
   state.mainWindow = mainWindow
 
   // Add more detailed logging for window events
@@ -324,9 +327,6 @@ async function createWindow(): Promise<void> {
   if (isDev) {
     mainWindow.webContents.openDevTools()
   }
-  mainWindow.webContents.setWindowOpenHandler(
-    createWindowOpenHandler((url) => shell.openExternal(url))
-  )
 
   mainWindow.setVisibleOnAllWorkspaces(true, {
     visibleOnFullScreen: true

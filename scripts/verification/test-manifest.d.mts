@@ -6,15 +6,16 @@ export interface TestManifestEntry {
 
 export interface TestExecution {
   entryLabel: string
+  includeFiles: string[]
   counts: { passed: number; failed: number; skipped: number }
   tests: Array<{
     file: string
     name: string
     state: "pass" | "fail" | "skip"
+    fileSha256?: string
   }>
 }
 
-export function discoverTestFiles(root: string): string[]
 export function validateTestManifest(options: {
   root: string
   manifest: { schemaVersion: number; tests: TestManifestEntry[] }

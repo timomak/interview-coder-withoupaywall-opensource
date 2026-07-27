@@ -4,6 +4,7 @@ import path from "node:path"
 import process from "node:process"
 import { spawn } from "node:child_process"
 import { fileURLToPath, pathToFileURL } from "node:url"
+import { assertSourceInventory } from "./source-inventory.mjs"
 
 const REPORTER_DIRECTORY = path.dirname(fileURLToPath(import.meta.url))
 const REPOSITORY_ROOT = path.resolve(REPORTER_DIRECTORY, "../..")
@@ -73,6 +74,41 @@ const SHELL_EXECUTABLES = new Set([
   "sh",
   "zsh"
 ])
+const RESULT_PREFIX = "VERIFICATION_COORDINATOR_RESULT "
+const TRUSTED_TEST_SCRIPTS = {
+  "test": "node scripts/verification/trusted-vitest-runner.mjs all",
+  "test:legacy": "node scripts/verification/trusted-vitest-runner.mjs legacy",
+  "test:unit": "node scripts/verification/trusted-vitest-runner.mjs unit",
+  "test:p01": "node scripts/verification/trusted-vitest-runner.mjs p01"
+}
+const TRUSTED_TEST_OUTER_ARGUMENTS = {
+  "test": [],
+  "test:legacy": ["--", "--reporter=verbose"],
+  "test:unit": ["--", "--reporter=verbose"],
+  "test:p01": ["--", "--reporter=verbose"]
+}
+const TRUSTED_FILE_SHA256 = {
+  "scripts/verification/source-inventory.mjs":
+    "510273f267272ab3b2c95aa395fb3d32a08a746d54c933259497359f059d605e",
+  "scripts/verification/trusted-vitest-runner.mjs":
+    "d4d14f29bde175fde1c854fe71469ced8665ab16f2679200e89474098ccf0be1",
+  "scripts/verification/vitest-count-reporter.mjs":
+    "1a862e8ae98c57d1af251d69400bac06f8c7fdd4b1ca4340f4beb06fef90a3ff",
+  "vitest.config.ts":
+    "b25dce60e2facd110c3dd458304002dea228bc9e0e29ed388c182dd22108ceef"
+}
+const TRUSTED_VITEST = {
+  version: "2.1.9",
+  resolved: "https://registry.npmjs.org/vitest/-/vitest-2.1.9.tgz",
+  integrity:
+    "sha512-MSmPM9REYqDGBI8439mA4mWhV5sKmDlBKWIYbA3lRb2PTHACE0mgKwA8yQ2xq9vxDTuk4iPrECBAEW2aoFXY0Q==",
+  installedFiles: {
+    "node_modules/vitest/package.json":
+      "6ea35e567829660d9832744086c18526b9ddebd5358c4a0cadfb0a355925f917",
+    "node_modules/vitest/dist/node.js":
+      "99a767d7e1a4c8c0a524b48ce64b8536f4bad62baf65f1fe723f19c16f87cd98"
+  }
+}
 export function sha256(bytes) {
   return crypto.createHash("sha256").update(bytes).digest("hex")
 }
@@ -246,11 +282,54 @@ function installedVitestVersion(root) {
   return typeof packageJson?.version === "string" ? packageJson.version : null
 }
 
-export function testCommandBinding(entry, root = REPOSITORY_ROOT) {
+function trustedFileFailures(root) {
   const failures = []
+  for (const [relativePath, expectedHash] of Object.entries({
+    ...TRUSTED_FILE_SHA256,
+    ...TRUSTED_VITEST.installedFiles
+  })) {
+    const absolutePath = path.join(root, relativePath)
+    if (!fs.existsSync(absolutePath)) {
+      failures.push(`missing trusted test input: ${relativePath}`)
+    } else if (sha256(fs.readFileSync(absolutePath)) !== expectedHash) {
+      failures.push(`trusted test input hash mismatch: ${relativePath}`)
+    }
+  }
+  return failures
+}
+
+export function validateTrustedTestRuntime(root = REPOSITORY_ROOT) {
+  const failures = trustedFileFailures(root)
+  const packageJson = readJson(path.join(root, "package.json"))
+  const packageLock = readJson(path.join(root, "package-lock.json"))
+  for (const [scriptName, command] of Object.entries(TRUSTED_TEST_SCRIPTS)) {
+    if (packageJson?.scripts?.[scriptName] !== command) {
+      failures.push(`trusted npm script mismatch: ${scriptName}`)
+    }
+    for (const hook of [`pre${scriptName}`, `post${scriptName}`]) {
+      if (Object.hasOwn(packageJson?.scripts ?? {}, hook)) {
+        failures.push(`test lifecycle hook is forbidden: ${hook}`)
+      }
+    }
+  }
+
+  const lockRecord = packageLock?.packages?.["node_modules/vitest"]
+  for (const field of ["version", "resolved", "integrity"]) {
+    if (lockRecord?.[field] !== TRUSTED_VITEST[field]) {
+      failures.push(`trusted Vitest lock ${field} mismatch`)
+    }
+  }
+  if (installedVitestVersion(root) !== TRUSTED_VITEST.version) {
+    failures.push("trusted installed Vitest version mismatch")
+  }
+  return [...new Set(failures)]
+}
+
+export function testCommandBinding(entry, root = REPOSITORY_ROOT) {
+  const failures = validateTrustedTestRuntime(root)
   let scriptName = null
   let scriptCommand = null
-  let runnerName = null
+  const actualOuterArguments = entry.argv.slice(3)
 
   if (
     entry.argv[0] !== "npm" ||
@@ -262,22 +341,18 @@ export function testCommandBinding(entry, root = REPOSITORY_ROOT) {
     scriptName = entry.argv[2]
     const packageJson = readJson(path.join(root, "package.json"))
     scriptCommand = packageJson?.scripts?.[scriptName]
-    if (typeof scriptCommand !== "string") {
-      failures.push(`missing package test script: ${scriptName}`)
-      scriptCommand = null
-    } else if (/\bvitest\s+run\b/.test(scriptCommand)) {
-      runnerName = "vitest"
-      if (
-        !scriptCommand.includes(
-          "--reporter=./scripts/verification/vitest-count-reporter.mjs"
-        )
-      ) {
-        failures.push(
-          `Vitest script ${scriptName} is missing the verification result reporter`
-        )
-      }
+    if (!Object.hasOwn(TRUSTED_TEST_SCRIPTS, scriptName)) {
+      failures.push(`untrusted package test script: ${String(scriptName)}`)
     } else {
-      runnerName = "repository-test-script"
+      if (scriptCommand !== TRUSTED_TEST_SCRIPTS[scriptName]) {
+        failures.push(`trusted npm script mismatch: ${scriptName}`)
+      }
+      if (
+        JSON.stringify(actualOuterArguments) !==
+        JSON.stringify(TRUSTED_TEST_OUTER_ARGUMENTS[scriptName])
+      ) {
+        failures.push(`trusted npm outer argv mismatch: ${scriptName}`)
+      }
     }
   }
 
@@ -286,10 +361,11 @@ export function testCommandBinding(entry, root = REPOSITORY_ROOT) {
       argv: entry.argv,
       scriptName,
       scriptCommand,
-      runnerName
+      trustedFiles: TRUSTED_FILE_SHA256,
+      vitest: TRUSTED_VITEST
     })
   )
-  return { bindingHash, failures, runnerName, scriptName }
+  return { bindingHash, failures, runnerName: "vitest", scriptName }
 }
 
 function validCounts(counts) {
@@ -304,6 +380,63 @@ function validCounts(counts) {
   )
 }
 
+export function parseCoordinatorResult({
+  stdout,
+  authenticationKey,
+  entry,
+  nonce,
+  binding
+}) {
+  const candidateLines = stdout
+    .split(/\r?\n/)
+    .filter((line) => line.startsWith(RESULT_PREFIX))
+  if (candidateLines.length !== 1) {
+    return {
+      record: null,
+      failures: [
+        candidateLines.length === 0
+          ? "missing authenticated Vitest coordinator record"
+          : "duplicate or extra Vitest coordinator records"
+      ]
+    }
+  }
+
+  let envelope
+  try {
+    const encoded = candidateLines[0].slice(RESULT_PREFIX.length)
+    if (encoded.length > 4_000_000) throw new Error("oversized")
+    envelope = JSON.parse(Buffer.from(encoded, "base64").toString("utf8"))
+  } catch {
+    return { record: null, failures: ["malformed Vitest coordinator record"] }
+  }
+  const serialized = JSON.stringify(envelope?.payload)
+  const expectedHmac = crypto
+    .createHmac("sha256", authenticationKey)
+    .update(serialized)
+    .digest("hex")
+  const actualHmac =
+    typeof envelope?.hmacSha256 === "string" ? envelope.hmacSha256 : ""
+  if (
+    actualHmac.length !== expectedHmac.length ||
+    !crypto.timingSafeEqual(
+      Buffer.from(actualHmac),
+      Buffer.from(expectedHmac)
+    )
+  ) {
+    return { record: null, failures: ["Vitest coordinator authentication failed"] }
+  }
+  const record = envelope.payload
+  const failures = []
+  if (record?.nonce !== nonce) failures.push("test result nonce mismatch")
+  if (record?.entryLabel !== entry.label) {
+    failures.push("test result entry label mismatch")
+  }
+  if (record?.bindingHash !== binding.bindingHash) {
+    failures.push("test runner binding hash mismatch")
+  }
+  return { record, failures }
+}
+
 export function validateTestResultRecord({
   record,
   entry,
@@ -314,13 +447,14 @@ export function validateTestResultRecord({
   const failures = [...binding.failures]
   if (
     !record ||
-    record.schemaVersion !== 2 ||
-    record.protocol !== "vitest-result-v2"
+    record.schemaVersion !== 3 ||
+    record.protocol !== "vitest-coordinator-result-v3"
   ) {
     return {
       counts: null,
       tests: [],
-      failures: [...failures, "missing authenticated Vitest result record"]
+      includeFiles: [],
+      failures: [...failures, "missing authenticated Vitest coordinator record"]
     }
   }
   if (record.nonce !== nonce) failures.push("test result nonce mismatch")
@@ -330,18 +464,35 @@ export function validateTestResultRecord({
   if (record.bindingHash !== binding.bindingHash) {
     failures.push("test runner binding hash mismatch")
   }
-  if (
-    binding.runnerName !== "vitest" ||
-    record.runner?.name !== "vitest" ||
-    record.runner?.version !== installedVitestVersion(root)
-  ) {
+  if (record.runner?.name !== "vitest" || record.runner?.version !== TRUSTED_VITEST.version) {
     failures.push("test result runner identity mismatch")
   }
   if (
     record.reporter?.name !== "verification-count-reporter" ||
-    record.reporter?.version !== 2
+    record.reporter?.version !== 3
   ) {
     failures.push("test result reporter identity mismatch")
+  }
+
+  let inventory
+  try {
+    inventory = assertSourceInventory(root)
+  } catch (error) {
+    failures.push(
+      `canonical inventory rejected test run: ${
+        error instanceof Error ? error.message : String(error)
+      }`
+    )
+    inventory = { testFiles: [] }
+  }
+  const includeFiles = Array.isArray(record.includeFiles)
+    ? [...record.includeFiles].sort()
+    : null
+  if (
+    !includeFiles ||
+    JSON.stringify(includeFiles) !== JSON.stringify(inventory.testFiles)
+  ) {
+    failures.push("Vitest include set does not equal canonical test inventory")
   }
 
   const manifest = loadTestManifest(root)
@@ -417,6 +568,7 @@ export function validateTestResultRecord({
   return {
     counts: failures.length === 0 ? calculatedCounts : null,
     tests: normalizedTests,
+    includeFiles: includeFiles ?? [],
     failures
   }
 }
@@ -478,12 +630,6 @@ function runChild({ entry, index, cwd, runDirectory, environment, quiet }) {
     const logPath = path.join(runDirectory, logName)
     const logStream = fs.createWriteStream(logPath, { flags: "wx" })
     const startedAt = new Date()
-    const resultNonce = crypto.randomBytes(32).toString("hex")
-    const resultPath = path.join(
-      runDirectory,
-      "test-results",
-      `${String(index + 1).padStart(2, "0")}-${entry.label}-${resultNonce}.json`
-    )
     const binding =
       entry.classification === "test" ? testCommandBinding(entry, cwd) : null
     const header = [
@@ -496,28 +642,88 @@ function runChild({ entry, index, cwd, runDirectory, environment, quiet }) {
     if (!quiet) process.stdout.write(`\n[${index + 1}] ${commandText}\n`)
     logStream.write(header)
 
+    if (binding?.failures.length > 0) {
+      const endedAt = new Date()
+      const result = {
+        label: entry.label,
+        argv: entry.argv,
+        actualSpawnArgv: null,
+        spawnFile: null,
+        spawned: false,
+        command: commandText,
+        classification: entry.classification,
+        expectedExit: entry.expectedExit,
+        rawExit: null,
+        signal: null,
+        counts: null,
+        tests: [],
+        includeFiles: [],
+        evidenceFailures: binding.failures,
+        startedAt: startedAt.toISOString(),
+        endedAt: endedAt.toISOString(),
+        durationMs: endedAt.getTime() - startedAt.getTime(),
+        logPath: path.relative(cwd, logPath)
+      }
+      result.failures = entryFailures(entry, result)
+      const footer = [
+        ...binding.failures.map((failure) => `pre_spawn_failure=${failure}`),
+        `raw_exit=${String(result.rawExit)}`,
+        `entry_failures=${JSON.stringify(result.failures)}`,
+        ""
+      ].join("\n")
+      logStream.end(footer, () => resolve(result))
+      return
+    }
+
+    const childEnvironment = { ...environment }
+    if (entry.classification === "test") {
+      for (const key of Object.keys(childEnvironment)) {
+        if (key.startsWith("VERIFICATION_")) delete childEnvironment[key]
+      }
+    } else {
+      childEnvironment.VERIFICATION_ARTIFACT_DIRECTORY = runDirectory
+    }
+    const nonce = crypto.randomBytes(32).toString("hex")
+    const authenticationKey = crypto.randomBytes(32).toString("hex")
+    const challenge = {
+      schemaVersion: 1,
+      protocol: "vitest-controller-challenge-v1",
+      nonce,
+      entryLabel: entry.label,
+      bindingHash: binding?.bindingHash ?? "",
+      authenticationKey
+    }
     const child = spawn(entry.argv[0], entry.argv.slice(1), {
       cwd,
-      env: {
-        ...environment,
-        VERIFICATION_ENTRY_LABEL: entry.label,
-        VERIFICATION_TEST_RESULTS_DIR: path.join(runDirectory, "test-results"),
-        VERIFICATION_RESULT_PATH: resultPath,
-        VERIFICATION_RESULT_NONCE: resultNonce,
-        VERIFICATION_RUNNER_BINDING_SHA256: binding?.bindingHash ?? ""
-      },
+      env: childEnvironment,
       shell: false,
-      stdio: ["ignore", "pipe", "pipe"]
+      stdio:
+        entry.classification === "test"
+          ? ["pipe", "pipe", "pipe"]
+          : ["ignore", "pipe", "pipe"]
     })
 
-    const tee = (stream, destination) => {
+    /** @type {Buffer[]} */
+    const testStdout = []
+    const tee = (stream, destination, capture = false) => {
       stream.on("data", (chunk) => {
-        if (!quiet) destination.write(chunk)
-        logStream.write(chunk)
+        if (capture) {
+          testStdout.push(Buffer.from(chunk))
+        } else {
+          if (!quiet) destination.write(chunk)
+          logStream.write(chunk)
+        }
       })
     }
-    tee(child.stdout, process.stdout)
+    tee(
+      child.stdout,
+      process.stdout,
+      entry.classification === "test"
+    )
     tee(child.stderr, process.stderr)
+    if (entry.classification === "test") {
+      child.stdin.end(`${JSON.stringify(challenge)}\n`)
+    }
 
     child.on("error", (error) => {
       const bytes = Buffer.from(`\nchild spawn error: ${error.message}\n`)
@@ -526,19 +732,64 @@ function runChild({ entry, index, cwd, runDirectory, environment, quiet }) {
     })
     child.on("close", (code, signal) => {
       const endedAt = new Date()
-      const evidence =
-        entry.classification === "test"
-          ? validateTestResultRecord({
-              record: fs.existsSync(resultPath) ? readJson(resultPath) : null,
-              entry,
-              nonce: resultNonce,
-              binding,
-              root: cwd
-            })
-          : { counts: null, tests: [], failures: [] }
+      const stdout = Buffer.concat(testStdout).toString("utf8")
+      if (entry.classification === "test") {
+        const visibleOutput = stdout
+          .split(/\r?\n/)
+          .filter((line) => !line.startsWith(RESULT_PREFIX))
+          .join("\n")
+        if (visibleOutput) {
+          const bytes = Buffer.from(`${visibleOutput}\n`)
+          if (!quiet) process.stdout.write(bytes)
+          logStream.write(bytes)
+        }
+      }
+      const actualSpawnArgv = [...child.spawnargs]
+      const spawnIdentityFailures =
+        JSON.stringify(actualSpawnArgv) === JSON.stringify(entry.argv)
+          ? []
+          : ["actual child spawn argv differs from recorded plan argv"]
+      let evidence = {
+        counts: null,
+        tests: [],
+        includeFiles: [],
+        failures: spawnIdentityFailures
+      }
+      if (entry.classification === "test") {
+        const parsed = parseCoordinatorResult({
+          stdout,
+          authenticationKey,
+          entry,
+          nonce,
+          binding
+        })
+        const validated = validateTestResultRecord({
+          record: parsed.record,
+          entry,
+          nonce,
+          binding,
+          root: cwd
+        })
+        evidence = {
+          counts: validated.counts,
+          tests: validated.tests,
+          includeFiles: validated.includeFiles,
+          failures: [
+            ...spawnIdentityFailures,
+            ...parsed.failures,
+            ...validated.failures,
+            ...validateTrustedTestRuntime(cwd).map(
+              (failure) => `post-run ${failure}`
+            )
+          ]
+        }
+      }
       const result = {
         label: entry.label,
         argv: entry.argv,
+        actualSpawnArgv,
+        spawnFile: child.spawnfile,
+        spawned: true,
         command: commandText,
         classification: entry.classification,
         expectedExit: entry.expectedExit,
@@ -546,6 +797,7 @@ function runChild({ entry, index, cwd, runDirectory, environment, quiet }) {
         signal: signal ?? null,
         counts: evidence.counts,
         tests: evidence.tests,
+        includeFiles: evidence.includeFiles,
         evidenceFailures: evidence.failures,
         startedAt: startedAt.toISOString(),
         endedAt: endedAt.toISOString(),
@@ -559,6 +811,8 @@ function runChild({ entry, index, cwd, runDirectory, environment, quiet }) {
         `duration_ms=${result.durationMs}`,
         `raw_exit=${String(result.rawExit)}`,
         `signal=${result.signal ?? ""}`,
+        `spawn_file=${result.spawnFile}`,
+        `actual_spawn_argv=${JSON.stringify(result.actualSpawnArgv)}`,
         result.counts
           ? `passed=${result.counts.passed} failed=${result.counts.failed} skipped=${result.counts.skipped}`
           : "passed=missing failed=missing skipped=missing",
@@ -583,6 +837,9 @@ function textReport(report) {
     lines.push(
       `[${index + 1}] label=${entry.label}`,
       `command=${entry.command}`,
+      `spawned=${String(entry.spawned)}`,
+      `spawn_file=${entry.spawnFile ?? ""}`,
+      `actual_spawn_argv=${JSON.stringify(entry.actualSpawnArgv)}`,
       `raw_exit=${String(entry.rawExit)}`,
       `expected_exit=${entry.expectedExit}`,
       `signal=${entry.signal ?? ""}`,
@@ -607,6 +864,7 @@ function writeValidatedTestLedger(runDirectory, results) {
     .map((result) => ({
       entryLabel: result.label,
       counts: result.counts,
+      includeFiles: result.includeFiles,
       tests: result.tests
     }))
   fs.writeFileSync(

@@ -2,6 +2,7 @@ import path from "node:path"
 import process from "node:process"
 import { runEntries } from "./phase-reporter.mjs"
 
+/** @param {string[]} argv */
 function artifactsArgument(argv) {
   const index = argv.indexOf("--artifacts")
   if (index === -1) {
@@ -13,6 +14,7 @@ function artifactsArgument(argv) {
   return argv[index + 1]
 }
 
+/** @type {import("./phase-reporter.mjs").PlanEntry[]} */
 const entries = [
   {
     label: "p01",

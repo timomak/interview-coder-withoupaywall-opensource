@@ -27,19 +27,19 @@ export default {
           }
         },
         in: {
-          "0%": { transform: "translateY(100%)", opacity: 0 },
-          "100%": { transform: "translateY(0)", opacity: 1 }
+          "0%": { transform: "translateY(100%)", opacity: "0" },
+          "100%": { transform: "translateY(0)", opacity: "1" }
         },
         out: {
-          "0%": { transform: "translateY(0)", opacity: 1 },
-          "100%": { transform: "translateY(100%)", opacity: 0 }
+          "0%": { transform: "translateY(0)", opacity: "1" },
+          "100%": { transform: "translateY(100%)", opacity: "0" }
         },
         pulse: {
           "0%, 100%": {
-            opacity: 1
+            opacity: "1"
           },
           "50%": {
-            opacity: 0.5
+            opacity: "0.5"
           }
         }
       }

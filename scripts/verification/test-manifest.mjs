@@ -4,7 +4,7 @@ import path from "node:path"
 import process from "node:process"
 import { fileURLToPath, pathToFileURL } from "node:url"
 import {
-  discoverTestFiles,
+  createSourceInventory,
   normalizeRepositoryPath
 } from "./source-inventory.mjs"
 
@@ -12,7 +12,7 @@ const SCRIPT_DIRECTORY = path.dirname(fileURLToPath(import.meta.url))
 const REPOSITORY_ROOT = path.resolve(SCRIPT_DIRECTORY, "../..")
 const FROZEN_P01_TEST_COUNT = 23
 const FROZEN_P01_TESTS_SHA256 =
-  "5b3469fdf55384f79c3f80a4fb89867105ae8f3b00be3c6c433d5d415f123f0c"
+  "20c2e8734acc8f851ab6d220a7f132e177e39cd89be9b904d8e2089ee16abf64"
 const FORBIDDEN_TEST_FORMS = [
   {
     label: "skip",
@@ -36,10 +36,10 @@ function sha256File(filePath) {
   return crypto.createHash("sha256").update(fs.readFileSync(filePath)).digest("hex")
 }
 
-export { discoverTestFiles }
-
 export function validateTestManifest({ root, manifest, executions }) {
   const errors = []
+  const inventory = createSourceInventory(root)
+  errors.push(...inventory.errors)
   if (
     !manifest ||
     typeof manifest !== "object" ||
@@ -99,7 +99,7 @@ export function validateTestManifest({ root, manifest, executions }) {
     }
   }
 
-  const discoveredFiles = new Set(discoverTestFiles(root))
+  const discoveredFiles = new Set(inventory.testFiles)
   for (const file of discoveredFiles) {
     if (!manifestFiles.has(file)) {
       errors.push(`unmanifested test file: ${file}`)
@@ -112,8 +112,20 @@ export function validateTestManifest({ root, manifest, executions }) {
   }
 
   const executedByKey = new Map()
+  const executedFiles = new Set()
   for (const execution of executions) {
     const tests = Array.isArray(execution?.tests) ? execution.tests : []
+    const includeFiles = Array.isArray(execution?.includeFiles)
+      ? execution.includeFiles.map(normalizeRepositoryPath).sort()
+      : null
+    if (
+      !includeFiles ||
+      JSON.stringify(includeFiles) !== JSON.stringify(inventory.testFiles)
+    ) {
+      errors.push(
+        `Vitest include set mismatch: ${String(execution?.entryLabel)}`
+      )
+    }
     const calculatedCounts = {
       passed: tests.filter((test) => test.state === "pass").length,
       failed: tests.filter((test) => test.state === "fail").length,
@@ -127,6 +139,7 @@ export function validateTestManifest({ root, manifest, executions }) {
       )
     }
     for (const test of tests) {
+      executedFiles.add(normalizeRepositoryPath(test.file))
       const key = `${normalizeRepositoryPath(test.file)}\u0000${test.name}`
       const states = executedByKey.get(key) ?? []
       states.push(test.state)
@@ -150,6 +163,27 @@ export function validateTestManifest({ root, manifest, executions }) {
     if (!manifestKeys.has(key)) {
       const [file, name] = key.split("\u0000")
       errors.push(`executed unmanifested test: ${file} — ${name}`)
+    }
+  }
+  if (
+    JSON.stringify([...executedFiles].sort()) !==
+    JSON.stringify(inventory.testFiles)
+  ) {
+    errors.push("executed test-file union does not equal canonical inventory")
+  }
+  const unitExecution = executions.find(
+    (execution) => execution?.entryLabel === "unit"
+  )
+  if (path.resolve(root) === REPOSITORY_ROOT || unitExecution) {
+    const unitFiles = [
+      ...new Set(
+        (unitExecution?.tests ?? []).map((test) =>
+          normalizeRepositoryPath(test.file)
+        )
+      )
+    ].sort()
+    if (JSON.stringify(unitFiles) !== JSON.stringify(inventory.testFiles)) {
+      errors.push("unit execution file set does not equal canonical inventory")
     }
   }
   return errors

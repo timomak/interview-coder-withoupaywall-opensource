@@ -6,12 +6,22 @@ import { createRequire } from "node:module"
 const require = createRequire(import.meta.url)
 const VITEST_VERSION = require("vitest/package.json").version
 
+/**
+ * @param {import("@vitest/runner").Task} task
+ * @param {string} filePath
+ * @param {string[]} ancestors
+ * @param {Array<{file: string, name: string, fullName: string, state: "pass" | "fail" | "skip"}>} tests
+ */
 function collectTests(task, filePath, ancestors, tests) {
   if (task.type === "test") {
     const state =
       task.mode === "skip" || task.mode === "todo"
         ? "skip"
-        : task.result?.state ?? "fail"
+        : task.result?.state === "pass"
+          ? "pass"
+          : task.result?.state === "skip"
+            ? "skip"
+            : "fail"
     tests.push({
       file: filePath,
       name: task.name,
@@ -23,19 +33,35 @@ function collectTests(task, filePath, ancestors, tests) {
 
   const nextAncestors =
     task.type === "suite" && task.name ? [...ancestors, task.name] : ancestors
-  for (const child of task.tasks ?? []) {
+  for (const child of "tasks" in task ? task.tasks : []) {
     collectTests(child, filePath, nextAncestors, tests)
   }
 }
 
 export default class VerificationCountReporter {
+  /**
+   * @param {(record: Record<string, unknown>) => void} [emitEvidence]
+   */
+  constructor(emitEvidence = () => undefined) {
+    this.emitEvidence = emitEvidence
+    /** @type {string[]} */
+    this.includeFiles = []
+  }
+
+  /** @param {import("vitest").Vitest} context */
+  onInit(context) {
+    this.includeFiles = [...context.config.include].sort()
+  }
+
+  /** @param {import("@vitest/runner").File[]} [files] */
   onFinished(files = []) {
+    /** @type {Array<{file: string, name: string, fullName: string, state: "pass" | "fail" | "skip"}>} */
     const tests = []
     for (const file of files) {
-      const filePath = path.relative(
-        process.cwd(),
-        file.filepath ?? file.name ?? "unknown"
-      )
+      const filePath = path
+        .relative(process.cwd(), file.filepath ?? file.name ?? "unknown")
+        .split(path.sep)
+        .join("/")
       collectTests(file, filePath, [], tests)
     }
 
@@ -44,51 +70,27 @@ export default class VerificationCountReporter {
       failed: tests.filter((test) => test.state === "fail").length,
       skipped: tests.filter((test) => test.state === "skip").length
     }
-
-    const resultPath = process.env.VERIFICATION_RESULT_PATH
-    const entryLabel = process.env.VERIFICATION_ENTRY_LABEL
-    const nonce = process.env.VERIFICATION_RESULT_NONCE
-    const bindingHash = process.env.VERIFICATION_RUNNER_BINDING_SHA256
-    const channelValues = [resultPath, entryLabel, nonce, bindingHash]
-    const populatedChannelValues = channelValues.filter(Boolean).length
-    if (populatedChannelValues !== 0 && populatedChannelValues !== 4) {
-      throw new Error("incomplete verification result channel")
-    }
-
-    if (resultPath && entryLabel && nonce && bindingHash) {
-      fs.mkdirSync(path.dirname(resultPath), { recursive: true })
-      fs.writeFileSync(
-        resultPath,
-        `${JSON.stringify(
-          {
-            schemaVersion: 2,
-            protocol: "vitest-result-v2",
-            nonce,
-            entryLabel,
-            bindingHash,
-            runner: {
-              name: "vitest",
-              version: VITEST_VERSION
-            },
-            reporter: {
-              name: "verification-count-reporter",
-              version: 2
-            },
-            counts,
-            tests: tests.map((test) => ({
-              ...test,
-              fileSha256: crypto
-                .createHash("sha256")
-                .update(fs.readFileSync(path.resolve(process.cwd(), test.file)))
-                .digest("hex")
-            }))
-          },
-          null,
-          2
-        )}\n`,
-        { flag: "wx" }
-      )
-    }
+    this.emitEvidence({
+      schemaVersion: 3,
+      protocol: "vitest-coordinator-result-v3",
+      runner: {
+        name: "vitest",
+        version: VITEST_VERSION
+      },
+      reporter: {
+        name: "verification-count-reporter",
+        version: 3
+      },
+      includeFiles: this.includeFiles,
+      counts,
+      tests: tests.map((test) => ({
+        ...test,
+        fileSha256: crypto
+          .createHash("sha256")
+          .update(fs.readFileSync(path.resolve(process.cwd(), test.file)))
+          .digest("hex")
+      }))
+    })
 
     process.stdout.write(
       `\nVerification reporter observed ${counts.passed} passed, ` +

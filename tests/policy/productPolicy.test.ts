@@ -107,6 +107,42 @@ describe("product policy", () => {
       scanSourceText(
         "secrets.ts",
         "const environment = process['env']; console.info(environment.PROVIDER_API_KEY)"
+      ),
+      scanSourceText(
+        "review-call.ts",
+        "analytics.capture.call(analytics, 'opened')"
+      ),
+      scanSourceText(
+        "review-secret-call.ts",
+        "console.log.call(console, process.env.PROVIDER_API_KEY)"
+      ),
+      scanSourceText(
+        "review-reassignment.ts",
+        "let environment = {}; environment = process['env']; const payload = { key: environment.PROVIDER_API_KEY }; logger.warn(`${payload.key}`)"
+      ),
+      scanSourceText(
+        "esm.mts",
+        "import tracker from 'posthog-js'; const send = tracker.capture.bind(tracker); send('opened')"
+      ),
+      scanSourceText(
+        "cjs.cjs",
+        "const { capture } = require('analytics'); capture?.('opened')"
+      ),
+      scanSourceText(
+        "dynamic.mjs",
+        "const tracker = await import('posthog-js'); tracker['capture']?.apply(tracker, ['opened'])"
+      ),
+      scanSourceText(
+        "payload.jsx",
+        "const { PROVIDER_API_KEY: key } = process.env; const first = { key }; const second = { ...first }; console.info(`secret=${second.key}`)"
+      ),
+      scanSourceText(
+        "branch.cts",
+        "let value = {}; if (enabled) value = process.env; else value = {}; console.error(value.PROVIDER_API_KEY)"
+      ),
+      scanSourceText(
+        "destructure.tsx",
+        "let key; ({ PROVIDER_API_KEY: key } = process.env); logger.debug({ key })"
       )
     ].flat()
 
@@ -118,7 +154,16 @@ describe("product policy", () => {
         "forbidden analytics/crash/fingerprint import entry point: plausible.cjs",
         "forbidden analytics/crash/fingerprint import entry point: rollbar.ts",
         "automatic crash upload entry point: crash.ts",
-        "environment-secret logging entry point: secrets.ts"
+        "environment-secret logging entry point: secrets.ts",
+        "analytics initialization entry point: review-call.ts",
+        "environment-secret logging entry point: review-secret-call.ts",
+        "environment-secret logging entry point: review-reassignment.ts",
+        "analytics initialization entry point: esm.mts",
+        "analytics initialization entry point: cjs.cjs",
+        "analytics initialization entry point: dynamic.mjs",
+        "environment-secret logging entry point: payload.jsx",
+        "environment-secret logging entry point: branch.cts",
+        "environment-secret logging entry point: destructure.tsx"
       ])
     )
 
@@ -132,6 +177,54 @@ describe("product policy", () => {
         ].join("\n")
       )
     ).toEqual([])
+    expect(
+      scanSourceText(
+        "type-only.ts",
+        [
+          "import type * as Sentry from '@sentry/electron'",
+          "function local(posthog: { capture(value: string): void }) {",
+          "  posthog.capture('local only')",
+          "}",
+          "local({ capture() {} })"
+        ].join("\n")
+      )
+    ).toEqual([])
+    expect(
+      scanSourceText(
+        "shadowed.js",
+        [
+          "const process = { env: { PROVIDER_API_KEY: 'inert' } }",
+          "const console = { log() {} }",
+          "const require = () => ({ capture() {} })",
+          "const posthog = require('posthog-js')",
+          "console.log(process.env.PROVIDER_API_KEY)",
+          "posthog.capture('local')"
+        ].join("\n")
+      )
+    ).toEqual([])
+    for (const extension of [
+      "js",
+      "mjs",
+      "cjs",
+      "jsx",
+      "ts",
+      "mts",
+      "cts",
+      "tsx"
+    ]) {
+      expect(
+        scanSourceText(
+          `inert.${extension}`,
+          [
+            "// analytics.capture.call(analytics, 'comment')",
+            "const documentation = \"console.log(process.env.SECRET)\""
+          ].join("\n")
+        )
+      ).toEqual([])
+    }
+    expect(scanSourceText("broken.ts", "const = ;")).toContain(
+      "unparseable shipped source: broken.ts"
+    )
     expect(isShippedSource("src/tests/runtime.ts")).toBe(true)
     expect(isShippedSource("src/features/runtime.test.ts")).toBe(false)
   })

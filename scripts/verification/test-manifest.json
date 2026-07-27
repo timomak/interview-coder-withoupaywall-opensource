@@ -29,27 +29,27 @@
     {
       "path": "tests/policy/testManifest.test.ts",
       "name": "rejects missing renamed skipped and unexecuted tests",
-      "sha256": "58cebfbef0ec3289dac93c61c0a6bb78af9ae2bae16a14f3dc0be122d4d8aec0"
+      "sha256": "3a165b166b7b55bba857c036d84f356dc0c29a30434acc6c60be18e09ac53eb2"
     },
     {
       "path": "tests/policy/productPolicy.test.ts",
       "name": "enforces canonical identity and AGPL metadata",
-      "sha256": "818945e72e3440b3136971c0cde3786b7a58c32389b5c2b602593e41f7e31c9e"
+      "sha256": "9c669d5a1e78525815bb85b91439c1193b0a4cc22450812a2654f616e4bbee66"
     },
     {
       "path": "tests/policy/productPolicy.test.ts",
       "name": "rejects telemetry crash upload and secret logging entry points",
-      "sha256": "818945e72e3440b3136971c0cde3786b7a58c32389b5c2b602593e41f7e31c9e"
+      "sha256": "9c669d5a1e78525815bb85b91439c1193b0a4cc22450812a2654f616e4bbee66"
     },
     {
       "path": "tests/policy/verificationReporter.test.ts",
       "name": "accumulates raw failures counts and immutable plan drift",
-      "sha256": "963cf470f8d18a8d0f396ebd24bae70de8bf697ec751ad55db1aeb9b74612539"
+      "sha256": "72c8c221b764fa4f664563c46dcb45e79302c62e90baa1ff18fcdcacd346b660"
     },
     {
       "path": "electron/windowOpenPolicy.test.ts",
       "name": "P01-R1-B01 denies every implicit child while preserving external links",
-      "sha256": "f6f7a8b871ae01a49b02930818a2d661361f36585d6f438491ebbce3ca04c541"
+      "sha256": "10b22bde6a6cdef5cb5e54ce536a9eb6a969878711f7fb871bf81e087018ce7f"
     },
     {
       "path": "scripts/qualification/repositoryDiscovery.test.cjs",
@@ -94,27 +94,47 @@
     {
       "path": "tests/policy/packageInventory.test.ts",
       "name": "P01-R1-B06 rejects tests verification files and raw runtime source",
-      "sha256": "b1f5805a3cac96d043dd7eae068d369b2e5690b9e3fda0b724df2753cbffd0f0"
+      "sha256": "9031d95023cdc4edcd54a5b3a79629be26f0134aa3aa23e95c1c1581825de73d"
     },
     {
       "path": "tests/policy/productPolicy.test.ts",
       "name": "P01-R1-B05 rejects syntax-aware privacy bypasses without inert-text false positives",
-      "sha256": "818945e72e3440b3136971c0cde3786b7a58c32389b5c2b602593e41f7e31c9e"
+      "sha256": "9c669d5a1e78525815bb85b91439c1193b0a4cc22450812a2654f616e4bbee66"
     },
     {
       "path": "tests/policy/sourceGate.test.ts",
       "name": "P01-R1-B04 gates JSX MTS CTS retained renderer and verification sources",
-      "sha256": "46774968379a5f31d8e60b74a87a1c18ddf9e13bfba19dfc5deeb40037e2f736"
+      "sha256": "d8230201cb4a10cd5a4947f634b213413709e81bbeefee6a2efb071f103644c0"
     },
     {
       "path": "tests/policy/testManifest.test.ts",
       "name": "P01-R1-B02 discovers every future root and supported extension",
-      "sha256": "58cebfbef0ec3289dac93c61c0a6bb78af9ae2bae16a14f3dc0be122d4d8aec0"
+      "sha256": "3a165b166b7b55bba857c036d84f356dc0c29a30434acc6c60be18e09ac53eb2"
     },
     {
       "path": "tests/policy/verificationReporter.test.ts",
       "name": "P01-R1-B03 rejects forged stdout from a zero-test child",
-      "sha256": "963cf470f8d18a8d0f396ebd24bae70de8bf697ec751ad55db1aeb9b74612539"
+      "sha256": "72c8c221b764fa4f664563c46dcb45e79302c62e90baa1ff18fcdcacd346b660"
+    },
+    {
+      "path": "tests/policy/packageInventory.test.ts",
+      "name": "P01-R1-B06 fails an actual fresh build that injects extraResources source",
+      "sha256": "9031d95023cdc4edcd54a5b3a79629be26f0134aa3aa23e95c1c1581825de73d"
+    },
+    {
+      "path": "tests/policy/verificationReporter.test.ts",
+      "name": "P01-R1-B03 authenticates one coordinator record and rejects every channel substitution",
+      "sha256": "72c8c221b764fa4f664563c46dcb45e79302c62e90baa1ff18fcdcacd346b660"
+    },
+    {
+      "path": "tests/policy/verificationReporter.test.ts",
+      "name": "P01-R1-B03 fails closed on script wrapper config reporter and runner tampering",
+      "sha256": "72c8c221b764fa4f664563c46dcb45e79302c62e90baa1ff18fcdcacd346b660"
+    },
+    {
+      "path": "tests/policy/verificationReporter.test.ts",
+      "name": "P01-R1-B03 records the exact npm argv that was actually spawned",
+      "sha256": "72c8c221b764fa4f664563c46dcb45e79302c62e90baa1ff18fcdcacd346b660"
     }
   ]
 }

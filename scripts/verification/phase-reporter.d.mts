@@ -8,9 +8,14 @@ export interface PlanEntry {
 
 export interface EntryResult {
   label: string
+  argv: string[]
+  actualSpawnArgv: string[] | null
+  spawnFile: string | null
+  spawned: boolean
   rawExit: number | null
   signal: string | null
   counts: { passed: number; failed: number; skipped: number } | null
+  includeFiles: string[]
   tests: Array<{
     file: string
     name: string
@@ -27,14 +32,25 @@ export function validatePlanManifest(options?: {
   root?: string
   expectedManifestHash?: string
 }): string[]
+export function validateTrustedTestRuntime(root?: string): string[]
 export function testCommandBinding(
   entry: PlanEntry,
   root?: string
 ): {
   bindingHash: string
   failures: string[]
-  runnerName: "vitest" | "repository-test-script" | null
+  runnerName: "vitest"
   scriptName: string | null
+}
+export function parseCoordinatorResult(options: {
+  stdout: string
+  authenticationKey: string
+  entry: PlanEntry
+  nonce: string
+  binding: ReturnType<typeof testCommandBinding>
+}): {
+  record: unknown
+  failures: string[]
 }
 export function validateTestResultRecord(options: {
   record: unknown
@@ -44,6 +60,7 @@ export function validateTestResultRecord(options: {
   root?: string
 }): {
   counts: { passed: number; failed: number; skipped: number } | null
+  includeFiles: string[]
   tests: Array<{
     file: string
     name: string

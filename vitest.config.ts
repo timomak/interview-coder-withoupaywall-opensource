@@ -1,4 +1,7 @@
 import { defineConfig } from "vitest/config"
+import { assertSourceInventory } from "./scripts/verification/source-inventory.mjs"
+
+const canonicalInventory = assertSourceInventory(process.cwd())
 
 export default defineConfig({
   test: {
@@ -11,7 +14,7 @@ export default defineConfig({
     ],
     globals: true,
     setupFiles: ["tests/setup.ts"],
-    include: ["**/*.{test,spec}.{js,mjs,cjs,jsx,ts,mts,cts,tsx}"],
+    include: canonicalInventory.testFiles,
     exclude: [
       "**/.artifacts/**",
       "**/.git/**",
@@ -22,6 +25,7 @@ export default defineConfig({
       "**/release/**"
     ],
     passWithNoTests: false,
+    pool: "forks",
     clearMocks: true,
     restoreMocks: true
   }
