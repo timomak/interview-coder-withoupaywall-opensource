@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-07-27T16:02:06+02:00",
+  "updatedAt": "2026-07-27T16:03:50+02:00",
   "repository": {
     "remote": "https://github.com/j4wg/interview-coder-withoupaywall-opensource",
     "pushRemote": "https://github.com/timomak/interview-coder-withoupaywall-opensource",
@@ -2519,9 +2519,11 @@
       "requiredOutcome": "Independently review the exact P00-R8 SHA from a clean checkout, preserve repository state, verify the two-path diff and every frozen invariant, challenge the complete controller trust boundary from first principles, reproduce the archived pre-lifecycle bypass against the revised contract, exercise the named hostile matrix and exact [7,0] negative control, inspect PR identity/checks, and return APPROVED or CHANGES_REQUESTED."
     },
     "P00/remediate-8": {
-      "status": "QUEUED",
-      "threadId": null,
+      "status": "ACTIVE",
+      "clientThreadId": "client-new-thread:e88f019e-0df2-4171-87f0-6246a2796468",
+      "threadId": "019fa3e3-70a5-72f1-b7a5-c00d858983a1",
       "hostId": "local",
+      "worktreePath": "/Users/thirdfacedev/.codex/worktrees/4655/TimoCodes",
       "infrastructureRetryCount": 0,
       "baseRevision": "P00-R8",
       "baseSha": "ce5e6ae533b65cde6d7996ec572c6d35315b5bde",
@@ -2534,6 +2536,9 @@
       "allowedPaths": [
         "docs/implementation/phase-execution-packet.md"
       ],
+      "queuedAt": "2026-07-27T16:02:06+02:00",
+      "dispatchedAt": "2026-07-27T16:03:50+02:00",
+      "startedAt": "2026-07-27T16:03:50+02:00",
       "requiredOutcome": "Resolve the active-anchor/runId contradiction with a separate closed per-run binding and lifecycle; preserve the R8 controller trust boundary, exact structural inventories, and all unrelated packet text; commit and fast-forward push one P00-R9 candidate for fresh review."
     }
   },
