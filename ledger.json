@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-07-27T13:13:40+02:00",
+  "updatedAt": "2026-07-27T13:15:46+02:00",
   "repository": {
     "remote": "https://github.com/j4wg/interview-coder-withoupaywall-opensource",
     "pushRemote": "https://github.com/timomak/interview-coder-withoupaywall-opensource",
@@ -275,7 +275,7 @@
       "dependencies": [],
       "baseBranch": "main",
       "baseSha": "9dcb4b2d39607273a8528a24657cdb4f5bfc3412",
-      "worktreePath": "/Users/thirdfacedev/.codex/worktrees/2bd7/TimoCodes",
+      "worktreePath": null,
       "canonicalBranch": "phase/P01-local-gates",
       "prNumber": 155,
       "prUrl": "https://github.com/j4wg/interview-coder-withoupaywall-opensource/pull/155",
@@ -817,8 +817,90 @@
         "rerunCount": 1,
         "nondeterminismObserved": false
       },
+      "review4PartialVerification": {
+        "verifiedAt": "2026-07-27T13:15:46+02:00",
+        "reviewedSha": "b2b35d56d8d396591bdc2e6b7b9193bcde947de5",
+        "parentAndBaseMatched": true,
+        "identityAndPrHeadMatched": true,
+        "upstreamMainMatched": true,
+        "worktreeCleanAtStartAndControllerReconciliation": true,
+        "repositoryMutations": 0,
+        "nodeVersion": "v20.20.2",
+        "npmVersion": "10.8.2",
+        "aggregateExit": 0,
+        "childRawExits": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "testCounts": {
+          "legacy": {
+            "passed": 1,
+            "failed": 0,
+            "skipped": 0
+          },
+          "unit": {
+            "passed": 30,
+            "failed": 0,
+            "skipped": 0
+          },
+          "p01": {
+            "passed": 21,
+            "failed": 0,
+            "skipped": 0
+          }
+        },
+        "plansMatched": "13/13 entry contracts",
+        "otherPlanBytesUnchanged": "P02-P12 and P12-observer",
+        "inheritedCraSampleUnchangedAndExecuted": true,
+        "canonicalPackageInventory": {
+          "asarSha256": "db40b85dcabaa63ab8029af1a42e70bd9e18eb0d0a00bff358835c9da6beb96e",
+          "asarEntries": 10178,
+          "bundleEntries": 107,
+          "errors": 0
+        },
+        "aggregateJsonSha256": "9b8e6fc34248e4a84092d2ea6c1e4e1a6b850364b3e0e25828f98e4b519bf5d4",
+        "aggregateTextSha256": "58f24c7b9b895d2b1c7b4aadf60a223b294f6f8597f287d64aeb688c55e3029b",
+        "validatedResultsSha256": "b77707e8475eff24f1f39f6a8361ab679539d61748adaa25f04f2f821a9df9fa",
+        "packageInventorySha256": "e914cfa07d5040c55dbcb7a2b35d19745a046d1482cbfd80e68609bb4e85df8b",
+        "injectedFailure": {
+          "aggregateExit": 1,
+          "rawExits": [
+            7,
+            0
+          ],
+          "spawned": [
+            true,
+            true
+          ],
+          "aggregateJsonSha256": "a9b2bf39968e5678eb0f99e6ff747774105a418445101fc780d8756020f5dda2",
+          "aggregateTextSha256": "ecebe268ae8595abd65882a9f0b1ae21dee7ecc88b7ce06bdb269e574fd7bf6a"
+        },
+        "blockingEvidence": {
+          "stableFindingId": "P01-R1-B03",
+          "rootCauseTag": "UNTRUSTED_COUNT_CHANNEL",
+          "manifestation": "A candidate-controlled preverify:phase runs before the verify:phase bootstrap can reject lifecycle hooks. It removes itself, conditionally rewrites unanchored verify:policy, lint, typecheck, and build scripts to exit zero only when VERIFICATION_ARTIFACT_DIRECTORY is present, then an external detached restorer restores package.json after aggregate creation.",
+          "observed": "The hostile run returned aggregate 0 with all nine spawned/raw exits 0, exact npm argv, canonical 1/30/21 counts, and a clean temporary Git status while the four gates and fresh package build did not execute.",
+          "hostileAggregateJsonSha256": "65f9c74d2608f833f966fa4a0f6add6c3b0eabf2c5344bdd63e97fad84c1321c",
+          "hostileAggregateTextSha256": "9fe0fd6698ed318a9315c69efe729970e89d59b6c5aa55bcca6a5c58e5d9e3bf",
+          "hostilePreHookSha256": "d1437d1ed4a52c02af6994db8c63a3cadb2315fba0deb6c930fa6c8244776b21"
+        },
+        "evidenceDirectory": "/Users/thirdfacedev/.codex/orchestration/TimoCodes-evidence/P01-review-4-partial-b2b35d5",
+        "hostedCodeql": "SUCCESS",
+        "forkOriginChecks": "ACTION_REQUIRED",
+        "infrastructureRetryCount": 2,
+        "infrastructureRetryLimitReached": true,
+        "reviewScopeCompleted": false,
+        "uncompletedScopeDisposition": "B01, B02, B04, B05, and B06 had partial probes but no final independent disposition before task-level infrastructure exhaustion. The single replacement reviewer must complete all six dispositions at the same SHA; no approval is inferred."
+      },
       "reviewerVerifiedSha": "cff6a38cffbad8d8d09cfb25981851eaf0e6e39c",
-      "reviewerVerdict": "PENDING_REVIEW_4",
+      "reviewerVerdict": "PENDING_REVIEW_4_REPLACEMENT",
       "openFindingIds": [
         "P01-R1-B01",
         "P01-R1-B02",
@@ -828,12 +910,12 @@
         "P01-R1-B06"
       ],
       "findingDispositions": {
-        "P01-R1-B01": "PENDING_REVIEW_4_RECHECK",
-        "P01-R1-B02": "PENDING_REVIEW_4_RECHECK",
-        "P01-R1-B03": "REMEDIATED_IN_CYCLE_3_PENDING_REVIEW_4",
-        "P01-R1-B04": "PENDING_REVIEW_4_RECHECK",
-        "P01-R1-B05": "PENDING_REVIEW_4_RECHECK",
-        "P01-R1-B06": "PENDING_REVIEW_4_RECHECK"
+        "P01-R1-B01": "PENDING_REVIEW_4_REPLACEMENT_RECHECK",
+        "P01-R1-B02": "PENDING_REVIEW_4_REPLACEMENT_RECHECK",
+        "P01-R1-B03": "SURVIVED_REMEDIATION_3_REVIEW_4_PARTIAL",
+        "P01-R1-B04": "PENDING_REVIEW_4_REPLACEMENT_RECHECK",
+        "P01-R1-B05": "PENDING_REVIEW_4_REPLACEMENT_RECHECK",
+        "P01-R1-B06": "PENDING_REVIEW_4_REPLACEMENT_RECHECK"
       },
       "remediationCycleCount": 3,
       "rootCauseTags": {
@@ -2093,7 +2175,7 @@
       "controllerReconciled": true
     },
     "P01/review-4": {
-      "status": "ACTIVE",
+      "status": "INFRASTRUCTURE_FAILED",
       "clientThreadId": "client-new-thread:dbb2f950-2856-4013-ac57-96f3db0aaac7",
       "threadId": "019fa32c-b275-7880-beea-b2773750b66c",
       "hostId": "local",
@@ -2122,8 +2204,54 @@
       "mandatoryTrustRootReview": "Challenge the package-command trust root and every joint package/bootstrap/plan/manifest/current-value mutation; verify no self-hash cycle, TOCTOU reopen, npm hook, wrapper/config/reporter/runner/lock/install forgery, or worker channel can fabricate acceptance.",
       "queuedAt": "2026-07-27T12:39:44+02:00",
       "startedAt": "2026-07-27T12:44:27+02:00",
+      "completedAt": "2026-07-27T13:15:46+02:00",
       "infrastructureRetryCount": 2,
-      "lastInfrastructureFailure": "P01/review-4 first turn ended in task-level systemError after the exact-SHA authoritative run, injected proof, and a concrete P01-R1-B03 hostile lifecycle-hook bypass. Retry 1 then ended immediately in task-level systemError with no assistant or tool output. The review worktree remained clean at b2b35d56; retry 2 is the final allowed infrastructure retry and resumes the same read-only task and SHA."
+      "lastInfrastructureFailure": "P01/review-4 first turn ended in task-level systemError after the exact-SHA authoritative run, injected proof, and a concrete P01-R1-B03 hostile lifecycle-hook bypass. Retries 1 and 2 then ended immediately in task-level systemError with no assistant or tool output. The task-level retry limit is exhausted.",
+      "completionMode": "Infrastructure-failed partial review. The concrete B03 blocking reproduction and canonical/injected artifacts were controller-archived; no final prose verdict or positive B01/B02/B04/B05/B06 disposition exists.",
+      "partialVerdict": "CHANGES_REQUESTED_EVIDENCE",
+      "blockingFindingIds": [
+        "P01-R1-B03"
+      ],
+      "incompleteFindingDispositions": [
+        "P01-R1-B01",
+        "P01-R1-B02",
+        "P01-R1-B04",
+        "P01-R1-B05",
+        "P01-R1-B06"
+      ],
+      "repositoryMutations": 0,
+      "worktreeClean": true,
+      "evidenceDirectory": "/Users/thirdfacedev/.codex/orchestration/TimoCodes-evidence/P01-review-4-partial-b2b35d5",
+      "controllerReconciled": true
+    },
+    "P01/review-4-replacement": {
+      "status": "QUEUED",
+      "phaseId": "P01",
+      "packetRevision": "P00-R7",
+      "packetSha": "494e518f62d636e6af4e455ba615596d95b4d06b",
+      "baseBranch": "main",
+      "baseSha": "9dcb4b2d39607273a8528a24657cdb4f5bfc3412",
+      "priorReviewedSha": "cff6a38cffbad8d8d09cfb25981851eaf0e6e39c",
+      "reviewedSha": "b2b35d56d8d396591bdc2e6b7b9193bcde947de5",
+      "canonicalBranch": "phase/P01-local-gates",
+      "prNumber": 155,
+      "prUrl": "https://github.com/j4wg/interview-coder-withoupaywall-opensource/pull/155",
+      "readOnly": true,
+      "replacementFor": "P01/review-4",
+      "sourceEvidenceDirectory": "/Users/thirdfacedev/.codex/orchestration/TimoCodes-evidence/P01-review-4-partial-b2b35d5",
+      "requiredReporterCommand": "npm run verify:phase -- --phase P01 --artifacts .artifacts/verification/P01-review-4-replacement",
+      "minimumNamedTests": 7,
+      "findingIds": [
+        "P01-R1-B01",
+        "P01-R1-B02",
+        "P01-R1-B03",
+        "P01-R1-B04",
+        "P01-R1-B05",
+        "P01-R1-B06"
+      ],
+      "mandatoryOutcome": "Independently validate the archived B03 lifecycle-hook reproduction and complete explicit first-principles dispositions for all six findings at the same immutable SHA. Do not infer approval for incomplete scope.",
+      "queuedAt": "2026-07-27T13:15:46+02:00",
+      "infrastructureRetryCount": 0
     }
   },
   "blockers": [
@@ -2314,7 +2442,7 @@
       "evidence": "electron/main.ts:340 allows arbitrary valid renderer window.open URLs, creating an implicit child BrowserWindow outside createCaptureProtectedWindow and applyCaptureProtection.",
       "requiredOutcome": "Deny implicit child windows or guarantee every implicit child is content-protected before visibility or first paint.",
       "remediationTaskName": "P01/remediate-2",
-      "remediationStatus": "PENDING_REVIEW_4_RECHECK",
+      "remediationStatus": "PENDING_REVIEW_4_REPLACEMENT_RECHECK",
       "remediationCandidateSha": "b2b35d56d8d396591bdc2e6b7b9193bcde947de5",
       "review2Evidence": "Renderer navigation/loadFile begins before setWindowOpenHandler registration, leaving a pre-policy interval; lifecycle order was not tested.",
       "review3Disposition": "Independent review-3 was interrupted by infrastructure after its authoritative run and did not return a complete B01 disposition; review-4 must recheck closure."
@@ -2333,7 +2461,7 @@
       "evidence": "scripts/verification/test-manifest.mjs:9 and vitest.config.ts:14 omit mandatory future src/** and scripts/qualification/** test locations; external probes were undiscoverable and explicit manifest entries failed as not discoverable.",
       "requiredOutcome": "Make every planned P01-P12 test root discoverable, executable, and manifest-bound without weakening the frozen manifest contract.",
       "remediationTaskName": "P01/remediate-2",
-      "remediationStatus": "PENDING_REVIEW_4_RECHECK",
+      "remediationStatus": "PENDING_REVIEW_4_REPLACEMENT_RECHECK",
       "remediationCandidateSha": "b2b35d56d8d396591bdc2e6b7b9193bcde947de5",
       "review2Evidence": "A throwing unmanifested uppercase.test.TS file was omitted by discovery, Vitest, policy, lint, and type-check; symlinks are silently omitted.",
       "review3Disposition": "Independent review-3 was interrupted by infrastructure after its authoritative run and did not return a complete B02 disposition; review-4 must recheck closure."
@@ -2351,7 +2479,7 @@
       "evidence": "scripts/verification/phase-reporter.mjs:230 and :361 accept an arbitrary single VERIFICATION_COUNTS stdout line; a no-test child printing passed=999 and exiting zero produced aggregate zero.",
       "requiredOutcome": "Bind counts to the intended test-runner execution with independently anchored immutable inputs, and preserve exact spawned raw exits in injected-failure evidence so arbitrary child stdout or jointly mutable verifier/hash bytes cannot fabricate acceptance.",
       "remediationTaskName": "P01/remediate-3",
-      "remediationStatus": "REMEDIATED_IN_CYCLE_3_PENDING_REVIEW_4",
+      "remediationStatus": "SURVIVED_REMEDIATION_3_REVIEW_4_PARTIAL",
       "remediationCandidateSha": "b2b35d56d8d396591bdc2e6b7b9193bcde947de5",
       "review2Evidence": "All three npm test scripts were replaced by a zero-test child that read inherited result path, nonce, and binding hash and forged accepted structured records; aggregate returned zero.",
       "review3Evidence": {
@@ -2360,6 +2488,13 @@
         "injectedFailure": "The required injected exit(7) test command was rejected before spawn. Aggregate evidence recorded spawned=false/rawExit=null followed by spawned=true/rawExit=0, instead of exact [7,0], while still returning aggregate 1.",
         "aggregateJsonSha256": "9b42660333738f03831cbe56539e933da46804bc10d47cf02831213e02fed3a1",
         "evidenceDirectory": "/Users/thirdfacedev/.codex/orchestration/TimoCodes-evidence/P01-review-3-cff6a38"
+      },
+      "review4PartialEvidence": {
+        "reviewedSha": "b2b35d56d8d396591bdc2e6b7b9193bcde947de5",
+        "lifecycleHookBypass": "A self-removing preverify:phase runs before the bootstrap can reject hooks, rewrites four unanchored gate scripts to return zero only under the reporter artifact-directory capability, and arranges post-aggregate package restoration. The hostile aggregate returned zero with canonical argv/counts and clean Git state without running policy, lint, typecheck, or a fresh build.",
+        "aggregateJsonSha256": "65f9c74d2608f833f966fa4a0f6add6c3b0eabf2c5344bdd63e97fad84c1321c",
+        "hostilePreHookSha256": "d1437d1ed4a52c02af6994db8c63a3cadb2315fba0deb6c930fa6c8244776b21",
+        "evidenceDirectory": "/Users/thirdfacedev/.codex/orchestration/TimoCodes-evidence/P01-review-4-partial-b2b35d5"
       }
     },
     {
@@ -2376,7 +2511,7 @@
       "evidence": "eslint.config.mjs:10 omits JSX/MTS/CTS and tsconfig.json:22 omits retained renderer/src plus verification scripts; external invalid JSX and renderer TypeScript probes both passed their gates.",
       "requiredOutcome": "Cover every tracked executable source family in lint and strict type-check, with any necessary exclusions narrowly justified and independently validated.",
       "remediationTaskName": "P01/remediate-2",
-      "remediationStatus": "PENDING_REVIEW_4_RECHECK",
+      "remediationStatus": "PENDING_REVIEW_4_REPLACEMENT_RECHECK",
       "remediationCandidateSha": "b2b35d56d8d396591bdc2e6b7b9193bcde947de5",
       "review2Evidence": "allowJs is enabled without checkJs; JSDoc type mismatches in root JS, retained-renderer JSX, qualification CJS, and verification MJS passed lint and type-check.",
       "review3Disposition": "Independent review-3 was interrupted by infrastructure after its authoritative run and did not return a complete B04 disposition; review-4 must recheck closure."
@@ -2394,7 +2529,7 @@
       "evidence": "scripts/verification/product-policy.mjs misses ordinary node-machine-id, plausible-tracker, rollbar, aliased crashReporter/machine-id, posthog.capture, and process[env] logging forms and falsely rejects harmless process.env text.",
       "requiredOutcome": "Materially cover ordinary dependency/API/alias forms while avoiding comment/string false positives and unjustified source exclusions.",
       "remediationTaskName": "P01/remediate-2",
-      "remediationStatus": "PENDING_REVIEW_4_RECHECK",
+      "remediationStatus": "PENDING_REVIEW_4_REPLACEMENT_RECHECK",
       "remediationCandidateSha": "b2b35d56d8d396591bdc2e6b7b9193bcde947de5",
       "review2Evidence": "analytics.capture.call, console.log.call with process.env, reassigned process[env] aliases, uppercase paths, and symlink inventory bypasses passed; type-only and shadowed-local forms false-positived.",
       "review3Disposition": "Independent review-3 was interrupted by infrastructure after its authoritative run and did not return a complete B05 disposition; review-4 must recheck closure."
@@ -2412,7 +2547,7 @@
       "evidence": "package.json:34 packages electron/**/*; an external electron-builder --dir inventory found electron/captureProtection.test.ts and raw Electron TypeScript inside app.asar.",
       "requiredOutcome": "Package only compiled runtime output and exclude every test/spec and verification source.",
       "remediationTaskName": "P01/remediate-2",
-      "remediationStatus": "PENDING_REVIEW_4_RECHECK",
+      "remediationStatus": "PENDING_REVIEW_4_REPLACEMENT_RECHECK",
       "remediationCandidateSha": "b2b35d56d8d396591bdc2e6b7b9193bcde947de5",
       "review2Evidence": "A lint/type-clean raw project TS file injected through extraResources shipped under Contents/Resources/leaks while npm run build and inventory returned zero.",
       "review3Disposition": "Independent review-3 was interrupted by infrastructure after its authoritative run and did not return a complete B06 disposition; review-4 must recheck closure."
