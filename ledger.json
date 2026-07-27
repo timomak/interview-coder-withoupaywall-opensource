@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-07-27T13:26:25+02:00",
+  "updatedAt": "2026-07-27T13:32:06+02:00",
   "repository": {
     "remote": "https://github.com/j4wg/interview-coder-withoupaywall-opensource",
     "pushRemote": "https://github.com/timomak/interview-coder-withoupaywall-opensource",
     "baseBranch": "main",
     "baseSha": "9dcb4b2d39607273a8528a24657cdb4f5bfc3412"
   },
-  "orchestrationStatus": "REVIEWING",
+  "orchestrationStatus": "CONVERGENCE_REVIEW_RESERVED",
   "currentPhaseId": "P01",
   "goalBlockedAudit": {
     "status": "RESUMED_BY_USER_AUTHORIZATION",
@@ -271,7 +271,7 @@
     {
       "id": "P01",
       "title": "Green local gates and policy rails",
-      "status": "REVIEWING",
+      "status": "CONVERGENCE_REVIEW_RESERVED",
       "dependencies": [],
       "baseBranch": "main",
       "baseSha": "9dcb4b2d39607273a8528a24657cdb4f5bfc3412",
@@ -899,8 +899,37 @@
         "reviewScopeCompleted": false,
         "uncompletedScopeDisposition": "B01, B02, B04, B05, and B06 had partial probes but no final independent disposition before task-level infrastructure exhaustion. The single replacement reviewer must complete all six dispositions at the same SHA; no approval is inferred."
       },
-      "reviewerVerifiedSha": "cff6a38cffbad8d8d09cfb25981851eaf0e6e39c",
-      "reviewerVerdict": "PENDING_REVIEW_4_REPLACEMENT",
+      "review4ReplacementVerification": {
+        "reconciledAt": "2026-07-27T13:32:06+02:00",
+        "reviewedSha": "b2b35d56d8d396591bdc2e6b7b9193bcde947de5",
+        "threadId": "019fa34d-4d94-7e31-93bc-27bcb94c9e82",
+        "threadFinalStatus": "SYSTEM_ERROR_AFTER_FINAL_ALLOWED_RETRY",
+        "identityAndPrHeadMatched": true,
+        "upstreamMainMatched": true,
+        "worktreeCleanAtStartAndFinish": true,
+        "repositoryMutations": 0,
+        "replacementEvidenceIndependentlyReproduced": true,
+        "canonicalPackageRestored": true,
+        "canonicalPackageSha256": "3e620624d8d5f21dc5a3e6ad34404f4532d3956fe87597b81b2947ed2fb927c3",
+        "detachedRestorerLiveAtReconciliation": false,
+        "blockingEvidence": {
+          "stableFindingId": "P01-R1-B03",
+          "rootCauseTag": "UNTRUSTED_COUNT_CHANNEL",
+          "manifestation": "A candidate-controlled preverify:phase executes before the verify:phase bootstrap can validate lifecycle-hook absence, rewrites unanchored gate commands only for the reporter capability, and restores package.json after aggregate creation.",
+          "observed": "The independently authored replacement probe returned aggregate 0 with all nine spawned/raw exits 0 and canonical 1/30/21 counts while policy, lint, typecheck, and build were bypassed; the disposable clone finished tracked-clean with canonical package bytes restored.",
+          "hostileAggregateJsonSha256": "c2528633014d271b2501c85b1d4884694b556f10f1b16abbc1e1b95e85ce2bb3",
+          "hostileAggregateTextSha256": "9da4a97de56809959aa7c9d102e410fe93cca305993d1bebdc0ac9d08f52e5c1",
+          "hostilePreHookSha256": "8a081c023a044b50298d6ad1917a3fbe5ab8de349738d1457e113c39730398bc",
+          "bypassProbeLogSha256": "7361ed4e8ed933c5fd98c6a873559b628935d41e11f7cb7dad2e49f88c582088"
+        },
+        "evidenceDirectory": "/Users/thirdfacedev/.codex/orchestration/TimoCodes-evidence/P01-review-4-replacement-b2b35d5",
+        "infrastructureRetryCount": 2,
+        "infrastructureRetryLimitReached": true,
+        "reviewScopeCompleted": false,
+        "controllerDisposition": "The exact-SHA B03 bypass is concrete CHANGES_REQUESTED evidence. B01, B02, B04, B05, and B06 remain unapproved because the reviewer returned no final dispositions. No further review-4 retry or replacement is permitted."
+      },
+      "reviewerVerifiedSha": "b2b35d56d8d396591bdc2e6b7b9193bcde947de5",
+      "reviewerVerdict": "CHANGES_REQUESTED_EVIDENCE_REQUIRES_SENIOR_CONVERGENCE",
       "openFindingIds": [
         "P01-R1-B01",
         "P01-R1-B02",
@@ -912,7 +941,7 @@
       "findingDispositions": {
         "P01-R1-B01": "PENDING_REVIEW_4_REPLACEMENT_RECHECK",
         "P01-R1-B02": "PENDING_REVIEW_4_REPLACEMENT_RECHECK",
-        "P01-R1-B03": "SURVIVED_REMEDIATION_3_REVIEW_4_PARTIAL",
+        "P01-R1-B03": "OPEN_AFTER_REMEDIATION_3_INDEPENDENT_REPRODUCTION",
         "P01-R1-B04": "PENDING_REVIEW_4_REPLACEMENT_RECHECK",
         "P01-R1-B05": "PENDING_REVIEW_4_REPLACEMENT_RECHECK",
         "P01-R1-B06": "PENDING_REVIEW_4_REPLACEMENT_RECHECK"
@@ -2225,7 +2254,7 @@
       "controllerReconciled": true
     },
     "P01/review-4-replacement": {
-      "status": "ACTIVE",
+      "status": "INFRASTRUCTURE_FAILED",
       "clientThreadId": "client-new-thread:29a799d5-3e9f-43c8-8084-f5483d84be28",
       "threadId": "019fa34d-4d94-7e31-93bc-27bcb94c9e82",
       "hostId": "local",
@@ -2258,8 +2287,40 @@
       "dispatchedAt": "2026-07-27T13:19:47+02:00",
       "startedAt": "2026-07-27T13:20:32+02:00",
       "infrastructureRetryCount": 2,
-      "lastInfrastructureFailure": "The replacement lifecycle has used both allowed infrastructure retries. The prior controller's first dispatch, thread 019fa34c-053e-7da0-bbeb-8de7272b372b, entered systemError before any tool call. The sole active reviewer thread 019fa34d-4d94-7e31-93bc-27bcb94c9e82 then entered systemError after exact identity validation and while constructing a disposable external B03 lifecycle-hook reproduction; its tracked worktree remained clean. The final allowed same-thread continuation is resuming that preserved temporary evidence.",
-      "finalRetryStartedAt": "2026-07-27T13:26:25+02:00"
+      "lastInfrastructureFailure": "The replacement lifecycle used both allowed infrastructure retries. The final same-thread continuation began, independently completed the B03 lifecycle-hook bypass, then the task returned systemError before its authoritative run and full B01-B06 final report. No further retry or replacement is permitted.",
+      "finalRetryStartedAt": "2026-07-27T13:26:25+02:00",
+      "completedAt": "2026-07-27T13:32:06+02:00",
+      "completionMode": "Controller-reconciled infrastructure failure after final retry exhaustion. Concrete exact-SHA B03 changes-requested evidence is preserved; no approval is inferred for incomplete B01, B02, B04, B05, or B06 scope.",
+      "partialVerdict": "CHANGES_REQUESTED_EVIDENCE",
+      "blockingFindingIds": [
+        "P01-R1-B03"
+      ],
+      "incompleteFindingDispositions": [
+        "P01-R1-B01",
+        "P01-R1-B02",
+        "P01-R1-B04",
+        "P01-R1-B05",
+        "P01-R1-B06"
+      ],
+      "repositoryMutations": 0,
+      "worktreeClean": true,
+      "evidenceDirectory": "/Users/thirdfacedev/.codex/orchestration/TimoCodes-evidence/P01-review-4-replacement-b2b35d5",
+      "controllerReconciled": true
+    },
+    "P01/convergence": {
+      "status": "RESERVED",
+      "phaseId": "P01",
+      "packetRevision": "P00-R7",
+      "packetSha": "494e518f62d636e6af4e455ba615596d95b4d06b",
+      "assessedSha": "b2b35d56d8d396591bdc2e6b7b9193bcde947de5",
+      "baseSha": "9dcb4b2d39607273a8528a24657cdb4f5bfc3412",
+      "canonicalBranch": "phase/P01-local-gates",
+      "prNumber": 155,
+      "prUrl": "https://github.com/j4wg/interview-coder-withoupaywall-opensource/pull/155",
+      "readOnly": true,
+      "queuedAt": "2026-07-27T13:32:06+02:00",
+      "trigger": "P01-R1-B03 remained materially open after remediation cycle 3 and was independently reproduced by the exhausted review-4 replacement lifecycle.",
+      "requiredOutcome": "Decide CONTINUE or STOP from evidence: whether the remediation sequence is materially and measurably converging, whether the same root cause survived three attempts, and, only if CONTINUE, the narrowest correction and exact independent-review scope. No repository, branch, PR, or ledger mutations."
     }
   },
   "blockers": [
