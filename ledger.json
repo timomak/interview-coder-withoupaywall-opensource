@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-07-27T16:40:34+02:00",
+  "updatedAt": "2026-07-27T16:41:45+02:00",
   "repository": {
     "remote": "https://github.com/j4wg/interview-coder-withoupaywall-opensource",
     "pushRemote": "https://github.com/timomak/interview-coder-withoupaywall-opensource",
     "baseBranch": "main",
     "baseSha": "9dcb4b2d39607273a8528a24657cdb4f5bfc3412"
   },
-  "orchestrationStatus": "P01_REMEDIATION_READY",
+  "orchestrationStatus": "P01_REMEDIATION_PLANNING_QUEUED",
   "currentPhaseId": "P01",
   "goalBlockedAudit": {
     "status": "RESUMED_BY_USER_AUTONOMY_AUTHORIZATION",
@@ -312,7 +312,7 @@
     {
       "id": "P01",
       "title": "Green local gates and policy rails",
-      "status": "REMEDIATION_AUTHORIZED",
+      "status": "REMEDIATION_PLANNING_QUEUED",
       "dependencies": [],
       "baseBranch": "main",
       "baseSha": "9dcb4b2d39607273a8528a24657cdb4f5bfc3412",
@@ -985,7 +985,7 @@
         "worktreeClean": true
       },
       "reviewerVerifiedSha": "b2b35d56d8d396591bdc2e6b7b9193bcde947de5",
-      "reviewerVerdict": "CHANGES_REQUESTED_PROTOCOL_REENTRY_APPROVED",
+      "reviewerVerdict": "CHANGES_REQUESTED_REMEDIATION_4_QUEUED",
       "openFindingIds": [
         "P01-R1-B01",
         "P01-R1-B02",
@@ -1002,7 +1002,7 @@
         "P01-R1-B05": "PENDING_REVIEW_4_REPLACEMENT_RECHECK",
         "P01-R1-B06": "PENDING_REVIEW_4_REPLACEMENT_RECHECK"
       },
-      "remediationCycleCount": 3,
+      "remediationCycleCount": 4,
       "rootCauseTags": {
         "CAPTURE_LIFECYCLE_BYPASS": 2,
         "MANIFEST_COVERAGE_GAP": 2,
@@ -2392,6 +2392,32 @@
       "reentryDecisionRequired": "Amend the frozen P00 verification protocol so the first trusted instruction is controller-owned and runs before any candidate-controlled npm lifecycle code, or explicitly narrow the threat model.",
       "repositoryMutations": 0,
       "worktreeClean": true
+    },
+    "P01/remediate-4": {
+      "status": "QUEUED",
+      "phaseId": "P01",
+      "infrastructureRetryCount": 0,
+      "packetRevision": "P00-R9",
+      "packetSha": "02ee6ddec78d6e4ea9e2de3c0303ffd6bc9f45bf",
+      "baseSha": "b2b35d56d8d396591bdc2e6b7b9193bcde947de5",
+      "canonicalBranch": "phase/P01-local-gates",
+      "prNumber": 155,
+      "prUrl": "https://github.com/j4wg/interview-coder-withoupaywall-opensource/pull/155",
+      "findingIds": [
+        "P01-R1-B01",
+        "P01-R1-B02",
+        "P01-R1-B03",
+        "P01-R1-B04",
+        "P01-R1-B05",
+        "P01-R1-B06"
+      ],
+      "queuedAt": "2026-07-27T16:41:45+02:00",
+      "planningOnly": true,
+      "staffChallengeRequired": true,
+      "implementationAuthorized": false,
+      "singleActiveWriterReservation": true,
+      "controllerRuntimeRequired": true,
+      "requiredOutcome": "Produce a staff-challenged remediation plan for an immutable P01 candidate that implements the approved P00-R9 controller runtime as the first trusted instruction, closes all six P01 findings, preserves exact evidence and negative-control contracts, and is suitable for one isolated implementation commit followed by fresh full exact-SHA independent review."
     },
     "P00/remediate-7": {
       "status": "COMPLETE",
