@@ -1,20 +1,20 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-07-27T19:09:12+02:00",
+  "updatedAt": "2026-07-27T19:09:52+02:00",
   "repository": {
     "remote": "https://github.com/j4wg/interview-coder-withoupaywall-opensource",
     "pushRemote": "https://github.com/timomak/interview-coder-withoupaywall-opensource",
     "baseBranch": "main",
     "baseSha": "9dcb4b2d39607273a8528a24657cdb4f5bfc3412"
   },
-  "orchestrationStatus": "P01_CONTROLLER_INSTALL_BLOCKED",
+  "orchestrationStatus": "BLOCKED_EXTERNAL_AUTHORIZATION",
   "currentPhaseId": "P01",
   "goalBlockedAudit": {
-    "status": "RESUMED_EXTERNAL_BLOCKER_AUDIT",
+    "status": "BLOCKED_THRESHOLD_REACHED_AFTER_RESUME",
     "blockingCondition": "P01-INFRA-B01 requires macOS administrator authorization to install the root-owned P00-R9 controller before any candidate npm lifecycle or authoritative P01 verification.",
-    "consecutiveGoalTurns": 2,
-    "thresholdSatisfied": false,
-    "auditedAt": "2026-07-27T19:09:12+02:00",
+    "consecutiveGoalTurns": 3,
+    "thresholdSatisfied": true,
+    "auditedAt": "2026-07-27T19:09:52+02:00",
     "resumedAt": "2026-07-27T19:08:39+02:00",
     "resumedBy": "user-status-message",
     "authoritativeState": {
@@ -3129,9 +3129,10 @@
       "evidence": "Two bounded 90-second administrator-channel attempts completed without authorization or installation. The required path remains absent and sudo -n exits 1 because a password is required. Native compile, installer syntax, sudoers validation, bootstrap framing, and all 13 controller self-tests passed without invoking candidate npm.",
       "requiredOutcome": "Install the staged controller runtime root-owned with the dedicated execution identity and pinned Node/npm closure, pass installed preflight, arm exact candidate 1ff0881 under approved P00-R9, then run controller-only authoritative P01 verification before independent review.",
       "infrastructureRetryCount": 2,
-      "heartbeatReadOnlyCheckCount": 3,
-      "lastCheckedAt": "2026-07-27T19:09:12+02:00",
-      "blockedThresholdReachedAt": "2026-07-27T17:42:10+02:00"
+      "heartbeatReadOnlyCheckCount": 4,
+      "lastCheckedAt": "2026-07-27T19:09:52+02:00",
+      "blockedThresholdReachedAt": "2026-07-27T17:42:10+02:00",
+      "resumedBlockedThresholdReachedAt": "2026-07-27T19:09:52+02:00"
     }
   ]
 }
