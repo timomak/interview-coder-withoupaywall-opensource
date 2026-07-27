@@ -1,50 +1,50 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-07-27T13:42:56+02:00",
+  "updatedAt": "2026-07-27T14:58:26+02:00",
   "repository": {
     "remote": "https://github.com/j4wg/interview-coder-withoupaywall-opensource",
     "pushRemote": "https://github.com/timomak/interview-coder-withoupaywall-opensource",
     "baseBranch": "main",
     "baseSha": "9dcb4b2d39607273a8528a24657cdb4f5bfc3412"
   },
-  "orchestrationStatus": "BLOCKED_VERIFICATION_PROTOCOL_DECISION",
-  "currentPhaseId": "P01",
+  "orchestrationStatus": "REMEDIATING",
+  "currentPhaseId": "P00",
   "goalBlockedAudit": {
-    "status": "RESUMED_BY_USER_AUTHORIZATION",
-    "blockingCondition": "P00-R6-B01, P00-R6-B02, and P00-R6-B03 remain blocking after the sole authorized hard-limit exception; the user expanded the single P00-R7 exception to all three same-lifecycle findings before repository edits began.",
+    "status": "RESUMED_BY_USER_AUTONOMY_AUTHORIZATION",
+    "blockingCondition": "P01-CV-B01 requires a new P00 verification-protocol revision because candidate-controlled npm lifecycle code executes before the first trusted verification instruction.",
     "consecutiveGoalTurns": 3,
     "thresholdSatisfied": true,
     "auditedAt": "2026-07-26T22:48:51+02:00",
-    "resumedAt": "2026-07-27T07:24:54+02:00",
+    "resumedAt": "2026-07-27T14:58:26+02:00",
     "resumedBy": "user",
     "authoritativeState": {
-      "packetSha": "42925fb617a61a1149bdf1e027cf21c975b0f13a",
+      "packetSha": "494e518f62d636e6af4e455ba615596d95b4d06b",
       "prNumber": 154,
       "prHeadMatched": true,
       "hostedCodeQL": "SUCCESS",
       "furtherPlanningRemediationAuthorized": true,
       "safePreparationExhausted": true
     },
-    "resumeAuthorizationPhrase": "Authorize one additional narrowly scoped P00-R7 exception for P00-R6-B01 only.",
-    "scopeExpandedAt": "2026-07-27T07:29:13+02:00",
-    "scopeExpansionSource": "User-delivered coordination delegation explicitly authorizing consolidation of P00-R6-B01, P00-R6-B02, and P00-R6-B03 into the same P00-R7 cycle."
+    "resumeAuthorizationPhrase": "Authorize P00-R8 to add a controller-owned pre-npm verification entrypoint while preserving P00-R7's threat model.",
+    "authorizationSource": "User instruction at 2026-07-27T14:58:26+02:00: don't ask me. just complete it end to end",
+    "decision": "Preserve P00-R7's threat model and authorize the controller-owned pre-npm verification entrypoint."
   },
   "packet": {
-    "status": "APPROVED",
+    "status": "REMEDIATING",
     "revision": "P00-R7",
     "path": "docs/implementation/phase-execution-packet.md",
     "branch": "phase/P00-execution-packet",
     "headSha": "494e518f62d636e6af4e455ba615596d95b4d06b",
     "frozenAtSha": "494e518f62d636e6af4e455ba615596d95b4d06b",
     "frozenAt": "2026-07-27T08:15:37+02:00",
-    "planningRemediationCycleCount": 7,
+    "planningRemediationCycleCount": 8,
     "planningException": {
       "authorized": true,
       "authorizedAt": "2026-07-26T21:37:19+02:00",
       "authorizedBy": "user",
       "scope": "One narrowly scoped P00-R6 remediation for P00-R5-B01, followed by fresh independent review; no implementation begins before approval."
     },
-    "currentPlanningException": {
+    "priorPlanningException": {
       "authorized": true,
       "authorizedAt": "2026-07-27T07:24:54+02:00",
       "authorizedBy": "user",
@@ -57,9 +57,22 @@
       "scopeExpandedAt": "2026-07-27T07:29:13+02:00",
       "scope": "One additional P00-R7 remediation limited to the three independently reported P12 release-statement lifecycle blockers: ACL invariants, statement-independent sealed-set crash-resume validation, and exact three-run exit codes. Fresh P00/review-7 remains mandatory; no baseline or implementation begins before exact-SHA approval."
     },
-    "reviewTask": "P00/review-7",
-    "reviewVerdict": "APPROVED",
-    "openFindingIds": [],
+    "currentPlanningException": {
+      "authorized": true,
+      "authorizedAt": "2026-07-27T14:58:26+02:00",
+      "authorizedBy": "user",
+      "targetRevision": "P00-R8",
+      "findingIds": [
+        "P00-R7-B01"
+      ],
+      "sourceFindingId": "P01-CV-B01",
+      "scope": "One P00-R8 verification-protocol remediation that preserves the P00-R7 threat model and makes the first trusted instruction controller-owned and executable before any candidate-controlled npm lifecycle code. Only design.md and docs/implementation/phase-execution-packet.md may change. Fresh P00/review-8 is mandatory before P01 remediation resumes."
+    },
+    "reviewTask": null,
+    "reviewVerdict": "PENDING_REMEDIATION",
+    "openFindingIds": [
+      "P00-R7-B01"
+    ],
     "findings": {
       "P00-R1-B01": {
         "severity": "HIGH",
@@ -179,6 +192,15 @@
         "sourceThreadId": "019fa01e-918d-7082-9a60-073bf2a607d1",
         "resolvedInSha": "494e518f62d636e6af4e455ba615596d95b4d06b",
         "requiredOutcome": "Require and test exact run-1 exits package:mac=0, collection/qualification=0, verify:release=1, aggregate=1, plus exact all-zero exits for runs 2 and 3."
+      },
+      "P00-R7-B01": {
+        "severity": "RELEASE_BLOCKING",
+        "rootCauseTag": "candidate-controlled-pre-trust-npm-lifecycle",
+        "disposition": "AUTHORIZED_FOR_P00_R8_REMEDIATION",
+        "observableIn": "P01",
+        "authorizedAt": "2026-07-27T14:58:26+02:00",
+        "sourceFindingId": "P01-CV-B01",
+        "requiredOutcome": "Specify a controller-owned entrypoint whose first trusted instruction executes before npm lifecycle dispatch, anchors the exact immutable candidate and verification inputs, invokes the phase reporter without candidate-controlled pre/post lifecycle hooks, preserves exact child argv/raw exits/counts and negative-control evidence, and rejects lifecycle, package/bootstrap/plan/manifest/gate, runner/hash, result-channel, or TOCTOU mutation before any zero result."
       }
     },
     "prNumber": 154,
@@ -2351,6 +2373,26 @@
       "reentryDecisionRequired": "Amend the frozen P00 verification protocol so the first trusted instruction is controller-owned and runs before any candidate-controlled npm lifecycle code, or explicitly narrow the threat model.",
       "repositoryMutations": 0,
       "worktreeClean": true
+    },
+    "P00/remediate-7": {
+      "status": "QUEUED",
+      "threadId": null,
+      "hostId": "local",
+      "infrastructureRetryCount": 0,
+      "baseRevision": "P00-R7",
+      "baseSha": "494e518f62d636e6af4e455ba615596d95b4d06b",
+      "targetRevision": "P00-R8",
+      "exceptionAuthorized": true,
+      "authorizedAt": "2026-07-27T14:58:26+02:00",
+      "findingIds": [
+        "P00-R7-B01"
+      ],
+      "sourceFindingId": "P01-CV-B01",
+      "allowedPaths": [
+        "design.md",
+        "docs/implementation/phase-execution-packet.md"
+      ],
+      "requiredOutcome": "Preserve the P00-R7 threat model while defining a controller-owned pre-npm verification entrypoint and complete regression contract; commit and push one P00-R8 candidate for fresh exact-SHA independent review."
     }
   },
   "blockers": [
@@ -2666,9 +2708,36 @@
       "assessedSha": "b2b35d56d8d396591bdc2e6b7b9193bcde947de5",
       "evidence": "Senior convergence found the same candidate-controlled acceptance trust root survived three correction attempts. An independently reproduced preverify:phase mutation bypassed policy, lint, typecheck, and build while producing aggregate zero and restoring clean package bytes.",
       "requiredDecision": "Authorize a new P00 verification-protocol revision with a controller-owned first instruction before npm lifecycle code, or explicitly narrow the threat model. The approved and frozen P00-R7 packet does not authorize either change.",
-      "furtherRemediationAuthorized": false,
+      "furtherRemediationAuthorized": true,
+      "authorizedAt": "2026-07-27T14:58:26+02:00",
+      "authorizedDecision": "Preserve the P00-R7 threat model and add a controller-owned pre-npm verification entrypoint in P00-R8.",
+      "protocolRemediationTaskName": "P00/remediate-7",
+      "protocolReviewTaskName": "P00/review-8",
       "convergenceTaskName": "P01/convergence",
       "convergenceThreadId": "019fa35a-5465-78d1-83b0-38d47cdcb427"
+    },
+    {
+      "id": "P00-R7-B01",
+      "scope": "P00",
+      "severity": "RELEASE_BLOCKING",
+      "rootCauseTag": "candidate-controlled-pre-trust-npm-lifecycle",
+      "active": true,
+      "hardLimitReached": true,
+      "blocks": [
+        "P01_FURTHER_REMEDIATION",
+        "P01_APPROVAL_AND_MERGE",
+        "P02_P12_IMPLEMENTATION"
+      ],
+      "sourceFindingId": "P01-CV-B01",
+      "reviewedPacketSha": "494e518f62d636e6af4e455ba615596d95b4d06b",
+      "assessedCandidateSha": "b2b35d56d8d396591bdc2e6b7b9193bcde947de5",
+      "evidence": "The exact candidate-controlled preverify:phase lifecycle executes before the current bootstrap, can bypass policy, lint, typecheck, and build, and can still produce aggregate zero with canonical counts and restored clean tracked bytes.",
+      "requiredOutcome": "Make a controller-owned, immutable, candidate-anchored instruction the first verification step before npm lifecycle code while preserving all P00-R7 threat-model and evidence requirements.",
+      "furtherPlanningRemediationAuthorized": true,
+      "authorizedAt": "2026-07-27T14:58:26+02:00",
+      "authorizedTargetRevision": "P00-R8",
+      "remediationTaskName": "P00/remediate-7",
+      "reviewTaskName": "P00/review-8"
     }
   ]
 }
