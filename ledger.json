@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-07-27T11:58:13+02:00",
+  "updatedAt": "2026-07-27T12:39:44+02:00",
   "repository": {
     "remote": "https://github.com/j4wg/interview-coder-withoupaywall-opensource",
     "pushRemote": "https://github.com/timomak/interview-coder-withoupaywall-opensource",
     "baseBranch": "main",
     "baseSha": "9dcb4b2d39607273a8528a24657cdb4f5bfc3412"
   },
-  "orchestrationStatus": "REMEDIATING",
+  "orchestrationStatus": "REVIEWING",
   "currentPhaseId": "P01",
   "goalBlockedAudit": {
     "status": "RESUMED_BY_USER_AUTHORIZATION",
@@ -271,7 +271,7 @@
     {
       "id": "P01",
       "title": "Green local gates and policy rails",
-      "status": "REMEDIATING",
+      "status": "REVIEWING",
       "dependencies": [],
       "baseBranch": "main",
       "baseSha": "9dcb4b2d39607273a8528a24657cdb4f5bfc3412",
@@ -279,7 +279,7 @@
       "canonicalBranch": "phase/P01-local-gates",
       "prNumber": 155,
       "prUrl": "https://github.com/j4wg/interview-coder-withoupaywall-opensource/pull/155",
-      "currentHeadSha": "cff6a38cffbad8d8d09cfb25981851eaf0e6e39c",
+      "currentHeadSha": "b2b35d56d8d396591bdc2e6b7b9193bcde947de5",
       "implementationReportedSha": "b0875221929a23bde5467cafa9d4f9a687c6dc4c",
       "implementationVerification": {
         "verifiedAt": "2026-07-27T09:09:04+02:00",
@@ -706,8 +706,119 @@
         "reviewScopeCompleted": false,
         "uncompletedScopeDisposition": "P01-R1-B01, B02, B04, B05, and B06 require full independent recheck at review-4; no approval is inferred from the interrupted reviewer."
       },
+      "remediation3Verification": {
+        "verifiedAt": "2026-07-27T12:39:44+02:00",
+        "reviewedBaseSha": "cff6a38cffbad8d8d09cfb25981851eaf0e6e39c",
+        "resultSha": "b2b35d56d8d396591bdc2e6b7b9193bcde947de5",
+        "singleCommit": true,
+        "parentMatched": true,
+        "worktreeClean": true,
+        "forkBranchMatched": true,
+        "draftPrIdentityMatched": true,
+        "upstreamMainMatched": true,
+        "nodeVersion": "v20.20.2",
+        "npmVersion": "10.8.2",
+        "aggregateExit": 0,
+        "childRawExits": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "actualSpawnArgvMatched": true,
+        "testCounts": {
+          "legacy": {
+            "passed": 1,
+            "failed": 0,
+            "skipped": 0
+          },
+          "unit": {
+            "passed": 30,
+            "failed": 0,
+            "skipped": 0
+          },
+          "p01": {
+            "passed": 21,
+            "failed": 0,
+            "skipped": 0
+          }
+        },
+        "manifestNamedTests": 30,
+        "plansMatched": "13/13 entry contracts",
+        "planFilesChanged": 1,
+        "changedPlanFiles": [
+          "scripts/verification/plans/P01.json"
+        ],
+        "manifestFilesChanged": [
+          "scripts/verification/plan-manifest.json"
+        ],
+        "otherPlanFilesUnchanged": true,
+        "inheritedCraSampleSha256": "1f0914ca057e799130da87a78d48021657aba67e01fcbcb50b099944ee2ea864",
+        "inheritedCraSampleUnchangedAndExecuted": true,
+        "packageInventory": {
+          "asarSha256": "db40b85dcabaa63ab8029af1a42e70bd9e18eb0d0a00bff358835c9da6beb96e",
+          "asarEntries": 10178,
+          "bundleEntries": 107,
+          "errors": 0
+        },
+        "hostileTrustBoundary": {
+          "testsPassed": 8,
+          "testsFailed": 0,
+          "sha256": "ef4a1816e191de240c2ac47080ae97ab9348f9df017f122e3d02202b3cde10a7"
+        },
+        "injectedFailure": {
+          "aggregateExit": 1,
+          "rawExits": [
+            7,
+            0
+          ],
+          "spawned": [
+            true,
+            true
+          ],
+          "actualSpawnArgvMatched": true,
+          "laterEntryExecuted": true,
+          "aggregateJsonSha256": "d9a74d3a12d529483edb2fc8f0bbeed7e55772e6566f95ce45d9c0d797ddf56c",
+          "aggregateTextSha256": "64ce75107ab5250baf7804dec7ac097bf8c615bed7a37ea9186a0d75bf2316ea"
+        },
+        "freshDetachedVerification": {
+          "aggregateExit": 0,
+          "childRawExits": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "testCountsMatched": true,
+          "asarSha256Matched": true,
+          "aggregateJsonSha256": "f6ec0cf732875e81f1f52377fc8bad8fcf58f4919eece2c323971f17c75b7c01",
+          "aggregateTextSha256": "77d6960e5067f47b846fba57c1b0fcf8e68eec3b0703907b4cf5c1c7c4f3c63a",
+          "installLogSha256": "69e5247fccac710f0552a425b61d7d52771b21d72538fcbb65cefb552f9f6fd2",
+          "packageInventorySha256": "13ec09dc3316d74ead0bfae25c1a1af29d26302d881958acb7c5669aad59805a"
+        },
+        "evidenceDirectory": "/Users/thirdfacedev/.codex/orchestration/TimoCodes-evidence/P01-b2b35d5",
+        "implementationAggregateJsonSha256": "e57373b44ed553e149c4ec9f7475cd384a6a42dadfa9f1b443c4e10201b0442c",
+        "implementationAggregateTextSha256": "811a35f13af743b0c1c10237d184dc1b6c7af9334ac1abcc354158e14eede544",
+        "implementationInstallLogSha256": "73add1488db820b990c442eb37f2eb573fc2b5043f6abedfb7565ea5d9e2b1ff",
+        "implementationPackageInventorySha256": "d669f2074c90d9707bbdef87f43ba09a3c80fa40bba15ce0f87c81b24a99d5a2",
+        "prEvidenceComment": "https://github.com/j4wg/interview-coder-withoupaywall-opensource/pull/155#issuecomment-5090282038",
+        "hostedCodeql": "SUCCESS",
+        "forkOriginChecks": "ACTION_REQUIRED",
+        "rerunCount": 1,
+        "nondeterminismObserved": false
+      },
       "reviewerVerifiedSha": "cff6a38cffbad8d8d09cfb25981851eaf0e6e39c",
-      "reviewerVerdict": "CHANGES_REQUESTED",
+      "reviewerVerdict": "PENDING_REVIEW_4",
       "openFindingIds": [
         "P01-R1-B01",
         "P01-R1-B02",
@@ -717,12 +828,12 @@
         "P01-R1-B06"
       ],
       "findingDispositions": {
-        "P01-R1-B01": "REVIEW_3_INCOMPLETE_RECHECK_REVIEW_4",
-        "P01-R1-B02": "REVIEW_3_INCOMPLETE_RECHECK_REVIEW_4",
-        "P01-R1-B03": "SURVIVED_REMEDIATION_2_REVIEW_3",
-        "P01-R1-B04": "REVIEW_3_INCOMPLETE_RECHECK_REVIEW_4",
-        "P01-R1-B05": "REVIEW_3_INCOMPLETE_RECHECK_REVIEW_4",
-        "P01-R1-B06": "REVIEW_3_INCOMPLETE_RECHECK_REVIEW_4"
+        "P01-R1-B01": "PENDING_REVIEW_4_RECHECK",
+        "P01-R1-B02": "PENDING_REVIEW_4_RECHECK",
+        "P01-R1-B03": "REMEDIATED_IN_CYCLE_3_PENDING_REVIEW_4",
+        "P01-R1-B04": "PENDING_REVIEW_4_RECHECK",
+        "P01-R1-B05": "PENDING_REVIEW_4_RECHECK",
+        "P01-R1-B06": "PENDING_REVIEW_4_RECHECK"
       },
       "remediationCycleCount": 3,
       "rootCauseTags": {
@@ -738,7 +849,7 @@
         "review": 0,
         "remediation": 0
       },
-      "rerunCount": 3,
+      "rerunCount": 4,
       "nondeterminism": [],
       "amendmentsApplied": [],
       "mergeCommit": null,
@@ -1944,7 +2055,7 @@
       "controllerReconciled": true
     },
     "P01/remediate-3": {
-      "status": "ACTIVE",
+      "status": "COMPLETE",
       "clientThreadId": "client-new-thread:f30aff39-1a88-4ee2-a1eb-abebbe002bbf",
       "threadId": "019fa302-5cd4-7fc2-80d5-88b81e356205",
       "hostId": "local",
@@ -1967,6 +2078,45 @@
       "mandatoryReview4Scope": "Fresh review-4 must recheck all six stable P01-R1 findings because review-3 was infrastructure-incomplete outside the concrete B03 blocker.",
       "queuedAt": "2026-07-27T11:53:38+02:00",
       "startedAt": "2026-07-27T11:58:13+02:00",
+      "completedAt": "2026-07-27T12:39:44+02:00",
+      "infrastructureRetryCount": 0,
+      "resultSha": "b2b35d56d8d396591bdc2e6b7b9193bcde947de5",
+      "parentSha": "cff6a38cffbad8d8d09cfb25981851eaf0e6e39c",
+      "commitCount": 1,
+      "pushMode": "FAST_FORWARD_NO_FORCE",
+      "worktreeClean": true,
+      "draftPrUpdated": true,
+      "prEvidenceComment": "https://github.com/j4wg/interview-coder-withoupaywall-opensource/pull/155#issuecomment-5090282038",
+      "hostedCodeql": "SUCCESS",
+      "forkOriginChecks": "ACTION_REQUIRED",
+      "evidenceDirectory": "/Users/thirdfacedev/.codex/orchestration/TimoCodes-evidence/P01-b2b35d5",
+      "controllerReconciled": true
+    },
+    "P01/review-4": {
+      "status": "QUEUED",
+      "phaseId": "P01",
+      "packetRevision": "P00-R7",
+      "packetSha": "494e518f62d636e6af4e455ba615596d95b4d06b",
+      "baseBranch": "main",
+      "baseSha": "9dcb4b2d39607273a8528a24657cdb4f5bfc3412",
+      "priorReviewedSha": "cff6a38cffbad8d8d09cfb25981851eaf0e6e39c",
+      "reviewedSha": "b2b35d56d8d396591bdc2e6b7b9193bcde947de5",
+      "canonicalBranch": "phase/P01-local-gates",
+      "prNumber": 155,
+      "prUrl": "https://github.com/j4wg/interview-coder-withoupaywall-opensource/pull/155",
+      "readOnly": true,
+      "requiredReporterCommand": "npm run verify:phase -- --phase P01 --artifacts .artifacts/verification/P01-review-4",
+      "minimumNamedTests": 7,
+      "findingIds": [
+        "P01-R1-B01",
+        "P01-R1-B02",
+        "P01-R1-B03",
+        "P01-R1-B04",
+        "P01-R1-B05",
+        "P01-R1-B06"
+      ],
+      "mandatoryTrustRootReview": "Challenge the package-command trust root and every joint package/bootstrap/plan/manifest/current-value mutation; verify no self-hash cycle, TOCTOU reopen, npm hook, wrapper/config/reporter/runner/lock/install forgery, or worker channel can fabricate acceptance.",
+      "queuedAt": "2026-07-27T12:39:44+02:00",
       "infrastructureRetryCount": 0
     }
   },
@@ -2158,8 +2308,8 @@
       "evidence": "electron/main.ts:340 allows arbitrary valid renderer window.open URLs, creating an implicit child BrowserWindow outside createCaptureProtectedWindow and applyCaptureProtection.",
       "requiredOutcome": "Deny implicit child windows or guarantee every implicit child is content-protected before visibility or first paint.",
       "remediationTaskName": "P01/remediate-2",
-      "remediationStatus": "REVIEW_3_INCOMPLETE_RECHECK_REVIEW_4",
-      "remediationCandidateSha": "cff6a38cffbad8d8d09cfb25981851eaf0e6e39c",
+      "remediationStatus": "PENDING_REVIEW_4_RECHECK",
+      "remediationCandidateSha": "b2b35d56d8d396591bdc2e6b7b9193bcde947de5",
       "review2Evidence": "Renderer navigation/loadFile begins before setWindowOpenHandler registration, leaving a pre-policy interval; lifecycle order was not tested.",
       "review3Disposition": "Independent review-3 was interrupted by infrastructure after its authoritative run and did not return a complete B01 disposition; review-4 must recheck closure."
     },
@@ -2177,8 +2327,8 @@
       "evidence": "scripts/verification/test-manifest.mjs:9 and vitest.config.ts:14 omit mandatory future src/** and scripts/qualification/** test locations; external probes were undiscoverable and explicit manifest entries failed as not discoverable.",
       "requiredOutcome": "Make every planned P01-P12 test root discoverable, executable, and manifest-bound without weakening the frozen manifest contract.",
       "remediationTaskName": "P01/remediate-2",
-      "remediationStatus": "REVIEW_3_INCOMPLETE_RECHECK_REVIEW_4",
-      "remediationCandidateSha": "cff6a38cffbad8d8d09cfb25981851eaf0e6e39c",
+      "remediationStatus": "PENDING_REVIEW_4_RECHECK",
+      "remediationCandidateSha": "b2b35d56d8d396591bdc2e6b7b9193bcde947de5",
       "review2Evidence": "A throwing unmanifested uppercase.test.TS file was omitted by discovery, Vitest, policy, lint, and type-check; symlinks are silently omitted.",
       "review3Disposition": "Independent review-3 was interrupted by infrastructure after its authoritative run and did not return a complete B02 disposition; review-4 must recheck closure."
     },
@@ -2195,8 +2345,8 @@
       "evidence": "scripts/verification/phase-reporter.mjs:230 and :361 accept an arbitrary single VERIFICATION_COUNTS stdout line; a no-test child printing passed=999 and exiting zero produced aggregate zero.",
       "requiredOutcome": "Bind counts to the intended test-runner execution with independently anchored immutable inputs, and preserve exact spawned raw exits in injected-failure evidence so arbitrary child stdout or jointly mutable verifier/hash bytes cannot fabricate acceptance.",
       "remediationTaskName": "P01/remediate-3",
-      "remediationStatus": "SURVIVED_REMEDIATION_2_REVIEW_3",
-      "remediationCandidateSha": "cff6a38cffbad8d8d09cfb25981851eaf0e6e39c",
+      "remediationStatus": "REMEDIATED_IN_CYCLE_3_PENDING_REVIEW_4",
+      "remediationCandidateSha": "b2b35d56d8d396591bdc2e6b7b9193bcde947de5",
       "review2Evidence": "All three npm test scripts were replaced by a zero-test child that read inherited result path, nonce, and binding hash and forged accepted structured records; aggregate returned zero.",
       "review3Evidence": {
         "reviewedSha": "cff6a38cffbad8d8d09cfb25981851eaf0e6e39c",
@@ -2220,8 +2370,8 @@
       "evidence": "eslint.config.mjs:10 omits JSX/MTS/CTS and tsconfig.json:22 omits retained renderer/src plus verification scripts; external invalid JSX and renderer TypeScript probes both passed their gates.",
       "requiredOutcome": "Cover every tracked executable source family in lint and strict type-check, with any necessary exclusions narrowly justified and independently validated.",
       "remediationTaskName": "P01/remediate-2",
-      "remediationStatus": "REVIEW_3_INCOMPLETE_RECHECK_REVIEW_4",
-      "remediationCandidateSha": "cff6a38cffbad8d8d09cfb25981851eaf0e6e39c",
+      "remediationStatus": "PENDING_REVIEW_4_RECHECK",
+      "remediationCandidateSha": "b2b35d56d8d396591bdc2e6b7b9193bcde947de5",
       "review2Evidence": "allowJs is enabled without checkJs; JSDoc type mismatches in root JS, retained-renderer JSX, qualification CJS, and verification MJS passed lint and type-check.",
       "review3Disposition": "Independent review-3 was interrupted by infrastructure after its authoritative run and did not return a complete B04 disposition; review-4 must recheck closure."
     },
@@ -2238,8 +2388,8 @@
       "evidence": "scripts/verification/product-policy.mjs misses ordinary node-machine-id, plausible-tracker, rollbar, aliased crashReporter/machine-id, posthog.capture, and process[env] logging forms and falsely rejects harmless process.env text.",
       "requiredOutcome": "Materially cover ordinary dependency/API/alias forms while avoiding comment/string false positives and unjustified source exclusions.",
       "remediationTaskName": "P01/remediate-2",
-      "remediationStatus": "REVIEW_3_INCOMPLETE_RECHECK_REVIEW_4",
-      "remediationCandidateSha": "cff6a38cffbad8d8d09cfb25981851eaf0e6e39c",
+      "remediationStatus": "PENDING_REVIEW_4_RECHECK",
+      "remediationCandidateSha": "b2b35d56d8d396591bdc2e6b7b9193bcde947de5",
       "review2Evidence": "analytics.capture.call, console.log.call with process.env, reassigned process[env] aliases, uppercase paths, and symlink inventory bypasses passed; type-only and shadowed-local forms false-positived.",
       "review3Disposition": "Independent review-3 was interrupted by infrastructure after its authoritative run and did not return a complete B05 disposition; review-4 must recheck closure."
     },
@@ -2256,8 +2406,8 @@
       "evidence": "package.json:34 packages electron/**/*; an external electron-builder --dir inventory found electron/captureProtection.test.ts and raw Electron TypeScript inside app.asar.",
       "requiredOutcome": "Package only compiled runtime output and exclude every test/spec and verification source.",
       "remediationTaskName": "P01/remediate-2",
-      "remediationStatus": "REVIEW_3_INCOMPLETE_RECHECK_REVIEW_4",
-      "remediationCandidateSha": "cff6a38cffbad8d8d09cfb25981851eaf0e6e39c",
+      "remediationStatus": "PENDING_REVIEW_4_RECHECK",
+      "remediationCandidateSha": "b2b35d56d8d396591bdc2e6b7b9193bcde947de5",
       "review2Evidence": "A lint/type-clean raw project TS file injected through extraResources shipped under Contents/Resources/leaks while npm run build and inventory returned zero.",
       "review3Disposition": "Independent review-3 was interrupted by infrastructure after its authoritative run and did not return a complete B06 disposition; review-4 must recheck closure."
     }
