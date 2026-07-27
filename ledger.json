@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-07-27T17:37:54+02:00",
+  "updatedAt": "2026-07-27T17:41:16+02:00",
   "repository": {
     "remote": "https://github.com/j4wg/interview-coder-withoupaywall-opensource",
     "pushRemote": "https://github.com/timomak/interview-coder-withoupaywall-opensource",
@@ -10,24 +10,23 @@
   "orchestrationStatus": "P01_CONTROLLER_INSTALL_BLOCKED",
   "currentPhaseId": "P01",
   "goalBlockedAudit": {
-    "status": "RESUMED_BY_USER_AUTONOMY_AUTHORIZATION",
-    "blockingCondition": "P01-CV-B01 requires a new P00 verification-protocol revision because candidate-controlled npm lifecycle code executes before the first trusted verification instruction.",
-    "consecutiveGoalTurns": 3,
-    "thresholdSatisfied": true,
-    "auditedAt": "2026-07-26T22:48:51+02:00",
-    "resumedAt": "2026-07-27T14:58:26+02:00",
-    "resumedBy": "user",
+    "status": "ACTIVE_EXTERNAL_BLOCKER_AUDIT",
+    "blockingCondition": "P01-INFRA-B01 requires macOS administrator authorization to install the root-owned P00-R9 controller before any candidate npm lifecycle or authoritative P01 verification.",
+    "consecutiveGoalTurns": 2,
+    "thresholdSatisfied": false,
+    "auditedAt": "2026-07-27T17:41:16+02:00",
     "authoritativeState": {
-      "packetSha": "494e518f62d636e6af4e455ba615596d95b4d06b",
-      "prNumber": 154,
+      "packetSha": "02ee6ddec78d6e4ea9e2de3c0303ffd6bc9f45bf",
+      "candidateSha": "1ff0881b9bd59f243146c93b6709be57d58ee17a",
+      "prNumber": 155,
       "prHeadMatched": true,
       "hostedCodeQL": "SUCCESS",
-      "furtherPlanningRemediationAuthorized": true,
+      "controllerInstallPathAbsent": true,
+      "noninteractiveSudoExit": 1,
       "safePreparationExhausted": true
     },
-    "resumeAuthorizationPhrase": "Authorize P00-R8 to add a controller-owned pre-npm verification entrypoint while preserving P00-R7's threat model.",
-    "authorizationSource": "User instruction at 2026-07-27T14:58:26+02:00: don't ask me. just complete it end to end",
-    "decision": "Preserve P00-R7's threat model and authorize the controller-owned pre-npm verification entrypoint."
+    "authorizationSource": "User instruction: don't ask me. just complete it end to end",
+    "decision": "Preserve P00-R9 and do not open another administrator prompt, weaken controller ownership, run candidate npm, or fabricate evidence while authorization is unavailable."
   },
   "packet": {
     "status": "APPROVED",
@@ -3128,7 +3127,8 @@
       "evidence": "Two bounded 90-second administrator-channel attempts completed without authorization or installation. The required path remains absent and sudo -n exits 1 because a password is required. Native compile, installer syntax, sudoers validation, bootstrap framing, and all 13 controller self-tests passed without invoking candidate npm.",
       "requiredOutcome": "Install the staged controller runtime root-owned with the dedicated execution identity and pinned Node/npm closure, pass installed preflight, arm exact candidate 1ff0881 under approved P00-R9, then run controller-only authoritative P01 verification before independent review.",
       "infrastructureRetryCount": 2,
-      "lastCheckedAt": "2026-07-27T17:37:54+02:00"
+      "heartbeatReadOnlyCheckCount": 1,
+      "lastCheckedAt": "2026-07-27T17:41:16+02:00"
     }
   ]
 }
