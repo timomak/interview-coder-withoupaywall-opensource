@@ -6,8 +6,8 @@ an inherited Create React App renderer retained for regression coverage.
 
 ## Supported development runtime
 
-Development and verification require Node.js major version 20. The repository
-enforces that requirement during `npm ci` and at the verification entry point.
+Development requires Node.js major version 20. Authoritative verification uses
+the controller-installed Node.js 20.20.2/npm 10.8.2 closure.
 
 ```bash
 nvm install 20
@@ -21,18 +21,20 @@ The lockfile is authoritative. Use `npm ci` for clean setup; do not substitute
 
 ## Authoritative local gate
 
-P01 and subsequent phases use the local phase reporter as the acceptance gate.
-For P01, run exactly:
+P01 and subsequent phases use the administrator-installed native controller as
+the only acceptance gate. After an administrator independently arms the exact
+live PR head, the fixed invocation is:
 
 ```bash
-npm run verify:phase -- --phase P01 --artifacts .artifacts/verification/P01
+/Users/Shared/InterviewCopilot/verification-controller/v1/bin/verify-phase --phase P01
 ```
 
-The reporter validates the frozen argv plan, executes each child without a
-shell, continues after a failed child, and exits nonzero if any raw exit,
-runner/result identity, test-count requirement, plan hash, or test-manifest
-requirement fails. GitHub Actions mirrors this command; hosted CI does not
-replace the local result.
+The controller selects the armed candidate, materializes it read-only, brokers
+the frozen argv plan with its pinned toolchain, preserves exact raw exits and
+counts, continues after a failed child, seals evidence, checks for surviving
+processes, and performs a final anchor/binding reopen. Candidate package
+scripts, repository wrappers, author paths, and hosted CI are not acceptance
+authority.
 
 For day-to-day feedback, these commands are available:
 
@@ -50,18 +52,22 @@ the gate.
 
 ## Verification artifacts
 
-Each reporter invocation creates a new numbered directory below the supplied
-artifact path. It contains:
+Each controller invocation creates a fresh sealed run below its root-owned run
+registry. It contains:
 
-- `aggregate.json`, the machine-readable report;
-- `aggregate.txt`, the human-readable report;
+- `reporter-aggregate.json`, the machine-readable report;
+- `reporter-aggregate.txt`, the human-readable report;
+- `controller-transcript.json`, the brokered spawn transcript;
+- `run-binding.json`, the closed per-run binding;
+- exactly one terminal `success.json` or `failure.json`;
 - one numbered raw child log per exact argv command; and
 - nonce-bound machine-readable Vitest execution records and the parent-built
   validated ledger used by the immutable test manifest; and
 - the actual packaged-app/asar inventory produced by the build child.
 
-The aggregate reports retain the exact command, expected and raw child exit,
-signal, UTC start/end, duration, log path, and passed/failed/skipped counts.
+The controller transcript retains the planned argv, resolved executable,
+actual child argv, expected and raw child exit, signal, UTC start/end,
+duration, log identity, and passed/failed/skipped counts.
 Counts are recomputed from the structured runner record and accepted only when
 the runner/reporter identity, exact executed tests, source hashes, manifest
 membership, and counts all agree. Child stdout is never count authority.

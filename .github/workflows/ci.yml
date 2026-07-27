@@ -8,8 +8,8 @@ on:
     types: [opened, synchronize, reopened]
 
 jobs:
-  mirror-local-p01-gate:
-    name: Mirror authoritative P01 local gate
+  informational-p01-mirror:
+    name: Informational P01 mirror (non-authoritative)
     runs-on: macos-latest
 
     steps:
@@ -19,8 +19,21 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: 20
+        node-version: 20.20.2
         cache: 'npm'
 
-    - name: Run the authoritative local command
-      run: npm run verify:phase -- --phase P01 --artifacts .artifacts/verification/P01
+    - name: Confirm pinned hosted toolchain
+      run: |
+        test "$(node --version)" = "v20.20.2"
+        test "$(npm --version)" = "10.8.2"
+
+    - name: Install pinned lockfile closure
+      run: npm ci
+
+    - name: Run informational mirrors
+      run: |
+        npm run verify:policy
+        npm run lint
+        npm run typecheck
+        npm test
+        npm run build

@@ -5,6 +5,7 @@ import react from "@vitejs/plugin-react"
 import path from "path"
 
 export default defineConfig({
+  cacheDir: ".artifacts/vite",
   plugins: [
     react(),
     electron([
@@ -12,6 +13,7 @@ export default defineConfig({
         // main.ts
         entry: "electron/main.ts",
         vite: {
+          cacheDir: ".artifacts/vite-electron-main",
           build: {
             outDir: "dist-electron",
             sourcemap: true,
@@ -26,6 +28,7 @@ export default defineConfig({
         // preload.ts
         entry: "electron/preload.ts",
         vite: {
+          cacheDir: ".artifacts/vite-electron-preload",
           build: {
             outDir: "dist-electron",
             sourcemap: true,

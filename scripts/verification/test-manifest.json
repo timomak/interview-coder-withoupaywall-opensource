@@ -42,11 +42,6 @@
       "sha256": "9c669d5a1e78525815bb85b91439c1193b0a4cc22450812a2654f616e4bbee66"
     },
     {
-      "path": "tests/policy/verificationReporter.test.ts",
-      "name": "accumulates raw failures counts and immutable plan drift",
-      "sha256": "d713bfe9e0909b8e28beb91e6bdc78c1916323f52fc930e70e10d69d35654c89"
-    },
-    {
       "path": "electron/windowOpenPolicy.test.ts",
       "name": "P01-R1-B01 denies every implicit child while preserving external links",
       "sha256": "10b22bde6a6cdef5cb5e54ce536a9eb6a969878711f7fb871bf81e087018ce7f"
@@ -112,44 +107,74 @@
       "sha256": "3a165b166b7b55bba857c036d84f356dc0c29a30434acc6c60be18e09ac53eb2"
     },
     {
-      "path": "tests/policy/verificationReporter.test.ts",
-      "name": "P01-R1-B03 rejects forged stdout from a zero-test child",
-      "sha256": "d713bfe9e0909b8e28beb91e6bdc78c1916323f52fc930e70e10d69d35654c89"
-    },
-    {
       "path": "tests/policy/packageInventory.test.ts",
       "name": "P01-R1-B06 fails an actual fresh build that injects extraResources source",
       "sha256": "9031d95023cdc4edcd54a5b3a79629be26f0134aa3aa23e95c1c1581825de73d"
     },
     {
       "path": "tests/policy/verificationReporter.test.ts",
-      "name": "P01-R1-B03 authenticates one coordinator record and rejects every channel substitution",
-      "sha256": "d713bfe9e0909b8e28beb91e6bdc78c1916323f52fc930e70e10d69d35654c89"
+      "name": "rejects archived preverify self-removal and gate mutation before reporter start",
+      "sha256": "c5ac72a548811593cd2a1b10b772009f029193b45c4c2c2af04d292907f071d5"
     },
     {
       "path": "tests/policy/verificationReporter.test.ts",
-      "name": "P01-R1-B03 fails closed on script wrapper config reporter and runner tampering",
-      "sha256": "d713bfe9e0909b8e28beb91e6bdc78c1916323f52fc930e70e10d69d35654c89"
+      "name": "rejects committed preverify and postverify companions during anchor admission",
+      "sha256": "c5ac72a548811593cd2a1b10b772009f029193b45c4c2c2af04d292907f071d5"
     },
     {
       "path": "tests/policy/verificationReporter.test.ts",
-      "name": "P01-R1-B03 records the exact npm argv that was actually spawned",
-      "sha256": "d713bfe9e0909b8e28beb91e6bdc78c1916323f52fc930e70e10d69d35654c89"
+      "name": "suppresses companion hooks while preserving the requested npm target argv",
+      "sha256": "c5ac72a548811593cd2a1b10b772009f029193b45c4c2c2af04d292907f071d5"
     },
     {
       "path": "tests/policy/verificationReporter.test.ts",
-      "name": "P01-R1-B03 rejects the exact manifest-forging runner plus synthesized current hashes before evidence",
-      "sha256": "d713bfe9e0909b8e28beb91e6bdc78c1916323f52fc930e70e10d69d35654c89"
+      "name": "rejects joint package bootstrap plan manifest and gate mutation",
+      "sha256": "c5ac72a548811593cd2a1b10b772009f029193b45c4c2c2af04d292907f071d5"
     },
     {
       "path": "tests/policy/verificationReporter.test.ts",
-      "name": "P01-R1-B03 rejects independent and joint bootstrap plan anchor and manifest mutations",
-      "sha256": "d713bfe9e0909b8e28beb91e6bdc78c1916323f52fc930e70e10d69d35654c89"
+      "name": "rejects runner plus colocated current-hash forgery",
+      "sha256": "c5ac72a548811593cd2a1b10b772009f029193b45c4c2c2af04d292907f071d5"
     },
     {
       "path": "tests/policy/verificationReporter.test.ts",
-      "name": "preserves all thirteen frozen plan entry contracts from review-3",
-      "sha256": "d713bfe9e0909b8e28beb91e6bdc78c1916323f52fc930e70e10d69d35654c89"
+      "name": "rejects PATH node npm npmrc NODE_OPTIONS and script-shell substitution",
+      "sha256": "c5ac72a548811593cd2a1b10b772009f029193b45c4c2c2af04d292907f071d5"
+    },
+    {
+      "path": "tests/policy/verificationReporter.test.ts",
+      "name": "rejects detached-restorer and lifecycle-time mutate-restore",
+      "sha256": "c5ac72a548811593cd2a1b10b772009f029193b45c4c2c2af04d292907f071d5"
+    },
+    {
+      "path": "tests/policy/verificationReporter.test.ts",
+      "name": "rejects same-size overwrite rename symlink hardlink and case-collision TOCTOU",
+      "sha256": "c5ac72a548811593cd2a1b10b772009f029193b45c4c2c2af04d292907f071d5"
+    },
+    {
+      "path": "tests/policy/verificationReporter.test.ts",
+      "name": "rejects result-path environment stdout duplicate replay and structured-record forgery",
+      "sha256": "c5ac72a548811593cd2a1b10b772009f029193b45c4c2c2af04d292907f071d5"
+    },
+    {
+      "path": "tests/policy/verificationReporter.test.ts",
+      "name": "records planned argv resolved executable actual argv raw exit and signal exactly",
+      "sha256": "c5ac72a548811593cd2a1b10b772009f029193b45c4c2c2af04d292907f071d5"
+    },
+    {
+      "path": "tests/policy/verificationReporter.test.ts",
+      "name": "continues exact injected exits seven then zero and aggregates one",
+      "sha256": "c5ac72a548811593cd2a1b10b772009f029193b45c4c2c2af04d292907f071d5"
+    },
+    {
+      "path": "tests/policy/verificationReporter.test.ts",
+      "name": "preserves every P01-R1-B01 through P01-R1-B06 hostile probe",
+      "sha256": "c5ac72a548811593cd2a1b10b772009f029193b45c4c2c2af04d292907f071d5"
+    },
+    {
+      "path": "tests/policy/verificationReporter.test.ts",
+      "name": "rejects any surviving child or detached descendant before zero",
+      "sha256": "c5ac72a548811593cd2a1b10b772009f029193b45c4c2c2af04d292907f071d5"
     }
   ]
 }

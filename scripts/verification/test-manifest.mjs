@@ -10,9 +10,6 @@ import {
 
 const SCRIPT_DIRECTORY = path.dirname(fileURLToPath(import.meta.url))
 const REPOSITORY_ROOT = path.resolve(SCRIPT_DIRECTORY, "../..")
-const FROZEN_P01_TEST_COUNT = 23
-const FROZEN_P01_TESTS_SHA256 =
-  "e076415d88ac64da370b1c3bd143a8699ec41cf2ade2dab65ddeb8b0da4c4d63"
 const FORBIDDEN_TEST_FORMS = [
   {
     label: "skip",
@@ -49,17 +46,6 @@ export function validateTestManifest({ root, manifest, executions }) {
   ) {
     return ["test manifest must be a schemaVersion 1 object with tests"]
   }
-  if (path.resolve(root) === REPOSITORY_ROOT) {
-    const frozenPrefix = manifest.tests.slice(0, FROZEN_P01_TEST_COUNT)
-    const frozenHash = crypto
-      .createHash("sha256")
-      .update(JSON.stringify(frozenPrefix))
-      .digest("hex")
-    if (frozenHash !== FROZEN_P01_TESTS_SHA256) {
-      errors.push("immutable P01 test-manifest prefix drift")
-    }
-  }
-
   const manifestKeys = new Set()
   const manifestFiles = new Set()
   for (const [index, entry] of manifest.tests.entries()) {

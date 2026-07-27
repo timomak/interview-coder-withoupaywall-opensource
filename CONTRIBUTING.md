@@ -6,7 +6,7 @@ credentials, screenshots, interview content, or other sensitive data.
 
 ## Clean setup
 
-Use Node.js major version 20 and the committed npm lockfile:
+Use Node.js major version 20 and the committed npm lockfile for development:
 
 ```bash
 nvm install 20
@@ -15,15 +15,17 @@ node -e 'if (Number(process.versions.node.split(".")[0]) !== 20) process.exit(1)
 npm ci
 ```
 
-The install fails closed on any other Node major. Do not relax the engine check
-or replace `npm ci` with `npm install` in acceptance evidence.
+Do not relax the engine check or replace `npm ci` with `npm install` in
+development. Acceptance does not use the invoking shell's Node/npm; the
+installed verification controller pins Node.js 20.20.2 and npm 10.8.2.
 
 ## Required local verification
 
-Local verification is authoritative. For P01:
+Local controller verification is authoritative. An administrator first arms
+the exact live PR head under approved P00-R9, then the only P01 invocation is:
 
 ```bash
-npm run verify:phase -- --phase P01 --artifacts .artifacts/verification/P01
+/Users/Shared/InterviewCopilot/verification-controller/v1/bin/verify-phase --phase P01
 ```
 
 The command runs the frozen P01 argv plan in order: deterministic install,
@@ -32,8 +34,8 @@ P01 policy suite, immutable test-manifest validation, and production build.
 Every raw child exit must be zero, every test count must have failed=0 and
 skipped=0, and the aggregate exit must be zero.
 
-Hosted CI mirrors this command and is useful review evidence, but it cannot
-waive or replace the complete local artifact set.
+Hosted CI runs an informational unprivileged mirror and is useful review
+evidence, but it cannot waive or replace the controller's sealed artifact set.
 
 ## Test contract
 
@@ -46,7 +48,7 @@ waive or replace the complete local artifact set.
 
 Vitest discovers test/spec files repository-wide for JavaScript, JSX,
 TypeScript, TSX, MJS, CJS, MTS, and CTS, excluding only generated artifacts and
-dependencies. The phase reporter records exact argv commands and raw exits and
+dependencies. The native controller records exact argv commands and raw exits and
 requires a nonce-bound runner record whose exact tests, hashes, manifest
 membership, and recomputed counts agree. Stdout count markers are not evidence.
 It deliberately continues after child failure so later raw results are not

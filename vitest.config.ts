@@ -4,6 +4,7 @@ import { assertSourceInventory } from "./scripts/verification/source-inventory.m
 const canonicalInventory = assertSourceInventory(process.cwd())
 
 export default defineConfig({
+  cacheDir: ".artifacts/vitest",
   test: {
     environment: "node",
     environmentMatchGlobs: [

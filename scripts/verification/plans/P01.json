@@ -65,7 +65,7 @@
       ],
       "classification": "test",
       "expectedExit": 0,
-      "minimumPassed": 1
+      "minimumPassed": 35
     },
     {
       "label": "p01",
@@ -78,7 +78,7 @@
       ],
       "classification": "test",
       "expectedExit": 0,
-      "minimumPassed": 7
+      "minimumPassed": 26
     },
     {
       "label": "manifest",
@@ -100,93 +100,5 @@
       "classification": "command",
       "expectedExit": 0
     }
-  ],
-  "testEvidenceTrustAnchor": {
-    "schemaVersion": 1,
-    "contract": "p01-test-evidence-v1",
-    "files": {
-      "package-lock.json": "1a953bb4b91394429467baea981cf058f7f71d4b2d7e38eb6af2e5c4a7852a5c",
-      "scripts/verification/injected-failure-proof.mjs": "4f3fc650b544a20d6398ac0f2b4f2f9ae23d099a7861f888ee5da3f6972dc531",
-      "scripts/verification/phase-bootstrap.d.mts": "7cca443229af622dda621f5bae1ed06f2728fd9e98124e4b8decad0aeff3765c",
-      "scripts/verification/phase-bootstrap.mjs": "f82becacaa376ad7364114e66460acb4d64c7cdc2b4f9bb3a05d1163e377a19a",
-      "scripts/verification/phase-reporter.d.mts": "24dacd67aa1929d4ed9797969305307039db9cd808bccd614f3bd43d26ee9996",
-      "scripts/verification/phase-reporter.mjs": "7ba5366fad0e1fd6619bde9fd8ae98845f237307afb19acbd89527f39d6fbc46",
-      "scripts/verification/require-node20.mjs": "51cb973f73ee2e9e0e5a63f42ad1713197b12ea47281f1b8c5b7313732bd547a",
-      "scripts/verification/source-inventory.d.mts": "f28076f44e7b150db13f076b8db9b81d0de48c16d7c0c311e2cbe3449dc2c26e",
-      "scripts/verification/source-inventory.mjs": "510273f267272ab3b2c95aa395fb3d32a08a746d54c933259497359f059d605e",
-      "scripts/verification/test-manifest.d.mts": "e8785cc5f5268d37876213500b0967f7890765dc17eedd461a44a0f19807a728",
-      "scripts/verification/test-manifest.json": "971d27686c068dec1841ebf8f296eaad59b6600ed540e4260c95d8017a16baf5",
-      "scripts/verification/test-manifest.mjs": "f5ffc93a5004a9e7e45cdf84e9c4aa2af8bfa916e4aab727cc1f28859403f5a4",
-      "scripts/verification/trusted-vitest-runner.mjs": "d4d14f29bde175fde1c854fe71469ced8665ab16f2679200e89474098ccf0be1",
-      "scripts/verification/vitest-count-reporter.mjs": "1a862e8ae98c57d1af251d69400bac06f8c7fdd4b1ca4340f4beb06fef90a3ff",
-      "tests/setup.ts": "976bf8a5d6489b64cab3841ae30ac26d9f4655f0eb0c85d747fa05c68ae3f252",
-      "vitest.config.ts": "b25dce60e2facd110c3dd458304002dea228bc9e0e29ed388c182dd22108ceef"
-    },
-    "plans": {
-      "P02": "6de5f5e316c54385f4f61bc8bcde819a1880aff6c85bbf69c0025a8f930f38dd",
-      "P03": "9fcb0381a00c05c3b42c7f13701406277cff97019d8aef41f718dd452c1b35c3",
-      "P04": "ab19354bc08377e76e379c9ba6d2e58572dc2e9d8ddadbc22c4ecce7de610bc6",
-      "P05": "f31f2c1aa3a851081b73618e0b2616b6b39225ab8144593c9bd720960ae83cf1",
-      "P06": "30311c77bfa3d67dbe3e77815e34c9c4c51e24fabcd06d92ffba18575db6ad8e",
-      "P07": "6c252bbfff6d16b66bc80c330ddb41d398be970a51b5ae75bc63c326d9b6384e",
-      "P08": "7f064eb8989214afeb894e5affafb4730478423e33dd0f538d021f92fa9fb6da",
-      "P09": "4677916877719fb599ff592de14cde27263ad185bfd12d6453d0a38f09ee77a2",
-      "P10": "385163ed441717e619774ad140f8ad4fdc7919838dc319863acebbdb86cf158d",
-      "P11": "295718b4b1e59210cd8722536bc4a4bb50e0349ce0b6fa16fe1d3595e19f8732",
-      "P12": "55cc03996f171c23ef56ecc9cd14f755c961ba84cb48178a6681126d0d20b640",
-      "P12-observer": "011911987152e3c14bc439a1a7ff4c55c99270ab009a1b3387f18170e10ff375"
-    },
-    "packageScripts": {
-      "preinstall": "node scripts/verification/require-node20.mjs",
-      "test": "node scripts/verification/trusted-vitest-runner.mjs all",
-      "test:legacy": "node scripts/verification/trusted-vitest-runner.mjs legacy",
-      "test:unit": "node scripts/verification/trusted-vitest-runner.mjs unit",
-      "test:p01": "node scripts/verification/trusted-vitest-runner.mjs p01",
-      "verify:test-manifest": "node scripts/verification/test-manifest.mjs"
-    },
-    "testOuterArguments": {
-      "test": [],
-      "test:legacy": [
-        "--",
-        "--reporter=verbose"
-      ],
-      "test:unit": [
-        "--",
-        "--reporter=verbose"
-      ],
-      "test:p01": [
-        "--",
-        "--reporter=verbose"
-      ]
-    },
-    "forbiddenLifecycleHooks": [
-      "install",
-      "postinstall",
-      "prepublish",
-      "preprepare",
-      "prepare",
-      "postprepare",
-      "pretest",
-      "posttest",
-      "pretest:legacy",
-      "posttest:legacy",
-      "pretest:unit",
-      "posttest:unit",
-      "pretest:p01",
-      "posttest:p01",
-      "preverify:test-manifest",
-      "postverify:test-manifest",
-      "preverify:phase",
-      "postverify:phase"
-    ],
-    "vitest": {
-      "version": "2.1.9",
-      "resolved": "https://registry.npmjs.org/vitest/-/vitest-2.1.9.tgz",
-      "integrity": "sha512-MSmPM9REYqDGBI8439mA4mWhV5sKmDlBKWIYbA3lRb2PTHACE0mgKwA8yQ2xq9vxDTuk4iPrECBAEW2aoFXY0Q==",
-      "installedFiles": {
-        "node_modules/vitest/package.json": "6ea35e567829660d9832744086c18526b9ddebd5358c4a0cadfb0a355925f917",
-        "node_modules/vitest/dist/node.js": "99a767d7e1a4c8c0a524b48ce64b8536f4bad62baf65f1fe723f19c16f87cd98"
-      }
-    }
-  }
+  ]
 }

@@ -2,6 +2,7 @@ import crypto from "node:crypto"
 import process from "node:process"
 import { startVitest } from "vitest/node"
 import VerificationCountReporter from "./vitest-count-reporter.mjs"
+import { canonicalJson } from "./phase-reporter.mjs"
 
 /** @type {Record<string, string[]>} */
 const SUITES = {
@@ -52,13 +53,15 @@ async function readControllerChallenge() {
 function authenticatedEnvelope(challenge, record) {
   const payload = {
     ...record,
+    schemaVersion: 4,
+    protocol: "vitest-coordinator-result-v4",
     nonce: challenge.nonce,
     entryLabel: challenge.entryLabel,
     bindingHash: challenge.bindingHash
   }
-  const serialized = JSON.stringify(payload)
+  const serialized = canonicalJson(payload)
   return {
-    payload,
+    payloadBase64: Buffer.from(serialized).toString("base64"),
     hmacSha256: crypto
       .createHmac("sha256", challenge.authenticationKey)
       .update(serialized)
