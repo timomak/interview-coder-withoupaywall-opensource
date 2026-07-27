@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-07-27T13:20:32+02:00",
+  "updatedAt": "2026-07-27T13:26:25+02:00",
   "repository": {
     "remote": "https://github.com/j4wg/interview-coder-withoupaywall-opensource",
     "pushRemote": "https://github.com/timomak/interview-coder-withoupaywall-opensource",
@@ -2257,8 +2257,9 @@
       "queuedAt": "2026-07-27T13:15:46+02:00",
       "dispatchedAt": "2026-07-27T13:19:47+02:00",
       "startedAt": "2026-07-27T13:20:32+02:00",
-      "infrastructureRetryCount": 1,
-      "lastInfrastructureFailure": "The prior controller dispatched the reserved replacement after the 13:15:46 ledger checkpoint, but thread 019fa34c-053e-7da0-bbeb-8de7272b372b entered task-level systemError after initial commentary and before any tool call or repository mutation. The sole active same-reservation retry is thread 019fa34d-4d94-7e31-93bc-27bcb94c9e82."
+      "infrastructureRetryCount": 2,
+      "lastInfrastructureFailure": "The replacement lifecycle has used both allowed infrastructure retries. The prior controller's first dispatch, thread 019fa34c-053e-7da0-bbeb-8de7272b372b, entered systemError before any tool call. The sole active reviewer thread 019fa34d-4d94-7e31-93bc-27bcb94c9e82 then entered systemError after exact identity validation and while constructing a disposable external B03 lifecycle-hook reproduction; its tracked worktree remained clean. The final allowed same-thread continuation is resuming that preserved temporary evidence.",
+      "finalRetryStartedAt": "2026-07-27T13:26:25+02:00"
     }
   },
   "blockers": [
