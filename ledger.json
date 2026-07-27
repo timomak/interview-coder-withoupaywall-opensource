@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-07-27T16:26:27+02:00",
+  "updatedAt": "2026-07-27T16:27:30+02:00",
   "repository": {
     "remote": "https://github.com/j4wg/interview-coder-withoupaywall-opensource",
     "pushRemote": "https://github.com/timomak/interview-coder-withoupaywall-opensource",
@@ -2587,9 +2587,11 @@
       "requiredOutcome": "Resolve the active-anchor/runId contradiction with a separate closed per-run binding and lifecycle; preserve the R8 controller trust boundary, exact structural inventories, and all unrelated packet text; commit and fast-forward push one P00-R9 candidate for fresh review."
     },
     "P00/review-9": {
-      "status": "QUEUED",
-      "threadId": null,
+      "status": "ACTIVE",
+      "clientThreadId": "client-new-thread:b91a8dbd-0041-411f-aade-234626f4a810",
+      "threadId": "019fa3f9-1f70-7413-a036-8f5855723255",
       "hostId": "local",
+      "worktreePath": "/Users/thirdfacedev/.codex/worktrees/b77b/TimoCodes",
       "infrastructureRetryCount": 0,
       "reviewedRevision": "P00-R9",
       "reviewedSha": "02ee6ddec78d6e4ea9e2de3c0303ffd6bc9f45bf",
@@ -2600,6 +2602,8 @@
       ],
       "readOnly": true,
       "queuedAt": "2026-07-27T16:26:27+02:00",
+      "dispatchedAt": "2026-07-27T16:27:30+02:00",
+      "startedAt": "2026-07-27T16:27:30+02:00",
       "requiredOutcome": "Independently review exact P00-R9 from a clean checkout. Recheck the complete R8 controller trust boundary and P00-R7-B01, then prove P00-R8-B01 is resolved by the closed non-selecting per-run binding, exact exclusive-creation/crash/collision/re-arm/final-reopen lifecycle, controller-run/P12-qualification identity separation, unchanged frozen inventories, and live PR/check identity. Return APPROVED or CHANGES_REQUESTED without repository mutation."
     }
   },
