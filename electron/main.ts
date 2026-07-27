@@ -17,6 +17,7 @@ import {
   createCaptureProtectedWindow,
   revealCaptureProtectedWindow
 } from "./captureProtection"
+import { createWindowOpenHandler } from "./windowOpenPolicy"
 import * as dotenv from "dotenv"
 
 // Constants
@@ -323,22 +324,9 @@ async function createWindow(): Promise<void> {
   if (isDev) {
     mainWindow.webContents.openDevTools()
   }
-  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
-    console.log("Attempting to open URL:", url)
-    try {
-      const parsedURL = new URL(url);
-      const hostname = parsedURL.hostname;
-      const allowedHosts = ["google.com", "supabase.co"];
-      if (allowedHosts.includes(hostname) || hostname.endsWith(".google.com") || hostname.endsWith(".supabase.co")) {
-        shell.openExternal(url);
-        return { action: "deny" }; // Do not open this URL in a new Electron window
-      }
-    } catch (error) {
-      console.error("Invalid URL %d in setWindowOpenHandler: %d" , url , error);
-      return { action: "deny" }; // Deny access as URL string is malformed or invalid
-    }
-    return { action: "allow" };
-  })
+  mainWindow.webContents.setWindowOpenHandler(
+    createWindowOpenHandler((url) => shell.openExternal(url))
+  )
 
   mainWindow.setVisibleOnAllWorkspaces(true, {
     visibleOnFullScreen: true

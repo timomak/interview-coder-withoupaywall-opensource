@@ -19,6 +19,27 @@
     "allowImportingTsExtensions": true,
     "types": ["vite/client", "vitest/globals"]
   },
-  "include": ["electron/**/*", "src/**/*", "tests/**/*", "vitest.config.ts"],
-  "references": [{ "path": "./tsconfig.node.json" }]
+  "include": [
+    "electron/**/*",
+    "renderer/src/**/*",
+    "scripts/**/*",
+    "src/**/*",
+    "tests/**/*",
+    "*.js",
+    "*.mjs",
+    "*.cjs",
+    "*.jsx",
+    "*.ts",
+    "*.mts",
+    "*.cts",
+    "*.tsx"
+  ],
+  "exclude": [
+    ".artifacts",
+    "coverage",
+    "dist",
+    "dist-electron",
+    "node_modules",
+    "release"
+  ]
 }

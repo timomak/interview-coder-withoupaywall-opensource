@@ -5,16 +5,21 @@ export default defineConfig({
     environment: "node",
     environmentMatchGlobs: [
       [
-        "renderer/src/**/*.{test,spec}.{js,mjs,cjs,jsx,ts,mts,cts,tsx}",
+        "{src,renderer/src}/**/*.{test,spec}.{js,mjs,cjs,jsx,ts,mts,cts,tsx}",
         "jsdom"
       ]
     ],
     globals: true,
     setupFiles: ["tests/setup.ts"],
-    include: [
-      "electron/**/*.{test,spec}.{js,mjs,cjs,jsx,ts,mts,cts,tsx}",
-      "renderer/src/**/*.{test,spec}.{js,mjs,cjs,jsx,ts,mts,cts,tsx}",
-      "tests/**/*.{test,spec}.{js,mjs,cjs,jsx,ts,mts,cts,tsx}"
+    include: ["**/*.{test,spec}.{js,mjs,cjs,jsx,ts,mts,cts,tsx}"],
+    exclude: [
+      "**/.artifacts/**",
+      "**/.git/**",
+      "**/coverage/**",
+      "**/dist/**",
+      "**/dist-electron/**",
+      "**/node_modules/**",
+      "**/release/**"
     ],
     passWithNoTests: false,
     clearMocks: true,

@@ -1,5 +1,10 @@
+import crypto from "node:crypto"
 import fs from "node:fs"
 import path from "node:path"
+import { createRequire } from "node:module"
+
+const require = createRequire(import.meta.url)
+const VITEST_VERSION = require("vitest/package.json").version
 
 function collectTests(task, filePath, ancestors, tests) {
   if (task.type === "test") {
@@ -39,20 +44,44 @@ export default class VerificationCountReporter {
       failed: tests.filter((test) => test.state === "fail").length,
       skipped: tests.filter((test) => test.state === "skip").length
     }
-    process.stdout.write(`\nVERIFICATION_COUNTS ${JSON.stringify(counts)}\n`)
 
-    const resultsDirectory = process.env.VERIFICATION_TEST_RESULTS_DIR
+    const resultPath = process.env.VERIFICATION_RESULT_PATH
     const entryLabel = process.env.VERIFICATION_ENTRY_LABEL
-    if (resultsDirectory && entryLabel) {
-      fs.mkdirSync(resultsDirectory, { recursive: true })
+    const nonce = process.env.VERIFICATION_RESULT_NONCE
+    const bindingHash = process.env.VERIFICATION_RUNNER_BINDING_SHA256
+    const channelValues = [resultPath, entryLabel, nonce, bindingHash]
+    const populatedChannelValues = channelValues.filter(Boolean).length
+    if (populatedChannelValues !== 0 && populatedChannelValues !== 4) {
+      throw new Error("incomplete verification result channel")
+    }
+
+    if (resultPath && entryLabel && nonce && bindingHash) {
+      fs.mkdirSync(path.dirname(resultPath), { recursive: true })
       fs.writeFileSync(
-        path.join(resultsDirectory, `${entryLabel}.json`),
+        resultPath,
         `${JSON.stringify(
           {
-            schemaVersion: 1,
+            schemaVersion: 2,
+            protocol: "vitest-result-v2",
+            nonce,
             entryLabel,
+            bindingHash,
+            runner: {
+              name: "vitest",
+              version: VITEST_VERSION
+            },
+            reporter: {
+              name: "verification-count-reporter",
+              version: 2
+            },
             counts,
-            tests
+            tests: tests.map((test) => ({
+              ...test,
+              fileSha256: crypto
+                .createHash("sha256")
+                .update(fs.readFileSync(path.resolve(process.cwd(), test.file)))
+                .digest("hex")
+            }))
           },
           null,
           2
@@ -60,5 +89,10 @@ export default class VerificationCountReporter {
         { flag: "wx" }
       )
     }
+
+    process.stdout.write(
+      `\nVerification reporter observed ${counts.passed} passed, ` +
+        `${counts.failed} failed, ${counts.skipped} skipped.\n`
+    )
   }
 }

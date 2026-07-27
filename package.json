@@ -13,7 +13,7 @@
     "test": "vitest run --config vitest.config.ts --reporter=verbose --reporter=./scripts/verification/vitest-count-reporter.mjs",
     "test:legacy": "vitest run --config vitest.config.ts renderer/src/App.test.tsx --reporter=./scripts/verification/vitest-count-reporter.mjs",
     "test:unit": "vitest run --config vitest.config.ts --reporter=./scripts/verification/vitest-count-reporter.mjs",
-    "test:p01": "vitest run --config vitest.config.ts tests/policy electron/captureProtection.test.ts --reporter=./scripts/verification/vitest-count-reporter.mjs",
+    "test:p01": "vitest run --config vitest.config.ts tests/policy electron/captureProtection.test.ts electron/windowOpenPolicy.test.ts --reporter=./scripts/verification/vitest-count-reporter.mjs",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit && tsc -p tsconfig.electron.json --noEmit",
     "verify:node": "node scripts/verification/require-node20.mjs",
@@ -22,7 +22,9 @@
     "verify:phase": "node scripts/verification/phase-reporter.mjs",
     "verify:reporter-injected-failure": "node scripts/verification/injected-failure-proof.mjs",
     "start": "cross-env NODE_ENV=development concurrently \"tsc -p tsconfig.electron.json\" \"vite\" \"wait-on -t 30000 http://localhost:54321 && electron ./dist-electron/main.js\"",
-    "build": "cross-env NODE_ENV=production npm run clean && vite build && tsc -p tsconfig.electron.json",
+    "build": "npm run build:runtime && npm run verify:package-inventory",
+    "build:runtime": "cross-env NODE_ENV=production npm run clean && vite build && tsc -p tsconfig.electron.json",
+    "verify:package-inventory": "electron-builder --dir --config.mac.identity=null && node scripts/verification/package-inventory.mjs",
     "run-prod": "cross-env NODE_ENV=production electron ./dist-electron/main.js",
     "package": "npm run build && electron-builder build",
     "package-mac": "npm run build && electron-builder build --mac",
@@ -35,7 +37,10 @@
       "dist/**/*",
       "dist-electron/**/*",
       "package.json",
-      "electron/**/*"
+      "!**/*.{test,spec}.{js,mjs,cjs,jsx,ts,mts,cts,tsx}",
+      "!**/*.{jsx,ts,mts,cts,tsx}",
+      "!**/*.map",
+      "!scripts/verification/**/*"
     ],
     "directories": {
       "output": "release",
@@ -167,6 +172,7 @@
     "uuid": "^11.0.3"
   },
   "devDependencies": {
+    "@electron/asar": "3.4.1",
     "@electron/typescript-definitions": "^8.14.0",
     "@eslint/css": "^1.4.0",
     "@eslint/js": "^9.24.0",
@@ -208,6 +214,7 @@
     "vitest": "^2.1.9",
     "vite-plugin-electron": "^0.28.4",
     "vite-plugin-electron-renderer": "^0.14.6",
+    "web-vitals": "2.1.4",
     "wait-on": "^7.2.0"
   },
   "browserslist": {

@@ -44,17 +44,23 @@ waive or replace the complete local artifact set.
 - Add new tests to the manifest without changing existing frozen entries.
 - Preserve `renderer/src/App.test.tsx` unchanged.
 
-The phase reporter records exact argv commands and raw exits and requires
-machine-readable passed/failed/skipped counts. It deliberately continues after
-child failure so later raw results are not masked.
+Vitest discovers test/spec files repository-wide for JavaScript, JSX,
+TypeScript, TSX, MJS, CJS, MTS, and CTS, excluding only generated artifacts and
+dependencies. The phase reporter records exact argv commands and raw exits and
+requires a nonce-bound runner record whose exact tests, hashes, manifest
+membership, and recomputed counts agree. Stdout count markers are not evidence.
+It deliberately continues after child failure so later raw results are not
+masked.
 
 ## Lint and type cleanup
 
-ESLint covers JavaScript, TypeScript, JSON, Markdown, and CSS with file-specific
-parsers. Only dependencies and generated build, release, coverage, and
-verification artifacts are ignored. Do not hide product source to make lint or
-strict TypeScript pass. Keep cleanup mechanical and review it for behavior
-changes.
+ESLint covers every JavaScript/TypeScript module and JSX family, plus JSON,
+Markdown, and CSS with file-specific parsers. Strict TypeScript includes both
+renderer trees, Electron, tests, qualification/verification scripts, and root
+configuration sources. Only dependencies and generated build, release,
+coverage, and verification artifacts are ignored. Do not hide product source
+to make lint or strict TypeScript pass. Keep cleanup mechanical and review it
+for behavior changes.
 
 ## Privacy, telemetry, and capture protection
 
@@ -64,9 +70,15 @@ secrets. Manual diagnostic work must be explicitly scoped and redacted.
 
 Every Electron `BrowserWindow` creation and reveal path must use
 `applyCaptureProtection`; the helper only calls `setContentProtection(true)`.
-Do not add a false path. Unit coverage of this invariant does not establish
-external capture privacy and must not be described as proof that the window is
-hidden from a particular capture product.
+Do not add a false path. Renderer `window.open` requests must never create an
+implicit Electron child; approved external HTTP(S) links are opened by the
+operating system. Unit coverage of this invariant does not establish external
+capture privacy and must not be described as proof that the window is hidden
+from a particular capture product.
+
+`npm run build` also creates an unsigned packaged app and inventories its actual
+asar. Raw project source, test/spec files, verification scripts, source maps,
+and other non-runtime files are forbidden in the production application.
 
 ## License
 

@@ -227,33 +227,202 @@ export function validatePlanManifest({
   return errors
 }
 
-export function parseTestCounts(output) {
-  const matches = [...output.matchAll(/^VERIFICATION_COUNTS (.+)$/gm)]
-  if (matches.length !== 1) return null
+function readJson(filePath) {
   try {
-    const counts = JSON.parse(matches[0][1])
-    if (
-      !Number.isInteger(counts.passed) ||
-      !Number.isInteger(counts.failed) ||
-      !Number.isInteger(counts.skipped) ||
-      counts.passed < 0 ||
-      counts.failed < 0 ||
-      counts.skipped < 0
-    ) {
-      return null
-    }
-    return {
-      passed: counts.passed,
-      failed: counts.failed,
-      skipped: counts.skipped
-    }
+    return JSON.parse(fs.readFileSync(filePath, "utf8"))
   } catch {
     return null
   }
 }
 
-export function entryFailures(entry, result) {
+function loadTestManifest(root) {
+  return readJson(
+    path.join(root, "scripts/verification/test-manifest.json")
+  )
+}
+
+function installedVitestVersion(root) {
+  const packageJson = readJson(path.join(root, "node_modules/vitest/package.json"))
+  return typeof packageJson?.version === "string" ? packageJson.version : null
+}
+
+export function testCommandBinding(entry, root = REPOSITORY_ROOT) {
   const failures = []
+  let scriptName = null
+  let scriptCommand = null
+  let runnerName = null
+
+  if (
+    entry.argv[0] !== "npm" ||
+    entry.argv[1] !== "run" ||
+    typeof entry.argv[2] !== "string"
+  ) {
+    failures.push("test argv is not bound to an npm package script")
+  } else {
+    scriptName = entry.argv[2]
+    const packageJson = readJson(path.join(root, "package.json"))
+    scriptCommand = packageJson?.scripts?.[scriptName]
+    if (typeof scriptCommand !== "string") {
+      failures.push(`missing package test script: ${scriptName}`)
+      scriptCommand = null
+    } else if (/\bvitest\s+run\b/.test(scriptCommand)) {
+      runnerName = "vitest"
+      if (
+        !scriptCommand.includes(
+          "--reporter=./scripts/verification/vitest-count-reporter.mjs"
+        )
+      ) {
+        failures.push(
+          `Vitest script ${scriptName} is missing the verification result reporter`
+        )
+      }
+    } else {
+      runnerName = "repository-test-script"
+    }
+  }
+
+  const bindingHash = sha256(
+    JSON.stringify({
+      argv: entry.argv,
+      scriptName,
+      scriptCommand,
+      runnerName
+    })
+  )
+  return { bindingHash, failures, runnerName, scriptName }
+}
+
+function validCounts(counts) {
+  return (
+    counts &&
+    Number.isInteger(counts.passed) &&
+    Number.isInteger(counts.failed) &&
+    Number.isInteger(counts.skipped) &&
+    counts.passed >= 0 &&
+    counts.failed >= 0 &&
+    counts.skipped >= 0
+  )
+}
+
+export function validateTestResultRecord({
+  record,
+  entry,
+  nonce,
+  binding,
+  root = REPOSITORY_ROOT
+}) {
+  const failures = [...binding.failures]
+  if (
+    !record ||
+    record.schemaVersion !== 2 ||
+    record.protocol !== "vitest-result-v2"
+  ) {
+    return {
+      counts: null,
+      tests: [],
+      failures: [...failures, "missing authenticated Vitest result record"]
+    }
+  }
+  if (record.nonce !== nonce) failures.push("test result nonce mismatch")
+  if (record.entryLabel !== entry.label) {
+    failures.push("test result entry label mismatch")
+  }
+  if (record.bindingHash !== binding.bindingHash) {
+    failures.push("test runner binding hash mismatch")
+  }
+  if (
+    binding.runnerName !== "vitest" ||
+    record.runner?.name !== "vitest" ||
+    record.runner?.version !== installedVitestVersion(root)
+  ) {
+    failures.push("test result runner identity mismatch")
+  }
+  if (
+    record.reporter?.name !== "verification-count-reporter" ||
+    record.reporter?.version !== 2
+  ) {
+    failures.push("test result reporter identity mismatch")
+  }
+
+  const manifest = loadTestManifest(root)
+  const manifestEntries = Array.isArray(manifest?.tests) ? manifest.tests : []
+  const manifestByKey = new Map(
+    manifestEntries.map((test) => [
+      `${test.path.split(path.sep).join("/")}\u0000${test.name}`,
+      test
+    ])
+  )
+  const tests = Array.isArray(record.tests) ? record.tests : []
+  if (tests.length === 0) failures.push("test result contains zero tests")
+
+  const seen = new Set()
+  const normalizedTests = []
+  for (const [index, test] of tests.entries()) {
+    if (
+      !test ||
+      typeof test.file !== "string" ||
+      typeof test.name !== "string" ||
+      typeof test.fullName !== "string" ||
+      !["pass", "fail", "skip"].includes(test.state) ||
+      !/^[a-f0-9]{64}$/.test(test.fileSha256 ?? "")
+    ) {
+      failures.push(`invalid test result item ${index + 1}`)
+      continue
+    }
+
+    const file = test.file.split(path.sep).join("/")
+    const absolutePath = path.resolve(root, file)
+    if (!absolutePath.startsWith(`${path.resolve(root)}${path.sep}`)) {
+      failures.push(`test result path escapes repository: ${file}`)
+      continue
+    }
+    const key = `${file}\u0000${test.name}`
+    if (seen.has(key)) {
+      failures.push(`duplicate test result: ${file} — ${test.name}`)
+      continue
+    }
+    seen.add(key)
+    const manifestEntry = manifestByKey.get(key)
+    if (!manifestEntry) {
+      failures.push(`executed unmanifested test: ${file} — ${test.name}`)
+      continue
+    }
+    if (!fs.existsSync(absolutePath)) {
+      failures.push(`executed test file is missing: ${file}`)
+      continue
+    }
+    const actualHash = sha256(fs.readFileSync(absolutePath))
+    if (
+      actualHash !== manifestEntry.sha256 ||
+      actualHash !== test.fileSha256
+    ) {
+      failures.push(`executed test hash mismatch: ${file}`)
+      continue
+    }
+    normalizedTests.push({ ...test, file })
+  }
+
+  const calculatedCounts = {
+    passed: normalizedTests.filter((test) => test.state === "pass").length,
+    failed: normalizedTests.filter((test) => test.state === "fail").length,
+    skipped: normalizedTests.filter((test) => test.state === "skip").length
+  }
+  if (
+    !validCounts(record.counts) ||
+    JSON.stringify(calculatedCounts) !== JSON.stringify(record.counts)
+  ) {
+    failures.push("test result count evidence mismatch")
+  }
+
+  return {
+    counts: failures.length === 0 ? calculatedCounts : null,
+    tests: normalizedTests,
+    failures
+  }
+}
+
+export function entryFailures(entry, result) {
+  const failures = [...(result.evidenceFailures ?? [])]
   if (result.signal !== null) {
     failures.push(`terminated by signal ${result.signal}`)
   } else if (result.rawExit !== entry.expectedExit) {
@@ -309,7 +478,14 @@ function runChild({ entry, index, cwd, runDirectory, environment, quiet }) {
     const logPath = path.join(runDirectory, logName)
     const logStream = fs.createWriteStream(logPath, { flags: "wx" })
     const startedAt = new Date()
-    const output = []
+    const resultNonce = crypto.randomBytes(32).toString("hex")
+    const resultPath = path.join(
+      runDirectory,
+      "test-results",
+      `${String(index + 1).padStart(2, "0")}-${entry.label}-${resultNonce}.json`
+    )
+    const binding =
+      entry.classification === "test" ? testCommandBinding(entry, cwd) : null
     const header = [
       `label=${entry.label}`,
       `command=${commandText}`,
@@ -325,7 +501,10 @@ function runChild({ entry, index, cwd, runDirectory, environment, quiet }) {
       env: {
         ...environment,
         VERIFICATION_ENTRY_LABEL: entry.label,
-        VERIFICATION_TEST_RESULTS_DIR: path.join(runDirectory, "test-results")
+        VERIFICATION_TEST_RESULTS_DIR: path.join(runDirectory, "test-results"),
+        VERIFICATION_RESULT_PATH: resultPath,
+        VERIFICATION_RESULT_NONCE: resultNonce,
+        VERIFICATION_RUNNER_BINDING_SHA256: binding?.bindingHash ?? ""
       },
       shell: false,
       stdio: ["ignore", "pipe", "pipe"]
@@ -333,7 +512,6 @@ function runChild({ entry, index, cwd, runDirectory, environment, quiet }) {
 
     const tee = (stream, destination) => {
       stream.on("data", (chunk) => {
-        output.push(chunk)
         if (!quiet) destination.write(chunk)
         logStream.write(chunk)
       })
@@ -343,13 +521,21 @@ function runChild({ entry, index, cwd, runDirectory, environment, quiet }) {
 
     child.on("error", (error) => {
       const bytes = Buffer.from(`\nchild spawn error: ${error.message}\n`)
-      output.push(bytes)
       process.stderr.write(bytes)
       logStream.write(bytes)
     })
     child.on("close", (code, signal) => {
       const endedAt = new Date()
-      const combinedOutput = Buffer.concat(output).toString("utf8")
+      const evidence =
+        entry.classification === "test"
+          ? validateTestResultRecord({
+              record: fs.existsSync(resultPath) ? readJson(resultPath) : null,
+              entry,
+              nonce: resultNonce,
+              binding,
+              root: cwd
+            })
+          : { counts: null, tests: [], failures: [] }
       const result = {
         label: entry.label,
         argv: entry.argv,
@@ -358,10 +544,9 @@ function runChild({ entry, index, cwd, runDirectory, environment, quiet }) {
         expectedExit: entry.expectedExit,
         rawExit: code,
         signal: signal ?? null,
-        counts:
-          entry.classification === "test"
-            ? parseTestCounts(combinedOutput)
-            : null,
+        counts: evidence.counts,
+        tests: evidence.tests,
+        evidenceFailures: evidence.failures,
         startedAt: startedAt.toISOString(),
         endedAt: endedAt.toISOString(),
         durationMs: endedAt.getTime() - startedAt.getTime(),
@@ -415,6 +600,30 @@ function textReport(report) {
   return `${lines.join("\n")}\n`
 }
 
+function writeValidatedTestLedger(runDirectory, results) {
+  const ledgerPath = path.join(runDirectory, "validated-test-results.json")
+  const executions = results
+    .filter((result) => result.classification === "test")
+    .map((result) => ({
+      entryLabel: result.label,
+      counts: result.counts,
+      tests: result.tests
+    }))
+  fs.writeFileSync(
+    ledgerPath,
+    `${JSON.stringify(
+      {
+        schemaVersion: 1,
+        executions
+      },
+      null,
+      2
+    )}\n`,
+    { flag: "wx" }
+  )
+  return ledgerPath
+}
+
 export async function runEntries({
   planId,
   planSha256 = "injected-test-plan",
@@ -430,13 +639,18 @@ export async function runEntries({
   const results = []
 
   for (const [index, entry] of entries.entries()) {
+    const entryEnvironment = { ...environment }
+    if (entry.label === "manifest") {
+      entryEnvironment.VERIFICATION_VALIDATED_TEST_RESULTS_PATH =
+        writeValidatedTestLedger(runDirectory, results)
+    }
     results.push(
       await runChild({
         entry,
         index,
         cwd,
         runDirectory,
-        environment,
+        environment: entryEnvironment,
         quiet
       })
     )

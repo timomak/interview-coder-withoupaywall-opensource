@@ -7,7 +7,7 @@ import tseslintParser from "@typescript-eslint/parser"
 import globals from "globals"
 import { tailwind3 } from "tailwind-csstree"
 
-const sourceFiles = ["**/*.{js,mjs,cjs,ts,tsx}"]
+const sourceFiles = ["**/*.{js,mjs,cjs,jsx,ts,mts,cts,tsx}"]
 const generatedArtifacts = [
   ".artifacts/**",
   "coverage/**",
@@ -38,7 +38,7 @@ export default [
     }
   },
   {
-    files: ["**/*.{ts,tsx}"],
+    files: ["**/*.{ts,mts,cts,tsx}"],
     languageOptions: {
       parser: tseslintParser,
       parserOptions: {

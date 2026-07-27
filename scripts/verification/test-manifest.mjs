@@ -3,14 +3,16 @@ import fs from "node:fs"
 import path from "node:path"
 import process from "node:process"
 import { fileURLToPath, pathToFileURL } from "node:url"
+import {
+  discoverTestFiles,
+  normalizeRepositoryPath
+} from "./source-inventory.mjs"
 
 const SCRIPT_DIRECTORY = path.dirname(fileURLToPath(import.meta.url))
 const REPOSITORY_ROOT = path.resolve(SCRIPT_DIRECTORY, "../..")
-const TEST_ROOTS = ["electron", "renderer/src", "tests"]
-const TEST_FILE_PATTERN = /\.(?:test|spec)\.(?:[cm]?[jt]s|[jt]sx)$/
-const FROZEN_P01_TEST_COUNT = 9
+const FROZEN_P01_TEST_COUNT = 23
 const FROZEN_P01_TESTS_SHA256 =
-  "47f2563aca9b473ae7de44533cb495b99de9f4e9e92d60d81e024a519deff4bb"
+  "5b3469fdf55384f79c3f80a4fb89867105ae8f3b00be3c6c433d5d415f123f0c"
 const FORBIDDEN_TEST_FORMS = [
   {
     label: "skip",
@@ -30,33 +32,11 @@ const FORBIDDEN_TEST_FORMS = [
   }
 ]
 
-function normalizePath(filePath) {
-  return filePath.split(path.sep).join("/")
-}
-
 function sha256File(filePath) {
   return crypto.createHash("sha256").update(fs.readFileSync(filePath)).digest("hex")
 }
 
-function walk(directory, root, files) {
-  if (!fs.existsSync(directory)) return
-  for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
-    const entryPath = path.join(directory, entry.name)
-    if (entry.isDirectory()) {
-      walk(entryPath, root, files)
-    } else if (entry.isFile() && TEST_FILE_PATTERN.test(entry.name)) {
-      files.push(normalizePath(path.relative(root, entryPath)))
-    }
-  }
-}
-
-export function discoverTestFiles(root) {
-  const files = []
-  for (const testRoot of TEST_ROOTS) {
-    walk(path.join(root, testRoot), root, files)
-  }
-  return files.sort()
-}
+export { discoverTestFiles }
 
 export function validateTestManifest({ root, manifest, executions }) {
   const errors = []
@@ -93,12 +73,12 @@ export function validateTestManifest({ root, manifest, executions }) {
       errors.push(`manifest test ${index + 1} is invalid`)
       continue
     }
-    const key = `${normalizePath(entry.path)}\u0000${entry.name}`
+    const key = `${normalizeRepositoryPath(entry.path)}\u0000${entry.name}`
     if (manifestKeys.has(key)) {
       errors.push(`duplicate manifest test: ${entry.path} — ${entry.name}`)
     }
     manifestKeys.add(key)
-    manifestFiles.add(normalizePath(entry.path))
+    manifestFiles.add(normalizeRepositoryPath(entry.path))
 
     const absolutePath = path.resolve(root, entry.path)
     if (
@@ -147,7 +127,7 @@ export function validateTestManifest({ root, manifest, executions }) {
       )
     }
     for (const test of tests) {
-      const key = `${normalizePath(test.file)}\u0000${test.name}`
+      const key = `${normalizeRepositoryPath(test.file)}\u0000${test.name}`
       const states = executedByKey.get(key) ?? []
       states.push(test.state)
       executedByKey.set(key, states)
@@ -158,7 +138,7 @@ export function validateTestManifest({ root, manifest, executions }) {
     if (!entry || typeof entry.path !== "string" || typeof entry.name !== "string") {
       continue
     }
-    const key = `${normalizePath(entry.path)}\u0000${entry.name}`
+    const key = `${normalizeRepositoryPath(entry.path)}\u0000${entry.name}`
     const states = executedByKey.get(key) ?? []
     if (states.length === 0) {
       errors.push(`manifest test was not executed: ${entry.path} — ${entry.name}`)
@@ -175,17 +155,15 @@ export function validateTestManifest({ root, manifest, executions }) {
   return errors
 }
 
-function readExecutions(resultsDirectory) {
-  if (!resultsDirectory || !fs.existsSync(resultsDirectory)) {
-    throw new Error("VERIFICATION_TEST_RESULTS_DIR is missing")
+function readExecutions(ledgerPath) {
+  if (!ledgerPath || !fs.existsSync(ledgerPath)) {
+    throw new Error("VERIFICATION_VALIDATED_TEST_RESULTS_PATH is missing")
   }
-  return fs
-    .readdirSync(resultsDirectory)
-    .filter((file) => file.endsWith(".json"))
-    .sort()
-    .map((file) =>
-      JSON.parse(fs.readFileSync(path.join(resultsDirectory, file), "utf8"))
-    )
+  const ledger = JSON.parse(fs.readFileSync(ledgerPath, "utf8"))
+  if (ledger?.schemaVersion !== 1 || !Array.isArray(ledger.executions)) {
+    throw new Error("validated test-results ledger is invalid")
+  }
+  return ledger.executions
 }
 
 function main() {
@@ -196,7 +174,7 @@ function main() {
     )
   )
   const executions = readExecutions(
-    process.env.VERIFICATION_TEST_RESULTS_DIR
+    process.env.VERIFICATION_VALIDATED_TEST_RESULTS_PATH
   )
   const errors = validateTestManifest({
     root: REPOSITORY_ROOT,

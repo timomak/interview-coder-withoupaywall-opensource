@@ -3,7 +3,10 @@ import fs from "node:fs"
 import os from "node:os"
 import path from "node:path"
 import { describe, expect, it } from "vitest"
-import { validateTestManifest } from "../../scripts/verification/test-manifest.mjs"
+import {
+  discoverTestFiles,
+  validateTestManifest
+} from "../../scripts/verification/test-manifest.mjs"
 
 function hash(bytes: string): string {
   return crypto.createHash("sha256").update(bytes).digest("hex")
@@ -99,5 +102,60 @@ describe("immutable test manifest", () => {
     expect(validateTestManifest(unexecuted)).toContain(
       `manifest test was not executed: ${unexecuted.relativePath} — keeps the contract`
     )
+
+    const hashDrift = fixture()
+    fs.appendFileSync(
+      path.join(hashDrift.root, hashDrift.relativePath),
+      "\n// changed"
+    )
+    expect(validateTestManifest(hashDrift)).toContain(
+      `manifest hash drift: ${hashDrift.relativePath}`
+    )
+
+    const unmanifested = fixture()
+    const futurePath = path.join(
+      unmanifested.root,
+      "src/features/unmanifested.test.mts"
+    )
+    fs.mkdirSync(path.dirname(futurePath), { recursive: true })
+    fs.writeFileSync(futurePath, "it('unmanifested', () => {})")
+    expect(validateTestManifest(unmanifested)).toContain(
+      "unmanifested test file: src/features/unmanifested.test.mts"
+    )
+
+    const executedExtra = fixture()
+    executedExtra.executions[0].tests.push({
+      file: "tests/extra.test.ts",
+      name: "extra test",
+      state: "pass"
+    })
+    executedExtra.executions[0].counts.passed = 2
+    expect(validateTestManifest(executedExtra)).toContain(
+      "executed unmanifested test: tests/extra.test.ts — extra test"
+    )
+  })
+
+  it("P01-R1-B02 discovers every future root and supported extension", () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), "p01-discovery-"))
+    const files = [
+      "src/features/future.test.js",
+      "src/features/future.test.jsx",
+      "src/domain/future.spec.ts",
+      "src/domain/future.spec.tsx",
+      "scripts/qualification/future.test.mjs",
+      "scripts/qualification/future.test.cjs",
+      "scripts/qualification/future.spec.mts",
+      "scripts/qualification/future.spec.cts"
+    ]
+    for (const relativePath of files) {
+      const absolutePath = path.join(root, relativePath)
+      fs.mkdirSync(path.dirname(absolutePath), { recursive: true })
+      fs.writeFileSync(absolutePath, "it('future root', () => {})")
+    }
+    const generatedTest = path.join(root, "dist/hidden.test.ts")
+    fs.mkdirSync(path.dirname(generatedTest), { recursive: true })
+    fs.writeFileSync(generatedTest, "it('generated', () => {})")
+
+    expect(discoverTestFiles(root)).toEqual(files.sort())
   })
 })

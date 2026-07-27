@@ -11,6 +11,14 @@ export interface EntryResult {
   rawExit: number | null
   signal: string | null
   counts: { passed: number; failed: number; skipped: number } | null
+  tests: Array<{
+    file: string
+    name: string
+    fullName: string
+    state: "pass" | "fail" | "skip"
+    fileSha256: string
+  }>
+  evidenceFailures?: string[]
   failures: string[]
 }
 
@@ -19,9 +27,32 @@ export function validatePlanManifest(options?: {
   root?: string
   expectedManifestHash?: string
 }): string[]
-export function parseTestCounts(
-  output: string
-): { passed: number; failed: number; skipped: number } | null
+export function testCommandBinding(
+  entry: PlanEntry,
+  root?: string
+): {
+  bindingHash: string
+  failures: string[]
+  runnerName: "vitest" | "repository-test-script" | null
+  scriptName: string | null
+}
+export function validateTestResultRecord(options: {
+  record: unknown
+  entry: PlanEntry
+  nonce: string
+  binding: ReturnType<typeof testCommandBinding>
+  root?: string
+}): {
+  counts: { passed: number; failed: number; skipped: number } | null
+  tests: Array<{
+    file: string
+    name: string
+    fullName: string
+    state: "pass" | "fail" | "skip"
+    fileSha256: string
+  }>
+  failures: string[]
+}
 export function entryFailures(
   entry: PlanEntry,
   result: Pick<EntryResult, "rawExit" | "signal" | "counts">

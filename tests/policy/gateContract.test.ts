@@ -5,7 +5,6 @@ import { describe, expect, it } from "vitest"
 import {
   aggregateExit,
   entryFailures,
-  parseTestCounts,
   type PlanEntry
 } from "../../scripts/verification/phase-reporter.mjs"
 
@@ -43,9 +42,6 @@ describe("local gate contract", () => {
         minimumPassed: 1
       })
 
-    const zeroCounts = parseTestCounts(
-      'VERIFICATION_COUNTS {"passed":0,"failed":0,"skipped":0}'
-    )
     expect(
       entryFailures(
         {
@@ -55,7 +51,11 @@ describe("local gate contract", () => {
           expectedExit: 0,
           minimumPassed: 1
         },
-        { rawExit: 0, signal: null, counts: zeroCounts }
+        {
+          rawExit: 0,
+          signal: null,
+          counts: { passed: 0, failed: 0, skipped: 0 }
+        }
       )
     ).toContain("passed=0 below minimum=1")
   })

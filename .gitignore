@@ -10,5 +10,7 @@ dist
 scripts/*
 !scripts/verification/
 !scripts/verification/**
+!scripts/qualification/
+!scripts/qualification/**
 scripts/manual-notarize.js
 .artifacts/

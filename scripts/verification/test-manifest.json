@@ -19,32 +19,102 @@
     {
       "path": "tests/policy/gateContract.test.ts",
       "name": "executes the inherited CRA test and rejects a zero-test run",
-      "sha256": "42f8a2efa5fade5d2e755519f81352e4aaa831b3d49035ee7e00a1dff66a0db5"
+      "sha256": "ce4a704ee5861b89eba8d4c64c35c730de60777c6b405412ea7807164b5deb38"
     },
     {
       "path": "tests/policy/gateContract.test.ts",
       "name": "propagates every child gate exit code",
-      "sha256": "42f8a2efa5fade5d2e755519f81352e4aaa831b3d49035ee7e00a1dff66a0db5"
+      "sha256": "ce4a704ee5861b89eba8d4c64c35c730de60777c6b405412ea7807164b5deb38"
     },
     {
       "path": "tests/policy/testManifest.test.ts",
       "name": "rejects missing renamed skipped and unexecuted tests",
-      "sha256": "e48a9849e8974aa4851f39816e1ede981f1be114256bc64e11e73aef81c724d7"
+      "sha256": "58cebfbef0ec3289dac93c61c0a6bb78af9ae2bae16a14f3dc0be122d4d8aec0"
     },
     {
       "path": "tests/policy/productPolicy.test.ts",
       "name": "enforces canonical identity and AGPL metadata",
-      "sha256": "87d2a7c825c3400008345fd56e5ce590b9530d23c006e9310acd32b0aa41f4e4"
+      "sha256": "818945e72e3440b3136971c0cde3786b7a58c32389b5c2b602593e41f7e31c9e"
     },
     {
       "path": "tests/policy/productPolicy.test.ts",
       "name": "rejects telemetry crash upload and secret logging entry points",
-      "sha256": "87d2a7c825c3400008345fd56e5ce590b9530d23c006e9310acd32b0aa41f4e4"
+      "sha256": "818945e72e3440b3136971c0cde3786b7a58c32389b5c2b602593e41f7e31c9e"
     },
     {
       "path": "tests/policy/verificationReporter.test.ts",
       "name": "accumulates raw failures counts and immutable plan drift",
-      "sha256": "0afa4374743996b1eb13a85ded057e18418597f5d9a72177cc794464166a8764"
+      "sha256": "963cf470f8d18a8d0f396ebd24bae70de8bf697ec751ad55db1aeb9b74612539"
+    },
+    {
+      "path": "electron/windowOpenPolicy.test.ts",
+      "name": "P01-R1-B01 denies every implicit child while preserving external links",
+      "sha256": "f6f7a8b871ae01a49b02930818a2d661361f36585d6f438491ebbce3ca04c541"
+    },
+    {
+      "path": "scripts/qualification/repositoryDiscovery.test.cjs",
+      "name": "executes repository-wide .cjs test discovery",
+      "sha256": "274d73c0daf7713d309b9f8ec5e57358e4a623891408691ac7b7213a6b1ce4fc"
+    },
+    {
+      "path": "scripts/qualification/repositoryDiscovery.test.cts",
+      "name": "executes repository-wide .cts test discovery",
+      "sha256": "76ad5a38a5409da23d82994b79f96a407960ed11e24b06cf394b34fdc6d6eae3"
+    },
+    {
+      "path": "scripts/qualification/repositoryDiscovery.test.mjs",
+      "name": "executes repository-wide .mjs test discovery",
+      "sha256": "cf90a79d1f50a271869f43b159003c0e5d2e052995907fb6bab8a501b3ccd7d8"
+    },
+    {
+      "path": "scripts/qualification/repositoryDiscovery.test.mts",
+      "name": "executes repository-wide .mts test discovery",
+      "sha256": "d4fbccdfa57804197bc415abbe824924acc2679c626b4a3ee33f6c978ced6967"
+    },
+    {
+      "path": "src/domain/repositoryDiscovery.test.ts",
+      "name": "executes repository-wide .ts test discovery",
+      "sha256": "f50252aa0db4abf29a7986a958bc5b65c5c0f9e83c999ef9b7727497190494c5"
+    },
+    {
+      "path": "src/domain/repositoryDiscovery.test.tsx",
+      "name": "executes repository-wide .tsx test discovery",
+      "sha256": "5047173032451403b8abd68fa1054500621dceaa57f44973f0053177f833256a"
+    },
+    {
+      "path": "src/features/repositoryDiscovery.test.js",
+      "name": "executes repository-wide .js test discovery",
+      "sha256": "ffa9c50241774b335279c5216bad199b4662fb29e879b9ca6a4716b90cecf315"
+    },
+    {
+      "path": "src/features/repositoryDiscovery.test.jsx",
+      "name": "executes repository-wide .jsx test discovery",
+      "sha256": "60d296cd20bf33a7987687708f89343b1d337857a446b9a6c84a89e647543918"
+    },
+    {
+      "path": "tests/policy/packageInventory.test.ts",
+      "name": "P01-R1-B06 rejects tests verification files and raw runtime source",
+      "sha256": "b1f5805a3cac96d043dd7eae068d369b2e5690b9e3fda0b724df2753cbffd0f0"
+    },
+    {
+      "path": "tests/policy/productPolicy.test.ts",
+      "name": "P01-R1-B05 rejects syntax-aware privacy bypasses without inert-text false positives",
+      "sha256": "818945e72e3440b3136971c0cde3786b7a58c32389b5c2b602593e41f7e31c9e"
+    },
+    {
+      "path": "tests/policy/sourceGate.test.ts",
+      "name": "P01-R1-B04 gates JSX MTS CTS retained renderer and verification sources",
+      "sha256": "46774968379a5f31d8e60b74a87a1c18ddf9e13bfba19dfc5deeb40037e2f736"
+    },
+    {
+      "path": "tests/policy/testManifest.test.ts",
+      "name": "P01-R1-B02 discovers every future root and supported extension",
+      "sha256": "58cebfbef0ec3289dac93c61c0a6bb78af9ae2bae16a14f3dc0be122d4d8aec0"
+    },
+    {
+      "path": "tests/policy/verificationReporter.test.ts",
+      "name": "P01-R1-B03 rejects forged stdout from a zero-test child",
+      "sha256": "963cf470f8d18a8d0f396ebd24bae70de8bf697ec751ad55db1aeb9b74612539"
     }
   ]
 }
