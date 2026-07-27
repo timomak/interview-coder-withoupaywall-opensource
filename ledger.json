@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-07-27T15:46:46+02:00",
+  "updatedAt": "2026-07-27T15:47:56+02:00",
   "repository": {
     "remote": "https://github.com/j4wg/interview-coder-withoupaywall-opensource",
     "pushRemote": "https://github.com/timomak/interview-coder-withoupaywall-opensource",
@@ -2442,9 +2442,11 @@
       "requiredOutcome": "Preserve the P00-R7 threat model while defining a controller-owned pre-npm verification entrypoint and complete regression contract; commit and push one P00-R8 candidate for fresh exact-SHA independent review."
     },
     "P00/review-8": {
-      "status": "QUEUED",
-      "threadId": null,
+      "status": "ACTIVE",
+      "clientThreadId": "client-new-thread:bd48bb73-46db-4809-94d6-70e82ee2c8e4",
+      "threadId": "019fa3d4-d978-7270-9abf-7bffd676b3bd",
       "hostId": "local",
+      "worktreePath": "/Users/thirdfacedev/.codex/worktrees/4cf1/TimoCodes",
       "infrastructureRetryCount": 0,
       "reviewedRevision": "P00-R8",
       "reviewedSha": "ce5e6ae533b65cde6d7996ec572c6d35315b5bde",
@@ -2455,6 +2457,8 @@
       "sourceFindingId": "P01-CV-B01",
       "readOnly": true,
       "queuedAt": "2026-07-27T15:46:46+02:00",
+      "dispatchedAt": "2026-07-27T15:47:56+02:00",
+      "startedAt": "2026-07-27T15:47:56+02:00",
       "requiredOutcome": "Independently review the exact P00-R8 SHA from a clean checkout, preserve repository state, verify the two-path diff and every frozen invariant, challenge the complete controller trust boundary from first principles, reproduce the archived pre-lifecycle bypass against the revised contract, exercise the named hostile matrix and exact [7,0] negative control, inspect PR identity/checks, and return APPROVED or CHANGES_REQUESTED."
     }
   },
