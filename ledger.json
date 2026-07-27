@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-07-27T14:58:26+02:00",
+  "updatedAt": "2026-07-27T15:00:57+02:00",
   "repository": {
     "remote": "https://github.com/j4wg/interview-coder-withoupaywall-opensource",
     "pushRemote": "https://github.com/timomak/interview-coder-withoupaywall-opensource",
@@ -2375,9 +2375,11 @@
       "worktreeClean": true
     },
     "P00/remediate-7": {
-      "status": "QUEUED",
-      "threadId": null,
+      "status": "ACTIVE",
+      "clientThreadId": "client-new-thread:b2e12a90-3cf0-42e4-8209-8ba9c8832ba3",
+      "threadId": "019fa3a9-d582-7133-a73e-dd7d20dfcb1e",
       "hostId": "local",
+      "worktreePath": "/Users/thirdfacedev/.codex/worktrees/cba1/TimoCodes",
       "infrastructureRetryCount": 0,
       "baseRevision": "P00-R7",
       "baseSha": "494e518f62d636e6af4e455ba615596d95b4d06b",
@@ -2392,6 +2394,9 @@
         "design.md",
         "docs/implementation/phase-execution-packet.md"
       ],
+      "queuedAt": "2026-07-27T14:58:26+02:00",
+      "dispatchedAt": "2026-07-27T15:00:57+02:00",
+      "startedAt": "2026-07-27T15:00:57+02:00",
       "requiredOutcome": "Preserve the P00-R7 threat model while defining a controller-owned pre-npm verification entrypoint and complete regression contract; commit and push one P00-R8 candidate for fresh exact-SHA independent review."
     }
   },
