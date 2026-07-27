@@ -863,5 +863,5 @@ Decisions are resolved in dependency order. A later branch may be reordered when
 The reviewed phase order, dependency graph, acceptance gates, migration owners,
 prototype disposition, and implementation/review/remediation prompts are defined
 in [`docs/implementation/phase-execution-packet.md`](docs/implementation/phase-execution-packet.md),
-revision P00-R7. This design remains the product source of truth; the packet is
+revision P00-R8. This design remains the product source of truth; the packet is
 the execution contract. Prototype evidence does not establish phase completion.
