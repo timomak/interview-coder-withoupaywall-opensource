@@ -1,6 +1,6 @@
 # InterviewCopilot phase-execution packet
 
-Packet revision: **P00-R6**
+Packet revision: **P00-R7**
 
 Planning base: `main@9dcb4b2d39607273a8528a24657cdb4f5bfc3412`
 
@@ -391,7 +391,7 @@ inside the single PR.
 
 **Self-contained implementation prompt.**
 
-> Implement P01 from P00-R6 on `phase/P01-local-gates`, based only on upstream
+> Implement P01 from P00-R7 on `phase/P01-local-gates`, based only on upstream
 > `main@9dcb4b2d…` plus merged planning docs. Do not import the dirty prototype.
 > Make local lint, strict type-check, real unit tests (including the unchanged
 > tracked CRA sample), manifest enforcement, and build green. Centralize and
@@ -403,7 +403,7 @@ inside the single PR.
 
 **Self-contained review prompt.**
 
-> Review P01 independently against P00-R6, not the author’s summary. From the
+> Review P01 independently against P00-R7, not the author’s summary. From the
 > clean PR checkout run the P01 reporter invocation, confirm the inherited CRA
 > test ran,
 > inspect all config/glob/ignore changes for hidden coverage loss, compare typed
@@ -532,7 +532,7 @@ and evolving; pin capabilities and fail explicitly on unsupported versions.
 
 **Self-contained implementation prompt.**
 
-> Implement P02 from P00-R6 after P01, on
+> Implement P02 from P00-R7 after P01, on
 > `phase/P02-subscription-runtime`. Build a provider-neutral persistent runtime
 > for Claude Code and Codex only, using one resumable session/thread, normalized
 > streaming/usage/compaction/stop/error events, explicit provider/model/Fast-
@@ -545,7 +545,7 @@ and evolving; pin capabilities and fail explicitly on unsupported versions.
 
 **Self-contained review prompt.**
 
-> Review P02 against P00-R6 from a clean checkout. Trace both fake providers
+> Review P02 against P00-R7 from a clean checkout. Trace both fake providers
 > through two turns, stop, compaction, driver/child restart, and caller-ID
 > resume; force every failure and prove the other provider never starts. Inspect
 > spawn/env/tool restrictions, IPC exposure, migration idempotence/file mode,
@@ -658,7 +658,7 @@ never custom cryptography.
 
 **Self-contained implementation prompt.**
 
-> Implement P03 from P00-R6 after P01 on
+> Implement P03 from P00-R7 after P01 on
 > `phase/P03-encrypted-persistence`. Build the Keychain-backed installation-key
 > service, versioned AES-256-GCM record/blob store, atomic writes, encrypted
 > in-memory-search source, typed recovery, raw-audio rejection, and journaled
@@ -806,7 +806,7 @@ boundary; no renderer or provider may keep a second authoritative session.
 
 **Self-contained implementation prompt.**
 
-> Implement P04 from P00-R6 after P02/P03 on
+> Implement P04 from P00-R7 after P02/P03 on
 > `phase/P04-session-orchestrator`. Replace global transient state with the
 > deterministic InterviewSession reducer, typed event/IPC contract, one
 > persistent-conversation orchestrator, context/delta policy, pending artifacts,
@@ -941,7 +941,7 @@ display behavior is platform-sensitive and directly touches privacy regression.
 
 **Self-contained implementation prompt.**
 
-> Implement P05 from P00-R6 after P04 on `phase/P05-live-shell`. Build the
+> Implement P05 from P00-R7 after P04 on `phase/P05-live-shell`. Build the
 > exact Quiet Signal hidden/compact/answer/expanded shell, command rail,
 > composer, input tray, explicit click-through/drag regions, final remappable
 > shortcuts, display-aware geometry, primary-display screenshot behavior,
@@ -1063,7 +1063,7 @@ regress silently; fixture contracts are merge-blocking.
 
 **Self-contained implementation prompt.**
 
-> Implement P06 from P00-R6 after P05 on `phase/P06-coding`. Add the exact
+> Implement P06 from P00-R7 after P05 on `phase/P06-coding`. Add the exact
 > typed Coding intents/schema/renderer, concise-first progressive answer,
 > language snapshot and six-family fixtures, read-only actions, New Question,
 > and isolated `Control+Shift+D` versioned Fix flow. Enforce no personal context,
@@ -1178,7 +1178,7 @@ must not become a second untyped document model.
 
 **Self-contained implementation prompt.**
 
-> Implement P07 from P00-R6 after P05 on `phase/P07-system-design`. Add the
+> Implement P07 from P00-R7 after P05 on `phase/P07-system-design`. Add the
 > fixed typed five-section progressive workflow, bounded material estimates,
 > safe vendor-neutral structured diagram, read-only accessible interactions,
 > assumption handling, dependency-scoped follow-up and What changed summary.
@@ -1299,7 +1299,7 @@ integrity are product trust boundaries.
 
 **Self-contained implementation prompt.**
 
-> Implement P08 from P00-R6 after P05 on `phase/P08-behavioral`. Build the
+> Implement P08 from P00-R7 after P05 on `phase/P08-behavioral`. Build the
 > encrypted canonical candidate dossier, guided/manual reviewed editing,
 > sanitized Markdown import/export, multiple snapshotted opportunities,
 > provenance, opt-in labeled persistent synthetic stories, and typed Behavioral
@@ -1432,7 +1432,7 @@ packaging, privacy, and transcription latency are launch-critical.
 
 **Self-contained implementation prompt.**
 
-> Implement P09 from P00-R6 after P05 on `phase/P09-audio`, macOS only. Build
+> Implement P09 from P00-R7 after P05 on `phase/P09-audio`, macOS only. Build
 > explicit two-source native capture, deterministic master/per-source controls,
 > contextual permission recovery, pinned offline whisper.cpp transcription,
 > explicit Apple Speech remote fallback, typed segments/attribution/correction,
@@ -1551,7 +1551,7 @@ must never become a capability or schema escape hatch.
 
 **Self-contained implementation prompt.**
 
-> Implement P10 from P00-R6 after P06/P07/P08 on
+> Implement P10 from P00-R7 after P06/P07/P08 on
 > `phase/P10-prompt-studio`. Build synchronized reviewed-diff Chat/Manage,
 > immutable built-ins, complete encrypted user CRUD, core-mode-only schemas,
 > deterministic recorded instruction resolution, Start snapshotting, protected
@@ -1668,7 +1668,7 @@ content and destructive user controls.
 
 **Self-contained implementation prompt.**
 
-> Implement P11 from P00-R6 after P06–P10 on
+> Implement P11 from P00-R7 after P06–P10 on
 > `phase/P11-history-recovery`. Add explicit crash Resume/Reset, complete
 > encrypted archive projection, Settings-only in-memory search/open/delete one/
 > all, safe consented individual Markdown/JSON export, read-only archive open,
@@ -1729,7 +1729,7 @@ detached statement binds its app semver and post-build package identity. Those
 exact passing tuples—and no neighboring patch, major version, browser, app
 build, architecture, or display mode—are the supported macOS/browser/app
 versions until separately qualified. Qualify each supported tuple separately.
-P00-R6 represents no version as supported before the committed matrix, detached
+P00-R7 represents no version as supported before the committed matrix, detached
 release statement, and evidence pass. Entire-display and specific-window
 require confirmation from remote Meet view or
 second device and retained high-contrast moving-marker artifacts; one fail makes
@@ -2144,23 +2144,62 @@ record that makes the package set acceptable.
 
 The release-controller service identity exclusively owns
 `/Users/Shared/InterviewCopilot`. Its installer pre-provisions a regular
-link-count-one lock file outside every RC root. Every canonical directory below
-`/Users/Shared` is opened component-by-component from an already opened
-`/Users/Shared` descriptor with `openat` plus `O_DIRECTORY|O_NOFOLLOW`; it is
-owned by the controller service, has no ACL, mount transition, or group/other
-write bit, and has mode 0555 once installed. Accepted package and raw-result
-files are link-count-one regular files with mode 0444; `producer-record.json`
-and `release-statement.json` are link-count-one regular files with mode 0400.
+link-count-one lock file outside every RC root. The fixed filesystem-root
+descriptor, `/Users`, `/Users/Shared`, and every canonical or staging
+descendant are opened component-by-component with `openat` plus
+`O_DIRECTORY|O_NOFOLLOW`. Every ancestor descriptor, the pre-provisioned lock,
+controller root, release-statement root, canonical RC root, staging root,
+staging RC root, every nonce/sealed/architecture directory, and every staged or
+accepted file have no extended ACL entry. Every
+controller-owned directory also has no mount transition or group/other write
+bit and has mode 0555 once installed. Accepted package and raw-result files are
+link-count-one regular files with mode 0444; `producer-record.json` and
+`release-statement.json` are link-count-one regular files with mode 0400.
 Accepted files have no file flags set. Their controller ownership, absence of
-owner/group/other write bits, and nonwritable installed directories make both
-file bytes and closed entry sets immutable to the invoking user without a
-post-rename flag operation or crash window. The privileged controller is the
-only process allowed to install a new name into those nonwritable directories.
-Root/controller credential compromise is outside the threat model; symlinks,
-aliases, hard links, clone-selected
-alternate roots, writable ancestors, unexpected ownership/mode/flags, and
-paths supplied through argv, environment, artifacts, pairing, or statements
-are in scope and fail.
+owner/group/other write bits and extended ACLs, and nonwritable installed
+directories make both file bytes and closed entry sets immutable to the
+invoking user without a post-rename flag operation or crash window. The
+privileged controller is the only process allowed to install a new name into
+those nonwritable directories. Root/controller credential compromise is
+outside the threat model; symlinks, aliases, hard links, clone-selected
+alternate roots, writable or ACL-bearing ancestors, unexpected
+ownership/mode/flags/ACLs, and paths supplied through argv, environment,
+artifacts, pairing, or statements are in scope and fail.
+
+**Descriptor ACL authority.** Extended-ACL state is determined only from each
+already anchored descriptor. On the matrix-pinned macOS product/build and APFS
+volume, the native fixture must compile against the current macOS SDK and prove
+the one canonical `NO_EXTENDED_ACL` result for both a directory and regular
+file: set `errno=0`; call
+`acl_get_fd_np(fd, ACL_TYPE_EXTENDED)`; require `(acl_t)NULL` with
+`errno==ENOENT`. This `ENOENT` is an ACL-library sentinel observed only after
+the object descriptor is open; it never means the filesystem object or
+accepted identity is absent. The P00-R7 isolated authoring probe established
+this result on macOS 26.5.1 build 25F80, APFS, with SDK 26.5; P12 must reproduce
+it on each exact matrix-pinned macOS product/build before qualification and
+fail constructibility if it differs. The fixture must also prove that direct
+and inherited allow/deny write/append entries instead return an ACL object for
+which `acl_get_entry(acl, ACL_FIRST_ENTRY, &entry)==0`.
+
+The runtime uses that exact routine. A returned ACL object is never success:
+it clears errno, calls `acl_get_entry` with `ACL_FIRST_ENTRY`, records its return
+and errno, calls `acl_free` on every returned object on every path, records that
+return, and rejects an entry. It
+also rejects a returned object with no readable first entry, any
+`acl_get_entry` result other than the fixture-proved entry result, any
+`acl_free` failure, a null result with errno other than `ENOENT`, an
+unsupported filesystem, or any other retrieval ambiguity. Thus a nonnull empty
+ACL object is unexpected and fail-closed rather than an alternative no-ACL
+sentinel. Mode bits, ctime, pathname xattr probes, and `ls` output are never ACL
+authority.
+
+Every in-memory descriptor before/after snapshot therefore contains exactly
+`(device,inode,size,mode,uid,gid,flags,linkCount,mtime,ctime,aclState)`, where
+`aclState` is the live descriptor-proved canonical `NO_EXTENDED_ACL` result;
+this adds no persisted schema field. Every final canonical-name reopen repeats
+the ACL call on the reopened descriptor before identity comparison. Allow,
+deny, write, append, inherited, and mixed ACLs all reject regardless of whether
+POSIX mode, size, ctime, or any other snapshot field appears canonical.
 
 **PIN FIRST.** Before opening the canonical RC root, the command requires a
 detached, clean checkout; pins `git rev-parse HEAD` as `expectedRcSha`; resolves
@@ -2177,14 +2216,19 @@ override any pin.
 
 After PIN FIRST, `package:mac` opens and takes the pre-provisioned lock without
 creating it, then repeats the complete HEAD/cleanliness/commit-object/matrix
-check before state selection. The privileged controller creates an absent
-canonical `<expectedRcSha>` directory once with `mkdirat`, mode 0555, and an
-immediate parent fsync; `EEXIST` requires the same anchored directory
-validation. An empty canonical RC directory is a safe no-statement/no-seal
-CREATE state, not accepted identity. The command repeats PIN FIRST again before
-any exclusive install and before returning. Every validator independently
-performs the same pin and final recheck. A checkout-selection attempt or change
-at any checkpoint is REJECT without repair or checkout movement.
+check before state selection. The lock descriptor, filesystem root, `/Users`,
+`/Users/Shared`, and every canonical and staging ancestor descriptor must first
+pass ACL-free validation. The privileged controller creates an absent canonical
+`<expectedRcSha>` directory once with `mkdirat`, mode 0555, validates its
+descriptor including ACL state before any child creation and after its final
+mode, and immediately fsyncs the parent; `EEXIST` requires the same anchored
+directory validation. An ACL-bearing existing object is REJECT, never absence,
+success by existence, or repairable state. An empty canonical RC directory is
+a safe no-statement/no-seal CREATE state, not accepted identity. The command
+repeats PIN FIRST again before any exclusive install and before returning.
+Every validator independently performs the same pin and final recheck. A
+checkout-selection attempt or change at any checkpoint is REJECT without
+repair or checkout movement.
 
 **CREATE.** With the lock held, absence means an `openat` of the canonical
 statement name returns `ENOENT`, not merely that a prior pathname probe did.
@@ -2199,55 +2243,102 @@ There are only two safe no-statement substates:
    on the same APFS volume. This is the package producer build, distinct from
    the preceding repository `npm run build` child.
 2. If the statement is absent but a complete installed `sealed-package-set`
-   exists, CREATE is a crash-resume commit step. The command runs the entire
-   REUSE package-set validation below and, only on exact agreement, invokes the
-   statement writer. It never rebuilds, resigns, renotarizes, restaples, reruns
-   a producer, or edits the installed set.
+   exists, CREATE is a crash-resume commit step. It does not enter REUSE,
+   because REUSE requires a statement. It parses the canonical
+   `producer-record.json` as the local candidate payload, runs the anchored
+   statement-independent sealed-set validator below with the pinned context and
+   that candidate, and only on exact agreement invokes the statement writer.
+   It never rebuilds, resigns, renotarizes, restaples, reruns a producer, or
+   edits the installed set.
 
-The staging directory contains exactly the closed layout above. Before install,
-the controller independently derives every architecture from the pinned
-matrix, hashes the exact package and raw output bytes, validates the signature,
-hardened-runtime entitlement, certificate/team identity, accepted
-notarization ticket and exact raw log, valid staple, and accepted `spctl` raw
-exit/status, and creates the exact canonical `producer-record.json`. It rejects
-extra packages, architectures, app bundles, metadata, or output files. It
-fsyncs every file after its final bytes and mode, fsyncs each directory
-bottom-up, requires zero file flags and applies the final read-only modes, and
-fsyncs the staging parent. It then atomically installs the whole directory with macOS
+**Anchored sealed-set validation.** The single reusable routine is
+`validateSealedSet(pinnedContext, candidatePayload)`. It never opens or requires
+a release statement. From anchored descriptors it validates the exact closed
+directory tree; all ownership, type, mode, flag, link, name, mount, before/
+after/final-reopen ACL, and identity properties; every package and raw
+notary/stapler/`spctl` byte stream and digest; every current read-only
+signature, hardened-runtime, certificate/team, notarization-ticket, staple,
+Gatekeeper status, and raw-zero requirement; and every closed, canonical,
+pinned package/status/timestamp field in `producer-record.json`. The producer
+record must be canonical JCS and byte-for-byte equal to `candidatePayload`;
+neither one selects the pinned context. After read-only tools and PIN recheck,
+the routine repeats every canonical-name reopen and descriptor/ACL snapshot as
+its last fallible operation immediately before any zero return. The same rule
+applies to every writer, command, and validator zero return.
+
+Fresh CREATE supplies the independently derived in-memory producer payload and
+runs this routine on the staged set before install and the canonical set after
+install. Package-set `RENAME_EXCL EEXIST` convergence supplies that same locally
+retained payload and additionally requires the installed set to equal the
+contender's complete candidate identity. Crash resume has no retained producer
+process: it accepts the canonical producer record only as a candidate, derives
+and cross-checks every one of its fields against the pinned context, sealed
+packages, raw streams, and read-only tool results, and invokes the writer only
+after the routine succeeds. Full REUSE remains statement-dependent: it first
+validates the canonical statement and signature, then calls this routine with
+the exact statement payload and requires the producer record to equal it.
+Partial, ambiguous, ACL-bearing, or mismatched state fails without repair at
+every crash boundary and both package-set install outcomes.
+
+The staging directory contains exactly the closed layout above. Before CREATE
+produces any identity, the controller validates the controller-owned staging
+ancestors, staging RC directory, and fresh nonce root as ACL-free. It
+exclusively creates each expected directory and file, validates the new
+descriptor as ACL-free before producing child names or file content, and
+validates it again after its final mode. It never strips, replaces, normalizes,
+or repairs an ACL or other noncanonical metadata. The controller independently
+derives every architecture from the pinned matrix, hashes the exact package and
+raw output bytes, validates the signature, hardened-runtime entitlement,
+certificate/team identity, accepted notarization ticket and exact raw log,
+valid staple, and accepted `spctl` raw exit/status, and creates the exact
+canonical `producer-record.json`. It rejects extra packages, architectures, app
+bundles, metadata, output files, or any direct/inherited ACL. It fsyncs every
+file after its final bytes and mode, fsyncs each directory bottom-up, requires
+zero file flags and ACL-free final descriptors, applies the final read-only
+modes, and fsyncs the staging parent. It then atomically installs the whole
+directory with macOS
 `renameatx_np(..., RENAME_EXCL)` to the canonical
 `sealed-package-set` name and fsyncs both source and destination parents. No
-copy, ordinary rename-over, unlink, repair, or replacement is allowed.
+copy, ordinary rename-over, unlink, ACL sanitization, repair, or replacement is
+allowed.
 
 An install `EEXIST` is a race, never success by existence. The contender closes
 all staging descriptors, securely reopens the canonical installed set from the
-anchored RC descriptor, and performs the complete validation below. It may
-continue only if the installed bytes and every identity field exactly equal
-the locally derived candidate; otherwise it returns nonzero without changing
-either set. Cooperating `package:mac` processes serialize on the lock, so the
-second ordinarily reaches REUSE before running any producer; the `EEXIST` path
-is still mandatory for a noncooperating or injected race.
+anchored RC descriptor, and calls
+`validateSealedSet(pinnedContext, locallyDerivedCandidatePayload)`, including
+all ACL checks. It may continue only if the installed bytes and every identity
+field exactly equal the locally derived candidate; otherwise it returns
+nonzero without changing either set. Cooperating `package:mac` processes
+serialize on the lock, so the second ordinarily reaches REUSE before running
+any producer; the `EEXIST` path is still mandatory for a noncooperating or
+injected race.
 
 Only after the installed set passes that validation does `package:mac` invoke
 the controller-owned exclusive statement writer, exactly once and as its final
 producer step. The writer signs the already sealed `producer-record.json`
-payload, constructs the closed statement envelope, writes it to a fresh 0600
-nonce file in the same-volume staging root with `O_CREAT|O_EXCL|O_NOFOLLOW`,
-fsyncs its complete canonical bytes, changes it to mode 0400, requires zero file
-flags, fsyncs it again and fsyncs the staging directory, then atomically
-installs it
+payload, constructs the closed statement envelope, and opens a fresh 0600 nonce
+file in the already ACL-free same-volume staging root with
+`O_CREAT|O_EXCL|O_NOFOLLOW`. It validates the new descriptor as ACL-free before
+writing, fsyncs its complete canonical bytes, changes it to mode 0400, requires
+zero file flags and an ACL-free descriptor again, fsyncs it again and fsyncs
+the staging directory, then atomically installs it
 at `release-statement.json` using
 `renameatx_np(..., RENAME_EXCL)`. It fsyncs the canonical RC directory, securely
 reopens the installed name, fully validates it and the sealed set, repeats the
-PIN check, and only then returns 0. The final pathname therefore exposes either
-no file or one complete canonical file, never a partially written statement.
+PIN check, repeats the final descriptor/ACL snapshots immediately before the
+zero return, and only then returns 0. The final pathname therefore exposes
+either no file or one complete canonical file, never a partially written
+statement.
 
 Writer `EEXIST` has the same exact race rule: close the uninstalled nonce file;
 open the canonical name from the anchored RC descriptor with `O_NOFOLLOW`;
 require the final file and all ancestors, the sealed package set, canonical
-bytes, payload, signature/purpose, and every pinned and post-build identity to
-pass the complete REUSE validation; and return 0 only if that exact pre-existing
-identity equals the writer input byte-for-byte. It never unlinks, renames over,
-replaces, resigns, repairs, or trusts the file merely because it exists.
+bytes, payload, signature/purpose, ACL state, and every pinned and post-build
+identity to pass the complete statement-dependent REUSE validation; repeat the
+final descriptor/ACL snapshots immediately before zero; and return 0 only if
+that exact pre-existing identity equals the writer input byte-for-byte. It
+never unlinks, renames over, replaces, resigns, strips ACLs, repairs, or trusts
+the file merely because it exists.
 
 **REUSE.** If the exact statement name opens successfully after the second pin,
 `package:mac` becomes validation-only before consulting any worktree build
@@ -2257,14 +2348,22 @@ evidence file, mutate staging or sealed paths, repair permissions/flags, replace
 or resign the statement, or remove anything. It returns 0 only after all of
 these checks succeed:
 
+- validate the statement's canonical envelope, signature domain, active
+  purpose-specific key, matrix/app/HEAD bindings, status constants, time order,
+  and all closed-schema rules, then pass its exact payload to
+  `validateSealedSet`; a sealed set without a statement can never enter this
+  statement-dependent path;
 - securely reopen the canonical root, statement, closed package-set tree, every
   package, raw-result file, and producer record through anchored descriptors;
   reject alternate/symlink roots and require the exact types, ownership, modes,
-  flags, names, architecture set, link counts, and absence of extra entries;
-- capture `(device,inode,size,mode,uid,gid,flags,linkCount,mtime,ctime)` from
-  each open descriptor, stream and hash exact bytes from that descriptor, then
-  `fstat` it again and reopen its canonical name to require the same device and
-  inode and unchanged metadata, preventing path-swap and read/verify TOCTOU;
+  flags, ACL-free state, names, architecture set, link counts, and absence of
+  extra entries;
+- capture
+  `(device,inode,size,mode,uid,gid,flags,linkCount,mtime,ctime,aclState)` from
+  each open directory and file descriptor, stream and hash exact bytes from
+  the file descriptor, then `fstat` and inspect its ACL again and reopen its
+  canonical name to require the same device, inode, metadata, and ACL-free
+  state, preventing path-swap and read/verify/ACL TOCTOU;
 - require package hashes and architectures to equal the statement and matrix;
   mount each sealed DMG read-only/no-browse, require its single expected signed
   app identity, and use read-only `codesign --verify --deep --strict`,
@@ -2277,44 +2376,57 @@ these checks succeed:
   producer streams because Apple tool output is not a reproducible package
   identity; no package is resubmitted, restapled, or rewritten;
 - require `producer-record.json` to be canonical JCS and byte-for-byte equal to
-  the statement payload, then validate the statement's canonical envelope,
-  signature domain, active purpose-specific key, matrix/app/HEAD bindings,
-  status constants, time order, and all closed-schema rules; and
-- repeat every descriptor/path/metadata check after tool validation, unmount
-  read-only mounts, and repeat PIN FIRST's HEAD, cleanliness, commit-object
-  matrix bytes/object ID/digest, and app-semver checks before returning.
+  the already validated statement payload; and
+- repeat every descriptor/path/metadata/ACL check after every read-only tool
+  validation, unmount read-only mounts, repeat PIN FIRST's HEAD, cleanliness,
+  commit-object matrix bytes/object ID/digest, and app-semver checks, then
+  perform a final canonical-name reopen and unchanged descriptor/ACL snapshot
+  on every object immediately before returning 0. No tool, pathname probe,
+  cleanup, PIN operation, or other fallible work intervenes between that final
+  ACL pass and the zero return.
 
 The read-only controller-owned files, nonwritable controller-owned directories,
-held controller lock, descriptor-before/after comparison, and final path reopen
-are the ordinary local race boundary. Any observed difference fails;
-validation never changes accepted state. `verify:mac-package`, `qualify:meet`, and
-`verify:release` use the same validation routine and only validate. None
-creates, repairs, replaces, resigns, or infers a missing statement or package
-set. This adds no reporter-plan entry, per-run artifact, evidence member, or
-bundle member.
+held ACL-free controller lock, descriptor-before/after ACL comparison, final
+path reopen, and immediate pre-zero ACL pass are the ordinary local race
+boundary. Any observed difference fails; validation never changes accepted
+state. Initial CREATE, statement-independent sealed-set crash resume, exact
+REUSE runs 2 and 3, package-set `RENAME_EXCL EEXIST`, statement
+`RENAME_EXCL EEXIST`, `verify:mac-package`, `qualify:meet`, `verify:release`,
+and every other validator all use the same descriptor ACL authority at every
+checkpoint. Validators use statement-dependent REUSE and only validate. None
+creates, repairs, replaces, resigns, strips ACLs, or infers a missing statement
+or package set. This adds no reporter-plan entry, per-run artifact, evidence
+member, or bundle member.
 
 **REJECT and crash safety.** A statement that exists but is invalid,
-noncanonical, writable, linked, replaced, or mismatched is never treated as
-absence. A missing/partial/replaced/writable/linked package set; wrong
+noncanonical, writable, ACL-bearing, linked, replaced, or mismatched is never
+treated as absence. A missing/partial/replaced/writable/ACL-bearing/linked
+package set; an ACL-bearing lock, ancestor, staged object, or accepted object;
+an unexpected ACL API/errno/free result; wrong
 package/signing/notary/staple/`spctl` identity or status; bad HEAD/matrix/app
 binding; unexpected file, architecture, path, root, mount, owner, mode, flag,
-link, or inode change; alternate or symlink root; unsafe `EEXIST`; attempted
-replacement; producer invocation after REUSE selection; or any ambiguous
-partial state returns nonzero without mutation, repair, evidence creation, or
-checkout movement.
+ACL, link, or inode change; alternate or symlink root; unsafe `EEXIST`;
+attempted replacement; producer invocation after REUSE selection; or any
+ambiguous partial state returns nonzero without mutation, ACL sanitization,
+repair, evidence creation, or checkout movement.
 
 A crash before the package-set rename leaves only an unaccepted nonce staging
-directory, which state selection never reads and a separate privileged
-maintenance job may later remove. A crash after that atomic rename but before
-statement install leaves the one explicitly resumable state: a complete,
-immutable sealed set with no statement. A retry validates it and runs only the
-writer. A crash during statement staging leaves only an unaccepted nonce file.
-A crash at statement rename yields, after filesystem recovery, either ENOENT
-and the safe sealed-set resume or the complete immutable statement; the latter
-must pass full REUSE before zero. Staging paths are never accepted, promoted by
-discovery, or allowed to select identity. Thus there is no accepted half-state
-and no permanently ambiguous canonical state; the sole producer either resumes
-its final commit from the exact seal or rejects.
+directory, which state selection never reads. A separate privileged
+maintenance job may remove an explicitly unaccepted staging path, but it never
+discovers or selects accepted identity, invokes either validator or writer,
+promotes a staged path, strips an ACL, sanitizes metadata, or repairs a path.
+A crash after the atomic package-set rename but before statement install leaves
+the one explicitly resumable state: a complete immutable sealed set with no
+statement. A retry runs only
+`validateSealedSet(pinnedContext, resumeCandidatePayload)` and, after exact
+success, the writer. A crash during statement staging leaves only an
+unaccepted nonce file. A crash at statement rename yields, after filesystem
+recovery, either object-level `ENOENT` and the safe sealed-set resume or the
+complete immutable statement; the latter must pass full statement-dependent
+REUSE and the immediate pre-zero ACL pass. Staging paths are never accepted,
+promoted by discovery, or allowed to select identity. Thus there is no accepted
+half-state and no permanently ambiguous canonical state; the sole producer
+either resumes its final commit from the exact validated seal or rejects.
 
 **Statement schema and identity.** The statement is a closed JCS envelope
 containing exactly `payload` and `signature`; `signature` contains exactly
@@ -2381,20 +2493,24 @@ invocations are validators:
 
 | Exact reporter run | Required state and raw outcomes | Producer and identity proof |
 |---|---|---|
-| Run 1, no independent review yet | CREATE: `package:mac=0`; every collection/validation child through `qualify:meet --collect-missing=0`; `verify:release!=0` solely for missing independent review; reporter aggregate nonzero by raw-exit aggregation. | Package-producer build/sign/notary/staple counts and statement-writer invocation/successful-install count are exactly one. Snapshot statement and package paths, bytes, device/inodes, sizes, hashes, modes, flags, and link counts after the run. |
-| Add one valid independent review, then exact unchanged run 2 | REUSE: `package:mac=0`; pre-existing collection is fully validated; every child including `verify:release=0`; aggregate 0. | All snapshotted statement/package values are identical before and after; no producer or writer runs, so all producer counts remain one. |
-| Exact unchanged run 3 | REUSE again; every child and aggregate are 0. | The same snapshots are identical and producer/writer counts remain one. |
+| Run 1, no independent review yet | CREATE: `package:mac=0`; every collection/qualification child through `qualify:meet --collect-missing=0`; `verify:release=1` solely for missing independent review; reporter aggregate `=1` by raw-exit aggregation. No other nonzero value is accepted. | Package-producer build/sign/notary/staple counts and statement-writer invocation/successful-install count are exactly one. Snapshot statement and package paths, bytes, device/inodes, sizes, hashes, modes, flags, ACL states, and link counts after the run. |
+| Add one valid independent review, then exact unchanged run 2 | REUSE: `package:mac=0`; pre-existing collection is fully validated; every child raw exit including `verify:release=0`; aggregate `=0`. | All snapshotted statement/package values, including ACL-free state, are identical before and after; no producer or writer runs, so all producer counts remain one. |
+| Exact unchanged run 3 | REUSE again; every child raw exit and the aggregate are exactly `0`. | The same snapshots, including ACL-free state, are identical and producer/writer counts remain one. |
 
 The lifecycle model and mutation suite must instrument every producer and the
-writer, attempt statement/package/binding/status/path/root/mode/flag/link/
-canonicalization/signature changes, force checkout-selection attempts, crash at
-every fsync and atomic-install boundary, inject unsafe partial states, request a
-producer after REUSE selection, and race both exclusive installs. Every case
-fails without accepted mutation except a valid no-statement sealed-set resume
-or valid `EEXIST` convergence; either may return 0 only after full anchored
-identity validation. The model must also prove the three runs above, including
-unchanged bytes/inodes/hashes/modes/paths/link counts and one total package-
-producer/writer execution.
+writer, attempt statement/package/binding/status/path/root/mode/flag/ACL/link/
+canonicalization/signature changes, force checkout-selection attempts, crash
+at every fsync and atomic-install boundary, inject unsafe partial states,
+request a producer after REUSE selection, and race both exclusive installs.
+It separately exercises the statement-independent sealed-set validator at
+every safe package-install/crash-resume boundary and the statement-dependent
+REUSE validator only when the statement exists. Every case fails without
+accepted mutation except a valid no-statement sealed-set resume or valid
+`EEXIST` convergence; either may return 0 only after the applicable full
+anchored identity/ACL validation. The model must also prove the three runs
+above, including exact child and aggregate exits, unchanged bytes/inodes/hashes/
+modes/paths/ACL states/link counts, and one total package-producer/writer
+execution.
 
 **Exact `collection.json` schema.** The top-level object contains exactly these
 required keys and values:
@@ -2710,6 +2826,37 @@ The companion fixed-point scan rejects any matrix field or normative prose that
 requires the matrix to contain its own RC SHA, app/package hash, signing/
 notarization/staple output, build timestamp, or release-statement digest.
 
+That existing contract also contains the named case
+`rejects inherited and direct write-or-append ACLs on every staged and accepted lifecycle path`.
+It compiles a native current-SDK descriptor helper and fixture-proves the
+matrix-pinned macOS/APFS no-ACL sentinel before exercising the pre-provisioned
+lock; filesystem root, `/Users`, `/Users/Shared`, canonical, and staging
+ancestors; nonce, sealed, and architecture directories; package,
+`producer-record.json`, every raw
+notary/stapler/`spctl` stream, statement nonce, and accepted statement. It
+injects allow, deny, write, append, inherited, and mixed ACEs at CREATE before
+content/child creation and after final mode, sealed-set crash resume, exact
+REUSE runs 2 and 3, package-set and statement `RENAME_EXCL EEXIST`, every
+descriptor before/after pass, final canonical-name reopen, every validator, and
+the immediate pre-zero pass. It proves modes remain unchanged and a same-size
+post-check overwrite would succeed under an injected write ACE, while every
+such case is REJECT once descriptor ACL validation is present. It injects
+unexpected null errno, returned-empty-object, entry-iteration, ACL-free
+unsupported-filesystem, and `acl_free` failures and requires fail-closed cleanup
+of every returned ACL object.
+
+The same existing constructibility contract separately exercises
+`validateSealedSet(pinnedContext, candidatePayload)` with a complete canonical
+seal and no statement after every safe fsync/install crash boundary, and after
+package-set `EEXIST`; only exact validation may invoke the exclusive writer.
+Partial, ambiguous, ACL-bearing, and candidate/record/package/raw/status
+mismatches reject without repair. It also proves that full REUSE rejects an
+absent statement, that writer `EEXIST` requires full statement-dependent
+validation, and that the three reporter runs have exact raw-exit vectors:
+run 1 has only `verify:release=1` and aggregate `1`, while every child and
+aggregate on runs 2 and 3 is `0`. These are additions to the existing P12 test
+aggregate, not a new reporter child, acceptance criterion, artifact, or schema.
+
 `scripts/qualification/schema-inventory.test.ts` inventories the committed
 closed schemas for the matrix and release-envelope family (mandatory detached
 statement plus optional bundle signature), each of the four NDJSON event payload
@@ -2882,7 +3029,9 @@ committed matrix bytes/digest plus the mandatory detached release statement's
 external path, closed payload, arm64/x64 package/signing/notarization/staple
 identities, matrix-only release key lookup, domain, and signature, together with
 the deterministic sealed-package paths/metadata and CREATE/REUSE/REJECT
-three-run/crash/race proof; (4) role-by-
+three-run/crash/race proof, exact first/second/third-run exits, separate sealed-
+set-resume/full-REUSE validator proof, and native descriptor ACL sentinel/
+mutation proof; (4) role-by-
 role extracted entitlement plist diff, SBOM, and vulnerability disposition;
 (5) protection trace; (6) exact no-wildcard matrix; (7) per-tuple P12-M01/M02
 raw recording/content analysis, exact evidence-manifest membership/digest, both
@@ -2902,7 +3051,7 @@ signing infrastructure cannot be inferred from unit tests.
 
 **Self-contained implementation prompt.**
 
-> Implement P12 from P00-R6 after P01–P11 on
+> Implement P12 from P00-R7 after P01–P11 on
 > `phase/P12-macos-qualification`. Freeze the exact macOS/Chrome/Meet/build/
 > architecture matrix, harden macOS-only package/entitlements/identity, add
 > local-only redacted diagnostic preview/export, scoped failure recovery,
@@ -2917,10 +3066,18 @@ signing infrastructure cannot be inferred from unit tests.
 > mandatory signed detached post-RC release statement outside Git and all
 > bundle/review roots through the exact CREATE/REUSE/REJECT package state
 > machine, and fail qualification/release on any checkout, matrix, sealed-path,
-> package, key-purpose, domain, or signature disagreement. Prove the unchanged
-> reporter's first run creates once, its second and third runs validate without
-> any package producer or writer, every crash boundary is safely resumable or
-> rejected, and every exclusive-install `EEXIST` is fully identity-validated.
+> package, filesystem ACL, key-purpose, domain, or signature disagreement. Use
+> descriptor-only current-SDK extended-ACL inspection, enforce the pinned
+> no-ACL sentinel on the lock and every canonical/staged/accepted ancestor,
+> directory, and file before/after/final-reopen/immediate-pre-zero, and reject
+> rather than sanitize inherited or direct ACLs. Implement the separate
+> statement-independent anchored sealed-set validator for complete-seal/no-
+> statement crash resume; keep full REUSE statement-dependent. Prove the
+> unchanged reporter's first run creates once with only `verify:release=1` and
+> aggregate `1`, its second and third runs have exact all-zero child/aggregate
+> exits without any package producer or writer, every crash boundary is safely
+> resumable or rejected, and every exclusive-install `EEXIST` is fully
+> identity- and ACL-validated.
 > Implement the exact
 > write-once evidence-manifest → two independent
 > role attestations → final bundle-manifest/digest sequence, canonical bytes,
@@ -2941,9 +3098,13 @@ signing infrastructure cannot be inferred from unit tests.
 > hashing its exact committed matrix before reading artifacts, then validate the
 > required external release statement and sealed-package identity without
 > rebuilding, resigning, renotarizing, or restapling in REUSE. Challenge PIN
-> FIRST, CREATE/REUSE/REJECT state selection, descriptor/path TOCTOU defenses,
-> every crash/fsync/atomic-install boundary, exact `EEXIST` convergence, and the
-> unchanged reporter's three-run producer counts and inode/byte stability. Inspect
+> FIRST, CREATE/REUSE/REJECT state selection, the distinct sealed-set-resume and
+> statement-dependent REUSE validators, descriptor/path/ACL TOCTOU defenses,
+> ACL inheritance and changes at every checkpoint, ACL-object cleanup and
+> unsupported-filesystem/error behavior, accepted versus unaccepted cleanup,
+> every crash/fsync/atomic-install boundary, both exact `EEXIST` convergence
+> paths, immediate-pre-zero timing, and the unchanged reporter's exact three-run
+> raw exits, producer counts, and inode/byte/ACL stability. Inspect
 > signing/notarization/entitlements/SBOM, trace protection
 > before first frame, mechanically compare every signed parent/nested executable
 > with the exact role allowlist, rerun the complete reporter plan, personally
