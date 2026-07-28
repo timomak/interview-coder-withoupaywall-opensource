@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-07-28T07:24:06+02:00",
+  "updatedAt": "2026-07-28T07:31:26+02:00",
   "repository": {
     "remote": "https://github.com/j4wg/interview-coder-withoupaywall-opensource",
     "pushRemote": "https://github.com/timomak/interview-coder-withoupaywall-opensource",
     "baseBranch": "main",
     "baseSha": "9dcb4b2d39607273a8528a24657cdb4f5bfc3412"
   },
-  "orchestrationStatus": "P01_CONTROLLER_INSTALL_RECOVERY_ACTIVE",
+  "orchestrationStatus": "P01_CONTROLLER_INSTALL_CORRECTION_AUTHORIZED",
   "currentPhaseId": "P01",
   "goalBlockedAudit": {
     "status": "RESUMED_BY_EXPLICIT_ADMINISTRATOR_AUTHORIZATION",
@@ -2438,7 +2438,7 @@
       "worktreeClean": true
     },
     "P01/remediate-4": {
-      "status": "CONTROLLER_INSTALL_RECOVERY_ACTIVE",
+      "status": "CONTROLLER_INSTALL_CORRECTION_AUTHORIZED",
       "clientThreadId": "client-new-thread:ab5b24c4-055a-4c8f-b7c7-e0d0cbc4d8c6",
       "threadId": "019fa407-0732-7b93-b92c-c1a36d84fa02",
       "hostId": "local",
@@ -2504,6 +2504,11 @@
       "controllerInstallRecoveryAuthorizedAt": "2026-07-28T07:23:22+02:00",
       "controllerInstallRecoveryAuthority": "User explicitly authorized always proceeding, including the required administrator installation path.",
       "controllerInstallRecoveryDispatchedAt": "2026-07-28T07:24:06+02:00",
+      "controllerInstallRecoveryAttempt3CompletedAt": "2026-07-28T07:30:42+02:00",
+      "controllerInstallRecoveryAttempt3Result": "ADMIN_AUTHORIZATION_GRANTED_DIRECTORY_SERVICES_IDEMPOTENCY_FAILURE",
+      "controllerInstallRecoveryRecordSha256": "a62875d6f226e922849855ec3e5eba8ac3d7744e54b0e47cca9a029c163aca21",
+      "controllerInstallCorrectionAuthorizedAt": "2026-07-28T07:31:26+02:00",
+      "controllerInstallCorrection": "Reuse the successfully created dedicated UID/GID 499 identity and remove the redundant dseditgroup membership edit; retain the original staged installer bytes after the bounded recovery.",
       "singleActiveWriterReservation": true,
       "controllerRuntimeRequired": true,
       "requiredOutcome": "Produce a staff-challenged remediation plan for an immutable P01 candidate that implements the approved P00-R9 controller runtime as the first trusted instruction, closes all six P01 findings, preserves exact evidence and negative-control contracts, and is suitable for one isolated implementation commit followed by fresh full exact-SHA independent review."
@@ -3117,7 +3122,7 @@
       "id": "P01-INFRA-B01",
       "scope": "P01",
       "severity": "RELEASE_BLOCKING",
-      "rootCauseTag": "MACOS_ADMIN_AUTHORIZATION_UNAVAILABLE",
+      "rootCauseTag": "DIRECTORY_SERVICES_INSTALLER_IDEMPOTENCY",
       "active": true,
       "hardLimitReached": true,
       "blocks": [
@@ -3129,12 +3134,23 @@
       "candidateSha": "1ff0881b9bd59f243146c93b6709be57d58ee17a",
       "requiredInstallPath": "/Users/Shared/InterviewCopilot/verification-controller/v1",
       "evidenceDirectory": "/Users/thirdfacedev/.codex/orchestration/TimoCodes-evidence/P01-controller-P00-R9",
-      "evidence": "Two bounded 90-second administrator-channel attempts completed without authorization or installation. The required path remains absent and sudo -n exits 1 because a password is required. Native compile, installer syntax, sudoers validation, bootstrap framing, and all 13 controller self-tests passed without invoking candidate npm.",
-      "requiredOutcome": "Install the staged controller runtime root-owned with the dedicated execution identity and pinned Node/npm closure, pass installed preflight, arm exact candidate 1ff0881 under approved P00-R9, then run controller-only authoritative P01 verification before independent review.",
+      "evidence": "Administrator authorization succeeded. The exact installer first failed because GID 399 is owned by com.apple.access_ssh; a bounded recovery created dedicated UID/GID 499, then the redundant dseditgroup primary-group membership edit failed with eDSPermissionError before controller-root creation. The controller path and sudoers rule remain absent; candidate npm did not run.",
+      "requiredOutcome": "Reuse the existing dedicated UID/GID 499 identity, omit the unnecessary primary-group membership edit, install the staged runtime root-owned with the pinned Node/npm closure, pass installed preflight, arm exact candidate 1ff0881 under approved P00-R9, then run controller-only authoritative P01 verification before independent review.",
       "infrastructureRetryCount": 3,
       "recoveryAuthorizedAt": "2026-07-28T07:23:22+02:00",
       "recoveryAuthority": "user-explicit-proceed-authorization",
       "recoveryAttemptStartedAt": "2026-07-28T07:24:06+02:00",
+      "administratorAuthorizationGranted": true,
+      "serviceIdentity": {
+        "user": "_interviewcopilotverify",
+        "uid": 499,
+        "group": "_interviewcopilotverify",
+        "gid": 499,
+        "shell": "/usr/bin/false",
+        "home": "/var/empty"
+      },
+      "recoveryRecordSha256": "a62875d6f226e922849855ec3e5eba8ac3d7744e54b0e47cca9a029c163aca21",
+      "correctionAuthorizedAt": "2026-07-28T07:31:26+02:00",
       "heartbeatReadOnlyCheckCount": 4,
       "lastCheckedAt": "2026-07-27T19:09:52+02:00",
       "blockedThresholdReachedAt": "2026-07-27T17:42:10+02:00",
