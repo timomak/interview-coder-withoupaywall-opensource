@@ -1,7 +1,7 @@
 /usr/bin/sudo /bin/zsh -c 'set -euo pipefail
 umask 077
 source_root=/Users/thirdfacedev/.codex/orchestration/TimoCodes-ledger/capabilities/P00-V2-CAP-A02
-stage=/Users/Shared/InterviewCopilot/verification-controller-bootstrap/6d7821ddabed7bf137079f465f04f0388f1305e5576da48097bf2e3c4c3808b3
+stage=/Users/Shared/InterviewCopilot/verification-controller-bootstrap/69f88512f7b2740326346c57593ed428812a2e278eb86b62a005b17b9e56286f
 [[ ! -e "$stage" ]]
 /bin/mkdir -p "$stage"
 /bin/mkdir -p "$stage/build"
@@ -39,10 +39,10 @@ stage=/Users/Shared/InterviewCopilot/verification-controller-bootstrap/6d7821dda
 /bin/chmod 0555 "$stage/source/install.sh"
 /usr/sbin/chown -R root:wheel "$stage"
 /usr/bin/xattr -cr "$stage"
-[[ "$(/usr/bin/shasum -a 256 "$stage/source/install.sh" | /usr/bin/awk '"'"'{print $1}'"'"')" == "168a6f6daa3e24721979fab2c3c3c69234f2e927f9028e7760b5f39e6c48fbd1" ]]
+[[ "$(/usr/bin/shasum -a 256 "$stage/source/install.sh" | /usr/bin/awk '"'"'{print $1}'"'"')" == "8232f6b9b3c6ce0d60b5bccbd91940e03b907304e5d545e05443b1cb88367cfa" ]]
 [[ "$(/usr/bin/shasum -a 256 "$stage/tools/envelope.py" | /usr/bin/awk '"'"'{print $1}'"'"')" == "7dbc38af2cb547e87c36332fd1f2923b276f5260cd964d9926da1ca21bb79926" ]]
 [[ "$(/usr/bin/shasum -a 256 "$stage/tools/manifest.py" | /usr/bin/awk '"'"'{print $1}'"'"')" == "03f25b6923026c8e194fbd711cf60e13b984e46c66ec5f0ea88e40b93be0b407" ]]
-[[ "$(/usr/bin/shasum -a 256 "$stage/build/release-envelope.json" | /usr/bin/awk '"'"'{print $1}'"'"')" == "6d7821ddabed7bf137079f465f04f0388f1305e5576da48097bf2e3c4c3808b3" ]]
+[[ "$(/usr/bin/shasum -a 256 "$stage/build/release-envelope.json" | /usr/bin/awk '"'"'{print $1}'"'"')" == "69f88512f7b2740326346c57593ed428812a2e278eb86b62a005b17b9e56286f" ]]
 [[ "$(/usr/bin/shasum -a 256 "$stage/build/payload.tar.gz" | /usr/bin/awk '"'"'{print $1}'"'"')" == "a9fede4079d4563a84536981773b2d7c36bb573de60288cd9d7468481beff4fa" ]]
 /usr/bin/python3 "$stage/tools/envelope.py" verify "$stage" "$stage/build/release-envelope.json"
-exec "$stage/source/install.sh" "$stage" "6d7821ddabed7bf137079f465f04f0388f1305e5576da48097bf2e3c4c3808b3"'
+exec "$stage/source/install.sh" "$stage" "69f88512f7b2740326346c57593ed428812a2e278eb86b62a005b17b9e56286f"'

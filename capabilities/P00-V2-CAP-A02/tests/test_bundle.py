@@ -1031,6 +1031,14 @@ class CapabilityBundleTests(unittest.TestCase):
                     sha256(controller / "v2/libexec/verify-phase-core"),
                     old_controller_sha,
                 )
+                run(
+                    "/usr/bin/python3",
+                    A01_BUNDLE / "tools/manifest.py",
+                    "verify",
+                    controller / "v2",
+                    A01_BUNDLE / "build/expected-install-manifest.json",
+                    "--allow-source-provenance",
+                )
                 shutil.copyfile(BUNDLE / "config/sudoers", sudoers)
                 sudoers.chmod(0o440)
                 before_authorization = self.install(
@@ -1046,6 +1054,14 @@ class CapabilityBundleTests(unittest.TestCase):
                     sha256(controller / "v2/libexec/verify-phase-core"),
                     old_controller_sha,
                 )
+                run(
+                    "/usr/bin/python3",
+                    A01_BUNDLE / "tools/manifest.py",
+                    "verify",
+                    controller / "v2",
+                    A01_BUNDLE / "build/expected-install-manifest.json",
+                    "--allow-source-provenance",
+                )
                 self.assertTrue(
                     (controller / "metadata/P00-V2-CAP-A01").is_dir()
                 )
@@ -1054,6 +1070,15 @@ class CapabilityBundleTests(unittest.TestCase):
                 )
                 self.assertFalse(
                     any(controller.glob(".v2-before-P00-V2-CAP-A02.*"))
+                )
+                shutil.copyfile(BUNDLE / "config/sudoers", sudoers)
+                sudoers.chmod(0o440)
+                retry = self.install(test_root)
+                self.assertEqual(retry.returncode, 0, retry.stderr)
+                self.assertTrue(sudoers.is_file())
+                self.assertEqual(
+                    sha256(controller / "v2/libexec/verify-phase-core"),
+                    sha256(BUILD / "controller"),
                 )
             finally:
                 make_writable(temporary)

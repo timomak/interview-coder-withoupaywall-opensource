@@ -221,7 +221,6 @@ cleanup() {
   if (( result != 0 )); then
     if (( upgrading == 1 && previous_moved == 1 )); then
       test_make_writable "$install_root"
-      test_make_writable "$previous_install_root"
     elif (( activated == 1 )); then
       test_make_writable "$install_root"
     fi

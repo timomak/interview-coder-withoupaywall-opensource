@@ -1,6 +1,6 @@
 {
   "artifactId": "P00-V2-CAP-A02",
-  "adminHandoffSha256": "439824b07998a1d99d9ed8f7271e6873075be0b9d00fdbe7a27214eb861e8dec",
+  "adminHandoffSha256": "642af58b43219ca542efd7ad621df033a950d78c02d6735e76b07f30d795e83b",
   "candidateInvoked": false,
   "controllerSha256": "73eda1532baa3044cf4feb989d2ec58d15304c86c31a298ed3d73a1a75c7494d",
   "expectedInstallManifestSha256": "945ffda713b5e9a02d2472d6f4e9e91340111384a6cdeab40890a5f3b572768b",
@@ -11,8 +11,8 @@
   "npmInvoked": false,
   "payloadArchiveSha256": "a9fede4079d4563a84536981773b2d7c36bb573de60288cd9d7468481beff4fa",
   "privilegedBoundaryCrossed": false,
-  "quiescenceVerifierSha256": "39311b457b45271c5c7e3ef39f620c73582d1cbfe00347eba3aa76ce30431f5a",
-  "releaseEnvelopeSha256": "6d7821ddabed7bf137079f465f04f0388f1305e5576da48097bf2e3c4c3808b3",
+  "quiescenceVerifierSha256": "fd2274e25250bbb813deecc212a01b1ff6d7ab3c56a5ff4021214e8f0bb88b72",
+  "releaseEnvelopeSha256": "69f88512f7b2740326346c57593ed428812a2e278eb86b62a005b17b9e56286f",
   "renderedControllerSha256": "2552af801e0cc32bbc06a39b84cb4a4773547add314381f49969430cdf34f4a4",
   "reproducibleBuilds": 2,
   "schemaVersion": 1,
@@ -21,5 +21,5 @@
   "testCommand": "/bin/zsh tests/run.sh",
   "testCount": 25,
   "testResult": "PASS",
-  "testRuntimeSeconds": 624.288
+  "testRuntimeSeconds": 686.924
 }
