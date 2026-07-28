@@ -3049,7 +3049,7 @@
           ]
         },
         "secondRemediation": {
-          "validatedAt": "2026-07-28T15:49:00+02:00",
+          "validatedAt": "2026-07-28T15:54:41+02:00",
           "immutableArtifactCommitSha": "818061fc2cf5e2bbcaa171c016dc90e29561a661",
           "controllerSha256": "491c193ad8f5b908fff6e79c33dfb40b07b79c703bbc36eb427b47094579c15e",
           "expectedInstallManifestSha256": "e952fb5795232b70f6efae374456404f62fdd5c4d40e3290ee3a70a1ce95b5c4",
