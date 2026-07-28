@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-07-28T07:37:42+02:00",
+  "updatedAt": "2026-07-28T07:39:00+02:00",
   "repository": {
     "remote": "https://github.com/j4wg/interview-coder-withoupaywall-opensource",
     "pushRemote": "https://github.com/timomak/interview-coder-withoupaywall-opensource",
@@ -12,9 +12,9 @@
   "goalBlockedAudit": {
     "status": "ACTIVE_EXTERNAL_BLOCKER_AUDIT",
     "blockingCondition": "P01-INFRA-B01 requires one completed macOS administrator authorization interaction to run the corrected root-owned P00-R9 controller installer; the latest bounded dialog timed out without output or installation.",
-    "consecutiveGoalTurns": 1,
+    "consecutiveGoalTurns": 2,
     "thresholdSatisfied": false,
-    "auditedAt": "2026-07-28T07:37:42+02:00",
+    "auditedAt": "2026-07-28T07:39:00+02:00",
     "resumedAt": "2026-07-28T07:23:22+02:00",
     "resumedBy": "user-explicit-proceed-authorization",
     "authoritativeState": {
@@ -2863,7 +2863,7 @@
       "scope": "P00",
       "severity": "CRITICAL",
       "rootCauseTag": "sealed-set-resume-requires-absent-statement",
-      "hardLimitReached": true,
+      "hardLimitReached": false,
       "blocks": [
         "PACKET_APPROVAL",
         "BASELINE",
@@ -3160,8 +3160,8 @@
       "attempt4TemporaryInstallerSha256": "3d1554f4426b05baa68bedd66959c66d65753e5c1631c2b934110cd5929024b0",
       "attempt4EvidenceSha256": "b092cff417b123ecdcfd3e0b5d2869d4ef4b8a803e8d756db4553e92de7a79c1",
       "attempt4CompletedAt": "2026-07-28T07:37:16+02:00",
-      "heartbeatReadOnlyCheckCount": 4,
-      "lastCheckedAt": "2026-07-27T19:09:52+02:00",
+      "heartbeatReadOnlyCheckCount": 5,
+      "lastCheckedAt": "2026-07-28T07:39:00+02:00",
       "blockedThresholdReachedAt": "2026-07-27T17:42:10+02:00",
       "resumedBlockedThresholdReachedAt": "2026-07-27T19:09:52+02:00"
     }
