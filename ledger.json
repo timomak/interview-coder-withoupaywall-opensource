@@ -2868,7 +2868,7 @@
         "useProhibited": true
       },
       "privileged-verification-controller-v2-replacement": {
-        "status": "INSTALLED_EXACT_PREFLIGHT_PASSED_P01_ARMED",
+        "status": "INSTALLED_P01_VERIFICATION_FAILED_CLOSED_A02_REQUIRED",
         "quarantineStatus": "ACTIVE",
         "riskTier": "HIGH",
         "useProhibitedUntilIndependentApproval": false,
@@ -3187,6 +3187,26 @@
             "Remove only the enumerated v1/v2 executable and controller-state roots.",
             "Write the immutable revocation receipt and prove privileged command paths are absent."
           ]
+        },
+        "upgradeAmendment": {
+          "id": "P00-V2-CAP-A02",
+          "status": "AUTHORIZED_NARROW_REMEDIATION",
+          "authorizedBy": "user standing instruction to proceed end-to-end",
+          "candidateAndPRPreserved": true,
+          "administratorActionProhibitedUntilIndependentApproval": true,
+          "blocker": {
+            "id": "P00-V2-CAP-A02-B01",
+            "severity": "HIGH",
+            "detectedAt": "2026-07-28T16:49:20+02:00",
+            "classification": "CONTROLLER_BOOTSTRAP_FAIL_CLOSED",
+            "summary": "The trusted child receives a mode-0711 run leaf but root-only mode-0700 runs/commit/phase ancestors, so Node exits with EACCES uv_cwd before any candidate gate.",
+            "candidateFault": false,
+            "candidateInvoked": false,
+            "verificationAccepted": false,
+            "rawFailure": "Error: EACCES: permission denied, uv_cwd",
+            "requiredFix": "Set every run evidence ancestor required by UID 499 to traverse-only 0711 while retaining root-only file access, cover all P01-P12 dynamically created ancestors, test the negative and positive cwd boundary, and atomically upgrade only after exact independent HIGH-risk approval."
+          },
+          "nextSafeAction": "Prepare and non-privileged-test an exact atomic A01-to-A02 controller upgrade with rollback that never restores authorization on failure, then obtain one independent HIGH-risk review."
         }
       }
     },
@@ -3194,7 +3214,7 @@
       "decision": "ADOPT_V2_WITH_EXISTING_WORK_PRESERVED_AND_PRIVILEGED_CAPABILITY_QUARANTINED",
       "incompatibilityClassification": "V2-CAP-B01_THROUGH_B04_BLOCKS_CONTINUATION",
       "capabilityQuarantineStatus": "ACTIVE_UNAVAILABLE_DO_NOT_INVOKE",
-      "nextSafeAction": "Run controller-only authoritative P01 verification at the exact armed SHA, reconcile evidence, then dispatch one fresh exact-SHA independent B01-B06 review.",
+      "nextSafeAction": "Complete P00-V2-CAP-A02 narrow controller upgrade remediation and independent review, atomically upgrade v2, re-arm the unchanged P01 SHA, and rerun authoritative verification.",
       "newUserOnlyDecisionRequired": false,
       "futureInteractiveCheckpoint": "COMPLETED: the bounded administrator installation succeeded; approved arm/verify operations are now passwordless."
     }
