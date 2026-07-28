@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-07-28T19:26:57+02:00",
+  "updatedAt": "2026-07-28T19:54:35+02:00",
   "repository": {
     "remote": "https://github.com/j4wg/interview-coder-withoupaywall-opensource",
     "pushRemote": "https://github.com/timomak/interview-coder-withoupaywall-opensource",
@@ -2848,12 +2848,12 @@
       "activeWriter": null,
       "activeReviewer": {
         "reservationId": "P00-V2-CAP-A02-HIGH-REVIEW-1",
-        "status": "FOLLOWUP_CHANGES_REQUESTED_COMPLETE",
+        "status": "RESERVED_SECOND_FOLLOWUP_PENDING_DISPATCH",
         "dispatchedAt": "2026-07-28T18:56:59+02:00",
         "taskId": "/root/p00_v2_cap_a01_high_review",
         "riskTier": "HIGH",
-        "artifactCommitSha": "abf7857dbb91904c19c3c029d931696ccc25dbab",
-        "artifactEnvelopeSha256": "edd9653e869b60d2b1169dc2aa8cbdf43ebdaea31461592ca035a3b22c681ca4",
+        "artifactCommitSha": "7d0e45384a8e5643e8011918995d09f85406fa04",
+        "artifactEnvelopeSha256": "6d7821ddabed7bf137079f465f04f0388f1305e5576da48097bf2e3c4c3808b3",
         "mutationAllowed": false
       },
       "legacyWriterTaskId": "019fa407-0732-7b93-b92c-c1a36d84fa02",
@@ -3191,11 +3191,11 @@
         },
         "upgradeAmendment": {
           "id": "P00-V2-CAP-A02",
-          "status": "REVIEW_FOLLOWUP_CHANGES_REQUESTED",
+          "status": "IMMUTABLE_SECOND_REMEDIATION_AWAITING_REVIEW",
           "authorizedBy": "user standing instruction to proceed end-to-end",
           "candidateAndPRPreserved": true,
           "administratorActionProhibitedUntilIndependentApproval": true,
-          "immutableArtifactCommitSha": "abf7857dbb91904c19c3c029d931696ccc25dbab",
+          "immutableArtifactCommitSha": "7d0e45384a8e5643e8011918995d09f85406fa04",
           "reviewReservationId": "P00-V2-CAP-A02-HIGH-REVIEW-1",
           "validation": {
             "validatedAt": "2026-07-28T17:20:44+02:00",
@@ -3318,6 +3318,34 @@
                   "summary": "The installer can continue after the post-ready quiescence holder dies because liveness is not rechecked and final holder failure is ignored."
                 }
               ]
+            },
+            "secondRemediation": {
+              "validatedAt": "2026-07-28T19:54:35+02:00",
+              "immutableArtifactCommitSha": "7d0e45384a8e5643e8011918995d09f85406fa04",
+              "result": "PASS",
+              "nonPrivilegedTestCount": 25,
+              "nativeSelfTestCaseCount": 2,
+              "reproducibleBuildCount": 2,
+              "candidateInvoked": false,
+              "sudoInvoked": false,
+              "installedPrivilegedHelperInvoked": false,
+              "controllerSha256": "73eda1532baa3044cf4feb989d2ec58d15304c86c31a298ed3d73a1a75c7494d",
+              "expectedInstallManifestSha256": "945ffda713b5e9a02d2472d6f4e9e91340111384a6cdeab40890a5f3b572768b",
+              "payloadArchiveSha256": "a9fede4079d4563a84536981773b2d7c36bb573de60288cd9d7468481beff4fa",
+              "releaseEnvelopeSha256": "6d7821ddabed7bf137079f465f04f0388f1305e5576da48097bf2e3c4c3808b3",
+              "adminHandoffSha256": "439824b07998a1d99d9ed8f7271e6873075be0b9d00fdbe7a27214eb861e8dec",
+              "findingDispositions": [
+                {
+                  "id": "P00-V2-CAP-A02-R2-F01",
+                  "status": "REMEDIATED_PENDING_REVIEW",
+                  "evidence": "Every regular run descendant must have link count one before the validation-only traversal completes; a hard-link negative proves nonzero exit and unchanged modes/bytes both inside and outside runs."
+                },
+                {
+                  "id": "P00-V2-CAP-A02-R2-F02",
+                  "status": "REMEDIATED_PENDING_REVIEW",
+                  "evidence": "The authenticated child PID and non-zombie state are checked at every swap/validation/authorization transition, successful holder release is mandatory before commit, and injected post-ready deaths before swap and authorization both restore exact A01 with authorization absent."
+                }
+              ]
             }
           },
           "blocker": {
@@ -3332,7 +3360,7 @@
             "rawFailure": "Error: EACCES: permission denied, uv_cwd",
             "requiredFix": "Set every run evidence ancestor required by UID 499 to traverse-only 0711 while retaining root-only file access, cover all P01-P12 dynamically created ancestors, test the negative and positive cwd boundary, and atomically upgrade only after exact independent HIGH-risk approval."
           },
-          "nextSafeAction": "Remediate P00-V2-CAP-A02-R2-F01 and F02 with hard-link and post-ready holder-death negatives, freeze exact artifacts, and return to the same sole HIGH-risk reviewer; do not cross the administrator boundary before approval."
+          "nextSafeAction": "Run the reserved second review follow-up against exact commit 7d0e45384a8e5643e8011918995d09f85406fa04; do not cross the administrator boundary before approval."
         }
       }
     },
