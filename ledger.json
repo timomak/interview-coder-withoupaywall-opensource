@@ -1,24 +1,24 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-07-28T09:49:25+02:00",
+  "updatedAt": "2026-07-28T10:48:47+02:00",
   "repository": {
     "remote": "https://github.com/j4wg/interview-coder-withoupaywall-opensource",
     "pushRemote": "https://github.com/timomak/interview-coder-withoupaywall-opensource",
     "baseBranch": "main",
     "baseSha": "9dcb4b2d39607273a8528a24657cdb4f5bfc3412"
   },
-  "orchestrationStatus": "BLOCKED_EXTERNAL_AUTHORIZATION",
+  "orchestrationStatus": "P01_DURABLE_TERMINAL_BOOTSTRAP_ATTEMPT_7_READY",
   "currentPhaseId": "P01",
   "goalBlockedAudit": {
-    "status": "BLOCKED_THRESHOLD_REACHED_AFTER_ATTEMPT_6",
-    "blockingCondition": "P01-INFRA-B01 requires one new macOS administrator authorization cycle after attempt 6 terminated without a captured process result and without creating any controller or sudoers artifact.",
-    "consecutiveGoalTurns": 3,
-    "thresholdSatisfied": true,
-    "auditedAt": "2026-07-28T09:49:25+02:00",
-    "resumedAt": "2026-07-28T07:23:22+02:00",
-    "resumedBy": "user-explicit-proceed-authorization",
-    "latestRecoveryCycleResumedAt": "2026-07-28T09:41:43+02:00",
-    "latestRecoveryCycleAuthority": "automation-heartbeat-next-single-administrator-install-attempt",
+    "status": "ACTIVE_EXTERNAL_BLOCKER_RECOVERY",
+    "blockingCondition": "P01-INFRA-B01 requires one visible Terminal administrator password entry to install the prepared durable root-owned controller bootstrap.",
+    "consecutiveGoalTurns": 0,
+    "thresholdSatisfied": false,
+    "auditedAt": "2026-07-28T10:48:47+02:00",
+    "resumedAt": "2026-07-28T10:48:47+02:00",
+    "resumedBy": "user-explicit-let-us-do-it",
+    "latestRecoveryCycleResumedAt": "2026-07-28T10:48:47+02:00",
+    "latestRecoveryCycleAuthority": "user-explicit-visible-terminal-bootstrap",
     "authoritativeState": {
       "packetSha": "02ee6ddec78d6e4ea9e2de3c0303ffd6bc9f45bf",
       "candidateSha": "1ff0881b9bd59f243146c93b6709be57d58ee17a",
@@ -29,8 +29,8 @@
       "noninteractiveSudoExit": 1,
       "safePreparationExhausted": true
     },
-    "authorizationSource": "User instruction at 2026-07-28: always proceed. you're authorized.",
-    "decision": "Preserve P00-R9 and retry the exact staged privileged controller installation through the macOS administrator channel, then continue automatically through controller-only P01 verification and the remaining workflow."
+    "authorizationSource": "User instruction at 2026-07-28T10:48:47+02:00: let's do it.",
+    "decision": "Preserve P00-R9 and run one durable, hash-pinned, visible-Terminal bootstrap with atomic staging, rollback, captured output, and a manual password handoff; after installation, continue automatically through controller-only P01 verification and the remaining workflow."
   },
   "packet": {
     "status": "APPROVED",
@@ -2440,13 +2440,13 @@
       "worktreeClean": true
     },
     "P01/remediate-4": {
-      "status": "BLOCKED_EXTERNAL_AUTHORIZATION_THRESHOLD_REACHED_AFTER_ATTEMPT_6",
+      "status": "DURABLE_TERMINAL_BOOTSTRAP_ATTEMPT_7_READY",
       "clientThreadId": "client-new-thread:ab5b24c4-055a-4c8f-b7c7-e0d0cbc4d8c6",
       "threadId": "019fa407-0732-7b93-b92c-c1a36d84fa02",
       "hostId": "local",
       "worktreePath": "/Users/thirdfacedev/.codex/worktrees/f1f2/TimoCodes",
       "phaseId": "P01",
-      "infrastructureRetryCount": 6,
+      "infrastructureRetryCount": 7,
       "packetRevision": "P00-R9",
       "packetSha": "02ee6ddec78d6e4ea9e2de3c0303ffd6bc9f45bf",
       "baseSha": "b2b35d56d8d396591bdc2e6b7b9193bcde947de5",
@@ -2535,6 +2535,12 @@
       "controllerInstallRecoveryAttempt6Result": "EXECUTION_SESSION_DISAPPEARED_NO_INSTALLATION_ARTIFACTS",
       "controllerInstallRecoveryAttempt6EvidenceSha256": "e9bde99edc432e806ccc92490f6c6cc619a8005c940df15ea4394b22bd00677d",
       "controllerInstallRecoveryAttempt6BlockedThresholdReachedAt": "2026-07-28T09:49:25+02:00",
+      "controllerInstallRecoveryAttempt7AuthorizedAt": "2026-07-28T10:48:47+02:00",
+      "controllerInstallRecoveryAttempt7Authority": "User explicitly approved the one-time visible Terminal bootstrap and end-of-workflow privilege removal plan.",
+      "controllerInstallRecoveryAttempt7InstallerSha256": "cd1131ab094dbe7b5527f31c3efdb74ea4066d9b92189df4d4ccfdb7bc4db906",
+      "controllerInstallRecoveryAttempt7RunnerSha256": "9c26126554749b20558813f0cc624856599d3f2dc20c5ae6a569c9bee2991441",
+      "controllerInstallRecoveryAttempt7ReadinessSha256": "0dd04adfc25f6b980535666542d88adf0f8a014d336037edcb629ba65b26c7e7",
+      "controllerInstallRecoveryAttempt7LogPath": "/Users/thirdfacedev/.codex/orchestration/TimoCodes-evidence/P01-controller-P00-R9/recovery/install-attempt-7.log",
       "singleActiveWriterReservation": true,
       "controllerRuntimeRequired": true,
       "requiredOutcome": "Produce a staff-challenged remediation plan for an immutable P01 candidate that implements the approved P00-R9 controller runtime as the first trusted instruction, closes all six P01 findings, preserves exact evidence and negative-control contracts, and is suitable for one isolated implementation commit followed by fresh full exact-SHA independent review."
@@ -3148,9 +3154,9 @@
       "id": "P01-INFRA-B01",
       "scope": "P01",
       "severity": "RELEASE_BLOCKING",
-      "rootCauseTag": "MACOS_ADMIN_PROCESS_TERMINATED_WITHOUT_INSTALLATION_RESULT_UNCAPTURED",
+      "rootCauseTag": "DURABLE_VISIBLE_TERMINAL_BOOTSTRAP_READY",
       "active": true,
-      "hardLimitReached": true,
+      "hardLimitReached": false,
       "blocks": [
         "P01_AUTHORITATIVE_VERIFICATION",
         "P01_INDEPENDENT_REVIEW",
@@ -3160,9 +3166,9 @@
       "candidateSha": "1ff0881b9bd59f243146c93b6709be57d58ee17a",
       "requiredInstallPath": "/Users/Shared/InterviewCopilot/verification-controller/v1",
       "evidenceDirectory": "/Users/thirdfacedev/.codex/orchestration/TimoCodes-evidence/P01-controller-P00-R9",
-      "evidence": "Attempt 6 used the validated corrected bytes and invoked them through /bin/zsh. On reconciliation, the execution session and all osascript/installer processes were gone, no terminal result was available, and neither the controller root nor sudoers rule existed. Candidate npm did not run.",
-      "requiredOutcome": "In a new explicitly authorized administrator cycle, run the exact corrected /bin/zsh invocation to a captured terminal result, install the staged runtime root-owned with the pinned Node/npm closure, pass installed preflight, arm exact candidate 1ff0881 under approved P00-R9, then run controller-only authoritative P01 verification before independent review.",
-      "infrastructureRetryCount": 6,
+      "evidence": "Attempt 7 preparation produced a durable hash-pinned installer and runner. The installer requires the existing UID/GID 499 identity, validates all pinned inputs and sudoers syntax before mutation, stages atomically, rolls back on failure, runs installed preflight, and captures a durable Terminal log.",
+      "requiredOutcome": "Complete the single visible Terminal password entry, obtain installer_exit=0 in the durable log, verify the root-owned controller and sudoers rule, arm exact candidate 1ff0881 under approved P00-R9, then run controller-only authoritative P01 verification before independent review.",
+      "infrastructureRetryCount": 7,
       "recoveryAuthorizedAt": "2026-07-28T07:23:22+02:00",
       "recoveryAuthority": "user-explicit-proceed-authorization",
       "recoveryAttemptStartedAt": "2026-07-28T07:24:06+02:00",
@@ -3200,6 +3206,10 @@
       "attempt6CompletedAt": "2026-07-28T09:44:31+02:00",
       "attempt6Result": "EXECUTION_SESSION_DISAPPEARED_NO_INSTALLATION_ARTIFACTS",
       "attempt6EvidenceSha256": "e9bde99edc432e806ccc92490f6c6cc619a8005c940df15ea4394b22bd00677d",
+      "attempt7AuthorizedAt": "2026-07-28T10:48:47+02:00",
+      "attempt7InstallerSha256": "cd1131ab094dbe7b5527f31c3efdb74ea4066d9b92189df4d4ccfdb7bc4db906",
+      "attempt7RunnerSha256": "9c26126554749b20558813f0cc624856599d3f2dc20c5ae6a569c9bee2991441",
+      "attempt7ReadinessSha256": "0dd04adfc25f6b980535666542d88adf0f8a014d336037edcb629ba65b26c7e7",
       "blockedThresholdReachedAt": "2026-07-27T17:42:10+02:00",
       "resumedBlockedThresholdReachedAt": "2026-07-27T19:09:52+02:00"
     }
