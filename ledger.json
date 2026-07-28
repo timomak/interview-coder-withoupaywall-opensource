@@ -1,36 +1,38 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-07-28T10:56:59+02:00",
+  "updatedAt": "2026-07-28T13:08:28+02:00",
   "repository": {
     "remote": "https://github.com/j4wg/interview-coder-withoupaywall-opensource",
     "pushRemote": "https://github.com/timomak/interview-coder-withoupaywall-opensource",
     "baseBranch": "main",
     "baseSha": "9dcb4b2d39607273a8528a24657cdb4f5bfc3412"
   },
-  "orchestrationStatus": "P01_DURABLE_TERMINAL_BOOTSTRAP_ATTEMPT_9_AWAITING_PASSWORD",
+  "orchestrationStatus": "P01_V2_MIGRATED_LEGACY_CAPABILITY_QUARANTINED",
   "currentPhaseId": "P01",
   "goalBlockedAudit": {
-    "status": "ACTIVE_EXTERNAL_BLOCKER_RECOVERY",
-    "blockingCondition": "P01-INFRA-B01 requires one visible Terminal administrator password entry to install the prepared durable root-owned controller bootstrap.",
+    "status": "MIGRATION_REVIEW_ACTIVE",
+    "blockingCondition": "The installed legacy privileged capability is quarantined because four v2 contract incompatibilities block privileged execution; safe controller-only design and review work remains available.",
     "consecutiveGoalTurns": 0,
     "thresholdSatisfied": false,
-    "auditedAt": "2026-07-28T10:55:29+02:00",
-    "resumedAt": "2026-07-28T10:48:47+02:00",
-    "resumedBy": "user-explicit-let-us-do-it",
-    "latestRecoveryCycleResumedAt": "2026-07-28T10:48:47+02:00",
-    "latestRecoveryCycleAuthority": "user-explicit-visible-terminal-bootstrap",
+    "auditedAt": "2026-07-28T13:08:28+02:00",
+    "resumedAt": "2026-07-28T13:08:28+02:00",
+    "resumedBy": "v2-existing-work-adoption",
+    "latestRecoveryCycleResumedAt": "2026-07-28T13:08:28+02:00",
+    "latestRecoveryCycleAuthority": "delegated-v2-migration-review-only",
     "authoritativeState": {
       "packetSha": "02ee6ddec78d6e4ea9e2de3c0303ffd6bc9f45bf",
       "candidateSha": "1ff0881b9bd59f243146c93b6709be57d58ee17a",
       "prNumber": 155,
       "prHeadMatched": true,
       "hostedCodeQL": "SUCCESS",
-      "controllerInstallPathAbsent": true,
-      "noninteractiveSudoExit": 1,
-      "safePreparationExhausted": true
+      "controllerInstallPathPresent": true,
+      "attempt9InstallerExit": 0,
+      "legacyPreflightPassed": true,
+      "legacyCapabilityQuarantined": true,
+      "safeDesignAndReviewWorkAvailable": true
     },
-    "authorizationSource": "User instruction at 2026-07-28T10:48:47+02:00: let's do it.",
-    "decision": "Preserve P00-R9 and run one durable, hash-pinned, visible-Terminal bootstrap with atomic staging, rollback, captured output, and a manual password handoff; after installation, continue automatically through controller-only P01 verification and the remaining workflow."
+    "authorizationSource": "Delegation from task 019fa7ad-8bd7-7473-b342-9cfca4af1bc1 requiring v2 existing-work adoption before any candidate or privileged command.",
+    "decision": "Preserve P00-R9 and the in-flight P01 legacy composite, quarantine the installed v1 capability, and prepare plus independently review the narrow P00-V2-CAP-A01 replacement and revocation artifacts before another administrator action."
   },
   "packet": {
     "status": "APPROVED",
@@ -315,7 +317,7 @@
     {
       "id": "P01",
       "title": "Green local gates and policy rails",
-      "status": "IMPLEMENTATION_CANDIDATE_INFRA_BLOCKED",
+      "status": "PREFLIGHT",
       "dependencies": [],
       "baseBranch": "main",
       "baseSha": "9dcb4b2d39607273a8528a24657cdb4f5bfc3412",
@@ -999,7 +1001,9 @@
         "forkBranchMatched": true,
         "draftPrIdentityMatched": true,
         "trackedImplementationComplete": true,
-        "controllerInstallComplete": false,
+        "controllerInstallComplete": true,
+        "controllerInstallContractCompatible": false,
+        "controllerCapabilityQuarantined": true,
         "authoritativeVerificationRun": false,
         "candidateNpmLifecycleRun": false,
         "controllerEvidenceDirectory": "/Users/thirdfacedev/.codex/orchestration/TimoCodes-evidence/P01-controller-P00-R9",
@@ -2440,7 +2444,7 @@
       "worktreeClean": true
     },
     "P01/remediate-4": {
-      "status": "DURABLE_TERMINAL_BOOTSTRAP_ATTEMPT_9_AWAITING_VISIBLE_TERMINAL_PASSWORD",
+      "status": "V2_MIGRATED_LEGACY_COMPOSITE_CAPABILITY_QUARANTINED",
       "clientThreadId": "client-new-thread:ab5b24c4-055a-4c8f-b7c7-e0d0cbc4d8c6",
       "threadId": "019fa407-0732-7b93-b92c-c1a36d84fa02",
       "hostId": "local",
@@ -2487,7 +2491,9 @@
       "hostedCodeQL": "SUCCESS",
       "worktreeClean": true,
       "trackedImplementationComplete": true,
-      "controllerInstallComplete": false,
+      "controllerInstallComplete": true,
+      "controllerInstallContractCompatible": false,
+      "controllerCapabilityQuarantined": true,
       "authoritativeVerificationRun": false,
       "candidateNpmLifecycleRun": false,
       "controllerEvidenceManifestSha256": "c9b2ebe455ddb77b60f3925b850460a551b6dd29cc9f3a57179616bcba6c5b0d",
@@ -2560,7 +2566,10 @@
       "controllerInstallRecoveryAttempt9ReadinessSha256": "c6064e380b5515e66dac8fff59b4744397c64b5d7e37c1f076d8a429ab6202f3",
       "controllerInstallRecoveryAttempt9LogPath": "/Users/thirdfacedev/.codex/orchestration/TimoCodes-evidence/P01-controller-P00-R9/recovery/install-attempt-9.log",
       "controllerInstallRecoveryAttempt9StartedAt": "2026-07-28T10:56:59+02:00",
-      "controllerInstallRecoveryAttempt9State": "VISIBLE_TERMINAL_SUDO_PASSWORD_PROMPT_ACTIVE",
+      "controllerInstallRecoveryAttempt9State": "INSTALLED_PREFLIGHT_SUCCESS_CAPABILITY_QUARANTINED",
+      "controllerInstallRecoveryAttempt9CompletedAt": "2026-07-28T11:08:28+02:00",
+      "controllerInstallRecoveryAttempt9Result": "INSTALLER_EXIT_0_ROOT_OWNED_CONTROLLER_AND_SUDOERS_PRESENT",
+      "controllerInstallRecoveryAttempt9EvidenceSha256": "88b9e2109449b3446e3a33e9c51243e3cbdcfd204fa06bcc91dc4a21ffbbeeba",
       "singleActiveWriterReservation": true,
       "controllerRuntimeRequired": true,
       "requiredOutcome": "Produce a staff-challenged remediation plan for an immutable P01 candidate that implements the approved P00-R9 controller runtime as the first trusted instruction, closes all six P01 findings, preserves exact evidence and negative-control contracts, and is suitable for one isolated implementation commit followed by fresh full exact-SHA independent review."
@@ -2789,6 +2798,115 @@
       "controllerPrIdentityVerified": true,
       "controllerHostedCodeQL": "SUCCESS",
       "requiredOutcome": "Independently review exact P00-R9 from a clean checkout. Recheck the complete R8 controller trust boundary and P00-R7-B01, then prove P00-R8-B01 is resolved by the closed non-selecting per-run binding, exact exclusive-creation/crash/collision/re-arm/final-reopen lifecycle, controller-run/P12-qualification identity separation, unchanged frozen inventories, and live PR/check identity. Return APPROVED or CHANGES_REQUESTED without repository mutation."
+    }
+  },
+  "v2Migration": {
+    "status": "ADOPTED",
+    "adoptedAt": "2026-07-28T13:08:28+02:00",
+    "protocol": {
+      "path": "/Users/thirdfacedev/Development/TimoCodes/long-horizon-orchestration-prompt-v2.md",
+      "sha256": "764b4c9583a3aa366df651be418afb3757dfdb8e8efea2571e00ccd26da5757f"
+    },
+    "checkpoint": {
+      "path": "/Users/thirdfacedev/.codex/orchestration/TimoCodes-evidence/v2-migration-2026-07-28/migration-checkpoint.json",
+      "sha256": "e816df87449b530dc8116df347d81c316200c2616ef90189663ce2970941980b"
+    },
+    "dirtyWorktreeManifest": {
+      "path": "/Users/thirdfacedev/.codex/orchestration/TimoCodes-evidence/v2-migration-2026-07-28/dirty-worktree-manifest.tsv",
+      "sha256": "d92d77ff75aa3e78ca62f1c4848d6be427c3f699a36ca5ab548b24903dfbf7cb",
+      "entryCount": 42,
+      "rowsSha256WithoutHeader": "fb1fdf02323578a4f96e24f2d994cfd04d889a166acc854ab0e14c713dc617db"
+    },
+    "projectIdentity": {
+      "projectKey": "InterviewCopilot",
+      "canonicalRepository": "/Users/thirdfacedev/Development/TimoCodes",
+      "origin": "https://github.com/j4wg/interview-coder-withoupaywall-opensource",
+      "fork": "https://github.com/timomak/interview-coder-withoupaywall-opensource.git",
+      "baseBranch": "main",
+      "baseSha": "9dcb4b2d39607273a8528a24657cdb4f5bfc3412"
+    },
+    "preservedState": {
+      "packetRevision": "P00-R9",
+      "packetSha": "02ee6ddec78d6e4ea9e2de3c0303ffd6bc9f45bf",
+      "phaseId": "P01",
+      "phaseClassification": "IN_FLIGHT_LEGACY_COMPOSITE",
+      "candidateSha": "1ff0881b9bd59f243146c93b6709be57d58ee17a",
+      "prNumber": 155,
+      "priorEvidencePreserved": true,
+      "candidateAndPrivilegedPathInvokedDuringMigration": false
+    },
+    "controllerAndWriterState": {
+      "soleControllerTaskId": "019f9ff6-e24b-7053-a2b3-fe01f8538ab4",
+      "delegatingStatusTaskId": "019fa7ad-8bd7-7473-b342-9cfca4af1bc1",
+      "activeWriter": null,
+      "activeReviewer": null,
+      "legacyWriterTaskId": "019fa407-0732-7b93-b92c-c1a36d84fa02",
+      "legacyWriterState": "INACTIVE_NOT_LOADED_RESERVED_FOR_HISTORY"
+    },
+    "capabilityRegistry": {
+      "privileged-verification-controller-v1": {
+        "status": "UNAVAILABLE",
+        "quarantineStatus": "ACTIVE",
+        "riskTier": "HIGH",
+        "installed": true,
+        "legacyPreflightPassed": true,
+        "useProhibited": true
+      },
+      "privileged-verification-controller-v2-replacement": {
+        "status": "BOOTSTRAP_REQUIRED",
+        "quarantineStatus": "NOT_INSTALLED",
+        "riskTier": "HIGH",
+        "useProhibitedUntilIndependentApproval": true
+      }
+    },
+    "resourceOwnership": {
+      "canonicalWorktree": "USER_WORK_PRESERVE_READ_ONLY",
+      "candidateWorktree": "P01_LEGACY_COMPOSITE_FROZEN_READ_ONLY",
+      "installedV1Controller": "ROOT_LEGACY_CAPABILITY_QUARANTINED",
+      "installedSudoersRule": "ROOT_LEGACY_CAPABILITY_QUARANTINED",
+      "ledger": "SOLE_CONTROLLER",
+      "evidenceRoot": "SOLE_CONTROLLER_APPEND_ONLY"
+    },
+    "riskTiers": {
+      "P01": "HIGH",
+      "P02": "MEDIUM",
+      "P03": "HIGH",
+      "P04": "MEDIUM",
+      "P05": "HIGH",
+      "P06": "MEDIUM",
+      "P07": "MEDIUM",
+      "P08": "HIGH",
+      "P09": "HIGH",
+      "P10": "HIGH",
+      "P11": "HIGH",
+      "P12": "HIGH"
+    },
+    "existingLedgerMapping": {
+      "legacySchemaVersion": 1,
+      "legacyP01Status": "IMPLEMENTATION_CANDIDATE_INFRA_BLOCKED",
+      "v2P01Status": "PREFLIGHT",
+      "legacyCompositePreserved": true,
+      "legacyInstallBlockerDisposition": "INSTALL_SUCCEEDED_BUT_CAPABILITY_QUARANTINED",
+      "continuationBlockers": [
+        "V2-CAP-B01",
+        "V2-CAP-B02",
+        "V2-CAP-B03",
+        "V2-CAP-B04"
+      ]
+    },
+    "amendment": {
+      "id": "P00-V2-CAP-A01",
+      "status": "DESIGN_FROZEN_PENDING_EXACT_ARTIFACTS_AND_INDEPENDENT_REVIEW",
+      "scope": "Narrow replacement of the privileged capability contract plus tested revocation of v1; no product, packet, candidate, PR, or evidence reset.",
+      "administratorActionProhibitedUntilIndependentApproval": true
+    },
+    "adoptionDecision": {
+      "decision": "ADOPT_V2_WITH_EXISTING_WORK_PRESERVED_AND_PRIVILEGED_CAPABILITY_QUARANTINED",
+      "incompatibilityClassification": "V2-CAP-B01_THROUGH_B04_BLOCKS_CONTINUATION",
+      "capabilityQuarantineStatus": "ACTIVE_UNAVAILABLE_DO_NOT_INVOKE",
+      "nextSafeAction": "Prepare exact P00-V2-CAP-A01 replacement and revocation artifacts in controller-owned space, validate them without candidate or privileged execution, then obtain one fresh independent HIGH-risk review.",
+      "newUserOnlyDecisionRequired": false,
+      "futureInteractiveCheckpoint": "One bounded administrator authentication only after independent approval."
     }
   },
   "blockers": [
@@ -3171,23 +3289,88 @@
       "resolvedAt": "2026-07-27T16:40:34+02:00"
     },
     {
-      "id": "P01-INFRA-B01",
-      "scope": "P01",
+      "id": "V2-CAP-B01",
+      "scope": "P01-P12_PRIVILEGED_VERIFICATION_CAPABILITY",
       "severity": "RELEASE_BLOCKING",
-      "rootCauseTag": "DURABLE_TERMINAL_BOOTSTRAP_READY_AFTER_LINKAGE_PATH_CORRECTION",
+      "rootCauseTag": "PHASE_HARD_CODED_PRIVILEGED_CONTROLLER",
       "active": true,
-      "hardLimitReached": false,
+      "classification": "BLOCKS_CONTINUATION",
       "blocks": [
+        "PRIVILEGED_CAPABILITY_USE",
         "P01_AUTHORITATIVE_VERIFICATION",
         "P01_INDEPENDENT_REVIEW",
         "P01_APPROVAL_AND_MERGE",
         "P02_P12_IMPLEMENTATION"
       ],
+      "evidence": "Controller.swift hard-codes P01 paths, phase admission, refs, evidence roots, and verification behavior.",
+      "requiredOutcome": "Provide a generic, data-driven, root-owned controller contract that covers the known P01-P12 phase envelope through a closed approved registry without phase-specific source branches."
+    },
+    {
+      "id": "V2-CAP-B02",
+      "scope": "P01-P12_PRIVILEGED_VERIFICATION_CAPABILITY",
+      "severity": "RELEASE_BLOCKING",
+      "rootCauseTag": "BROAD_PRINCIPAL_AND_WILDCARD_SUDOERS",
+      "active": true,
+      "classification": "BLOCKS_CONTINUATION",
+      "blocks": [
+        "PRIVILEGED_CAPABILITY_USE",
+        "P01_AUTHORITATIVE_VERIFICATION",
+        "P01_INDEPENDENT_REVIEW",
+        "P01_APPROVAL_AND_MERGE",
+        "P02_P12_IMPLEMENTATION"
+      ],
+      "evidence": "The installed sudoers source grants %admin and wildcard-argument forms for both privileged entrypoints.",
+      "requiredOutcome": "Bind the capability to the exact intended principal or a justified service identity, expose only closed typed allowlisted operations, and eliminate wildcard command arguments."
+    },
+    {
+      "id": "V2-CAP-B03",
+      "scope": "P01-P12_PRIVILEGED_VERIFICATION_CAPABILITY",
+      "severity": "RELEASE_BLOCKING",
+      "rootCauseTag": "SELF_DERIVED_ACTIVATION_HASH_AUTHORITY",
+      "active": true,
+      "classification": "BLOCKS_CONTINUATION",
+      "blocks": [
+        "PRIVILEGED_CAPABILITY_USE",
+        "P01_AUTHORITATIVE_VERIFICATION",
+        "P01_INDEPENDENT_REVIEW",
+        "P01_APPROVAL_AND_MERGE",
+        "P02_P12_IMPLEMENTATION"
+      ],
+      "evidence": "The legacy installer validates selected source inputs but derives its staged manifest from copied output instead of comparing every staged artifact and runtime dependency-closure member to one independently approved expected-hash set before activation.",
+      "requiredOutcome": "Compare every staged and installed artifact byte plus the complete dependency closure to the same independently approved expected-hash manifest before and after atomic activation."
+    },
+    {
+      "id": "V2-CAP-B04",
+      "scope": "P01-P12_PRIVILEGED_VERIFICATION_CAPABILITY",
+      "severity": "RELEASE_BLOCKING",
+      "rootCauseTag": "NO_TESTED_PRIVILEGE_REVOCATION",
+      "active": true,
+      "classification": "BLOCKS_CONTINUATION",
+      "blocks": [
+        "PRIVILEGED_CAPABILITY_USE",
+        "P01_AUTHORITATIVE_VERIFICATION",
+        "P01_INDEPENDENT_REVIEW",
+        "P01_APPROVAL_AND_MERGE",
+        "P02_P12_IMPLEMENTATION"
+      ],
+      "evidence": "No reviewed and tested post-install cleanup or revocation artifact exists; installer rollback covers failed installation only.",
+      "requiredOutcome": "Prepare and independently review a fail-closed, exact-identity, idempotent revocation path with disposable install/revoke and negative tests before any replacement capability is installed."
+    },
+    {
+      "id": "P01-INFRA-B01",
+      "scope": "P01",
+      "severity": "RELEASE_BLOCKING",
+      "rootCauseTag": "DURABLE_TERMINAL_BOOTSTRAP_INSTALLED_LEGACY_CAPABILITY_QUARANTINED",
+      "active": false,
+      "hardLimitReached": false,
+      "blocks": [],
       "candidateSha": "1ff0881b9bd59f243146c93b6709be57d58ee17a",
       "requiredInstallPath": "/Users/Shared/InterviewCopilot/verification-controller/v1",
       "evidenceDirectory": "/Users/thirdfacedev/.codex/orchestration/TimoCodes-evidence/P01-controller-P00-R9",
-      "evidence": "Attempt 8 passed manifest construction and sudoers validation, then installed preflight detected that otool hashes include the inspected path. It rolled back all state. Attempt 9 rewrites only the staging output's first line to the exact final Node path before hashing; that transformation was independently validated against identical binaries at different paths.",
-      "requiredOutcome": "Complete the single visible Terminal password entry, obtain installer_exit=0 in the durable log, verify the root-owned controller and sudoers rule, arm exact candidate 1ff0881 under approved P00-R9, then run controller-only authoritative P01 verification before independent review.",
+      "evidence": "Attempt 9 completed installation and installed preflight with installer_exit=0. The root-owned controller and sudoers rule exist, but v2 adoption quarantines them under V2-CAP-B01 through V2-CAP-B04 before any privileged or candidate execution.",
+      "requiredOutcome": "RESOLVED_INSTALL_COMPLETED; privileged continuation is governed by V2-CAP-B01 through V2-CAP-B04 and P00-V2-CAP-A01.",
+      "resolutionStatus": "INSTALL_COMPLETED_CAPABILITY_QUARANTINED_BY_V2_ADOPTION",
+      "resolvedAt": "2026-07-28T13:08:28+02:00",
       "infrastructureRetryCount": 9,
       "recoveryAuthorizedAt": "2026-07-28T07:23:22+02:00",
       "recoveryAuthority": "user-explicit-proceed-authorization",
@@ -3245,7 +3428,11 @@
       "attempt9RunnerSha256": "e4d13efcb26b4be4eb1c17e01add1838b7a373327759019930d1c2ab19805573",
       "attempt9ReadinessSha256": "c6064e380b5515e66dac8fff59b4744397c64b5d7e37c1f076d8a429ab6202f3",
       "attempt9StartedAt": "2026-07-28T10:56:59+02:00",
-      "attempt9State": "VISIBLE_TERMINAL_SUDO_PASSWORD_PROMPT_ACTIVE",
+      "attempt9State": "INSTALLED_PREFLIGHT_SUCCESS",
+      "attempt9CompletedAt": "2026-07-28T11:08:28+02:00",
+      "attempt9Result": "INSTALLER_EXIT_0_ROOT_OWNED_CONTROLLER_AND_SUDOERS_PRESENT",
+      "attempt9EvidencePath": "/Users/thirdfacedev/.codex/orchestration/TimoCodes-evidence/P01-controller-P00-R9/recovery/install-attempt-9.log",
+      "attempt9EvidenceSha256": "88b9e2109449b3446e3a33e9c51243e3cbdcfd204fa06bcc91dc4a21ffbbeeba",
       "blockedThresholdReachedAt": "2026-07-27T17:42:10+02:00",
       "resumedBlockedThresholdReachedAt": "2026-07-27T19:09:52+02:00"
     }
