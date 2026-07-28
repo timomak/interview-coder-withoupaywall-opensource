@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-07-28T13:08:28+02:00",
+  "updatedAt": "2026-07-28T14:35:33+02:00",
   "repository": {
     "remote": "https://github.com/j4wg/interview-coder-withoupaywall-opensource",
     "pushRemote": "https://github.com/timomak/interview-coder-withoupaywall-opensource",
@@ -2846,7 +2846,15 @@
       "soleControllerTaskId": "019f9ff6-e24b-7053-a2b3-fe01f8538ab4",
       "delegatingStatusTaskId": "019fa7ad-8bd7-7473-b342-9cfca4af1bc1",
       "activeWriter": null,
-      "activeReviewer": null,
+      "activeReviewer": {
+        "reservationId": "P00-V2-CAP-A01-HIGH-REVIEW-1",
+        "status": "RESERVED_NOT_YET_DISPATCHED",
+        "taskId": null,
+        "riskTier": "HIGH",
+        "artifactCommitSha": "0cfa45c2a58957aa544675a9c1ad2a95d3d9bdc3",
+        "artifactEnvelopeSha256": "ee73f6cd39987b3131360ec2e9ad9a15210f713c0ad6a15a26e8141d3efff4e5",
+        "mutationAllowed": false
+      },
       "legacyWriterTaskId": "019fa407-0732-7b93-b92c-c1a36d84fa02",
       "legacyWriterState": "INACTIVE_NOT_LOADED_RESERVED_FOR_HISTORY"
     },
@@ -2903,7 +2911,7 @@
     },
     "amendment": {
       "id": "P00-V2-CAP-A01",
-      "status": "ARTIFACTS_VALIDATED_PENDING_IMMUTABLE_REVISION_AND_INDEPENDENT_REVIEW",
+      "status": "IMMUTABLE_REVISION_FROZEN_HIGH_RISK_REVIEW_RESERVED",
       "scope": "Narrow replacement of the privileged capability contract plus tested revocation of v1; no product, packet, candidate, PR, or evidence reset.",
       "administratorActionProhibitedUntilIndependentApproval": true,
       "validation": {
@@ -2917,7 +2925,9 @@
         "expectedInstallManifestSha256": "2ae399b18bf05c61559506f23e72dac968ef902bff68ac1e1509205b4d762c83",
         "payloadArchiveSha256": "a6118120d19d88a27045dc676087f7c92ed346a2a039f8fb6c0ced2f067aa1c2",
         "releaseEnvelopeSha256": "ee73f6cd39987b3131360ec2e9ad9a15210f713c0ad6a15a26e8141d3efff4e5"
-      }
+      },
+      "immutableArtifactCommitSha": "0cfa45c2a58957aa544675a9c1ad2a95d3d9bdc3",
+      "reviewReservationId": "P00-V2-CAP-A01-HIGH-REVIEW-1"
     },
     "adoptionDecision": {
       "decision": "ADOPT_V2_WITH_EXISTING_WORK_PRESERVED_AND_PRIVILEGED_CAPABILITY_QUARANTINED",
