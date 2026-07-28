@@ -145,8 +145,46 @@ class CapabilityBundleTests(unittest.TestCase):
         self.assertIn("expected-install-manifest.json", source)
         self.assertNotIn("controller-install.json", source)
         self.assertIn("_ = try installedPreflight()", source)
+        self.assertIn("enforcePhaseDependencies", source)
+        self.assertIn("controllerRoot)/receipts", source)
+        self.assertIn('"merge-base", "--is-ancestor"', source)
+        self.assertIn("phaseDependencies[id] == dependencies", source)
+        self.assertIn("errno != ENOENT", source)
+        self.assertNotIn('"package.json": "', source)
+        self.assertNotIn('"package-lock.json": "', source)
+        self.assertNotIn('"tests/policy/', source)
+        self.assertIn('"scripts/verification/plans/P12.json"', source)
         for phase in PHASES:
             self.assertIn(f'"{phase}"', source)
+
+    def test_compiled_wrapper_rejects_arguments_before_sudo(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_text:
+            wrapper = pathlib.Path(temporary_text) / "arm-phase"
+            wrapper.symlink_to(BUILD / "payload/bin/arm-phase")
+            result = run(wrapper, "unexpected", check=False)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("accept no command arguments", result.stderr)
+
+    def test_admin_handoff_bootstraps_only_root_owned_verified_code(self) -> None:
+        command = (BUILD / "admin-handoff.txt").read_text()
+        envelope = json.loads((BUILD / "release-envelope.json").read_text())
+        self.assertTrue(command.startswith("/usr/bin/sudo /bin/zsh -c "))
+        self.assertIn("verification-controller-bootstrap", command)
+        for relative in [
+            "source/install.sh",
+            "tools/envelope.py",
+            "tools/manifest.py",
+            "build/release-envelope.json",
+            "build/payload.tar.gz",
+        ]:
+            self.assertIn(relative, command)
+            self.assertIn(sha256(BUNDLE / relative), command)
+        self.assertIn(
+            sha256(BUILD / "release-envelope.json"),
+            command,
+        )
+        self.assertIn("envelopeVerifier", envelope["members"])
+        self.assertIn("manifestVerifier", envelope["members"])
 
     def test_request_writer_is_closed_atomic_and_negative(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_text:
@@ -200,7 +238,7 @@ class CapabilityBundleTests(unittest.TestCase):
 
     def test_native_self_test_is_exact(self) -> None:
         report = json.loads((BUILD / "native-self-test.json").read_text())
-        self.assertEqual(len(report["cases"]), 15)
+        self.assertEqual(len(report["cases"]), 2)
         self.assertTrue(all(case["result"] == "PASS" for case in report["cases"]))
         self.assertEqual(report["negativeControl"]["rawExits"], [7, 0])
         self.assertEqual(report["negativeControl"]["aggregateExit"], 1)
@@ -443,6 +481,23 @@ class CapabilityBundleTests(unittest.TestCase):
                 )
                 self.assertFalse((controller / "v1").exists())
                 self.assertFalse((controller / "v2").exists())
+                retention = (
+                    test_root
+                    / "Users/Shared/InterviewCopilot/revocation-receipts/"
+                    "P00-V2-CAP-A01-evidence"
+                )
+                self.assertTrue((retention / "state/metadata.tar.gz").is_file())
+                self.assertTrue((retention / "retention-index.tsv").is_file())
+                rows = dict(
+                    line.split("\t", 1)
+                    for line in (retention / "retention-index.tsv")
+                    .read_text()
+                    .splitlines()[1:]
+                )
+                self.assertEqual(
+                    rows["metadata"],
+                    sha256(retention / "state/metadata.tar.gz"),
+                )
                 tombstone = (
                     test_root
                     / "Users/Shared/InterviewCopilot/revocation-receipts/"
@@ -518,6 +573,82 @@ class CapabilityBundleTests(unittest.TestCase):
                 )
                 self.assertTrue((controller / "v2").exists())
                 self.assertTrue((controller / "v1").exists())
+            finally:
+                make_writable(temporary)
+
+    def test_revocation_metadata_drift_removes_authorization_first(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_text:
+            temporary = pathlib.Path(temporary_text)
+            test_root = self.prepare_legacy_root(temporary)
+            try:
+                installed = self.install(test_root)
+                self.assertEqual(installed.returncode, 0, installed.stderr)
+                controller = (
+                    test_root
+                    / "Users/Shared/InterviewCopilot/verification-controller"
+                )
+                metadata = controller / "metadata/P00-V2-CAP-A01"
+                make_writable(metadata)
+                (metadata / "approved-envelope.sha256").unlink()
+                environment = os.environ.copy()
+                environment["P00_V2_TEST_ROOT"] = str(test_root)
+                result = run(
+                    "/bin/zsh",
+                    controller / "v2/libexec/revoke-controller",
+                    env=environment,
+                    check=False,
+                )
+                self.assertNotEqual(result.returncode, 0)
+                self.assertFalse(
+                    (
+                        test_root
+                        / "etc/sudoers.d/interviewcopilot-verification-controller"
+                    ).exists()
+                )
+                self.assertTrue((controller / "v2").exists())
+                self.assertTrue((controller / "v1").exists())
+            finally:
+                make_writable(temporary)
+
+    def test_revocation_sudoers_drift_is_removed_and_preserved(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_text:
+            temporary = pathlib.Path(temporary_text)
+            test_root = self.prepare_legacy_root(temporary)
+            try:
+                installed = self.install(test_root)
+                self.assertEqual(installed.returncode, 0, installed.stderr)
+                sudoers = (
+                    test_root
+                    / "etc/sudoers.d/interviewcopilot-verification-controller"
+                )
+                sudoers.chmod(0o640)
+                sudoers.write_text("tampered authorization\n")
+                sudoers.chmod(0o440)
+                controller = (
+                    test_root
+                    / "Users/Shared/InterviewCopilot/verification-controller"
+                )
+                environment = os.environ.copy()
+                environment["P00_V2_TEST_ROOT"] = str(test_root)
+                result = run(
+                    "/bin/zsh",
+                    controller / "v2/libexec/revoke-controller",
+                    env=environment,
+                    check=False,
+                )
+                self.assertNotEqual(result.returncode, 0)
+                self.assertFalse(sudoers.exists())
+                preserved = list(
+                    (
+                        test_root
+                        / "Users/Shared/InterviewCopilot/revocation-receipts"
+                    ).glob("P00-V2-CAP-A01-sudoers.removed.*")
+                )
+                self.assertEqual(len(preserved), 1)
+                self.assertEqual(
+                    preserved[0].read_text(), "tampered authorization\n"
+                )
+                self.assertTrue((controller / "v2").exists())
             finally:
                 make_writable(temporary)
 

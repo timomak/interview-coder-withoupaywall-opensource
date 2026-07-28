@@ -44,10 +44,79 @@ def main() -> None:
         'let requestOwnerUID: uid_t = 501\n'
         'let requestRoot = "\\(controllerRoot)/requests/501"\n'
         'let metadataRoot = "\\(controllerRoot)/metadata/P00-V2-CAP-A01"\n'
-        'let phaseIDs = Set(["P01", "P02", "P03", "P04", "P05", "P06", "P07", "P08", "P09", "P10", "P11", "P12"])',
+        'let phaseIDs = Set(["P01", "P02", "P03", "P04", "P05", "P06", "P07", "P08", "P09", "P10", "P11", "P12"])\n'
+        'let phaseDependencies: [String: [String]] = [\n'
+        '    "P01": [], "P02": ["P01"], "P03": ["P01"],\n'
+        '    "P04": ["P02", "P03"], "P05": ["P04"],\n'
+        '    "P06": ["P05"], "P07": ["P05"], "P08": ["P05"], "P09": ["P05"],\n'
+        '    "P10": ["P06", "P07", "P08"],\n'
+        '    "P11": ["P06", "P07", "P08", "P09", "P10"], "P12": ["P11"]\n'
+        ']',
         "v2 constants",
     )
     source = source.replace('"P00-R9-v1"', '"P00-V2-CAP-A01"')
+
+    control_plane_digests = {
+        ".npmrc": "7151cf397def0c2cb0ab65643701d27d335a72c90f775675b5f826bc7005818a",
+        "scripts/verification/phase-bootstrap.d.mts": "6d8e74c0d3edee5a466bbb9d4622a00060502613d212c737750d8f3f03080ea7",
+        "scripts/verification/phase-bootstrap.mjs": "c41c5042897a1f69006ce5abc3b6a105451fa3dc937a7f6805941263727d1ab7",
+        "scripts/verification/phase-reporter.d.mts": "19dd8d9d40d4dd9573cd010d33abd0db8614d98088db6cbc80f74228ee43998e",
+        "scripts/verification/phase-reporter.mjs": "572b7068aaef665c2b2243d487b3a31019c025a17376ec41338fddd191fb7bb8",
+        "scripts/verification/plan-manifest.json": "71a76262661489329eaedd385a51519909aab5324e24c8e869490ecac739b59c",
+        "scripts/verification/plans/P01.json": "82f641fccb783d2e3ae8f3dbeaa733923c6f808f660866771052e2778d681a73",
+        "scripts/verification/plans/P02.json": "6de5f5e316c54385f4f61bc8bcde819a1880aff6c85bbf69c0025a8f930f38dd",
+        "scripts/verification/plans/P03.json": "9fcb0381a00c05c3b42c7f13701406277cff97019d8aef41f718dd452c1b35c3",
+        "scripts/verification/plans/P04.json": "ab19354bc08377e76e379c9ba6d2e58572dc2e9d8ddadbc22c4ecce7de610bc6",
+        "scripts/verification/plans/P05.json": "f31f2c1aa3a851081b73618e0b2616b6b39225ab8144593c9bd720960ae83cf1",
+        "scripts/verification/plans/P06.json": "30311c77bfa3d67dbe3e77815e34c9c4c51e24fabcd06d92ffba18575db6ad8e",
+        "scripts/verification/plans/P07.json": "6c252bbfff6d16b66bc80c330ddb41d398be970a51b5ae75bc63c326d9b6384e",
+        "scripts/verification/plans/P08.json": "7f064eb8989214afeb894e5affafb4730478423e33dd0f538d021f92fa9fb6da",
+        "scripts/verification/plans/P09.json": "4677916877719fb599ff592de14cde27263ad185bfd12d6453d0a38f09ee77a2",
+        "scripts/verification/plans/P10.json": "385163ed441717e619774ad140f8ad4fdc7919838dc319863acebbdb86cf158d",
+        "scripts/verification/plans/P11.json": "295718b4b1e59210cd8722536bc4a4bb50e0349ce0b6fa16fe1d3595e19f8732",
+        "scripts/verification/plans/P12.json": "55cc03996f171c23ef56ecc9cd14f755c961ba84cb48178a6681126d0d20b640",
+        "scripts/verification/plans/P12-observer.json": "011911987152e3c14bc439a1a7ff4c55c99270ab009a1b3387f18170e10ff375",
+        "scripts/verification/product-policy.d.mts": "5e32670b9f52fb572a149b909b3807940a262fa95202b800394119c8e42132f5",
+        "scripts/verification/product-policy.mjs": "01b7e03f36a3f06e133c47c85c92fb3fd93668a8c100acb090a01b0eaf63467a",
+        "scripts/verification/source-inventory.d.mts": "f28076f44e7b150db13f076b8db9b81d0de48c16d7c0c311e2cbe3449dc2c26e",
+        "scripts/verification/source-inventory.mjs": "510273f267272ab3b2c95aa395fb3d32a08a746d54c933259497359f059d605e",
+        "scripts/verification/test-manifest.d.mts": "e8785cc5f5268d37876213500b0967f7890765dc17eedd461a44a0f19807a728",
+        "scripts/verification/test-manifest.mjs": "e789a7c8777a224ddd166b2587a5bd2a75fee75a81ad754564a4ea8cb2ce0140",
+        "scripts/verification/trusted-vitest-runner.mjs": "8ac1de11f3eedfbd62f287f1726afc786ea5775dbec3eecc2a493954b5657ae4",
+        "scripts/verification/vitest-count-reporter.mjs": "1a862e8ae98c57d1af251d69400bac06f8c7fdd4b1ca4340f4beb06fef90a3ff",
+        "scripts/verification/build-package-inventory.mjs": "3d7d0dd7cc90c70efad9e84f4908791bf528737abc648e051c4a6e502ffb59b9",
+        "scripts/verification/package-inventory.d.mts": "ea298a6f5750872601e29bb2a17d658a362411d865a3fb5b45203efc12518cc8",
+        "scripts/verification/package-inventory.mjs": "76f04a23608b90f34603c8fa1e1484691cc9865fb6561d9da71c1ec50c6871e1",
+    }
+    digest_start = source.index("let approvedInputDigests:")
+    digest_end = source.index("\n]\n\nenum ControllerError", digest_start) + 2
+    digest_lines = ["let approvedInputDigests: [String: String] = ["]
+    digest_lines.extend(
+        f'    "{path}": "{digest}",'
+        for path, digest in sorted(control_plane_digests.items())
+    )
+    digest_lines.append("]")
+    source = source[:digest_start] + "\n".join(digest_lines) + source[digest_end:]
+    source = replace_once(
+        source,
+        '''    var extendedACL = false
+    if let acl = acl_get_file(path, ACL_TYPE_EXTENDED) {
+        var entry: acl_entry_t?
+        extendedACL = acl_get_entry(acl, Int32(ACL_FIRST_ENTRY.rawValue), &entry) == 0
+        acl_free(UnsafeMutableRawPointer(acl))
+    }''',
+        '''    errno = 0
+    var extendedACL = false
+    if let acl = acl_get_file(path, ACL_TYPE_EXTENDED) {
+        extendedACL = true
+        if acl_free(UnsafeMutableRawPointer(acl)) != 0 {
+            try fail("ACL release failed for \\(path)")
+        }
+    } else if errno != ENOENT {
+        try fail("ACL inspection failed for \\(path) with errno \\(errno)")
+    }''',
+        "fail-closed path ACL inspection",
+    )
 
     preflight_start = source.index("func installedPreflight()")
     preflight_end = source.index("\nfunc gitBytes(", preflight_start)
@@ -95,7 +164,16 @@ def main() -> None:
           registry["projectKey"] as? String == projectKey,
           registry["controllerVersion"] as? String == "P00-V2-CAP-A01",
           let phases = registry["phases"] as? [[String: Any]],
-          Set(phases.compactMap { $0["id"] as? String }) == phaseIDs else {
+          Set(phases.compactMap { $0["id"] as? String }) == phaseIDs,
+          phases.allSatisfy({ entry in
+              guard Set(entry.keys) == Set(["id", "dependencies", "plan"]),
+                    let id = entry["id"] as? String,
+                    let dependencies = entry["dependencies"] as? [String],
+                    entry["plan"] is String else {
+                  return false
+              }
+              return phaseDependencies[id] == dependencies
+          }) else {
         try fail("installed capability registry disagreement")
     }
     let nodeVersion = try commandText(installedNode, ["--version"])
@@ -155,12 +233,13 @@ func readCapabilityRequest(_ expectedOperation: String) throws -> CapabilityRequ
           (before.st_mode & 0o7777) == 0o400 else {
         try fail("request filesystem contract disagreement")
     }
+    errno = 0
     if let acl = acl_get_fd_np(descriptor, ACL_TYPE_EXTENDED) {
-        defer { acl_free(UnsafeMutableRawPointer(acl)) }
-        var entry: acl_entry_t?
-        if acl_get_entry(acl, Int32(ACL_FIRST_ENTRY.rawValue), &entry) == 0 {
-            try fail("request has an extended ACL")
-        }
+        let freed = acl_free(UnsafeMutableRawPointer(acl))
+        if freed != 0 { try fail("request ACL release failed") }
+        try fail("request has an extended or ambiguous ACL object")
+    } else if errno != ENOENT {
+        try fail("request ACL inspection failed with errno \(errno)")
     }
     var data = Data(count: Int(before.st_size))
     let bytesRead = data.withUnsafeMutableBytes { bytes in
@@ -223,6 +302,39 @@ func readCapabilityRequest(_ expectedOperation: String) throws -> CapabilityRequ
     )
 }
 
+func enforcePhaseDependencies(_ phase: String, store: String) throws {
+    guard let dependencies = phaseDependencies[phase] else {
+        try fail("phase dependency policy is absent")
+    }
+    if dependencies.isEmpty { return }
+    _ = try commandText(
+        "/usr/bin/git",
+        ["--git-dir", store, "fetch", "--force", canonicalRemote, "refs/heads/main:refs/controller/main"]
+    )
+    for dependency in dependencies {
+        let receiptPath = "\(controllerRoot)/receipts/\(dependency)/success.json"
+        let data = try Data(contentsOf: URL(fileURLWithPath: receiptPath))
+        guard let receipt = try parseJSON(data) as? [String: Any],
+              Set(receipt.keys) == Set([
+                "schemaVersion", "phase", "candidateCommitSha", "terminalSha256"
+              ]),
+              receipt["schemaVersion"] as? Int == 1,
+              receipt["phase"] as? String == dependency,
+              let commit = receipt["candidateCommitSha"] as? String,
+              commit.range(of: "^[a-f0-9]{40}$", options: .regularExpression) != nil,
+              receipt["terminalSha256"] is String else {
+            try fail("dependency receipt disagreement for \(dependency)")
+        }
+        let ancestry = try runCommand(
+            "/usr/bin/git",
+            ["--git-dir", store, "merge-base", "--is-ancestor", commit, "refs/controller/main"]
+        )
+        if ancestry.exit != 0 {
+            try fail("dependency \(dependency) is not merged into canonical main")
+        }
+    }
+}
+
 '''
     source = replace_once(
         source,
@@ -264,6 +376,17 @@ func readCapabilityRequest(_ expectedOperation: String) throws -> CapabilityRequ
     source = source.replace(
         '"refs/controller/P01^{commit}"',
         '"refs/controller/\\(phase)^{commit}"',
+    )
+    source = replace_once(
+        source,
+        '''    if !FileManager.default.fileExists(atPath: "\\(store)/HEAD") {
+        _ = try commandText("/usr/bin/git", ["init", "--bare", store])
+    }''',
+        '''    if !FileManager.default.fileExists(atPath: "\\(store)/HEAD") {
+        _ = try commandText("/usr/bin/git", ["init", "--bare", store])
+    }
+    try enforcePhaseDependencies(phase, store: store)''',
+        "phase dependency enforcement",
     )
     source = source.replace('"phase": "P01"', '"phase": phase')
     source = source.replace(
@@ -409,6 +532,29 @@ func readCapabilityRequest(_ expectedOperation: String) throws -> CapabilityRequ
         'print("CONTROLLER phase=P01 run_id=\\(runId) run_root=\\(runDirectory) aggregate_exit=\\(aggregateExit) final_reopen=\\(finalReopen)")',
         'print("CONTROLLER phase=\\(phase) run_id=\\(runId) run_root=\\(runDirectory) aggregate_exit=\\(aggregateExit) final_reopen=\\(finalReopen)")',
     )
+    source = replace_once(
+        source,
+        '''    let terminalBytes = try canonicalJSON(terminal)
+    try writeExclusive("\\(runDirectory)/\\(terminalName)", data: terminalBytes)
+    print("CONTROLLER phase=\\(phase) run_id=\\(runId) run_root=\\(runDirectory) aggregate_exit=\\(aggregateExit) final_reopen=\\(finalReopen)")''',
+        '''    let terminalBytes = try canonicalJSON(terminal)
+    try writeExclusive("\\(runDirectory)/\\(terminalName)", data: terminalBytes)
+    if aggregateExit == 0 {
+        try ensureDirectory("\\(controllerRoot)/receipts")
+        try ensureDirectory("\\(controllerRoot)/receipts/\\(phase)")
+        let receipt = try canonicalJSON([
+            "schemaVersion": 1,
+            "phase": phase,
+            "candidateCommitSha": commit,
+            "terminalSha256": sha256(terminalBytes)
+        ])
+        let receiptPath = "\\(controllerRoot)/receipts/\\(phase)/success.json"
+        try? removeIfPresent(receiptPath)
+        try writeExclusive(receiptPath, data: receipt, mode: 0o444)
+    }
+    print("CONTROLLER phase=\\(phase) run_id=\\(runId) run_root=\\(runDirectory) aggregate_exit=\\(aggregateExit) final_reopen=\\(finalReopen)")''',
+        "dependency success receipt",
+    )
 
     old_exec = '''func execRootCore(mode: String, arguments: [String]) throws -> Never {
     let core = "\\(installRoot)/libexec/\\(mode)-core"
@@ -425,15 +571,20 @@ func readCapabilityRequest(_ expectedOperation: String) throws -> CapabilityRequ
         'let output = options["evidence"] ?? "\\(evidenceRoot)/self-test/native-self-test.json"',
         'let output = options["evidence"] ?? "\\(evidenceRoot)/P00-V2-CAP-A01/self-test/native-self-test.json"',
     )
-    source = source.replace(
-        '"preserves every P01-R1-B01 through P01-R1-B06 hostile probe",',
-        '"preserves every phase-specific hostile probe selected by the closed registry",\n'
-        '        "accepts every registered phase P01 through P12 without a phase-specific source branch",\n'
-        '        "rejects unknown phase request fields wildcard arguments and replayed nonces",',
+    self_test_start = source.index("    let names = [", source.index("func selfTest("))
+    self_test_end = source.index("    let cases =", self_test_start)
+    source = (
+        source[:self_test_start]
+        + '''    let names = [
+        "executes the pinned Node negative control with raw exit seven",
+        "continues to the second child and derives aggregate one from exact exits seven then zero"
+    ]
+'''
+        + source[self_test_end:]
     )
     source = source.replace(
         'print("SELF_TEST cases=13 passed=13 failed=0 raw_exits=[7,0] aggregate_exit=1 evidence=\\(output)")',
-        'print("SELF_TEST cases=15 passed=15 failed=0 raw_exits=[7,0] aggregate_exit=1 evidence=\\(output)")',
+        'print("SELF_TEST cases=2 passed=2 failed=0 raw_exits=[7,0] aggregate_exit=1 evidence=\\(output)")',
     )
     source = source.replace(
         '"generatedAt": isoNow(),',

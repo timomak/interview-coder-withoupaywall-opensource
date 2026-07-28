@@ -41,7 +41,8 @@ fi
 /bin/rm -rf "$payload"
 for generated in Controller.swift controller native-self-test.json \
   expected-install-manifest.json legacy-v1-observed-manifest.json \
-  payload-files.txt payload.tar payload.tar.gz release-envelope.json; do
+  payload-files.txt payload.tar payload.tar.gz release-envelope.json \
+  admin-handoff.txt; do
   if [[ -e "$build_root/$generated" ]]; then
     /bin/chmod u+w "$build_root/$generated"
     /bin/rm -f "$build_root/$generated"
@@ -112,6 +113,9 @@ P00_V2_SELF_TEST_TIMESTAMP=1970-01-01T00:00:00Z \
 /bin/chmod 0444 "$build_root/release-envelope.json"
 /usr/bin/python3 "$bundle_root/tools/envelope.py" verify \
   "$bundle_root" "$build_root/release-envelope.json"
+/usr/bin/python3 "$bundle_root/tools/admin_handoff.py" \
+  "$bundle_root" "$build_root/admin-handoff.txt"
+/bin/chmod 0444 "$build_root/admin-handoff.txt"
 
 print "artifact_id=P00-V2-CAP-A01"
 print "controller_sha256=$(hash_file "$build_root/controller")"

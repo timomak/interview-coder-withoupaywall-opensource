@@ -2911,20 +2911,22 @@
     },
     "amendment": {
       "id": "P00-V2-CAP-A01",
-      "status": "HIGH_RISK_REVIEW_CHANGES_REQUESTED_REMEDIATION_REQUIRED",
+      "status": "REMEDIATION_VALIDATED_PENDING_IMMUTABLE_REVISION_REVIEW",
       "scope": "Narrow replacement of the privileged capability contract plus tested revocation of v1; no product, packet, candidate, PR, or evidence reset.",
       "administratorActionProhibitedUntilIndependentApproval": true,
       "validation": {
         "result": "PASS",
-        "nonPrivilegedTestCount": 11,
+        "nonPrivilegedTestCount": 15,
+        "nativeSelfTestCaseCount": 2,
         "reproducibleBuildCount": 2,
         "candidateInvoked": false,
         "sudoInvoked": false,
         "installedPrivilegedHelperInvoked": false,
-        "controllerSha256": "7ae2797bd1cf92a799c727f8b43bfe090f79db024df5c42678e87f8853dba8c2",
-        "expectedInstallManifestSha256": "2ae399b18bf05c61559506f23e72dac968ef902bff68ac1e1509205b4d762c83",
-        "payloadArchiveSha256": "a6118120d19d88a27045dc676087f7c92ed346a2a039f8fb6c0ced2f067aa1c2",
-        "releaseEnvelopeSha256": "ee73f6cd39987b3131360ec2e9ad9a15210f713c0ad6a15a26e8141d3efff4e5"
+        "controllerSha256": "90216ec6ddd6a00905daa765ad604efa88556f47496dabcbe1710d3e764ac9ff",
+        "expectedInstallManifestSha256": "9a1c57bb96ac882b9da2b8c2af2affb4cd0b03ce048b813ca761f291116d21cd",
+        "payloadArchiveSha256": "ec132168d3a2ce894e4ade21a03b99c1e493b08e80762bf850f2d739355388a7",
+        "releaseEnvelopeSha256": "8e33f2bdb899b5faa0e7b7c79a68990e917453971fd6c6c275a07d4671c12889",
+        "adminHandoffSha256": "7e527200c96b1b89cf39a648eac2dbfc859e10eb768091ce7c3e5feea00053c0"
       },
       "immutableArtifactCommitSha": "0cfa45c2a58957aa544675a9c1ad2a95d3d9bdc3",
       "reviewReservationId": "P00-V2-CAP-A01-HIGH-REVIEW-1",
@@ -2971,6 +2973,48 @@
           }
         ],
         "administratorHandoffAuthorized": false
+      },
+      "remediation": {
+        "validatedAt": "2026-07-28T15:03:55+02:00",
+        "reviewFollowupRequired": true,
+        "administratorHandoffAuthorized": false,
+        "findingDispositions": [
+          {
+            "id": "P00-V2-CAP-A01-R1-F01",
+            "status": "REMEDIATED",
+            "evidence": "Literal sudo zsh bootstrap copies only the closed member set, root-owns it, checks installer/verifiers/envelope/archive against reviewed literal hashes, then runs only root-owned verified copies."
+          },
+          {
+            "id": "P00-V2-CAP-A01-R1-F02",
+            "status": "REMEDIATED",
+            "evidence": "Candidate package, lock, configs, tests, and feature bytes are dynamically anchored; all P00-owned bootstrap/reporter/policy/manifest tools and every P01-P12 plan remain exact-digest sealed."
+          },
+          {
+            "id": "P00-V2-CAP-A01-R1-F03",
+            "status": "REMEDIATED",
+            "evidence": "Revoker removes the fixed sudoers target before reading any metadata or comparing any drift-prone byte; metadata and sudoers drift tests prove target absence and forensic preservation."
+          },
+          {
+            "id": "P00-V2-CAP-A01-R1-F04",
+            "status": "REMEDIATED",
+            "evidence": "Native report now claims only the two Node exits it executes; 15 external non-privileged tests separately exercise bootstrap, argument, archive, rollback, revocation, mutation, registry, request, and hash contracts."
+          },
+          {
+            "id": "P00-V2-CAP-A01-R1-F05",
+            "status": "REMEDIATED",
+            "evidence": "Controller validates registry dependency lists, requires root-owned success receipts, and independently proves each dependency commit is an ancestor of canonical main before arm."
+          },
+          {
+            "id": "P00-V2-CAP-A01-R1-F06",
+            "status": "REMEDIATED",
+            "evidence": "Revocation generates exact manifests and retains anchors, runs, dependency receipts, and metadata under a root-owned external evidence root before executable cleanup."
+          },
+          {
+            "id": "P00-V2-CAP-A01-R1-F07",
+            "status": "REMEDIATED",
+            "evidence": "Path and descriptor ACL checks accept only the packet-defined null ACL with errno ENOENT and reject ACL objects, other errno values, and ACL release failures."
+          }
+        ]
       }
     },
     "adoptionDecision": {

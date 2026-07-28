@@ -1,0 +1,46 @@
+/usr/bin/sudo /bin/zsh -c 'set -euo pipefail
+umask 077
+source_root=/Users/thirdfacedev/.codex/orchestration/TimoCodes-ledger/capabilities/P00-V2-CAP-A01
+stage=/Users/Shared/InterviewCopilot/verification-controller-bootstrap/8e33f2bdb899b5faa0e7b7c79a68990e917453971fd6c6c275a07d4671c12889
+[[ ! -e "$stage" ]]
+/bin/mkdir -p "$stage"
+/bin/mkdir -p "$stage/build"
+/usr/bin/install -m 0444 "$source_root/build/Controller.swift" "$stage/build/Controller.swift"
+/bin/mkdir -p "$stage/build"
+/usr/bin/install -m 0444 "$source_root/build/controller" "$stage/build/controller"
+/bin/mkdir -p "$stage/build"
+/usr/bin/install -m 0444 "$source_root/build/expected-install-manifest.json" "$stage/build/expected-install-manifest.json"
+/bin/mkdir -p "$stage/build"
+/usr/bin/install -m 0444 "$source_root/build/legacy-v1-observed-manifest.json" "$stage/build/legacy-v1-observed-manifest.json"
+/bin/mkdir -p "$stage/build"
+/usr/bin/install -m 0444 "$source_root/build/native-self-test.json" "$stage/build/native-self-test.json"
+/bin/mkdir -p "$stage/build"
+/usr/bin/install -m 0444 "$source_root/build/payload.tar.gz" "$stage/build/payload.tar.gz"
+/bin/mkdir -p "$stage/config"
+/usr/bin/install -m 0444 "$source_root/config/capability-registry.json" "$stage/config/capability-registry.json"
+/bin/mkdir -p "$stage/config"
+/usr/bin/install -m 0444 "$source_root/config/request-schema.json" "$stage/config/request-schema.json"
+/bin/mkdir -p "$stage/config"
+/usr/bin/install -m 0444 "$source_root/config/sudoers" "$stage/config/sudoers"
+/bin/mkdir -p "$stage/source"
+/usr/bin/install -m 0444 "$source_root/source/install.sh" "$stage/source/install.sh"
+/bin/mkdir -p "$stage/source"
+/usr/bin/install -m 0444 "$source_root/source/revoke.sh" "$stage/source/revoke.sh"
+/bin/mkdir -p "$stage/tools"
+/usr/bin/install -m 0444 "$source_root/tools/envelope.py" "$stage/tools/envelope.py"
+/bin/mkdir -p "$stage/tools"
+/usr/bin/install -m 0444 "$source_root/tools/manifest.py" "$stage/tools/manifest.py"
+/bin/mkdir -p "$stage/tools"
+/usr/bin/install -m 0444 "$source_root/tools/write-request.py" "$stage/tools/write-request.py"
+/bin/mkdir -p "$stage/build"
+/usr/bin/install -m 0444 "$source_root/build/release-envelope.json" "$stage/build/release-envelope.json"
+/bin/chmod 0555 "$stage/source/install.sh"
+/usr/sbin/chown -R root:wheel "$stage"
+/usr/bin/xattr -cr "$stage"
+[[ "$(/usr/bin/shasum -a 256 "$stage/source/install.sh" | /usr/bin/awk '"'"'{print $1}'"'"')" == "114a8da98f46e488971f554c2e89c804e4f63d5e18699c9485bdab2088b6c8b4" ]]
+[[ "$(/usr/bin/shasum -a 256 "$stage/tools/envelope.py" | /usr/bin/awk '"'"'{print $1}'"'"')" == "f47bf91ad6295d0c21d7bc58dbca6193aea2bad715c680117733a2eaeba14fb2" ]]
+[[ "$(/usr/bin/shasum -a 256 "$stage/tools/manifest.py" | /usr/bin/awk '"'"'{print $1}'"'"')" == "03f25b6923026c8e194fbd711cf60e13b984e46c66ec5f0ea88e40b93be0b407" ]]
+[[ "$(/usr/bin/shasum -a 256 "$stage/build/release-envelope.json" | /usr/bin/awk '"'"'{print $1}'"'"')" == "8e33f2bdb899b5faa0e7b7c79a68990e917453971fd6c6c275a07d4671c12889" ]]
+[[ "$(/usr/bin/shasum -a 256 "$stage/build/payload.tar.gz" | /usr/bin/awk '"'"'{print $1}'"'"')" == "ec132168d3a2ce894e4ade21a03b99c1e493b08e80762bf850f2d739355388a7" ]]
+/usr/bin/python3 "$stage/tools/envelope.py" verify "$stage" "$stage/build/release-envelope.json"
+exec "$stage/source/install.sh" "$stage" "8e33f2bdb899b5faa0e7b7c79a68990e917453971fd6c6c275a07d4671c12889"'

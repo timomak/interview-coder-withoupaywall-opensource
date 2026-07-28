@@ -35,6 +35,8 @@ def create(bundle: pathlib.Path, output: pathlib.Path) -> None:
         "registry": bundle / "config/capability-registry.json",
         "requestSchema": bundle / "config/request-schema.json",
         "requestWriter": bundle / "tools/write-request.py",
+        "envelopeVerifier": bundle / "tools/envelope.py",
+        "manifestVerifier": bundle / "tools/manifest.py",
         "renderedController": bundle / "build/Controller.swift",
         "controllerBinary": bundle / "build/controller",
         "nativeSelfTest": bundle / "build/native-self-test.json",

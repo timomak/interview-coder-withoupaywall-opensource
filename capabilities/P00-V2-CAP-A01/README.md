@@ -44,6 +44,13 @@ verification capability. It does not change P00-R9, the P01 candidate, PR
 4. Exactly one independent HIGH-risk reviewer assesses that immutable commit.
 5. Only an approved review may produce the one-shot administrator handoff.
 
+`build/admin-handoff.txt` is command text, not an executable script. Its
+literal `sudo zsh -c` transaction copies only the closed envelope member set
+into a new root-owned staging directory, checks the installer, both verifier
+programs, release envelope, and payload archive against literal reviewed
+hashes, then runs only those root-owned verified copies. Invoking the mutable
+text file itself is prohibited; the approved command must be passed literally.
+
 ## Current boundary
 
 Artifact construction and tests are non-privileged. Nothing in this directory

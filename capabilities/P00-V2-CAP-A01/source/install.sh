@@ -184,6 +184,7 @@ state_paths=(
   "$controller_root/runs"
   "$controller_root/locks"
   "$controller_root/nonces"
+  "$controller_root/receipts"
   "$controller_root/requests"
   "$controller_root/requests/501"
 )
@@ -194,12 +195,13 @@ done
 if [[ -z "$test_root" ]]; then
   /usr/sbin/chown -R root:wheel "$controller_root/objects" \
     "$controller_root/anchors" "$controller_root/runs" "$controller_root/locks" \
-    "$controller_root/nonces" "$controller_root/requests"
+    "$controller_root/nonces" "$controller_root/receipts" "$controller_root/requests"
   /usr/sbin/chown thirdfacedev:staff "$controller_root/requests/501"
 fi
 /bin/chmod 0700 "$controller_root/objects" "$controller_root/anchors" \
   "$controller_root/anchors/active" "$controller_root/runs" \
-  "$controller_root/locks" "$controller_root/nonces" "$controller_root/requests/501"
+  "$controller_root/locks" "$controller_root/nonces" "$controller_root/receipts" \
+  "$controller_root/requests/501"
 /bin/chmod 0711 "$controller_root/requests"
 if [[ -z "$test_root" ]]; then
   /usr/bin/xattr -cr "$controller_root/requests/501"

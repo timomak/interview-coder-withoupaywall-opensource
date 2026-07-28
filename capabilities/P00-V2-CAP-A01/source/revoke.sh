@@ -37,14 +37,26 @@ hash_file() {
   /usr/bin/shasum -a 256 "$1" | /usr/bin/awk '{print $1}'
 }
 
-if [[ ! -e "$sudoers_target" && ! -e "$install_root" && ! -e "$legacy_root" ]]; then
-  /bin/mkdir -p "$receipt_root"
+/bin/mkdir -p "$receipt_root"
+# Authorization is removed before reading or trusting any drift-prone
+# installation, metadata, verifier, or sudoers bytes.
+removed_sudoers=$receipt_root/P00-V2-CAP-A01-sudoers.removed.$$
+if [[ -e "$sudoers_target" ]]; then
+  /bin/mv "$sudoers_target" "$removed_sudoers"
+fi
+[[ ! -e "$sudoers_target" ]] || {
+  print -u2 "sudoers authorization removal failed"
+  exit 74
+}
+if [[ ! -e "$install_root" && ! -e "$legacy_root" ]]; then
   print "P00-V2-CAP-A01 already revoked"
   exit 0
 fi
+/usr/bin/install -m 0555 "$0" "$receipt_root/revoke-controller"
+[[ -n "$test_root" ]] || /usr/sbin/chown root:wheel "$receipt_root/revoke-controller"
 
 [[ -d "$install_root" && -d "$legacy_root" && -d "$metadata_root" ]] || {
-  print -u2 "revocation identity is incomplete; refusing cleanup"
+  print -u2 "authorization removed; revocation identity is incomplete and bytes were preserved"
   exit 65
 }
 [[ -f "$manifest_tool" &&
@@ -52,7 +64,7 @@ fi
     -f "$metadata_root/legacy-v1-observed-manifest.json" &&
     -f "$metadata_root/release-envelope.json" &&
     -f "$metadata_root/approved-envelope.sha256" ]] || {
-  print -u2 "revocation metadata is incomplete"
+  print -u2 "authorization removed; revocation metadata is incomplete"
   exit 65
 }
 
@@ -74,43 +86,22 @@ approved_envelope_sha=$(
   /usr/bin/tr -d '[:space:]' < "$metadata_root/approved-envelope.sha256"
 )
 [[ "$(hash_file "$metadata_root/release-envelope.json")" == "$approved_envelope_sha" ]] || {
-  print -u2 "release envelope identity disagreement"
+  print -u2 "authorization removed; release envelope identity disagreement"
   exit 65
 }
-
 expected_sudoers_sha=$(
   /usr/bin/python3 - "$metadata_root/release-envelope.json" <<'PY'
 import json, sys
 print(json.load(open(sys.argv[1]))["members"]["sudoers"]["sha256"])
 PY
 )
-[[ -f "$sudoers_target" && "$(hash_file "$sudoers_target")" == "$expected_sudoers_sha" ]] || {
-  print -u2 "installed sudoers identity disagreement"
+if [[ -e "$removed_sudoers" &&
+      "$(hash_file "$removed_sudoers")" != "$expected_sudoers_sha" ]]; then
+  print -u2 "authorization removed; sudoers drift preserved for forensic disposition"
   exit 65
-}
-
-/bin/mkdir -p "$receipt_root"
-/usr/bin/install -m 0555 "$0" "$receipt_root/revoke-controller"
-[[ -n "$test_root" ]] || /usr/sbin/chown root:wheel "$receipt_root/revoke-controller"
-receipt=$receipt_root/P00-V2-CAP-A01-revoked.json
-temporary=$receipt.tmp.$$
-print -r -- \
-  "{\"artifactId\":\"P00-V2-CAP-A01\",\"envelopeSha256\":\"$approved_envelope_sha\",\"authorizationRemovedFirst\":true}" \
-  > "$temporary"
-/bin/chmod 0444 "$temporary"
-[[ -n "$test_root" ]] || /usr/sbin/chown root:wheel "$temporary"
-
-# Authorization is always removed before any executable bytes.
-/bin/rm -f "$sudoers_target"
-[[ ! -e "$sudoers_target" ]] || {
-  print -u2 "sudoers authorization removal failed"
-  exit 74
-}
-
-# After authorization is gone, exact-tree mismatches preserve bytes for
-# forensic disposition while keeping every NOPASSWD command unavailable.
+fi
 [[ "$(hash_file "$manifest_tool")" == "$expected_manifest_tool_sha" ]] || {
-  print -u2 "manifest verifier hash disagreement; refusing execution"
+  print -u2 "authorization removed; manifest verifier hash disagreement"
   exit 65
 }
 /usr/bin/python3 "$manifest_tool" verify "$install_root" \
@@ -118,9 +109,29 @@ print -r -- \
 /usr/bin/python3 "$manifest_tool" verify "$legacy_root" \
   "$metadata_root/legacy-v1-observed-manifest.json" "${verify_options[@]}"
 
+retention_root=$receipt_root/P00-V2-CAP-A01-evidence
+[[ ! -e "$retention_root" ]] || {
+  print -u2 "authorization removed; retention root already exists"
+  exit 73
+}
+/bin/mkdir -p "$retention_root/state"
+retention_index=$retention_root/retention-index.tsv
+print -r -- $'name\tarchive_sha256' > "$retention_index"
+for name in anchors runs receipts metadata; do
+  state_path=$controller_root/$name
+  [[ -e "$state_path" ]] || continue
+  archive_path=$retention_root/state/$name.tar.gz
+  COPYFILE_DISABLE=1 /usr/bin/tar -czf "$archive_path" \
+    --format pax -C "$controller_root" "$name"
+  print -r -- "$name"$'\t'"$(hash_file "$archive_path")" >> "$retention_index"
+done
+/bin/chmod -R go-w "$retention_root"
+[[ -n "$test_root" ]] || /usr/sbin/chown -R root:wheel "$retention_root"
+
 if [[ -n "$test_root" ]]; then
   for removable in "$install_root" "$legacy_root" "$controller_root/objects" \
-    "$controller_root/anchors" "$controller_root/runs" "$controller_root/locks" \
+    "$controller_root/anchors" "$controller_root/runs" "$controller_root/receipts" \
+    "$controller_root/locks" \
     "$controller_root/requests" "$controller_root/nonces" \
     "$controller_root/quarantine" "$controller_root/metadata"; do
     [[ ! -e "$removable" ]] || /bin/chmod -R u+w "$removable" 2>/dev/null || true
@@ -128,8 +139,18 @@ if [[ -n "$test_root" ]]; then
 fi
 /bin/rm -rf "$install_root" "$legacy_root" \
   "$controller_root/objects" "$controller_root/anchors" "$controller_root/runs" \
+  "$controller_root/receipts" "$controller_root/metadata" \
   "$controller_root/locks" "$controller_root/requests" "$controller_root/nonces" \
-  "$controller_root/quarantine" "$controller_root/metadata"
+  "$controller_root/quarantine"
+
+receipt=$receipt_root/P00-V2-CAP-A01-revoked.json
+temporary=$receipt.tmp.$$
+retention_sha=$(hash_file "$retention_index")
+print -r -- \
+  "{\"artifactId\":\"P00-V2-CAP-A01\",\"envelopeSha256\":\"$approved_envelope_sha\",\"authorizationRemovedFirst\":true,\"retentionIndexSha256\":\"$retention_sha\"}" \
+  > "$temporary"
+/bin/chmod 0444 "$temporary"
+[[ -n "$test_root" ]] || /usr/sbin/chown root:wheel "$temporary"
 /bin/mv "$temporary" "$receipt"
 
 for forbidden in "$sudoers_target" "$install_root" "$legacy_root"; do
