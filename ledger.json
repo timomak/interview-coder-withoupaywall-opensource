@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-07-28T09:41:43+02:00",
+  "updatedAt": "2026-07-28T09:42:47+02:00",
   "repository": {
     "remote": "https://github.com/j4wg/interview-coder-withoupaywall-opensource",
     "pushRemote": "https://github.com/timomak/interview-coder-withoupaywall-opensource",
     "baseBranch": "main",
     "baseSha": "9dcb4b2d39607273a8528a24657cdb4f5bfc3412"
   },
-  "orchestrationStatus": "P01_CONTROLLER_INSTALL_RECOVERY_ATTEMPT_6_ACTIVE",
+  "orchestrationStatus": "P01_CONTROLLER_INSTALL_RECOVERY_ATTEMPT_6_AWAITING_MACOS_DIALOG",
   "currentPhaseId": "P01",
   "goalBlockedAudit": {
     "status": "ACTIVE_EXTERNAL_BLOCKER_RECOVERY",
@@ -2440,7 +2440,7 @@
       "worktreeClean": true
     },
     "P01/remediate-4": {
-      "status": "CONTROLLER_INSTALL_RECOVERY_ATTEMPT_6_ACTIVE",
+      "status": "CONTROLLER_INSTALL_RECOVERY_ATTEMPT_6_AWAITING_MACOS_DIALOG",
       "clientThreadId": "client-new-thread:ab5b24c4-055a-4c8f-b7c7-e0d0cbc4d8c6",
       "threadId": "019fa407-0732-7b93-b92c-c1a36d84fa02",
       "hostId": "local",
@@ -2529,6 +2529,8 @@
       "controllerInstallRecoveryAttempt6Authority": "The next automation heartbeat authorized at most one clear administrator-install attempt after attempt 5 reached a terminal pre-installation result.",
       "controllerInstallRecoveryAttempt6TemporaryInstallerSha256": "c8891ca2d0e004f062e0fcef16af30ebe85a7358a08b81a03aa0dcc0cc0d8245",
       "controllerInstallRecoveryAttempt6Invocation": "/bin/zsh temporary-installer source-root build-root",
+      "controllerInstallRecoveryAttempt6StartedAt": "2026-07-28T09:42:47+02:00",
+      "controllerInstallRecoveryAttempt6State": "MACOS_ADMINISTRATOR_DIALOG_ACTIVE",
       "singleActiveWriterReservation": true,
       "controllerRuntimeRequired": true,
       "requiredOutcome": "Produce a staff-challenged remediation plan for an immutable P01 candidate that implements the approved P00-R9 controller runtime as the first trusted instruction, closes all six P01 findings, preserves exact evidence and negative-control contracts, and is suitable for one isolated implementation commit followed by fresh full exact-SHA independent review."
@@ -3188,6 +3190,8 @@
       "attempt6AuthorizedAt": "2026-07-28T09:41:43+02:00",
       "attempt6TemporaryInstallerSha256": "c8891ca2d0e004f062e0fcef16af30ebe85a7358a08b81a03aa0dcc0cc0d8245",
       "attempt6Invocation": "/bin/zsh temporary-installer source-root build-root",
+      "attempt6StartedAt": "2026-07-28T09:42:47+02:00",
+      "attempt6State": "MACOS_ADMINISTRATOR_DIALOG_ACTIVE",
       "blockedThresholdReachedAt": "2026-07-27T17:42:10+02:00",
       "resumedBlockedThresholdReachedAt": "2026-07-27T19:09:52+02:00"
     }
