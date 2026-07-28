@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-07-28T20:12:36+02:00",
+  "updatedAt": "2026-07-28T20:32:08+02:00",
   "repository": {
     "remote": "https://github.com/j4wg/interview-coder-withoupaywall-opensource",
     "pushRemote": "https://github.com/timomak/interview-coder-withoupaywall-opensource",
@@ -2848,12 +2848,12 @@
       "activeWriter": null,
       "activeReviewer": {
         "reservationId": "P00-V2-CAP-A02-HIGH-REVIEW-1",
-        "status": "SECOND_FOLLOWUP_CHANGES_REQUESTED_COMPLETE",
-        "dispatchedAt": "2026-07-28T19:55:35+02:00",
+        "status": "FINAL_FOLLOWUP_RESERVED_PENDING_DISPATCH",
+        "dispatchedAt": null,
         "taskId": "/root/p00_v2_cap_a01_high_review",
         "riskTier": "HIGH",
-        "artifactCommitSha": "7d0e45384a8e5643e8011918995d09f85406fa04",
-        "artifactEnvelopeSha256": "6d7821ddabed7bf137079f465f04f0388f1305e5576da48097bf2e3c4c3808b3",
+        "artifactCommitSha": "0feae7e04dc65e40894a9664e3358e57c39e0843",
+        "artifactEnvelopeSha256": "69f88512f7b2740326346c57593ed428812a2e278eb86b62a005b17b9e56286f",
         "mutationAllowed": false
       },
       "legacyWriterTaskId": "019fa407-0732-7b93-b92c-c1a36d84fa02",
@@ -3191,11 +3191,11 @@
         },
         "upgradeAmendment": {
           "id": "P00-V2-CAP-A02",
-          "status": "SECOND_REVIEW_FOLLOWUP_CHANGES_REQUESTED",
+          "status": "IMMUTABLE_FINAL_REMEDIATION_AWAITING_REVIEW",
           "authorizedBy": "user standing instruction to proceed end-to-end",
           "candidateAndPRPreserved": true,
           "administratorActionProhibitedUntilIndependentApproval": true,
-          "immutableArtifactCommitSha": "7d0e45384a8e5643e8011918995d09f85406fa04",
+          "immutableArtifactCommitSha": "0feae7e04dc65e40894a9664e3358e57c39e0843",
           "reviewReservationId": "P00-V2-CAP-A02-HIGH-REVIEW-1",
           "validation": {
             "validatedAt": "2026-07-28T17:20:44+02:00",
@@ -3366,6 +3366,32 @@
                   }
                 ]
               }
+            },
+            "thirdRemediation": {
+              "validatedAt": "2026-07-28T20:32:08+02:00",
+              "immutableArtifactCommitSha": "0feae7e04dc65e40894a9664e3358e57c39e0843",
+              "result": "PASS",
+              "nonPrivilegedTestCount": 25,
+              "nativeSelfTestCaseCount": 2,
+              "testRuntimeSeconds": 686.924,
+              "reproducibleBuildCount": 2,
+              "candidateInvoked": false,
+              "sudoInvoked": false,
+              "installedPrivilegedHelperInvoked": false,
+              "controllerSha256": "73eda1532baa3044cf4feb989d2ec58d15304c86c31a298ed3d73a1a75c7494d",
+              "expectedInstallManifestSha256": "945ffda713b5e9a02d2472d6f4e9e91340111384a6cdeab40890a5f3b572768b",
+              "payloadArchiveSha256": "a9fede4079d4563a84536981773b2d7c36bb573de60288cd9d7468481beff4fa",
+              "releaseEnvelopeSha256": "69f88512f7b2740326346c57593ed428812a2e278eb86b62a005b17b9e56286f",
+              "adminHandoffSha256": "642af58b43219ca542efd7ad621df033a950d78c02d6735e76b07f30d795e83b",
+              "findingDispositions": [
+                {
+                  "id": "P00-V2-CAP-A02-R3-F01",
+                  "status": "REMEDIATED_PENDING_REVIEW",
+                  "evidence": "Failure cleanup restores the saved A01 tree without chmod or other mutation; both injected post-ready holder-death boundaries verify the complete 2407-member A01 manifest and then admit a clean exact A02 retry."
+                }
+              ],
+              "independentReviewRequired": true,
+              "administratorHandoffAuthorized": false
             }
           },
           "blocker": {
@@ -3380,7 +3406,7 @@
             "rawFailure": "Error: EACCES: permission denied, uv_cwd",
             "requiredFix": "Set every run evidence ancestor required by UID 499 to traverse-only 0711 while retaining root-only file access, cover all P01-P12 dynamically created ancestors, test the negative and positive cwd boundary, and atomically upgrade only after exact independent HIGH-risk approval."
           },
-          "nextSafeAction": "Remove preserved-A01 chmod from rollback, prove the complete A01 manifest and successful exact retry after both holder-death injections, freeze the bounded artifact, and obtain final independent approval."
+          "nextSafeAction": "Obtain final independent HIGH-risk approval of exact A02 commit 0feae7e04dc65e40894a9664e3358e57c39e0843 before any administrator action."
         }
       }
     },
@@ -3388,7 +3414,7 @@
       "decision": "ADOPT_V2_WITH_EXISTING_WORK_PRESERVED_AND_PRIVILEGED_CAPABILITY_QUARANTINED",
       "incompatibilityClassification": "V2-CAP-B01_THROUGH_B04_BLOCKS_CONTINUATION",
       "capabilityQuarantineStatus": "ACTIVE_UNAVAILABLE_DO_NOT_INVOKE",
-      "nextSafeAction": "Complete P00-V2-CAP-A02 narrow controller upgrade remediation and independent review, atomically upgrade v2, re-arm the unchanged P01 SHA, and rerun authoritative verification.",
+      "nextSafeAction": "Complete the final exact-SHA A02 review, then atomically upgrade v2 and record the unchanged P01 candidate state without starting P02.",
       "newUserOnlyDecisionRequired": false,
       "futureInteractiveCheckpoint": "COMPLETED: the bounded administrator installation succeeded; approved arm/verify operations are now passwordless."
     }
