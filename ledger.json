@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-07-28T14:35:33+02:00",
+  "updatedAt": "2026-07-28T17:20:44+02:00",
   "repository": {
     "remote": "https://github.com/j4wg/interview-coder-withoupaywall-opensource",
     "pushRemote": "https://github.com/timomak/interview-coder-withoupaywall-opensource",
@@ -2847,12 +2847,12 @@
       "delegatingStatusTaskId": "019fa7ad-8bd7-7473-b342-9cfca4af1bc1",
       "activeWriter": null,
       "activeReviewer": {
-        "reservationId": "P00-V2-CAP-A01-HIGH-REVIEW-1",
-        "status": "APPROVED_COMPLETE",
+        "reservationId": "P00-V2-CAP-A02-HIGH-REVIEW-1",
+        "status": "RESERVED_PENDING_DISPATCH",
         "taskId": "/root/p00_v2_cap_a01_high_review",
         "riskTier": "HIGH",
-        "artifactCommitSha": "051174b1ee86bda0cd8cae63c7711a0e28565da1",
-        "artifactEnvelopeSha256": "dd40197311ea0af68fbe0ecb106640365c0a72c355d92a9364f8d6154db15860",
+        "artifactCommitSha": "fe26771bb664bfd6a25051d309cbb09522dddd7e",
+        "artifactEnvelopeSha256": "9f4d53c284dc2be4815c717626ae8b9aaf04129d360d2ec9f904fdb19cd28f28",
         "mutationAllowed": false
       },
       "legacyWriterTaskId": "019fa407-0732-7b93-b92c-c1a36d84fa02",
@@ -3190,10 +3190,27 @@
         },
         "upgradeAmendment": {
           "id": "P00-V2-CAP-A02",
-          "status": "AUTHORIZED_NARROW_REMEDIATION",
+          "status": "IMMUTABLE_ARTIFACT_AWAITING_INDEPENDENT_HIGH_REVIEW",
           "authorizedBy": "user standing instruction to proceed end-to-end",
           "candidateAndPRPreserved": true,
           "administratorActionProhibitedUntilIndependentApproval": true,
+          "immutableArtifactCommitSha": "fe26771bb664bfd6a25051d309cbb09522dddd7e",
+          "reviewReservationId": "P00-V2-CAP-A02-HIGH-REVIEW-1",
+          "validation": {
+            "validatedAt": "2026-07-28T17:20:44+02:00",
+            "result": "PASS",
+            "nonPrivilegedTestCount": 20,
+            "nativeSelfTestCaseCount": 2,
+            "reproducibleBuildCount": 2,
+            "candidateInvoked": false,
+            "sudoInvoked": false,
+            "installedPrivilegedHelperInvoked": false,
+            "controllerSha256": "02ed99f471dd297358569ebdc51635f24b0df78086c67987c9a5c4b5ca7c93b2",
+            "expectedInstallManifestSha256": "db2d9e3212e9b20a397d1684adc4af31e9ee9153f23179177d7a68dbc4c930ea",
+            "payloadArchiveSha256": "c744580ed0e4627297279e885d03ccec89bd5d1865f2431d5b0d831a123adcbb",
+            "releaseEnvelopeSha256": "9f4d53c284dc2be4815c717626ae8b9aaf04129d360d2ec9f904fdb19cd28f28",
+            "adminHandoffSha256": "017075fa8fdc864b252668a1d41da6edfc9719be4c17d3c17ff0bd4f8cd93aa3"
+          },
           "blocker": {
             "id": "P00-V2-CAP-A02-B01",
             "severity": "HIGH",
@@ -3206,7 +3223,7 @@
             "rawFailure": "Error: EACCES: permission denied, uv_cwd",
             "requiredFix": "Set every run evidence ancestor required by UID 499 to traverse-only 0711 while retaining root-only file access, cover all P01-P12 dynamically created ancestors, test the negative and positive cwd boundary, and atomically upgrade only after exact independent HIGH-risk approval."
           },
-          "nextSafeAction": "Prepare and non-privileged-test an exact atomic A01-to-A02 controller upgrade with rollback that never restores authorization on failure, then obtain one independent HIGH-risk review."
+          "nextSafeAction": "Run the single reserved independent HIGH-risk review against exact commit fe26771bb664bfd6a25051d309cbb09522dddd7e; do not cross the administrator boundary before approval."
         }
       }
     },
