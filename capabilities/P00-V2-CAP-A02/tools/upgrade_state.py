@@ -239,6 +239,8 @@ def validate_tree_member(path: pathlib.Path, uid: int, gid: int) -> os.stat_resu
         raise SystemExit(f"run state ownership disagreement: {path}")
     if not (stat.S_ISDIR(info.st_mode) or stat.S_ISREG(info.st_mode)):
         raise SystemExit(f"run state has link or special member: {path}")
+    if stat.S_ISREG(info.st_mode) and info.st_nlink != 1:
+        raise SystemExit(f"run state regular member has multiple links: {path}")
     if stat.S_IMODE(info.st_mode) & 0o022:
         raise SystemExit(f"run state is group/world writable: {path}")
     reject_acl(path)

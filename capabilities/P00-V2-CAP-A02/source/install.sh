@@ -171,7 +171,28 @@ test_make_writable() {
   [[ -n "$test_root" && -e "$1" ]] || return 0
   /bin/chmod -R u+w "$1" 2>/dev/null || true
 }
-release_quiescence() {
+quiescence_is_alive() {
+  (( quiescence_pid != 0 )) || return 1
+  /bin/kill -0 "$quiescence_pid" 2>/dev/null || return 1
+  local process_state
+  process_state=$(
+    /bin/ps -o state= -p "$quiescence_pid" 2>/dev/null |
+      /usr/bin/tr -d '[:space:]'
+  )
+  [[ -n "$process_state" && "$process_state" != Z* ]]
+}
+require_quiescence() {
+  quiescence_is_alive || {
+    print -u2 "A01 quiescence holder is not continuously alive"
+    return 75
+  }
+}
+require_quiescence_or_exit() {
+  if ! require_quiescence; then
+    exit 75
+  fi
+}
+release_quiescence_best_effort() {
   if (( quiescence_pid != 0 )); then
     /usr/bin/touch "$quiescence_root/release"
     wait "$quiescence_pid" 2>/dev/null || true
@@ -179,11 +200,31 @@ release_quiescence() {
   fi
   /bin/rm -rf "$quiescence_root"
 }
+finish_quiescence() {
+  require_quiescence || return 75
+  /usr/bin/touch "$quiescence_root/release"
+  local holder_status
+  if wait "$quiescence_pid"; then
+    holder_status=0
+  else
+    holder_status=$?
+  fi
+  quiescence_pid=0
+  /bin/rm -rf "$quiescence_root"
+  (( holder_status == 0 )) || {
+    print -u2 "A01 quiescence holder exited with status $holder_status"
+    return 75
+  }
+}
 cleanup() {
   local result=$?
   if (( result != 0 )); then
-    test_make_writable "$install_root"
-    test_make_writable "$previous_install_root"
+    if (( upgrading == 1 && previous_moved == 1 )); then
+      test_make_writable "$install_root"
+      test_make_writable "$previous_install_root"
+    elif (( activated == 1 )); then
+      test_make_writable "$install_root"
+    fi
     test_make_writable "$staging_root"
     test_make_writable "$metadata_root"
     (( new_sudoers == 0 )) || /bin/rm -f "$sudoers_target"
@@ -201,7 +242,7 @@ cleanup() {
       print -u2 "installation rolled back; legacy wildcard authorization remains removed"
     fi
   fi
-  release_quiescence
+  release_quiescence_best_effort
 }
 trap cleanup EXIT
 
@@ -256,8 +297,15 @@ if (( upgrading == 1 )); then
     print -u2 "A01 quiescence admission failed with status $quiescence_status"
     exit 75
   fi
+  if [[ -n "$test_root" &&
+        "${P00_V2_TEST_KILL_QUIESCENCE_BEFORE_SWAP:-0}" == 1 ]]; then
+    /bin/kill -9 "$quiescence_pid"
+    /bin/sleep 0.05
+  fi
+  require_quiescence_or_exit
   /bin/mv "$install_root" "$previous_install_root"
   previous_moved=1
+  require_quiescence_or_exit
 fi
 
 if [[ -n "$test_root" ]]; then
@@ -273,6 +321,9 @@ else
   /bin/rmdir "$staging_root"
 fi
 activated=1
+if (( upgrading == 1 )); then
+  require_quiescence_or_exit
+fi
 
 /bin/mkdir -p "$metadata_root"
 /usr/bin/install -m 0444 "$manifest" "$metadata_root/expected-install-manifest.json"
@@ -325,6 +376,9 @@ if (( upgrading == 1 )); then
   }
 fi
 
+if (( upgrading == 1 )); then
+  require_quiescence_or_exit
+fi
 /usr/bin/python3 "$manifest_tool" verify "$install_root" \
   "$metadata_root/expected-install-manifest.json" "${verify_options[@]}"
 
@@ -334,6 +388,14 @@ if [[ -z "$test_root" ]]; then
   /usr/sbin/chown root:wheel "$metadata_root/installed-self-test.json"
 fi
 /bin/chmod 0444 "$metadata_root/installed-self-test.json"
+if [[ -n "$test_root" &&
+      "${P00_V2_TEST_KILL_QUIESCENCE_BEFORE_AUTHORIZATION:-0}" == 1 ]]; then
+  /bin/kill -9 "$quiescence_pid"
+  /bin/sleep 0.05
+fi
+if (( upgrading == 1 )); then
+  require_quiescence_or_exit
+fi
 
 # Authorization is the last activation step: staged bytes, copied bytes,
 # metadata, state ownership, strict installed-tree verification, and the
@@ -346,11 +408,17 @@ new_sudoers=1
   print -u2 "installed sudoers hash disagreement"
   exit 65
 }
+if (( upgrading == 1 )); then
+  require_quiescence_or_exit
+fi
 if [[ -n "$test_root" && "${P00_V2_TEST_FAIL_AFTER_NEW_AUTHORIZATION:-0}" == 1 ]]; then
   print -u2 "injected test failure after new authorization activation"
   exit 92
 fi
 if (( previous_moved == 1 )); then
+  if ! finish_quiescence; then
+    exit 75
+  fi
   if [[ -n "$test_root" ]]; then
     test_make_writable "$previous_install_root"
   fi

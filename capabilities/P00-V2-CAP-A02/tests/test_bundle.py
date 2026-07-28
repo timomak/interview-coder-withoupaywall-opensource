@@ -193,6 +193,43 @@ class CapabilityBundleTests(unittest.TestCase):
                 stat.S_IMODE(ancestor.stat().st_mode), 0o711
             )
 
+    def test_run_normalization_rejects_hard_links_without_changes(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_text:
+            root = pathlib.Path(temporary_text)
+            runs = root / "runs"
+            run_root = runs / ("1" * 40) / "P01" / ("2" * 32)
+            run_root.mkdir(parents=True)
+            outside = root / "outside-evidence"
+            outside.write_text("preserve\n")
+            outside.chmod(0o644)
+            linked = run_root / "linked-evidence"
+            os.link(outside, linked)
+            modes_before = {
+                path: stat.S_IMODE(path.stat().st_mode)
+                for path in [runs, run_root.parent.parent, run_root.parent, run_root]
+            }
+            rejected = run(
+                "/usr/bin/python3",
+                BUNDLE / "tools/upgrade_state.py",
+                "normalize-runs",
+                runs,
+                str(os.geteuid()),
+                str(os.getegid()),
+                check=False,
+            )
+            self.assertNotEqual(rejected.returncode, 0)
+            self.assertIn("multiple links", rejected.stderr)
+            self.assertEqual(outside.read_text(), "preserve\n")
+            self.assertEqual(stat.S_IMODE(outside.stat().st_mode), 0o644)
+            self.assertEqual(stat.S_IMODE(linked.stat().st_mode), 0o644)
+            self.assertEqual(
+                {
+                    path: stat.S_IMODE(path.stat().st_mode)
+                    for path in modes_before
+                },
+                modes_before,
+            )
+
     def test_script_policy_npmrc_and_authentication_boundary_are_closed(self) -> None:
         source = (BUILD / "Controller.swift").read_text()
         targets = {
@@ -962,6 +999,62 @@ class CapabilityBundleTests(unittest.TestCase):
                     sha256(A01_BUNDLE / "build/controller"),
                 )
                 self.assertFalse((controller / "metadata/P00-V2-CAP-A02").exists())
+            finally:
+                make_writable(temporary)
+
+    def test_upgrade_rolls_back_if_quiescence_holder_dies(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_text:
+            temporary = pathlib.Path(temporary_text)
+            test_root = self.prepare_legacy_root(temporary)
+            try:
+                installed_a01 = self.install_a01(test_root)
+                self.assertEqual(installed_a01.returncode, 0, installed_a01.stderr)
+                controller = (
+                    test_root
+                    / "Users/Shared/InterviewCopilot/verification-controller"
+                )
+                sudoers = (
+                    test_root
+                    / "etc/sudoers.d/interviewcopilot-verification-controller"
+                )
+                old_controller_sha = sha256(
+                    controller / "v2/libexec/verify-phase-core"
+                )
+                before_swap = self.install(
+                    test_root,
+                    P00_V2_TEST_KILL_QUIESCENCE_BEFORE_SWAP="1",
+                )
+                self.assertNotEqual(before_swap.returncode, 0)
+                self.assertIn("not continuously alive", before_swap.stderr)
+                self.assertFalse(sudoers.exists())
+                self.assertEqual(
+                    sha256(controller / "v2/libexec/verify-phase-core"),
+                    old_controller_sha,
+                )
+                shutil.copyfile(BUNDLE / "config/sudoers", sudoers)
+                sudoers.chmod(0o440)
+                before_authorization = self.install(
+                    test_root,
+                    P00_V2_TEST_KILL_QUIESCENCE_BEFORE_AUTHORIZATION="1",
+                )
+                self.assertNotEqual(before_authorization.returncode, 0)
+                self.assertIn(
+                    "not continuously alive", before_authorization.stderr
+                )
+                self.assertFalse(sudoers.exists())
+                self.assertEqual(
+                    sha256(controller / "v2/libexec/verify-phase-core"),
+                    old_controller_sha,
+                )
+                self.assertTrue(
+                    (controller / "metadata/P00-V2-CAP-A01").is_dir()
+                )
+                self.assertFalse(
+                    (controller / "metadata/P00-V2-CAP-A02").exists()
+                )
+                self.assertFalse(
+                    any(controller.glob(".v2-before-P00-V2-CAP-A02.*"))
+                )
             finally:
                 make_writable(temporary)
 
