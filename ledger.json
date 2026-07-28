@@ -2848,7 +2848,7 @@
       "activeWriter": null,
       "activeReviewer": {
         "reservationId": "P00-V2-CAP-A01-HIGH-REVIEW-1",
-        "status": "THIRD_REMEDIATION_FOLLOWUP_ACTIVE",
+        "status": "APPROVED_COMPLETE",
         "taskId": "/root/p00_v2_cap_a01_high_review",
         "riskTier": "HIGH",
         "artifactCommitSha": "051174b1ee86bda0cd8cae63c7711a0e28565da1",
@@ -2868,10 +2868,11 @@
         "useProhibited": true
       },
       "privileged-verification-controller-v2-replacement": {
-        "status": "BOOTSTRAP_REQUIRED",
+        "status": "INDEPENDENTLY_APPROVED_READY_FOR_ONE_SHOT_INSTALL",
         "quarantineStatus": "NOT_INSTALLED",
         "riskTier": "HIGH",
-        "useProhibitedUntilIndependentApproval": true
+        "useProhibitedUntilIndependentApproval": false,
+        "useProhibitedUntilInstalledBytesPassExactPreflight": true
       }
     },
     "resourceOwnership": {
@@ -2911,7 +2912,7 @@
     },
     "amendment": {
       "id": "P00-V2-CAP-A01",
-      "status": "REMEDIATION_VALIDATED_PENDING_IMMUTABLE_REVISION_REVIEW",
+      "status": "INDEPENDENTLY_APPROVED_ADMINISTRATOR_CHECKPOINT",
       "scope": "Narrow replacement of the privileged capability contract plus tested revocation of v1; no product, packet, candidate, PR, or evidence reset.",
       "administratorActionProhibitedUntilIndependentApproval": true,
       "validation": {
@@ -3111,13 +3112,60 @@
           "candidateInvoked": false,
           "sudoInvoked": false,
           "installedPrivilegedHelperInvoked": false,
-          "administratorHandoffAuthorized": false,
+          "administratorHandoffAuthorized": true,
           "findingDispositions": [
             {
               "id": "P00-V2-CAP-A01-R3-F01",
               "status": "REMEDIATED_PENDING_REVIEW",
               "evidence": "Arm recursively closes the exact npm script graph; build:runtime, clean, and verify:package-inventory are independently exact-mapped, recursively admitted, and included in the mapped lifecycle-hook deny set."
             }
+          ],
+          "independentReview": {
+            "reviewedAt": "2026-07-28T16:21:33+02:00",
+            "reviewedArtifactCommitSha": "051174b1ee86bda0cd8cae63c7711a0e28565da1",
+            "disposition": "APPROVED",
+            "administratorHandoffAuthorized": true,
+            "openFindings": [],
+            "exactCommitTestResult": "PASS_17_OF_17",
+            "exactCommitTestRuntimeSeconds": 352.001,
+            "envelopeMemberCount": 14,
+            "payloadMemberCount": 2407,
+            "findingDispositions": [
+              {
+                "id": "P00-V2-CAP-A01-R3-F01",
+                "status": "RESOLVED"
+              }
+            ]
+          }
+        },
+        "administratorCheckpoint": {
+          "recordedAt": "2026-07-28T16:21:33+02:00",
+          "status": "EXPLICIT_READY_NOT_EXECUTED",
+          "immutableArtifactCommitSha": "051174b1ee86bda0cd8cae63c7711a0e28565da1",
+          "releaseEnvelopeSha256": "dd40197311ea0af68fbe0ecb106640365c0a72c355d92a9364f8d6154db15860",
+          "payloadArchiveSha256": "1b306e08b2ef26e491c5de4c16014021a27483b456e5722e9457349dccfdcf85",
+          "controllerSha256": "051dc107070899ecbea20502560b1bf6719f7f7962a7a2790c443a2ba28ecb4a",
+          "expectedInstallManifestSha256": "e87ebb9ca34dd225de82fd484b094f749e2850a9c1492a2426116bfdaa154286",
+          "adminHandoffPath": "/Users/thirdfacedev/.codex/orchestration/TimoCodes-ledger/capabilities/P00-V2-CAP-A01/build/admin-handoff.txt",
+          "adminHandoffSha256": "1152dbc4e142b834a868608a2844a79f311f3c70602ccb6e05f7662499210e88",
+          "remainingRisk": "One bounded macOS administrator authentication and exact-byte activation transaction remain. The installed v1 capability stays quarantined and v2 remains unavailable until final installed-byte preflight passes.",
+          "activationOrder": [
+            "Execute the literal reviewed handoff exactly once.",
+            "Create a new root-owned staging root named by the approved envelope hash.",
+            "Verify literal hashes for the installer, both verifiers, envelope, and payload archive.",
+            "Verify all envelope members and every payload member before activation.",
+            "Remove the quarantined v1 authorization before activating v2.",
+            "Install and independently verify exact v2 bytes.",
+            "Install the exact principal-bound no-argument v2 sudoers rules last.",
+            "Run installed-byte preflight before arming any candidate."
+          ],
+          "revocationOrder": [
+            "Remove v2 sudoers authorization first.",
+            "Set the revocation-in-progress preflight marker.",
+            "Verify installed identity and reject active controller processes or held P01-P12 locks.",
+            "Retain hashed anchors, runs, receipts, and metadata.",
+            "Remove only the enumerated v1/v2 executable and controller-state roots.",
+            "Write the immutable revocation receipt and prove privileged command paths are absent."
           ]
         }
       }
@@ -3126,9 +3174,9 @@
       "decision": "ADOPT_V2_WITH_EXISTING_WORK_PRESERVED_AND_PRIVILEGED_CAPABILITY_QUARANTINED",
       "incompatibilityClassification": "V2-CAP-B01_THROUGH_B04_BLOCKS_CONTINUATION",
       "capabilityQuarantineStatus": "ACTIVE_UNAVAILABLE_DO_NOT_INVOKE",
-      "nextSafeAction": "Prepare exact P00-V2-CAP-A01 replacement and revocation artifacts in controller-owned space, validate them without candidate or privileged execution, then obtain one fresh independent HIGH-risk review.",
+      "nextSafeAction": "Execute the exact independently approved one-shot administrator handoff, then verify installed bytes before any arm or candidate command.",
       "newUserOnlyDecisionRequired": false,
-      "futureInteractiveCheckpoint": "One bounded administrator authentication only after independent approval."
+      "futureInteractiveCheckpoint": "READY: one bounded administrator authentication may now execute the exact reviewed handoff."
     }
   },
   "blockers": [
