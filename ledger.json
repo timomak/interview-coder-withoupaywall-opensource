@@ -2848,11 +2848,11 @@
       "activeWriter": null,
       "activeReviewer": {
         "reservationId": "P00-V2-CAP-A01-HIGH-REVIEW-1",
-        "status": "SECOND_REMEDIATION_FOLLOWUP_CHANGES_REQUESTED",
+        "status": "THIRD_REMEDIATION_FOLLOWUP_RESERVED",
         "taskId": "/root/p00_v2_cap_a01_high_review",
         "riskTier": "HIGH",
-        "artifactCommitSha": "818061fc2cf5e2bbcaa171c016dc90e29561a661",
-        "artifactEnvelopeSha256": "63ff8516c5902202a6ae30998b3ca0a767117dc5c09221e779a2735da5fcf74c",
+        "artifactCommitSha": "051174b1ee86bda0cd8cae63c7711a0e28565da1",
+        "artifactEnvelopeSha256": "dd40197311ea0af68fbe0ecb106640365c0a72c355d92a9364f8d6154db15860",
         "mutationAllowed": false
       },
       "legacyWriterTaskId": "019fa407-0732-7b93-b92c-c1a36d84fa02",
@@ -3097,6 +3097,28 @@
               }
             ]
           }
+        },
+        "thirdRemediation": {
+          "validatedAt": "2026-07-28T16:07:39+02:00",
+          "immutableArtifactCommitSha": "051174b1ee86bda0cd8cae63c7711a0e28565da1",
+          "controllerSha256": "051dc107070899ecbea20502560b1bf6719f7f7962a7a2790c443a2ba28ecb4a",
+          "expectedInstallManifestSha256": "e87ebb9ca34dd225de82fd484b094f749e2850a9c1492a2426116bfdaa154286",
+          "payloadArchiveSha256": "1b306e08b2ef26e491c5de4c16014021a27483b456e5722e9457349dccfdcf85",
+          "releaseEnvelopeSha256": "dd40197311ea0af68fbe0ecb106640365c0a72c355d92a9364f8d6154db15860",
+          "adminHandoffSha256": "1152dbc4e142b834a868608a2844a79f311f3c70602ccb6e05f7662499210e88",
+          "nonPrivilegedTestCount": 17,
+          "reproducibleBuildCount": 2,
+          "candidateInvoked": false,
+          "sudoInvoked": false,
+          "installedPrivilegedHelperInvoked": false,
+          "administratorHandoffAuthorized": false,
+          "findingDispositions": [
+            {
+              "id": "P00-V2-CAP-A01-R3-F01",
+              "status": "REMEDIATED_PENDING_REVIEW",
+              "evidence": "Arm recursively closes the exact npm script graph; build:runtime, clean, and verify:package-inventory are independently exact-mapped, recursively admitted, and included in the mapped lifecycle-hook deny set."
+            }
+          ]
         }
       }
     },
