@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-07-28T17:45:55+02:00",
+  "updatedAt": "2026-07-28T18:55:28+02:00",
   "repository": {
     "remote": "https://github.com/j4wg/interview-coder-withoupaywall-opensource",
     "pushRemote": "https://github.com/timomak/interview-coder-withoupaywall-opensource",
@@ -2848,12 +2848,12 @@
       "activeWriter": null,
       "activeReviewer": {
         "reservationId": "P00-V2-CAP-A02-HIGH-REVIEW-1",
-        "status": "CHANGES_REQUESTED_COMPLETE",
+        "status": "RESERVED_FOLLOWUP_PENDING_DISPATCH",
         "dispatchedAt": "2026-07-28T17:21:48+02:00",
         "taskId": "/root/p00_v2_cap_a01_high_review",
         "riskTier": "HIGH",
-        "artifactCommitSha": "fe26771bb664bfd6a25051d309cbb09522dddd7e",
-        "artifactEnvelopeSha256": "9f4d53c284dc2be4815c717626ae8b9aaf04129d360d2ec9f904fdb19cd28f28",
+        "artifactCommitSha": "abf7857dbb91904c19c3c029d931696ccc25dbab",
+        "artifactEnvelopeSha256": "edd9653e869b60d2b1169dc2aa8cbdf43ebdaea31461592ca035a3b22c681ca4",
         "mutationAllowed": false
       },
       "legacyWriterTaskId": "019fa407-0732-7b93-b92c-c1a36d84fa02",
@@ -3191,11 +3191,11 @@
         },
         "upgradeAmendment": {
           "id": "P00-V2-CAP-A02",
-          "status": "INDEPENDENT_HIGH_REVIEW_CHANGES_REQUESTED",
+          "status": "IMMUTABLE_REMEDIATION_AWAITING_REVIEW_FOLLOWUP",
           "authorizedBy": "user standing instruction to proceed end-to-end",
           "candidateAndPRPreserved": true,
           "administratorActionProhibitedUntilIndependentApproval": true,
-          "immutableArtifactCommitSha": "fe26771bb664bfd6a25051d309cbb09522dddd7e",
+          "immutableArtifactCommitSha": "abf7857dbb91904c19c3c029d931696ccc25dbab",
           "reviewReservationId": "P00-V2-CAP-A02-HIGH-REVIEW-1",
           "validation": {
             "validatedAt": "2026-07-28T17:20:44+02:00",
@@ -3249,6 +3249,49 @@
               }
             ]
           },
+          "remediation": {
+            "validatedAt": "2026-07-28T18:55:28+02:00",
+            "immutableArtifactCommitSha": "abf7857dbb91904c19c3c029d931696ccc25dbab",
+            "result": "PASS",
+            "nonPrivilegedTestCount": 23,
+            "nativeSelfTestCaseCount": 2,
+            "reproducibleBuildCount": 2,
+            "candidateInvoked": false,
+            "sudoInvoked": false,
+            "installedPrivilegedHelperInvoked": false,
+            "controllerSha256": "73eda1532baa3044cf4feb989d2ec58d15304c86c31a298ed3d73a1a75c7494d",
+            "expectedInstallManifestSha256": "bddabe070ff1d64d1b6058a623f967380cb24cd32bece9dbf73093655fd1e03b",
+            "payloadArchiveSha256": "a2fa18bcd3913d0567931b3700d11d6a83959f2d603d5c86582e74c71600130d",
+            "releaseEnvelopeSha256": "edd9653e869b60d2b1169dc2aa8cbdf43ebdaea31461592ca035a3b22c681ca4",
+            "adminHandoffSha256": "4a558a57cd47f58cf33c9116aaf74998635e06f5d11ab1c764a478fcec348295",
+            "findingDispositions": [
+              {
+                "id": "P00-V2-CAP-A02-R1-F01",
+                "status": "REMEDIATED_PENDING_REVIEW",
+                "evidence": "Upgrade admission requires the closed five-member A01 metadata set plus exact root/mode/ACL/hash sudoers identity before installed-payload verification."
+              },
+              {
+                "id": "P00-V2-CAP-A02-R1-F02",
+                "status": "REMEDIATED_PENDING_REVIEW",
+                "evidence": "After authorization removal, the exact staged quiescence verifier proves process absence and holds every P01-P12 lock through swap, commit, or rollback; held-lock and active-process negatives pass."
+              },
+              {
+                "id": "P00-V2-CAP-A02-R1-F03",
+                "status": "REMEDIATED_PENDING_REVIEW",
+                "evidence": "UID-501 request slots are closed-tree validated and byte/owner/mode/xattr snapshotted before and after upgrade without recursive chown."
+              },
+              {
+                "id": "P00-V2-CAP-A02-R1-F04",
+                "status": "REMEDIATED_PENDING_REVIEW",
+                "evidence": "Preserved fixed-depth run ancestry rejects links, special members, unexpected names, ACLs, and writable state; every commit/phase/run ancestor becomes 0711 and descendants become owner-only without byte changes."
+              },
+              {
+                "id": "P00-V2-CAP-A02-R1-F05",
+                "status": "REMEDIATED_PENDING_REVIEW",
+                "evidence": "Live installation now requires exact A01; fresh-v1 construction is reachable only with both a disposable test root and explicit fixture flag."
+              }
+            ]
+          },
           "blocker": {
             "id": "P00-V2-CAP-A02-B01",
             "severity": "HIGH",
@@ -3261,7 +3304,7 @@
             "rawFailure": "Error: EACCES: permission denied, uv_cwd",
             "requiredFix": "Set every run evidence ancestor required by UID 499 to traverse-only 0711 while retaining root-only file access, cover all P01-P12 dynamically created ancestors, test the negative and positive cwd boundary, and atomically upgrade only after exact independent HIGH-risk approval."
           },
-          "nextSafeAction": "Remediate P00-V2-CAP-A02-R1-F01 through F05 non-privileged, freeze exact replacement artifacts, and return them to the same sole HIGH-risk reviewer; do not cross the administrator boundary before approval."
+          "nextSafeAction": "Run the reserved review follow-up against exact commit abf7857dbb91904c19c3c029d931696ccc25dbab; do not cross the administrator boundary before approval."
         }
       }
     },
