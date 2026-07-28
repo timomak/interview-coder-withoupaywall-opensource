@@ -2848,7 +2848,7 @@
       "activeWriter": null,
       "activeReviewer": {
         "reservationId": "P00-V2-CAP-A01-HIGH-REVIEW-1",
-        "status": "SECOND_REMEDIATION_FOLLOWUP_ACTIVE",
+        "status": "SECOND_REMEDIATION_FOLLOWUP_CHANGES_REQUESTED",
         "taskId": "/root/p00_v2_cap_a01_high_review",
         "riskTier": "HIGH",
         "artifactCommitSha": "818061fc2cf5e2bbcaa171c016dc90e29561a661",
@@ -3078,7 +3078,25 @@
               "status": "REMEDIATED_PENDING_REVIEW",
               "evidence": "After authorization removal, revocation sets a controller preflight stop marker, verifies installed quiescence code, rejects active helper processes or any held P01-P12 lock, and only then archives or deletes state."
             }
-          ]
+          ],
+          "independentReview": {
+            "reviewedAt": "2026-07-28T15:58:40+02:00",
+            "reviewedArtifactCommitSha": "818061fc2cf5e2bbcaa171c016dc90e29561a661",
+            "reviewedEnvelopeSha256": "63ff8516c5902202a6ae30998b3ca0a767117dc5c09221e779a2735da5fcf74c",
+            "disposition": "CHANGES_REQUESTED",
+            "administratorHandoffAuthorized": false,
+            "resolvedFindings": [
+              "P00-V2-CAP-A01-R2-F02",
+              "P00-V2-CAP-A01-R2-F03"
+            ],
+            "findings": [
+              {
+                "id": "P00-V2-CAP-A01-R3-F01",
+                "severity": "HIGH",
+                "summary": "The exact top-level build mapping invokes transitive npm targets build:runtime and verify:package-inventory whose bodies and matching lifecycle hooks are not covered by the root-owned closed mapping."
+              }
+            ]
+          }
         }
       }
     },
