@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-07-28T20:32:08+02:00",
+  "updatedAt": "2026-07-28T20:33:04+02:00",
   "repository": {
     "remote": "https://github.com/j4wg/interview-coder-withoupaywall-opensource",
     "pushRemote": "https://github.com/timomak/interview-coder-withoupaywall-opensource",
@@ -2848,8 +2848,8 @@
       "activeWriter": null,
       "activeReviewer": {
         "reservationId": "P00-V2-CAP-A02-HIGH-REVIEW-1",
-        "status": "FINAL_FOLLOWUP_RESERVED_PENDING_DISPATCH",
-        "dispatchedAt": null,
+        "status": "FINAL_FOLLOWUP_ACTIVE",
+        "dispatchedAt": "2026-07-28T20:33:04+02:00",
         "taskId": "/root/p00_v2_cap_a01_high_review",
         "riskTier": "HIGH",
         "artifactCommitSha": "0feae7e04dc65e40894a9664e3358e57c39e0843",
