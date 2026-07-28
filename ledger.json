@@ -2848,7 +2848,7 @@
       "activeWriter": null,
       "activeReviewer": {
         "reservationId": "P00-V2-CAP-A01-HIGH-REVIEW-1",
-        "status": "THIRD_REMEDIATION_FOLLOWUP_RESERVED",
+        "status": "THIRD_REMEDIATION_FOLLOWUP_ACTIVE",
         "taskId": "/root/p00_v2_cap_a01_high_review",
         "riskTier": "HIGH",
         "artifactCommitSha": "051174b1ee86bda0cd8cae63c7711a0e28565da1",
