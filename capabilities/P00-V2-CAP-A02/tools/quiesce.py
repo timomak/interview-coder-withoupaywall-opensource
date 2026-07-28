@@ -15,6 +15,7 @@ import os
 import pathlib
 import subprocess
 import sys
+import time
 
 
 PHASES = tuple(f"P{number:02d}" for number in range(1, 13))
@@ -46,9 +47,21 @@ def controller_processes(install_root: pathlib.Path) -> list[str]:
 
 def main() -> int:
     parser = argparse.ArgumentParser()
+    parser.add_argument("--hold-ready", type=pathlib.Path)
+    parser.add_argument("--hold-release", type=pathlib.Path)
+    parser.add_argument("--parent-pid", type=int)
     parser.add_argument("controller_root", type=pathlib.Path)
     parser.add_argument("install_root", type=pathlib.Path)
     arguments = parser.parse_args()
+    hold_values = (
+        arguments.hold_ready,
+        arguments.hold_release,
+        arguments.parent_pid,
+    )
+    if any(value is not None for value in hold_values) and not all(
+        value is not None for value in hold_values
+    ):
+        raise SystemExit("hold mode requires ready, release, and parent PID")
     locks_root = arguments.controller_root / "locks"
     locks_root.mkdir(parents=True, exist_ok=True)
 
@@ -68,6 +81,23 @@ def main() -> int:
             descriptors.append(descriptor)
         if controller_processes(arguments.install_root):
             raise SystemExit("active controller process detected after lock acquisition")
+        if arguments.hold_ready is not None:
+            ready_descriptor = os.open(
+                arguments.hold_ready,
+                os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW,
+                0o400,
+            )
+            try:
+                os.write(ready_descriptor, b"ready\n")
+                os.fsync(ready_descriptor)
+            finally:
+                os.close(ready_descriptor)
+            while not arguments.hold_release.exists():
+                try:
+                    os.kill(arguments.parent_pid, 0)
+                except ProcessLookupError:
+                    raise SystemExit("upgrade parent exited before quiescence release")
+                time.sleep(0.05)
     finally:
         for descriptor in descriptors:
             os.close(descriptor)

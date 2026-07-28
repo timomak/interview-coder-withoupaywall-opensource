@@ -340,6 +340,7 @@ class CapabilityBundleTests(unittest.TestCase):
         )
         self.assertIn("envelopeVerifier", envelope["members"])
         self.assertIn("manifestVerifier", envelope["members"])
+        self.assertIn("upgradeStateVerifier", envelope["members"])
 
     def test_request_writer_is_closed_atomic_and_negative(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_text:
@@ -422,6 +423,7 @@ class CapabilityBundleTests(unittest.TestCase):
             sha256(BUILD / "payload.tar.gz"),
         )
         self.assertTrue((BUILD / "payload/libexec/quiesce.py").is_file())
+        self.assertTrue((BUILD / "payload/libexec/upgrade-state.py").is_file())
 
     def test_quiescence_rejects_held_phase_lock(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_text:
@@ -668,6 +670,7 @@ class CapabilityBundleTests(unittest.TestCase):
     def install(self, test_root: pathlib.Path, **extra: str) -> subprocess.CompletedProcess[str]:
         environment = os.environ.copy()
         environment["P00_V2_TEST_ROOT"] = str(test_root)
+        environment["P00_V2_TEST_ALLOW_FRESH_INSTALL"] = "1"
         environment.update(extra)
         return run(
             "/bin/zsh",
@@ -681,7 +684,7 @@ class CapabilityBundleTests(unittest.TestCase):
     def install_a01(self, test_root: pathlib.Path) -> subprocess.CompletedProcess[str]:
         environment = os.environ.copy()
         environment["P00_V2_TEST_ROOT"] = str(test_root)
-        return run(
+        result = run(
             "/bin/zsh",
             A01_BUNDLE / "source/install.sh",
             A01_BUNDLE,
@@ -689,6 +692,33 @@ class CapabilityBundleTests(unittest.TestCase):
             env=environment,
             check=False,
         )
+        if result.returncode == 0:
+            metadata = (
+                test_root
+                / "Users/Shared/InterviewCopilot/verification-controller/metadata/"
+                "P00-V2-CAP-A01"
+            )
+            make_writable(metadata)
+            run(
+                "/usr/bin/xattr",
+                "-cr",
+                metadata,
+            )
+            for member in metadata.iterdir():
+                member.chmod(0o444)
+            metadata.chmod(0o755)
+            sudoers = (
+                test_root
+                / "etc/sudoers.d/interviewcopilot-verification-controller"
+            )
+            sudoers.chmod(0o600)
+            run(
+                "/usr/bin/xattr",
+                "-cr",
+                sudoers,
+            )
+            sudoers.chmod(0o440)
+        return result
 
     def test_atomic_upgrade_from_exact_a01_preserves_state(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_text:
@@ -704,6 +734,54 @@ class CapabilityBundleTests(unittest.TestCase):
                 state_marker = controller / "anchors/preserved-state"
                 state_marker.parent.mkdir(exist_ok=True)
                 state_marker.write_text("preserve\n")
+                request_root = controller / "requests/501"
+                run(
+                    "/usr/bin/python3",
+                    BUNDLE / "tools/write-request.py",
+                    "arm",
+                    "P01",
+                    "--pr",
+                    "155",
+                    "--expected-head",
+                    "1" * 40,
+                    "--test-request-root",
+                    request_root,
+                )
+                run(
+                    "/usr/bin/python3",
+                    BUNDLE / "tools/write-request.py",
+                    "verify",
+                    "P01",
+                    "--test-request-root",
+                    request_root,
+                )
+                request_facts = {
+                    path.name: (
+                        sha256(path),
+                        path.stat().st_uid,
+                        stat.S_IMODE(path.stat().st_mode),
+                    )
+                    for path in request_root.iterdir()
+                }
+                historical_run = (
+                    controller
+                    / "runs"
+                    / ("1" * 40)
+                    / "P01"
+                    / ("2" * 32)
+                )
+                historical_repo = historical_run / "repo"
+                historical_repo.mkdir(parents=True)
+                historical_file = historical_repo / "package.json"
+                historical_file.write_text('{"preserved":true}\n')
+                for path in [
+                    historical_run.parent.parent,
+                    historical_run.parent,
+                    historical_run,
+                    historical_repo,
+                ]:
+                    path.chmod(0o755)
+                historical_file.chmod(0o644)
                 upgraded = self.install(test_root)
                 self.assertEqual(upgraded.returncode, 0, upgraded.stderr)
                 self.assertTrue(state_marker.is_file())
@@ -716,6 +794,32 @@ class CapabilityBundleTests(unittest.TestCase):
                 )
                 self.assertEqual(
                     stat.S_IMODE((controller / "runs").stat().st_mode), 0o711
+                )
+                for path in [
+                    historical_run.parent.parent,
+                    historical_run.parent,
+                    historical_run,
+                ]:
+                    self.assertEqual(stat.S_IMODE(path.stat().st_mode), 0o711)
+                self.assertEqual(
+                    stat.S_IMODE(historical_repo.stat().st_mode), 0o700
+                )
+                self.assertEqual(
+                    stat.S_IMODE(historical_file.stat().st_mode), 0o600
+                )
+                self.assertEqual(
+                    historical_file.read_text(), '{"preserved":true}\n'
+                )
+                self.assertEqual(
+                    {
+                        path.name: (
+                            sha256(path),
+                            path.stat().st_uid,
+                            stat.S_IMODE(path.stat().st_mode),
+                        )
+                        for path in request_root.iterdir()
+                    },
+                    request_facts,
                 )
                 self.assertFalse(
                     any(controller.glob(".v2-before-P00-V2-CAP-A02.*"))
@@ -770,6 +874,122 @@ class CapabilityBundleTests(unittest.TestCase):
                 )
             finally:
                 make_writable(temporary)
+
+    def test_upgrade_rejects_incomplete_a01_identity(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_text:
+            temporary = pathlib.Path(temporary_text)
+            test_root = self.prepare_legacy_root(temporary)
+            try:
+                installed_a01 = self.install_a01(test_root)
+                self.assertEqual(installed_a01.returncode, 0, installed_a01.stderr)
+                controller = (
+                    test_root
+                    / "Users/Shared/InterviewCopilot/verification-controller"
+                )
+                sudoers = (
+                    test_root
+                    / "etc/sudoers.d/interviewcopilot-verification-controller"
+                )
+                sudoers.chmod(0o600)
+                wrong_mode = self.install(test_root)
+                self.assertNotEqual(wrong_mode.returncode, 0)
+                self.assertIn("filesystem contract disagreement", wrong_mode.stderr)
+                sudoers.chmod(0o440)
+                sudoers.unlink()
+                metadata = controller / "metadata/P00-V2-CAP-A01"
+                (metadata / "installed-self-test.json").unlink()
+                (metadata / "legacy-v1-observed-manifest.json").unlink()
+                incomplete = self.install(test_root)
+                self.assertNotEqual(incomplete.returncode, 0)
+                self.assertFalse((controller / "metadata/P00-V2-CAP-A02").exists())
+                self.assertEqual(
+                    sha256(controller / "v2/libexec/verify-phase-core"),
+                    sha256(A01_BUNDLE / "build/controller"),
+                )
+            finally:
+                make_writable(temporary)
+
+    def test_upgrade_rejects_held_a01_phase_lock(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_text:
+            temporary = pathlib.Path(temporary_text)
+            test_root = self.prepare_legacy_root(temporary)
+            try:
+                installed_a01 = self.install_a01(test_root)
+                self.assertEqual(installed_a01.returncode, 0, installed_a01.stderr)
+                controller = (
+                    test_root
+                    / "Users/Shared/InterviewCopilot/verification-controller"
+                )
+                lock = controller / "locks/P01-local.lock"
+                holder = subprocess.Popen(
+                    [
+                        "/usr/bin/python3",
+                        "-c",
+                        (
+                            "import fcntl,os,sys;"
+                            "fd=os.open(sys.argv[1],os.O_RDWR|os.O_CREAT,0o600);"
+                            "fcntl.flock(fd,fcntl.LOCK_EX);"
+                            "print('ready',flush=True);sys.stdin.read()"
+                        ),
+                        str(lock),
+                    ],
+                    stdin=subprocess.PIPE,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    text=True,
+                )
+                try:
+                    self.assertEqual(holder.stdout.readline().strip(), "ready")
+                    blocked = self.install(test_root)
+                finally:
+                    assert holder.stdin is not None
+                    holder.stdin.close()
+                    holder.wait(timeout=5)
+                    assert holder.stdout is not None
+                    assert holder.stderr is not None
+                    holder.stdout.close()
+                    holder.stderr.close()
+                self.assertNotEqual(blocked.returncode, 0)
+                self.assertIn("quiescence admission failed", blocked.stderr)
+                self.assertFalse(
+                    (
+                        test_root
+                        / "etc/sudoers.d/interviewcopilot-verification-controller"
+                    ).exists()
+                )
+                self.assertEqual(
+                    sha256(controller / "v2/libexec/verify-phase-core"),
+                    sha256(A01_BUNDLE / "build/controller"),
+                )
+                self.assertFalse((controller / "metadata/P00-V2-CAP-A02").exists())
+            finally:
+                make_writable(temporary)
+
+    def test_fresh_v1_path_requires_explicit_test_fixture_flag(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_text:
+            temporary = pathlib.Path(temporary_text)
+            test_root = self.prepare_legacy_root(temporary)
+            environment = os.environ.copy()
+            environment["P00_V2_TEST_ROOT"] = str(test_root)
+            rejected = run(
+                "/bin/zsh",
+                BUNDLE / "source/install.sh",
+                BUNDLE,
+                sha256(BUILD / "release-envelope.json"),
+                env=environment,
+                check=False,
+            )
+            self.assertNotEqual(rejected.returncode, 0)
+            self.assertIn(
+                "A02 requires the exact installed A01 capability",
+                rejected.stderr,
+            )
+            self.assertFalse(
+                (
+                    test_root
+                    / "Users/Shared/InterviewCopilot/verification-controller/v2"
+                ).exists()
+            )
 
     def test_install_revoke_cleanup_and_idempotence(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_text:

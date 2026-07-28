@@ -695,6 +695,15 @@ func enforcePhaseDependencies(_ phase: String, store: String) throws {
     ]
     for path in traversableRunAncestors {
         try ensureDirectory(path, mode: 0o711)
+        let facts = try fileFacts(path)
+        var pathInfo = stat()
+        guard lstat(path, &pathInfo) == 0,
+              (pathInfo.st_mode & S_IFMT) == S_IFDIR,
+              facts["uid"] as? Int == 0,
+              facts["gid"] as? Int == 0,
+              facts["extendedAcl"] as? Bool == false else {
+            try fail("run ancestor filesystem contract disagreement: \\(path)")
+        }
         if chmod(path, 0o711) != 0 {
             try fail("could not enforce traverse-only run ancestor: \\(path)")
         }

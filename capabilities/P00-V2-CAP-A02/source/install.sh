@@ -18,6 +18,12 @@ if [[ -n "$test_root" ]]; then
   shared_root=$test_root/Users/Shared/InterviewCopilot
   sudoers_target=$test_root/etc/sudoers.d/interviewcopilot-verification-controller
   verify_options=(--allow-source-provenance)
+  state_uid=$EUID
+  state_gid=$(/usr/bin/id -g)
+  request_uid=$EUID
+  request_gid=$state_gid
+  previous_metadata_mode=0755
+  allow_source_xattrs=1
 else
   [[ $EUID -eq 0 ]] || {
     print -u2 "live installation requires root"
@@ -26,6 +32,12 @@ else
   shared_root=/Users/Shared/InterviewCopilot
   sudoers_target=/etc/sudoers.d/interviewcopilot-verification-controller
   verify_options=(--require-uid 0)
+  state_uid=0
+  state_gid=0
+  request_uid=501
+  request_gid=20
+  previous_metadata_mode=0700
+  allow_source_xattrs=0
 fi
 
 controller_root=$shared_root/verification-controller
@@ -35,6 +47,7 @@ metadata_root=$controller_root/metadata/P00-V2-CAP-A02
 previous_metadata_root=$controller_root/metadata/P00-V2-CAP-A01
 staging_root=$shared_root/.verification-controller-v2-stage.$$
 previous_install_root=$controller_root/.v2-before-P00-V2-CAP-A02.$$
+quiescence_root=$shared_root/.verification-controller-v2-quiescence.$$
 legacy_sudoers_quarantine=$controller_root/quarantine/v1-sudoers
 previous_sudoers_quarantine=$controller_root/quarantine/P00-V2-CAP-A01-sudoers
 payload_archive=$bundle_root/build/payload.tar.gz
@@ -44,6 +57,7 @@ envelope=$bundle_root/build/release-envelope.json
 sudoers_source=$bundle_root/config/sudoers
 manifest_tool=$bundle_root/tools/manifest.py
 envelope_tool=$bundle_root/tools/envelope.py
+upgrade_state_tool=$bundle_root/tools/upgrade_state.py
 previous_manifest_sha=e87ebb9ca34dd225de82fd484b094f749e2850a9c1492a2426116bfdaa154286
 previous_envelope_sha=dd40197311ea0af68fbe0ecb106640365c0a72c355d92a9364f8d6154db15860
 previous_sudoers_sha=7fe7480026d425056231200a518c26c0e40b79ef59c130d6924d5af30e23170b
@@ -101,13 +115,28 @@ if [[ -e "$install_root" ]]; then
     print -u2 "installed A01 metadata identity disagreement"
     exit 65
   }
+  /usr/bin/python3 "$upgrade_state_tool" a01-admission \
+    "$previous_metadata_root" "$sudoers_target" "$state_uid" "$state_gid" \
+    "$previous_metadata_mode" "$allow_source_xattrs"
   /usr/bin/python3 "$manifest_tool" verify "$install_root" \
     "$previous_metadata_root/expected-install-manifest.json" "${verify_options[@]}"
+elif [[ -z "$test_root" || "${P00_V2_TEST_ALLOW_FRESH_INSTALL:-0}" != 1 ]]; then
+  print -u2 "A02 requires the exact installed A01 capability"
+  exit 65
 fi
-[[ ! -e "$staging_root" && ! -e "$metadata_root" && ! -e "$previous_install_root" ]] || {
-  print -u2 "A02 stage, metadata, or rollback root already exists"
+[[ ! -e "$staging_root" && ! -e "$metadata_root" &&
+    ! -e "$previous_install_root" && ! -e "$quiescence_root" ]] || {
+  print -u2 "A02 stage, metadata, rollback, or quiescence root already exists"
   exit 73
 }
+request_snapshot_before=
+if (( upgrading == 1 )); then
+  request_snapshot_before=$(
+    /usr/bin/python3 "$upgrade_state_tool" request-snapshot \
+      "$controller_root/requests" "$state_uid" "$state_gid" \
+      "$request_uid" "$request_gid"
+  )
+fi
 
 /bin/mkdir -p "$staging_root" "${sudoers_target:h}" "${legacy_sudoers_quarantine:h}"
 /bin/mkdir -p "$staging_root/v2"
@@ -136,10 +165,19 @@ activated=0
 previous_moved=0
 new_sudoers=0
 legacy_rule_removed=0
+quiescence_pid=0
 created_state=()
 test_make_writable() {
   [[ -n "$test_root" && -e "$1" ]] || return 0
   /bin/chmod -R u+w "$1" 2>/dev/null || true
+}
+release_quiescence() {
+  if (( quiescence_pid != 0 )); then
+    /usr/bin/touch "$quiescence_root/release"
+    wait "$quiescence_pid" 2>/dev/null || true
+    quiescence_pid=0
+  fi
+  /bin/rm -rf "$quiescence_root"
 }
 cleanup() {
   local result=$?
@@ -163,6 +201,7 @@ cleanup() {
       print -u2 "installation rolled back; legacy wildcard authorization remains removed"
     fi
   fi
+  release_quiescence
 }
 trap cleanup EXIT
 
@@ -192,6 +231,31 @@ if [[ -n "$test_root" && "${P00_V2_TEST_FAIL_AFTER_AUTH_REMOVAL:-0}" == 1 ]]; th
 fi
 
 if (( upgrading == 1 )); then
+  /bin/mkdir "$quiescence_root"
+  /usr/bin/python3 "$staging_root/v2/libexec/quiesce.py" \
+    --hold-ready "$quiescence_root/ready" \
+    --hold-release "$quiescence_root/release" \
+    --parent-pid $$ "$controller_root" "$install_root" &
+  quiescence_pid=$!
+  quiescence_ready=0
+  for _ in {1..400}; do
+    if [[ -f "$quiescence_root/ready" ]]; then
+      quiescence_ready=1
+      break
+    fi
+    /bin/kill -0 "$quiescence_pid" 2>/dev/null || break
+    /bin/sleep 0.025
+  done
+  if (( quiescence_ready == 0 )); then
+    if wait "$quiescence_pid"; then
+      quiescence_status=0
+    else
+      quiescence_status=$?
+    fi
+    quiescence_pid=0
+    print -u2 "A01 quiescence admission failed with status $quiescence_status"
+    exit 75
+  fi
   /bin/mv "$install_root" "$previous_install_root"
   previous_moved=1
 fi
@@ -238,7 +302,8 @@ done
 if [[ -z "$test_root" ]]; then
   /usr/sbin/chown -R root:wheel "$controller_root/objects" \
     "$controller_root/anchors" "$controller_root/runs" "$controller_root/locks" \
-    "$controller_root/nonces" "$controller_root/receipts" "$controller_root/requests"
+    "$controller_root/nonces" "$controller_root/receipts"
+  /usr/sbin/chown root:wheel "$controller_root/requests"
   /usr/sbin/chown thirdfacedev:staff "$controller_root/requests/501"
 fi
 /bin/chmod 0700 "$controller_root/objects" "$controller_root/anchors" \
@@ -246,8 +311,18 @@ fi
   "$controller_root/locks" "$controller_root/nonces" "$controller_root/receipts" \
   "$controller_root/requests/501"
 /bin/chmod 0711 "$controller_root/requests" "$controller_root/runs"
-if [[ -z "$test_root" ]]; then
-  /usr/bin/xattr -cr "$controller_root/requests/501"
+/usr/bin/python3 "$upgrade_state_tool" normalize-runs \
+  "$controller_root/runs" "$state_uid" "$state_gid"
+if (( upgrading == 1 )); then
+  request_snapshot_after=$(
+    /usr/bin/python3 "$upgrade_state_tool" request-snapshot \
+      "$controller_root/requests" "$state_uid" "$state_gid" \
+      "$request_uid" "$request_gid"
+  )
+  [[ "$request_snapshot_after" == "$request_snapshot_before" ]] || {
+    print -u2 "preserved request state changed during upgrade"
+    exit 65
+  }
 fi
 
 /usr/bin/python3 "$manifest_tool" verify "$install_root" \

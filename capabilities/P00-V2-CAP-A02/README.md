@@ -40,9 +40,21 @@ A01 identity.
 - The v1 sudoers rule is removed before the v2 rule is activated. Rollback
   never restores the quarantined wildcard rule.
 - An A01-to-A02 upgrade verifies the exact installed A01 manifest and metadata,
-  removes A01 authorization first, stages and verifies A02, retains A01
-  metadata, and swaps the controller atomically. Failure restores the exact A01
-  payload for forensics but deliberately leaves authorization absent.
+  requires the exact principal-bound A01 sudoers rule, removes A01
+  authorization first, acquires and holds all P01-P12 locks after proving no
+  A01 controller process is active, retains A01 metadata, and swaps the
+  controller atomically. Failure restores the exact A01 payload for forensics
+  but deliberately leaves authorization absent.
+- The live artifact has no fresh-v1 installation path. A fresh path exists only
+  behind a disposable-test-root fixture flag and cannot be selected in a live
+  root installation.
+- Existing UID-501 request slots are closed-tree validated and byte/ownership/
+  xattr snapshotted across the upgrade; the installer never recursively
+  root-owns them.
+- Preserved run history is fixed-depth validated with no links, special
+  members, or ACLs. Every commit/phase/run ancestor becomes root-owned mode
+  `0711`, while descendants are tightened to owner-only modes without changing
+  their bytes.
 - A reviewed revoker is installed with the capability. Revocation removes
   authorization first, establishes a fail-closed revocation marker, validates
   exact installed identity, rejects active controller processes or held phase

@@ -75,6 +75,8 @@ xcrun swiftc -parse-as-library -O -framework Security -framework CryptoKit \
   "$payload/libexec/manifest.py"
 /usr/bin/install -m 0555 "$bundle_root/tools/quiesce.py" \
   "$payload/libexec/quiesce.py"
+/usr/bin/install -m 0555 "$bundle_root/tools/upgrade_state.py" \
+  "$payload/libexec/upgrade-state.py"
 
 /bin/chmod -R u+w "$payload"
 /usr/bin/find "$payload" -type d -exec /bin/chmod 0555 {} +
@@ -83,6 +85,7 @@ xcrun swiftc -parse-as-library -O -framework Security -framework CryptoKit \
   "$payload/libexec/arm-phase-core" "$payload/libexec/verify-phase-core" \
   "$payload/libexec/controller-self-test" "$payload/libexec/revoke-controller" \
   "$payload/libexec/manifest.py" "$payload/libexec/quiesce.py" \
+  "$payload/libexec/upgrade-state.py" \
   "$payload/toolchain/bin/node" "$payload/toolchain/bin/npm"
 
 P00_V2_SELF_TEST_TIMESTAMP=1970-01-01T00:00:00Z \
