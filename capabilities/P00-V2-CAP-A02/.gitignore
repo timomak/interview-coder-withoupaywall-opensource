@@ -1,0 +1,5 @@
+build/payload/
+build/payload-files.txt
+build/payload.tar
+**/__pycache__/
+*.pyc
