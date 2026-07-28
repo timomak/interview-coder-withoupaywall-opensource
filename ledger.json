@@ -2848,11 +2848,11 @@
       "activeWriter": null,
       "activeReviewer": {
         "reservationId": "P00-V2-CAP-A01-HIGH-REVIEW-1",
-        "status": "REMEDIATION_FOLLOWUP_CHANGES_REQUESTED",
+        "status": "SECOND_REMEDIATION_FOLLOWUP_RESERVED",
         "taskId": "/root/p00_v2_cap_a01_high_review",
         "riskTier": "HIGH",
-        "artifactCommitSha": "00921332cc43b25447b12842f04f9cfa1a2be050",
-        "artifactEnvelopeSha256": "8e33f2bdb899b5faa0e7b7c79a68990e917453971fd6c6c275a07d4671c12889",
+        "artifactCommitSha": "818061fc2cf5e2bbcaa171c016dc90e29561a661",
+        "artifactEnvelopeSha256": "63ff8516c5902202a6ae30998b3ca0a767117dc5c09221e779a2735da5fcf74c",
         "mutationAllowed": false
       },
       "legacyWriterTaskId": "019fa407-0732-7b93-b92c-c1a36d84fa02",
@@ -3045,6 +3045,38 @@
               "id": "P00-V2-CAP-A01-R2-F03",
               "severity": "MEDIUM",
               "summary": "Revocation does not prove active controllers are quiescent before archiving and deleting their state."
+            }
+          ]
+        },
+        "secondRemediation": {
+          "validatedAt": "2026-07-28T15:49:00+02:00",
+          "immutableArtifactCommitSha": "818061fc2cf5e2bbcaa171c016dc90e29561a661",
+          "controllerSha256": "491c193ad8f5b908fff6e79c33dfb40b07b79c703bbc36eb427b47094579c15e",
+          "expectedInstallManifestSha256": "e952fb5795232b70f6efae374456404f62fdd5c4d40e3290ee3a70a1ce95b5c4",
+          "payloadArchiveSha256": "3c45817c390c0e2a2f4a49e8d9088dd02c25da8631679e8cadfc5da0f310b880",
+          "releaseEnvelopeSha256": "63ff8516c5902202a6ae30998b3ca0a767117dc5c09221e779a2735da5fcf74c",
+          "adminHandoffSha256": "82282cf205554918ce7381aeb0d8f6dc5dd656f4151a5752ba244c79ff700b8e",
+          "nonPrivilegedTestCount": 17,
+          "reproducibleBuildCount": 2,
+          "candidateInvoked": false,
+          "sudoInvoked": false,
+          "installedPrivilegedHelperInvoked": false,
+          "administratorHandoffAuthorized": false,
+          "findingDispositions": [
+            {
+              "id": "P00-V2-CAP-A01-R2-F01",
+              "status": "REMEDIATED_PENDING_REVIEW",
+              "evidence": "Arm validates every immutable-plan npm target against a root-owned exact script mapping, closes every mapped pre/post lifecycle hook, and sends authentication material only to sealed test:* runner mappings."
+            },
+            {
+              "id": "P00-V2-CAP-A01-R2-F02",
+              "status": "REMEDIATED_PENDING_REVIEW",
+              "evidence": "Execution now binds npm_config_userconfig to the installed manifest-covered v2/config/npmrc; positive and negative path assertions are included."
+            },
+            {
+              "id": "P00-V2-CAP-A01-R2-F03",
+              "status": "REMEDIATED_PENDING_REVIEW",
+              "evidence": "After authorization removal, revocation sets a controller preflight stop marker, verifies installed quiescence code, rejects active helper processes or any held P01-P12 lock, and only then archives or deletes state."
             }
           ]
         }
