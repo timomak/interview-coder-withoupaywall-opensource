@@ -2848,8 +2848,8 @@
       "activeWriter": null,
       "activeReviewer": {
         "reservationId": "P00-V2-CAP-A01-HIGH-REVIEW-1",
-        "status": "RESERVED_NOT_YET_DISPATCHED",
-        "taskId": null,
+        "status": "ACTIVE",
+        "taskId": "/root/p00_v2_cap_a01_high_review",
         "riskTier": "HIGH",
         "artifactCommitSha": "0cfa45c2a58957aa544675a9c1ad2a95d3d9bdc3",
         "artifactEnvelopeSha256": "ee73f6cd39987b3131360ec2e9ad9a15210f713c0ad6a15a26e8141d3efff4e5",
