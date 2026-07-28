@@ -1,0 +1,133 @@
+{
+  "schemaVersion": 1,
+  "projectKey": "InterviewCopilot",
+  "controllerVersion": "P00-V2-CAP-A01",
+  "approvedPacket": {
+    "revision": "P00-R9",
+    "sha": "02ee6ddec78d6e4ea9e2de3c0303ffd6bc9f45bf"
+  },
+  "canonicalRemote": "https://github.com/j4wg/interview-coder-withoupaywall-opensource",
+  "principal": {
+    "user": "thirdfacedev",
+    "uid": 501
+  },
+  "executionIdentity": {
+    "user": "_interviewcopilotverify",
+    "uid": 499,
+    "gid": 499,
+    "shell": "/usr/bin/false",
+    "home": "/var/empty"
+  },
+  "operations": [
+    "arm",
+    "verify"
+  ],
+  "roles": [
+    "local"
+  ],
+  "phases": [
+    {
+      "id": "P01",
+      "dependencies": [],
+      "plan": "scripts/verification/plans/P01.json"
+    },
+    {
+      "id": "P02",
+      "dependencies": [
+        "P01"
+      ],
+      "plan": "scripts/verification/plans/P02.json"
+    },
+    {
+      "id": "P03",
+      "dependencies": [
+        "P01"
+      ],
+      "plan": "scripts/verification/plans/P03.json"
+    },
+    {
+      "id": "P04",
+      "dependencies": [
+        "P02",
+        "P03"
+      ],
+      "plan": "scripts/verification/plans/P04.json"
+    },
+    {
+      "id": "P05",
+      "dependencies": [
+        "P04"
+      ],
+      "plan": "scripts/verification/plans/P05.json"
+    },
+    {
+      "id": "P06",
+      "dependencies": [
+        "P05"
+      ],
+      "plan": "scripts/verification/plans/P06.json"
+    },
+    {
+      "id": "P07",
+      "dependencies": [
+        "P05"
+      ],
+      "plan": "scripts/verification/plans/P07.json"
+    },
+    {
+      "id": "P08",
+      "dependencies": [
+        "P05"
+      ],
+      "plan": "scripts/verification/plans/P08.json"
+    },
+    {
+      "id": "P09",
+      "dependencies": [
+        "P05"
+      ],
+      "plan": "scripts/verification/plans/P09.json"
+    },
+    {
+      "id": "P10",
+      "dependencies": [
+        "P06",
+        "P07",
+        "P08"
+      ],
+      "plan": "scripts/verification/plans/P10.json"
+    },
+    {
+      "id": "P11",
+      "dependencies": [
+        "P06",
+        "P07",
+        "P08",
+        "P09",
+        "P10"
+      ],
+      "plan": "scripts/verification/plans/P11.json"
+    },
+    {
+      "id": "P12",
+      "dependencies": [
+        "P11"
+      ],
+      "plan": "scripts/verification/plans/P12.json"
+    }
+  ],
+  "fixedPaths": {
+    "installRoot": "/Users/Shared/InterviewCopilot/verification-controller/v2",
+    "controllerRoot": "/Users/Shared/InterviewCopilot/verification-controller",
+    "requestRoot": "/Users/Shared/InterviewCopilot/verification-controller/requests/501",
+    "evidenceRoot": "/Users/thirdfacedev/.codex/orchestration/TimoCodes-evidence",
+    "sudoers": "/etc/sudoers.d/interviewcopilot-verification-controller"
+  },
+  "requestLimits": {
+    "maximumBytes": 8192,
+    "requiredMode": "0400",
+    "requiredOwnerUid": 501,
+    "requiredLinkCount": 1,
+    "extendedAclAllowed": false
+  }
+}

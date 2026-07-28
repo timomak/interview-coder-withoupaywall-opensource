@@ -1,0 +1,22 @@
+{
+  "artifactId": "P00-V2-CAP-A01",
+  "candidateInvoked": false,
+  "controllerSha256": "7ae2797bd1cf92a799c727f8b43bfe090f79db024df5c42678e87f8853dba8c2",
+  "expectedInstallManifestSha256": "2ae399b18bf05c61559506f23e72dac968ef902bff68ac1e1509205b4d762c83",
+  "installedPrivilegedHelperInvoked": false,
+  "legacyV1ObservedManifestSha256": "54997fb321b9b83e4237e23ad6914e10777f130df35ff9de8b9aae692ee7d97e",
+  "nativeSelfTestSha256": "037f9f4f5e7c56ef7f27257d1df387e8e9b9a0c3646a3c7cc38ca43fac9f0885",
+  "npmInvoked": false,
+  "payloadArchiveSha256": "a6118120d19d88a27045dc676087f7c92ed346a2a039f8fb6c0ced2f067aa1c2",
+  "privilegedBoundaryCrossed": false,
+  "releaseEnvelopeSha256": "ee73f6cd39987b3131360ec2e9ad9a15210f713c0ad6a15a26e8141d3efff4e5",
+  "renderedControllerSha256": "d758fd04a8b21b1757de8109bcb12eea19f7fdef01186a83960330f86a66d8c7",
+  "reproducibleBuilds": 2,
+  "schemaVersion": 1,
+  "sudoInvoked": false,
+  "sudoersSha256": "7fe7480026d425056231200a518c26c0e40b79ef59c130d6924d5af30e23170b",
+  "testCommand": "/bin/zsh tests/run.sh",
+  "testCount": 11,
+  "testResult": "PASS",
+  "testRuntimeSeconds": 192.746
+}

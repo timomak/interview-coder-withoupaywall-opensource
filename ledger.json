@@ -2803,6 +2803,13 @@
   "v2Migration": {
     "status": "ADOPTED",
     "adoptedAt": "2026-07-28T13:08:28+02:00",
+    "evidenceCorrection": {
+      "recordedAt": "2026-07-28T14:08:41+02:00",
+      "incorrectSummaryCommitSha": "715f477e7b4fe87a6c94a822748545daf2bb0852",
+      "correctLedgerCommitSha": "715f47787a233fd1c219d2f9c9b65b04ac61765b",
+      "historyRewritten": false,
+      "checkpointSha256Reconfirmed": "e816df87449b530dc8116df347d81c316200c2616ef90189663ce2970941980b"
+    },
     "protocol": {
       "path": "/Users/thirdfacedev/Development/TimoCodes/long-horizon-orchestration-prompt-v2.md",
       "sha256": "764b4c9583a3aa366df651be418afb3757dfdb8e8efea2571e00ccd26da5757f"
@@ -2896,9 +2903,21 @@
     },
     "amendment": {
       "id": "P00-V2-CAP-A01",
-      "status": "DESIGN_FROZEN_PENDING_EXACT_ARTIFACTS_AND_INDEPENDENT_REVIEW",
+      "status": "ARTIFACTS_VALIDATED_PENDING_IMMUTABLE_REVISION_AND_INDEPENDENT_REVIEW",
       "scope": "Narrow replacement of the privileged capability contract plus tested revocation of v1; no product, packet, candidate, PR, or evidence reset.",
-      "administratorActionProhibitedUntilIndependentApproval": true
+      "administratorActionProhibitedUntilIndependentApproval": true,
+      "validation": {
+        "result": "PASS",
+        "nonPrivilegedTestCount": 11,
+        "reproducibleBuildCount": 2,
+        "candidateInvoked": false,
+        "sudoInvoked": false,
+        "installedPrivilegedHelperInvoked": false,
+        "controllerSha256": "7ae2797bd1cf92a799c727f8b43bfe090f79db024df5c42678e87f8853dba8c2",
+        "expectedInstallManifestSha256": "2ae399b18bf05c61559506f23e72dac968ef902bff68ac1e1509205b4d762c83",
+        "payloadArchiveSha256": "a6118120d19d88a27045dc676087f7c92ed346a2a039f8fb6c0ced2f067aa1c2",
+        "releaseEnvelopeSha256": "ee73f6cd39987b3131360ec2e9ad9a15210f713c0ad6a15a26e8141d3efff4e5"
+      }
     },
     "adoptionDecision": {
       "decision": "ADOPT_V2_WITH_EXISTING_WORK_PRESERVED_AND_PRIVILEGED_CAPABILITY_QUARANTINED",
