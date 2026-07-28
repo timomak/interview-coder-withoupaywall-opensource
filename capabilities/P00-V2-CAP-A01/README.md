@@ -21,14 +21,22 @@ verification capability. It does not change P00-R9, the P01 candidate, PR
   nonce. It never invokes sudo or either privileged executable.
 - The controller is data-driven by the root-owned closed capability registry.
   It accepts exactly phases P01-P12 and has no P01-only admission branch.
+- Before arming, every `npm run` target in the immutable phase plan must match
+  its root-owned exact package-script mapping. Only sealed `test:*` runner
+  targets receive the per-execution authentication secret; qualification
+  commands receive no secret.
+- npm uses the installed immutable `config/npmrc`, never a candidate or
+  nonexistent toolchain configuration path.
 - Installation uses one independently approved expected-install manifest for
   source, staged, and final installed bytes. Missing, extra, linked, writable,
   ACL-bearing, or hash-mismatched members fail before authorization.
 - The v1 sudoers rule is removed before the v2 rule is activated. Rollback
   never restores the quarantined wildcard rule.
 - A reviewed revoker is installed with the capability. Revocation removes
-  authorization first, validates exact installed identity, removes only the
-  enumerated roots, proves the command paths are gone, and is idempotent.
+  authorization first, establishes a fail-closed revocation marker, validates
+  exact installed identity, rejects active controller processes or held phase
+  locks, retains evidence, removes only the enumerated roots, proves the
+  command paths are gone, and is idempotent.
 
 ## Artifact lifecycle
 

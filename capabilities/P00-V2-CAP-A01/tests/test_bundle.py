@@ -5,6 +5,7 @@ import hashlib
 import json
 import os
 import pathlib
+import re
 import shutil
 import stat
 import subprocess
@@ -157,6 +158,85 @@ class CapabilityBundleTests(unittest.TestCase):
         for phase in PHASES:
             self.assertIn(f'"{phase}"', source)
 
+    def test_script_policy_npmrc_and_authentication_boundary_are_closed(self) -> None:
+        source = (BUILD / "Controller.swift").read_text()
+        targets = {
+            "build",
+            "lint",
+            "package:mac",
+            "qualify:meet",
+            "test:audio-native",
+            "test:audio-retention",
+            "test:behavioral-fixtures",
+            "test:coding-fixtures",
+            "test:e2e-macos",
+            "test:electron-shell",
+            "test:history-roundtrip",
+            "test:legacy",
+            "test:p01",
+            "test:p02",
+            "test:p03",
+            "test:p04",
+            "test:p05",
+            "test:p06",
+            "test:p07",
+            "test:p08",
+            "test:p09",
+            "test:p10",
+            "test:p11",
+            "test:p12",
+            "test:plaintext-scan",
+            "test:prompt-adversarial",
+            "test:staff-live-corpus",
+            "test:system-design-fixtures",
+            "test:unit",
+            "typecheck",
+            "verify:diagnostics",
+            "verify:mac-package",
+            "verify:policy",
+            "verify:release",
+            "verify:test-manifest",
+        }
+        policy_block = source[
+            source.index("let approvedPackageScripts:")
+            : source.index("let approvedInputDigests:")
+        ]
+        observed = set(re.findall(r'^    "([^"]+)": "', policy_block, re.MULTILINE))
+        self.assertEqual(observed, targets)
+        self.assertIn("actualScript == expectedScript", source)
+        self.assertIn("let mappedLifecycle = approvedPackageScripts.keys.flatMap", source)
+        self.assertIn("genericLifecycle + phaseLifecycle + mappedLifecycle", source)
+        self.assertIn(
+            '"npm_config_userconfig": "\\(installRoot)/config/npmrc"', source
+        )
+        self.assertNotIn(
+            '"npm_config_userconfig": "\\(installRoot)/toolchain/npmrc"', source
+        )
+        self.assertIn("let receivesAuthenticationSecret =", source)
+        self.assertIn('planned[2].hasPrefix("test:")', source)
+        self.assertIn('planned[2].hasPrefix("qualify:")', source)
+        self.assertIn(
+            'counts = ["passed": 1, "failed": 0, "skipped": 0]', source
+        )
+        self.assertLess(
+            source.index("let receivesAuthenticationSecret ="),
+            source.index('"authenticationKey": authenticationKey'),
+        )
+
+        policy = {
+            match.group(1): match.group(2)
+            for match in re.finditer(
+                r'^    "([^"]+)": "([^"]*)",?$',
+                policy_block,
+                re.MULTILINE,
+            )
+        }
+        redirected = dict(policy)
+        redirected["verify:policy"] = "node /tmp/forged-result.mjs"
+        self.assertNotEqual(
+            redirected["verify:policy"], policy["verify:policy"]
+        )
+
     def test_compiled_wrapper_rejects_arguments_before_sudo(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_text:
             wrapper = pathlib.Path(temporary_text) / "arm-phase"
@@ -266,6 +346,90 @@ class CapabilityBundleTests(unittest.TestCase):
             envelope["members"]["payloadArchive"]["sha256"],
             sha256(BUILD / "payload.tar.gz"),
         )
+        self.assertTrue((BUILD / "payload/libexec/quiesce.py").is_file())
+
+    def test_quiescence_rejects_held_phase_lock(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_text:
+            root = pathlib.Path(temporary_text)
+            controller_root = root / "controller"
+            install_root = root / "v2"
+            locks = controller_root / "locks"
+            locks.mkdir(parents=True)
+            lock = locks / "P01-local.lock"
+            holder = subprocess.Popen(
+                [
+                    "/usr/bin/python3",
+                    "-c",
+                    (
+                        "import fcntl, os, sys;"
+                        "fd=os.open(sys.argv[1],os.O_RDWR|os.O_CREAT,0o600);"
+                        "fcntl.flock(fd,fcntl.LOCK_EX);"
+                        "print('ready',flush=True);"
+                        "sys.stdin.read()"
+                    ),
+                    str(lock),
+                ],
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+            )
+            try:
+                self.assertEqual(holder.stdout.readline().strip(), "ready")
+                blocked = run(
+                    "/usr/bin/python3",
+                    BUNDLE / "tools/quiesce.py",
+                    controller_root,
+                    install_root,
+                    check=False,
+                )
+                self.assertNotEqual(blocked.returncode, 0)
+                self.assertIn("active controller lock", blocked.stderr)
+            finally:
+                assert holder.stdin is not None
+                holder.stdin.close()
+                holder.wait(timeout=5)
+                assert holder.stdout is not None
+                assert holder.stderr is not None
+                holder.stdout.close()
+                holder.stderr.close()
+            released = run(
+                "/usr/bin/python3",
+                BUNDLE / "tools/quiesce.py",
+                controller_root,
+                install_root,
+                check=False,
+            )
+            self.assertEqual(released.returncode, 0, released.stderr)
+            core = install_root / "libexec/verify-phase-core"
+            core.parent.mkdir(parents=True)
+            core.write_text("#!/bin/sh\n/bin/sleep 30\n")
+            core.chmod(0o555)
+            active = subprocess.Popen(
+                [str(core)],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
+            try:
+                detected = run(
+                    "/usr/bin/python3",
+                    BUNDLE / "tools/quiesce.py",
+                    controller_root,
+                    install_root,
+                    check=False,
+                )
+                self.assertNotEqual(detected.returncode, 0)
+                self.assertIn("active controller process", detected.stderr)
+            finally:
+                active.terminate()
+                active.wait(timeout=5)
+            revoker = (BUNDLE / "source/revoke.sh").read_text()
+            self.assertLess(
+                revoker.index('if [[ -e "$sudoers_target" ]]'),
+                revoker.index(
+                    '/usr/bin/python3 "$quiesce_tool" "$controller_root"'
+                ),
+            )
 
     def test_manifest_rejects_byte_extra_mode_link_xattr_and_acl_mutations(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

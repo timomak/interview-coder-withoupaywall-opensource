@@ -18,6 +18,43 @@ let phaseDependencies: [String: [String]] = [
     "P10": ["P06", "P07", "P08"],
     "P11": ["P06", "P07", "P08", "P09", "P10"], "P12": ["P11"]
 ]
+let approvedPackageScripts: [String: String] = [
+    "verify:policy": "node scripts/verification/product-policy.mjs",
+    "lint": "node scripts/verification/source-inventory.mjs && eslint .",
+    "typecheck": "node scripts/verification/typecheck-inventory.mjs && tsc -p tsconfig.electron.json --noEmit",
+    "test:legacy": "node scripts/verification/trusted-vitest-runner.mjs legacy",
+    "test:unit": "node scripts/verification/trusted-vitest-runner.mjs unit",
+    "test:p01": "node scripts/verification/trusted-vitest-runner.mjs p01",
+    "build": "npm run build:runtime && npm run verify:package-inventory",
+    "verify:test-manifest": "node scripts/verification/test-manifest.mjs",
+    "package:mac": "npm run build && electron-builder build --mac",
+    "qualify:meet": "node scripts/qualification/qualify-meet.mjs",
+    "verify:diagnostics": "node scripts/verification/diagnostics.mjs",
+    "verify:mac-package": "node scripts/verification/mac-package.mjs",
+    "verify:release": "node scripts/verification/release.mjs",
+    "test:p02": "node scripts/verification/trusted-vitest-runner.mjs all",
+    "test:p03": "node scripts/verification/trusted-vitest-runner.mjs all",
+    "test:p04": "node scripts/verification/trusted-vitest-runner.mjs all",
+    "test:p05": "node scripts/verification/trusted-vitest-runner.mjs all",
+    "test:p06": "node scripts/verification/trusted-vitest-runner.mjs all",
+    "test:p07": "node scripts/verification/trusted-vitest-runner.mjs all",
+    "test:p08": "node scripts/verification/trusted-vitest-runner.mjs all",
+    "test:p09": "node scripts/verification/trusted-vitest-runner.mjs all",
+    "test:p10": "node scripts/verification/trusted-vitest-runner.mjs all",
+    "test:p11": "node scripts/verification/trusted-vitest-runner.mjs all",
+    "test:p12": "node scripts/verification/trusted-vitest-runner.mjs all",
+    "test:electron-shell": "node scripts/verification/trusted-vitest-runner.mjs all",
+    "test:coding-fixtures": "node scripts/verification/trusted-vitest-runner.mjs all",
+    "test:system-design-fixtures": "node scripts/verification/trusted-vitest-runner.mjs all",
+    "test:behavioral-fixtures": "node scripts/verification/trusted-vitest-runner.mjs all",
+    "test:audio-native": "node scripts/verification/trusted-vitest-runner.mjs all",
+    "test:audio-retention": "node scripts/verification/trusted-vitest-runner.mjs all",
+    "test:prompt-adversarial": "node scripts/verification/trusted-vitest-runner.mjs all",
+    "test:history-roundtrip": "node scripts/verification/trusted-vitest-runner.mjs all",
+    "test:plaintext-scan": "node scripts/verification/trusted-vitest-runner.mjs all",
+    "test:e2e-macos": "node scripts/verification/trusted-vitest-runner.mjs all",
+    "test:staff-live-corpus": "node scripts/verification/trusted-vitest-runner.mjs all"
+]
 let canonicalRemote = "https://github.com/j4wg/interview-coder-withoupaywall-opensource"
 let approvedPacket = "02ee6ddec78d6e4ea9e2de3c0303ffd6bc9f45bf"
 let pinnedNodeSource = "/opt/homebrew/Cellar/node@20/20.20.2/bin/node"
@@ -299,13 +336,19 @@ func fileFacts(_ path: String) throws -> [String: Any] {
 }
 
 func installedPreflight() throws -> [String: Any] {
+    if FileManager.default.fileExists(
+        atPath: "\(controllerRoot)/revocation-in-progress"
+    ) {
+        try fail("controller revocation is in progress")
+    }
     let expectedManifest = "\(metadataRoot)/expected-install-manifest.json"
     let verifier = "\(installRoot)/libexec/manifest.py"
     let registryPath = "\(installRoot)/config/capability-registry.json"
     let paths = [
         "/Users/Shared/InterviewCopilot", controllerRoot, installRoot,
         "\(controllerRoot)/locks", "\(controllerRoot)/nonces", requestRoot,
-        verifier, expectedManifest, registryPath,
+        verifier, "\(installRoot)/libexec/quiesce.py",
+        expectedManifest, registryPath,
         "\(installRoot)/bin/arm-phase", "\(installRoot)/bin/verify-phase",
         "\(installRoot)/libexec/arm-phase-core",
         "\(installRoot)/libexec/verify-phase-core",
@@ -585,7 +628,12 @@ func armPhase(_ arguments: [String]) throws {
     let phaseLifecycle = phaseIDs.sorted().flatMap {
         ["pretest:\($0.lowercased())", "posttest:\($0.lowercased())"]
     }
-    let forbiddenLifecycle = genericLifecycle + phaseLifecycle
+    let mappedLifecycle = approvedPackageScripts.keys.flatMap {
+        ["pre\($0)", "post\($0)"]
+    }
+    let forbiddenLifecycle = Array(
+        Set(genericLifecycle + phaseLifecycle + mappedLifecycle)
+    ).sorted()
     let presentLifecycle = forbiddenLifecycle.filter { packageScripts[$0] != nil }
     if !presentLifecycle.isEmpty {
         try fail("candidate lifecycle hooks are forbidden: \(presentLifecycle.joined(separator: ","))")
@@ -604,6 +652,31 @@ func armPhase(_ arguments: [String]) throws {
         let bytes = try gitBytes(store, "\(expected):scripts/verification/plans/\(file)")
         if sha256(bytes) != manifestDigest { try fail("plan digest disagreement for \(planID)") }
         anchoredPlans[planID] = ["path": "scripts/verification/plans/\(file)", "sha256": manifestDigest, "bytes": bytes.count]
+    }
+    let currentPlanBytes = try gitBytes(
+        store,
+        "\(expected):scripts/verification/plans/\(phase).json"
+    )
+    guard let currentPlan = try parseJSON(currentPlanBytes) as? [String: Any],
+          let currentEntries = currentPlan["entries"] as? [[String: Any]] else {
+        try fail("current phase plan is invalid")
+    }
+    var validatedScriptTargets: [String: String] = [:]
+    for (index, entry) in currentEntries.enumerated() {
+        guard let argv = entry["argv"] as? [String], argv.count >= 2 else {
+            try fail("current phase plan entry \(index) has invalid argv")
+        }
+        if argv.count >= 3 && argv[0] == "npm" && argv[1] == "run" {
+            let target = argv[2]
+            guard let expectedScript = approvedPackageScripts[target],
+                  let actualScript = packageScripts[target] as? String,
+                  actualScript == expectedScript else {
+                try fail("package script mapping disagreement for \(target)")
+            }
+            validatedScriptTargets[target] = expectedScript
+        } else if argv[0] != "npm" || argv[1] != "ci" {
+            try fail("plan entry is outside the root-owned npm command policy")
+        }
     }
     let treeListing = try runCommand("/usr/bin/git", ["--git-dir", store, "ls-tree", "-r", "-z", "--full-tree", expected])
     if treeListing.exit != 0 { try fail("could not inventory committed tree") }
@@ -639,6 +712,7 @@ func armPhase(_ arguments: [String]) throws {
         "role": "local",
         "inputs": anchoredInputs,
         "packageScripts": packageScripts,
+        "validatedScriptTargets": validatedScriptTargets,
         "lifecycleMap": ["forbidden": forbiddenLifecycle, "present": presentLifecycle],
         "plans": anchoredPlans,
         "toolchain": [
@@ -743,7 +817,7 @@ func executionEnvironment(_ home: String, ignoreScripts: Bool) -> [String: Strin
         "PATH": "\(installRoot)/toolchain/bin:/usr/bin:/bin",
         "TMPDIR": "\(home)/tmp",
         "npm_config_cache": "\(home)/npm-cache",
-        "npm_config_userconfig": "\(installRoot)/toolchain/npmrc",
+        "npm_config_userconfig": "\(installRoot)/config/npmrc",
         "npm_config_ignore_scripts": ignoreScripts ? "true" : "false",
         "npm_config_script_shell": "/bin/sh",
         "NODE_OPTIONS": "",
@@ -980,7 +1054,13 @@ func verifyPhase(_ arguments: [String]) throws {
         var challengeNonce: String? = nil
         var challengeKey: String? = nil
         var challengeBinding: String? = nil
-        if classification == "test" {
+        let receivesAuthenticationSecret =
+            classification == "test" &&
+            planned.count >= 3 &&
+            planned[0] == "npm" &&
+            planned[1] == "run" &&
+            planned[2].hasPrefix("test:")
+        if receivesAuthenticationSecret {
             let nonce = try randomSecret()
             let authenticationKey = try randomSecret()
             let bindingHash = sha256(Data(planned.joined(separator: "\u{0}").utf8))
@@ -1032,7 +1112,7 @@ func verifyPhase(_ arguments: [String]) throws {
             }
         }
         var counts: [String: Int]? = nil
-        if classification == "test" {
+        if receivesAuthenticationSecret {
             if let execution = coordinatorExecution(
                 result.stdout,
                 authenticationKey: challengeKey!,
@@ -1049,6 +1129,11 @@ func verifyPhase(_ arguments: [String]) throws {
                     "tests": execution["tests"]!
                 ])
             }
+        } else if classification == "test",
+                  planned.count >= 3,
+                  planned[2].hasPrefix("qualify:"),
+                  Int(result.exit) == expectedExit {
+            counts = ["passed": 1, "failed": 0, "skipped": 0]
         }
         var failures: [String] = []
         if Int(result.exit) != expectedExit { failures.append("raw exit \(result.exit) did not equal \(expectedExit)") }

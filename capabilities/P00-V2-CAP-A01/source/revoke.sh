@@ -32,6 +32,8 @@ legacy_root=$controller_root/v1
 metadata_root=$controller_root/metadata/P00-V2-CAP-A01
 receipt_root=$shared_root/revocation-receipts
 manifest_tool=$install_root/libexec/manifest.py
+quiesce_tool=$install_root/libexec/quiesce.py
+revocation_marker=$controller_root/revocation-in-progress
 
 hash_file() {
   /usr/bin/shasum -a 256 "$1" | /usr/bin/awk '{print $1}'
@@ -52,6 +54,9 @@ if [[ ! -e "$install_root" && ! -e "$legacy_root" ]]; then
   print "P00-V2-CAP-A01 already revoked"
   exit 0
 fi
+/bin/mkdir -p "$revocation_marker"
+/bin/chmod 0500 "$revocation_marker"
+[[ -n "$test_root" ]] || /usr/sbin/chown root:wheel "$revocation_marker"
 /usr/bin/install -m 0555 "$0" "$receipt_root/revoke-controller"
 [[ -n "$test_root" ]] || /usr/sbin/chown root:wheel "$receipt_root/revoke-controller"
 
@@ -60,6 +65,7 @@ fi
   exit 65
 }
 [[ -f "$manifest_tool" &&
+    -f "$quiesce_tool" &&
     -f "$metadata_root/expected-install-manifest.json" &&
     -f "$metadata_root/legacy-v1-observed-manifest.json" &&
     -f "$metadata_root/release-envelope.json" &&
@@ -108,6 +114,10 @@ fi
   "$metadata_root/expected-install-manifest.json" "${verify_options[@]}"
 /usr/bin/python3 "$manifest_tool" verify "$legacy_root" \
   "$metadata_root/legacy-v1-observed-manifest.json" "${verify_options[@]}"
+/usr/bin/python3 "$quiesce_tool" "$controller_root" "$install_root" || {
+  print -u2 "authorization removed; an active controller prevents safe cleanup"
+  exit 75
+}
 
 retention_root=$receipt_root/P00-V2-CAP-A01-evidence
 [[ ! -e "$retention_root" ]] || {
@@ -141,7 +151,7 @@ fi
   "$controller_root/objects" "$controller_root/anchors" "$controller_root/runs" \
   "$controller_root/receipts" "$controller_root/metadata" \
   "$controller_root/locks" "$controller_root/requests" "$controller_root/nonces" \
-  "$controller_root/quarantine"
+  "$controller_root/quarantine" "$revocation_marker"
 
 receipt=$receipt_root/P00-V2-CAP-A01-revoked.json
 temporary=$receipt.tmp.$$
