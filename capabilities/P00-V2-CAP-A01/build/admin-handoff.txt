@@ -1,7 +1,7 @@
 /usr/bin/sudo /bin/zsh -c 'set -euo pipefail
 umask 077
 source_root=/Users/thirdfacedev/.codex/orchestration/TimoCodes-ledger/capabilities/P00-V2-CAP-A01
-stage=/Users/Shared/InterviewCopilot/verification-controller-bootstrap/63ff8516c5902202a6ae30998b3ca0a767117dc5c09221e779a2735da5fcf74c
+stage=/Users/Shared/InterviewCopilot/verification-controller-bootstrap/dd40197311ea0af68fbe0ecb106640365c0a72c355d92a9364f8d6154db15860
 [[ ! -e "$stage" ]]
 /bin/mkdir -p "$stage"
 /bin/mkdir -p "$stage/build"
@@ -40,7 +40,7 @@ stage=/Users/Shared/InterviewCopilot/verification-controller-bootstrap/63ff8516c
 [[ "$(/usr/bin/shasum -a 256 "$stage/source/install.sh" | /usr/bin/awk '"'"'{print $1}'"'"')" == "114a8da98f46e488971f554c2e89c804e4f63d5e18699c9485bdab2088b6c8b4" ]]
 [[ "$(/usr/bin/shasum -a 256 "$stage/tools/envelope.py" | /usr/bin/awk '"'"'{print $1}'"'"')" == "f47bf91ad6295d0c21d7bc58dbca6193aea2bad715c680117733a2eaeba14fb2" ]]
 [[ "$(/usr/bin/shasum -a 256 "$stage/tools/manifest.py" | /usr/bin/awk '"'"'{print $1}'"'"')" == "03f25b6923026c8e194fbd711cf60e13b984e46c66ec5f0ea88e40b93be0b407" ]]
-[[ "$(/usr/bin/shasum -a 256 "$stage/build/release-envelope.json" | /usr/bin/awk '"'"'{print $1}'"'"')" == "63ff8516c5902202a6ae30998b3ca0a767117dc5c09221e779a2735da5fcf74c" ]]
-[[ "$(/usr/bin/shasum -a 256 "$stage/build/payload.tar.gz" | /usr/bin/awk '"'"'{print $1}'"'"')" == "3c45817c390c0e2a2f4a49e8d9088dd02c25da8631679e8cadfc5da0f310b880" ]]
+[[ "$(/usr/bin/shasum -a 256 "$stage/build/release-envelope.json" | /usr/bin/awk '"'"'{print $1}'"'"')" == "dd40197311ea0af68fbe0ecb106640365c0a72c355d92a9364f8d6154db15860" ]]
+[[ "$(/usr/bin/shasum -a 256 "$stage/build/payload.tar.gz" | /usr/bin/awk '"'"'{print $1}'"'"')" == "1b306e08b2ef26e491c5de4c16014021a27483b456e5722e9457349dccfdcf85" ]]
 /usr/bin/python3 "$stage/tools/envelope.py" verify "$stage" "$stage/build/release-envelope.json"
-exec "$stage/source/install.sh" "$stage" "63ff8516c5902202a6ae30998b3ca0a767117dc5c09221e779a2735da5fcf74c"'
+exec "$stage/source/install.sh" "$stage" "dd40197311ea0af68fbe0ecb106640365c0a72c355d92a9364f8d6154db15860"'

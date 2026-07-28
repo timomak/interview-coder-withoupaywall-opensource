@@ -162,6 +162,8 @@ class CapabilityBundleTests(unittest.TestCase):
         source = (BUILD / "Controller.swift").read_text()
         targets = {
             "build",
+            "build:runtime",
+            "clean",
             "lint",
             "package:mac",
             "qualify:meet",
@@ -193,6 +195,7 @@ class CapabilityBundleTests(unittest.TestCase):
             "typecheck",
             "verify:diagnostics",
             "verify:mac-package",
+            "verify:package-inventory",
             "verify:policy",
             "verify:release",
             "verify:test-manifest",
@@ -204,6 +207,10 @@ class CapabilityBundleTests(unittest.TestCase):
         observed = set(re.findall(r'^    "([^"]+)": "', policy_block, re.MULTILINE))
         self.assertEqual(observed, targets)
         self.assertIn("actualScript == expectedScript", source)
+        self.assertIn("while let target = pendingScriptTargets.popLast()", source)
+        self.assertIn(
+            "transitive package script policy is absent for", source
+        )
         self.assertIn("let mappedLifecycle = approvedPackageScripts.keys.flatMap", source)
         self.assertIn("genericLifecycle + phaseLifecycle + mappedLifecycle", source)
         self.assertIn(
@@ -231,6 +238,39 @@ class CapabilityBundleTests(unittest.TestCase):
                 re.MULTILINE,
             )
         }
+        def transitive_closure(roots: set[str]) -> set[str]:
+            pending = list(roots)
+            observed_targets: set[str] = set()
+            while pending:
+                target = pending.pop()
+                if target in observed_targets:
+                    continue
+                self.assertIn(target, policy)
+                observed_targets.add(target)
+                pending.extend(
+                    re.findall(r"\bnpm run ([A-Za-z0-9:_-]+)", policy[target])
+                )
+            return observed_targets
+
+        self.assertEqual(
+            transitive_closure({"build"}),
+            {
+                "build",
+                "build:runtime",
+                "clean",
+                "verify:package-inventory",
+            },
+        )
+        self.assertEqual(
+            transitive_closure({"package:mac"}),
+            {
+                "package:mac",
+                "build",
+                "build:runtime",
+                "clean",
+                "verify:package-inventory",
+            },
+        )
         redirected = dict(policy)
         redirected["verify:policy"] = "node /tmp/forged-result.mjs"
         self.assertNotEqual(

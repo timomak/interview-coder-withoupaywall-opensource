@@ -26,6 +26,9 @@ let approvedPackageScripts: [String: String] = [
     "test:unit": "node scripts/verification/trusted-vitest-runner.mjs unit",
     "test:p01": "node scripts/verification/trusted-vitest-runner.mjs p01",
     "build": "npm run build:runtime && npm run verify:package-inventory",
+    "build:runtime": "cross-env NODE_ENV=production npm run clean && vite build && tsc -p tsconfig.electron.json",
+    "clean": "node scripts/verification/clean-outputs.mjs",
+    "verify:package-inventory": "node scripts/verification/build-package-inventory.mjs",
     "verify:test-manifest": "node scripts/verification/test-manifest.mjs",
     "package:mac": "npm run build && electron-builder build --mac",
     "qualify:meet": "node scripts/qualification/qualify-meet.mjs",
@@ -661,21 +664,42 @@ func armPhase(_ arguments: [String]) throws {
           let currentEntries = currentPlan["entries"] as? [[String: Any]] else {
         try fail("current phase plan is invalid")
     }
-    var validatedScriptTargets: [String: String] = [:]
+    var pendingScriptTargets: [String] = []
     for (index, entry) in currentEntries.enumerated() {
         guard let argv = entry["argv"] as? [String], argv.count >= 2 else {
             try fail("current phase plan entry \(index) has invalid argv")
         }
         if argv.count >= 3 && argv[0] == "npm" && argv[1] == "run" {
             let target = argv[2]
-            guard let expectedScript = approvedPackageScripts[target],
-                  let actualScript = packageScripts[target] as? String,
-                  actualScript == expectedScript else {
-                try fail("package script mapping disagreement for \(target)")
+            guard approvedPackageScripts[target] != nil else {
+                try fail("package script policy is absent for \(target)")
             }
-            validatedScriptTargets[target] = expectedScript
+            pendingScriptTargets.append(target)
         } else if argv[0] != "npm" || argv[1] != "ci" {
             try fail("plan entry is outside the root-owned npm command policy")
+        }
+    }
+    var validatedScriptTargets: [String: String] = [:]
+    while let target = pendingScriptTargets.popLast() {
+        if validatedScriptTargets[target] != nil { continue }
+        guard let expectedScript = approvedPackageScripts[target],
+              let actualScript = packageScripts[target] as? String,
+              actualScript == expectedScript else {
+            try fail("package script mapping disagreement for \(target)")
+        }
+        validatedScriptTargets[target] = expectedScript
+        let words = expectedScript.split(whereSeparator: { $0.isWhitespace })
+            .map(String.init)
+        if words.count >= 3 {
+            for index in 0..<(words.count - 2) {
+                if words[index] == "npm" && words[index + 1] == "run" {
+                    let dependency = words[index + 2]
+                    guard approvedPackageScripts[dependency] != nil else {
+                        try fail("transitive package script policy is absent for \(dependency)")
+                    }
+                    pendingScriptTargets.append(dependency)
+                }
+            }
         }
     }
     let treeListing = try runCommand("/usr/bin/git", ["--git-dir", store, "ls-tree", "-r", "-z", "--full-tree", expected])

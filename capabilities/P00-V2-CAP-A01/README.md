@@ -21,10 +21,11 @@ verification capability. It does not change P00-R9, the P01 candidate, PR
   nonce. It never invokes sudo or either privileged executable.
 - The controller is data-driven by the root-owned closed capability registry.
   It accepts exactly phases P01-P12 and has no P01-only admission branch.
-- Before arming, every `npm run` target in the immutable phase plan must match
-  its root-owned exact package-script mapping. Only sealed `test:*` runner
-  targets receive the per-execution authentication secret; qualification
-  commands receive no secret.
+- Before arming, every `npm run` target in the immutable phase plan and every
+  transitively invoked `npm run` target must match its root-owned exact
+  package-script mapping. Every mapped pre/post lifecycle hook is closed. Only
+  sealed `test:*` runner targets receive the per-execution authentication
+  secret; qualification commands receive no secret.
 - npm uses the installed immutable `config/npmrc`, never a candidate or
   nonexistent toolchain configuration path.
 - Installation uses one independently approved expected-install manifest for
