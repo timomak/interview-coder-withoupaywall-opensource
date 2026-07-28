@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-07-28T09:44:31+02:00",
+  "updatedAt": "2026-07-28T09:46:58+02:00",
   "repository": {
     "remote": "https://github.com/j4wg/interview-coder-withoupaywall-opensource",
     "pushRemote": "https://github.com/timomak/interview-coder-withoupaywall-opensource",
@@ -12,9 +12,9 @@
   "goalBlockedAudit": {
     "status": "ACTIVE_EXTERNAL_BLOCKER_AUDIT",
     "blockingCondition": "P01-INFRA-B01 requires one new macOS administrator authorization cycle after attempt 6 terminated without a captured process result and without creating any controller or sudoers artifact.",
-    "consecutiveGoalTurns": 1,
+    "consecutiveGoalTurns": 2,
     "thresholdSatisfied": false,
-    "auditedAt": "2026-07-28T09:44:31+02:00",
+    "auditedAt": "2026-07-28T09:46:58+02:00",
     "resumedAt": "2026-07-28T07:23:22+02:00",
     "resumedBy": "user-explicit-proceed-authorization",
     "latestRecoveryCycleResumedAt": "2026-07-28T09:41:43+02:00",
@@ -3180,8 +3180,8 @@
       "attempt4TemporaryInstallerSha256": "3d1554f4426b05baa68bedd66959c66d65753e5c1631c2b934110cd5929024b0",
       "attempt4EvidenceSha256": "b092cff417b123ecdcfd3e0b5d2869d4ef4b8a803e8d756db4553e92de7a79c1",
       "attempt4CompletedAt": "2026-07-28T07:37:16+02:00",
-      "heartbeatReadOnlyCheckCount": 8,
-      "lastCheckedAt": "2026-07-28T09:44:31+02:00",
+      "heartbeatReadOnlyCheckCount": 9,
+      "lastCheckedAt": "2026-07-28T09:46:58+02:00",
       "latestBlockedThresholdReachedAt": "2026-07-28T07:40:06+02:00",
       "attempt5AuthorizedAt": "2026-07-28T07:44:46+02:00",
       "attempt5TemporaryInstallerSha256": "c8891ca2d0e004f062e0fcef16af30ebe85a7358a08b81a03aa0dcc0cc0d8245",
