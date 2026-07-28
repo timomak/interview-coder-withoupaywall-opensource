@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-07-28T07:31:26+02:00",
+  "updatedAt": "2026-07-28T07:32:21+02:00",
   "repository": {
     "remote": "https://github.com/j4wg/interview-coder-withoupaywall-opensource",
     "pushRemote": "https://github.com/timomak/interview-coder-withoupaywall-opensource",
     "baseBranch": "main",
     "baseSha": "9dcb4b2d39607273a8528a24657cdb4f5bfc3412"
   },
-  "orchestrationStatus": "P01_CONTROLLER_INSTALL_CORRECTION_AUTHORIZED",
+  "orchestrationStatus": "P01_CONTROLLER_INSTALL_CORRECTION_ACTIVE",
   "currentPhaseId": "P01",
   "goalBlockedAudit": {
     "status": "RESUMED_BY_EXPLICIT_ADMINISTRATOR_AUTHORIZATION",
@@ -2438,13 +2438,13 @@
       "worktreeClean": true
     },
     "P01/remediate-4": {
-      "status": "CONTROLLER_INSTALL_CORRECTION_AUTHORIZED",
+      "status": "CONTROLLER_INSTALL_CORRECTION_ACTIVE",
       "clientThreadId": "client-new-thread:ab5b24c4-055a-4c8f-b7c7-e0d0cbc4d8c6",
       "threadId": "019fa407-0732-7b93-b92c-c1a36d84fa02",
       "hostId": "local",
       "worktreePath": "/Users/thirdfacedev/.codex/worktrees/f1f2/TimoCodes",
       "phaseId": "P01",
-      "infrastructureRetryCount": 3,
+      "infrastructureRetryCount": 4,
       "packetRevision": "P00-R9",
       "packetSha": "02ee6ddec78d6e4ea9e2de3c0303ffd6bc9f45bf",
       "baseSha": "b2b35d56d8d396591bdc2e6b7b9193bcde947de5",
@@ -2509,6 +2509,7 @@
       "controllerInstallRecoveryRecordSha256": "a62875d6f226e922849855ec3e5eba8ac3d7744e54b0e47cca9a029c163aca21",
       "controllerInstallCorrectionAuthorizedAt": "2026-07-28T07:31:26+02:00",
       "controllerInstallCorrection": "Reuse the successfully created dedicated UID/GID 499 identity and remove the redundant dseditgroup membership edit; retain the original staged installer bytes after the bounded recovery.",
+      "controllerInstallCorrectionDispatchedAt": "2026-07-28T07:32:21+02:00",
       "singleActiveWriterReservation": true,
       "controllerRuntimeRequired": true,
       "requiredOutcome": "Produce a staff-challenged remediation plan for an immutable P01 candidate that implements the approved P00-R9 controller runtime as the first trusted instruction, closes all six P01 findings, preserves exact evidence and negative-control contracts, and is suitable for one isolated implementation commit followed by fresh full exact-SHA independent review."
@@ -3136,7 +3137,7 @@
       "evidenceDirectory": "/Users/thirdfacedev/.codex/orchestration/TimoCodes-evidence/P01-controller-P00-R9",
       "evidence": "Administrator authorization succeeded. The exact installer first failed because GID 399 is owned by com.apple.access_ssh; a bounded recovery created dedicated UID/GID 499, then the redundant dseditgroup primary-group membership edit failed with eDSPermissionError before controller-root creation. The controller path and sudoers rule remain absent; candidate npm did not run.",
       "requiredOutcome": "Reuse the existing dedicated UID/GID 499 identity, omit the unnecessary primary-group membership edit, install the staged runtime root-owned with the pinned Node/npm closure, pass installed preflight, arm exact candidate 1ff0881 under approved P00-R9, then run controller-only authoritative P01 verification before independent review.",
-      "infrastructureRetryCount": 3,
+      "infrastructureRetryCount": 4,
       "recoveryAuthorizedAt": "2026-07-28T07:23:22+02:00",
       "recoveryAuthority": "user-explicit-proceed-authorization",
       "recoveryAttemptStartedAt": "2026-07-28T07:24:06+02:00",
@@ -3151,6 +3152,7 @@
       },
       "recoveryRecordSha256": "a62875d6f226e922849855ec3e5eba8ac3d7744e54b0e47cca9a029c163aca21",
       "correctionAuthorizedAt": "2026-07-28T07:31:26+02:00",
+      "correctionAttemptStartedAt": "2026-07-28T07:32:21+02:00",
       "heartbeatReadOnlyCheckCount": 4,
       "lastCheckedAt": "2026-07-27T19:09:52+02:00",
       "blockedThresholdReachedAt": "2026-07-27T17:42:10+02:00",
