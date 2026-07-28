@@ -2848,11 +2848,11 @@
       "activeWriter": null,
       "activeReviewer": {
         "reservationId": "P00-V2-CAP-A01-HIGH-REVIEW-1",
-        "status": "CHANGES_REQUESTED_COMPLETE",
+        "status": "REMEDIATION_FOLLOWUP_RESERVED",
         "taskId": "/root/p00_v2_cap_a01_high_review",
         "riskTier": "HIGH",
-        "artifactCommitSha": "0cfa45c2a58957aa544675a9c1ad2a95d3d9bdc3",
-        "artifactEnvelopeSha256": "ee73f6cd39987b3131360ec2e9ad9a15210f713c0ad6a15a26e8141d3efff4e5",
+        "artifactCommitSha": "00921332cc43b25447b12842f04f9cfa1a2be050",
+        "artifactEnvelopeSha256": "8e33f2bdb899b5faa0e7b7c79a68990e917453971fd6c6c275a07d4671c12889",
         "mutationAllowed": false
       },
       "legacyWriterTaskId": "019fa407-0732-7b93-b92c-c1a36d84fa02",
@@ -2976,6 +2976,7 @@
       },
       "remediation": {
         "validatedAt": "2026-07-28T15:03:55+02:00",
+        "immutableArtifactCommitSha": "00921332cc43b25447b12842f04f9cfa1a2be050",
         "reviewFollowupRequired": true,
         "administratorHandoffAuthorized": false,
         "findingDispositions": [
