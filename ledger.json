@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-07-28T10:55:29+02:00",
+  "updatedAt": "2026-07-28T10:56:59+02:00",
   "repository": {
     "remote": "https://github.com/j4wg/interview-coder-withoupaywall-opensource",
     "pushRemote": "https://github.com/timomak/interview-coder-withoupaywall-opensource",
     "baseBranch": "main",
     "baseSha": "9dcb4b2d39607273a8528a24657cdb4f5bfc3412"
   },
-  "orchestrationStatus": "P01_DURABLE_TERMINAL_BOOTSTRAP_ATTEMPT_9_READY",
+  "orchestrationStatus": "P01_DURABLE_TERMINAL_BOOTSTRAP_ATTEMPT_9_AWAITING_PASSWORD",
   "currentPhaseId": "P01",
   "goalBlockedAudit": {
     "status": "ACTIVE_EXTERNAL_BLOCKER_RECOVERY",
@@ -2440,7 +2440,7 @@
       "worktreeClean": true
     },
     "P01/remediate-4": {
-      "status": "DURABLE_TERMINAL_BOOTSTRAP_ATTEMPT_9_READY",
+      "status": "DURABLE_TERMINAL_BOOTSTRAP_ATTEMPT_9_AWAITING_VISIBLE_TERMINAL_PASSWORD",
       "clientThreadId": "client-new-thread:ab5b24c4-055a-4c8f-b7c7-e0d0cbc4d8c6",
       "threadId": "019fa407-0732-7b93-b92c-c1a36d84fa02",
       "hostId": "local",
@@ -2559,6 +2559,8 @@
       "controllerInstallRecoveryAttempt9RunnerSha256": "e4d13efcb26b4be4eb1c17e01add1838b7a373327759019930d1c2ab19805573",
       "controllerInstallRecoveryAttempt9ReadinessSha256": "c6064e380b5515e66dac8fff59b4744397c64b5d7e37c1f076d8a429ab6202f3",
       "controllerInstallRecoveryAttempt9LogPath": "/Users/thirdfacedev/.codex/orchestration/TimoCodes-evidence/P01-controller-P00-R9/recovery/install-attempt-9.log",
+      "controllerInstallRecoveryAttempt9StartedAt": "2026-07-28T10:56:59+02:00",
+      "controllerInstallRecoveryAttempt9State": "VISIBLE_TERMINAL_SUDO_PASSWORD_PROMPT_ACTIVE",
       "singleActiveWriterReservation": true,
       "controllerRuntimeRequired": true,
       "requiredOutcome": "Produce a staff-challenged remediation plan for an immutable P01 candidate that implements the approved P00-R9 controller runtime as the first trusted instruction, closes all six P01 findings, preserves exact evidence and negative-control contracts, and is suitable for one isolated implementation commit followed by fresh full exact-SHA independent review."
@@ -3242,6 +3244,8 @@
       "attempt9InstallerSha256": "3c1a1f5443bece5dd9508133257119b9102e52c6b2f6bacf6d5d9c71036b569c",
       "attempt9RunnerSha256": "e4d13efcb26b4be4eb1c17e01add1838b7a373327759019930d1c2ab19805573",
       "attempt9ReadinessSha256": "c6064e380b5515e66dac8fff59b4744397c64b5d7e37c1f076d8a429ab6202f3",
+      "attempt9StartedAt": "2026-07-28T10:56:59+02:00",
+      "attempt9State": "VISIBLE_TERMINAL_SUDO_PASSWORD_PROMPT_ACTIVE",
       "blockedThresholdReachedAt": "2026-07-27T17:42:10+02:00",
       "resumedBlockedThresholdReachedAt": "2026-07-27T19:09:52+02:00"
     }
