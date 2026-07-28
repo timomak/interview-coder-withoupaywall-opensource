@@ -3140,7 +3140,7 @@
         },
         "administratorCheckpoint": {
           "recordedAt": "2026-07-28T16:21:33+02:00",
-          "status": "EXPLICIT_READY_NOT_EXECUTED",
+          "status": "WAITING_FOR_LOCAL_ADMIN_AUTHENTICATION",
           "immutableArtifactCommitSha": "051174b1ee86bda0cd8cae63c7711a0e28565da1",
           "releaseEnvelopeSha256": "dd40197311ea0af68fbe0ecb106640365c0a72c355d92a9364f8d6154db15860",
           "payloadArchiveSha256": "1b306e08b2ef26e491c5de4c16014021a27483b456e5722e9457349dccfdcf85",
@@ -3148,6 +3148,14 @@
           "expectedInstallManifestSha256": "e87ebb9ca34dd225de82fd484b094f749e2850a9c1492a2426116bfdaa154286",
           "adminHandoffPath": "/Users/thirdfacedev/.codex/orchestration/TimoCodes-ledger/capabilities/P00-V2-CAP-A01/build/admin-handoff.txt",
           "adminHandoffSha256": "1152dbc4e142b834a868608a2844a79f311f3c70602ccb6e05f7662499210e88",
+          "lastAttempt": {
+            "attemptedAt": "2026-07-28T16:31:51+02:00",
+            "result": "NO_SYSTEM_CHANGE_PASSWORD_REQUIRED",
+            "bootstrapStageCreated": false,
+            "candidateInvoked": false,
+            "installedHelperInvoked": false,
+            "requiredInteraction": "Run the exact reviewed admin-handoff.txt command in a local interactive Terminal and enter the macOS administrator password there; never transmit the password through chat."
+          },
           "remainingRisk": "One bounded macOS administrator authentication and exact-byte activation transaction remain. The installed v1 capability stays quarantined and v2 remains unavailable until final installed-byte preflight passes.",
           "activationOrder": [
             "Execute the literal reviewed handoff exactly once.",
