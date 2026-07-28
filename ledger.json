@@ -2848,7 +2848,7 @@
       "activeWriter": null,
       "activeReviewer": {
         "reservationId": "P00-V2-CAP-A01-HIGH-REVIEW-1",
-        "status": "REMEDIATION_FOLLOWUP_ACTIVE",
+        "status": "REMEDIATION_FOLLOWUP_CHANGES_REQUESTED",
         "taskId": "/root/p00_v2_cap_a01_high_review",
         "riskTier": "HIGH",
         "artifactCommitSha": "00921332cc43b25447b12842f04f9cfa1a2be050",
@@ -3015,7 +3015,39 @@
             "status": "REMEDIATED",
             "evidence": "Path and descriptor ACL checks accept only the packet-defined null ACL with errno ENOENT and reject ACL objects, other errno values, and ACL release failures."
           }
-        ]
+        ],
+        "convergenceReview": {
+          "reviewedAt": "2026-07-28T15:31:47+02:00",
+          "reviewedArtifactCommitSha": "00921332cc43b25447b12842f04f9cfa1a2be050",
+          "reviewedEnvelopeSha256": "8e33f2bdb899b5faa0e7b7c79a68990e917453971fd6c6c275a07d4671c12889",
+          "disposition": "CHANGES_REQUESTED",
+          "administratorHandoffAuthorized": false,
+          "resolvedOriginalFindings": [
+            "P00-V2-CAP-A01-R1-F01",
+            "P00-V2-CAP-A01-R1-F03",
+            "P00-V2-CAP-A01-R1-F04",
+            "P00-V2-CAP-A01-R1-F05",
+            "P00-V2-CAP-A01-R1-F06",
+            "P00-V2-CAP-A01-R1-F07"
+          ],
+          "findings": [
+            {
+              "id": "P00-V2-CAP-A01-R2-F01",
+              "severity": "HIGH",
+              "summary": "Dynamic package scripts can redirect immutable gates and expose the result-authentication secret to candidate-controlled code; every planned script must be sealed or match a root-owned exact mapping before arming."
+            },
+            {
+              "id": "P00-V2-CAP-A01-R2-F02",
+              "severity": "MEDIUM",
+              "summary": "The controller points npm_config_userconfig at a nonexistent toolchain path instead of the installed config/npmrc."
+            },
+            {
+              "id": "P00-V2-CAP-A01-R2-F03",
+              "severity": "MEDIUM",
+              "summary": "Revocation does not prove active controllers are quiescent before archiving and deleting their state."
+            }
+          ]
+        }
       }
     },
     "adoptionDecision": {
