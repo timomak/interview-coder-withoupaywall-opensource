@@ -52,6 +52,7 @@ a02_manifest=$a02_root/build/expected-install-manifest.json
 a03_manifest=$a03_root/build/expected-install-manifest.json
 a03_envelope=$a03_root/build/release-envelope.json
 a03_installer=$a03_root/source/install.sh
+admission_sudoers=$bundle_root/.a02-admission-sudoers
 
 expected_a02_manifest_sha=945ffda713b5e9a02d2472d6f4e9e91340111384a6cdeab40890a5f3b572768b
 expected_a02_envelope_sha=69f88512f7b2740326346c57593ed428812a2e278eb86b62a005b17b9e56286f
@@ -143,19 +144,32 @@ fi
 /usr/bin/python3 "$a03_manifest_tool" verify \
   "$install_root" "$a02_manifest" "${verify_options[@]}"
 
+/usr/bin/install -m 0440 "$a02_sudoers" "$admission_sudoers"
+[[ -n "$test_root" ]] || /usr/sbin/chown root:wheel "$admission_sudoers"
+/usr/sbin/visudo -cf "$admission_sudoers"
+[[ "$(hash_file "$admission_sudoers")" == "$expected_a02_sudoers_sha" ]] || {
+  print -u2 "private A02 admission rule hash disagreement"
+  exit 65
+}
+/usr/bin/python3 "$a03_upgrade_tool" a02-admission \
+  "$a02_metadata" "$admission_sudoers" "$state_uid" "$state_gid" \
+  "$metadata_mode" "$allow_source_xattrs"
+/bin/rm -f "$admission_sudoers"
+
 /bin/mkdir -p "${sudoers_target:h}"
-/usr/bin/install -m 0440 "$a02_sudoers" "$sudoers_target"
-[[ -n "$test_root" ]] || /usr/sbin/chown root:wheel "$sudoers_target"
 temporary_authorization=1
+/usr/bin/install -m 0440 "$a02_sudoers" "$sudoers_target"
+if [[ -n "$test_root" &&
+      "${P00_V2_RECOVERY_TEST_FAIL_AFTER_RULE_WRITE:-0}" == 1 ]]; then
+  print -u2 "injected recovery failure after global rule write"
+  exit 89
+fi
+[[ -n "$test_root" ]] || /usr/sbin/chown root:wheel "$sudoers_target"
 /usr/sbin/visudo -cf "$sudoers_target"
 [[ "$(hash_file "$sudoers_target")" == "$expected_a02_sudoers_sha" ]] || {
   print -u2 "transient A02 authorization hash disagreement"
   exit 65
 }
-
-/usr/bin/python3 "$a03_upgrade_tool" a02-admission \
-  "$a02_metadata" "$sudoers_target" "$state_uid" "$state_gid" \
-  "$metadata_mode" "$allow_source_xattrs"
 
 if [[ -n "$test_root" &&
       "${P00_V2_RECOVERY_TEST_FAIL_BEFORE_A03:-0}" == 1 ]]; then

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "artifactId": "P00-V2-CAP-A03-RECOVERY-01",
-  "generatedAt": "2026-07-29T14:55:00+02:00",
+  "generatedAt": "2026-07-29T15:15:00+02:00",
   "scope": "One sealed transition from exact unauthorized P00-V2-CAP-A02 payload state to the unchanged independently approved P00-V2-CAP-A03 capability.",
   "inputs": {
     "sourcePacketCommit": "02ee6ddec78d6e4ea9e2de3c0303ffd6bc9f45bf",
@@ -14,27 +14,41 @@
     "candidateRevision": "2e5045116db6e3c5f6e6cc18b70df6d7fa021baf"
   },
   "outputs": {
-    "envelopeSha256": "f54b5785137184e0083997f392148e46f8c28d39e8780c2a9d562cdcb56d6c74",
-    "handoffSha256": "a74413c976f27dd32ed863c5600bf20f1e6f1556612a0fb8ed5f1472f14c2be2",
-    "recoverScriptSha256": "2a4276c9ac8bac25e8f14352bbbcdff9b87ad9fd1fffddee12c1ed363dea5475",
+    "envelopeSha256": "ee32326c6df03c9f67d05292929e1fb17290eee9122242f3536d7f3046a1ea41",
+    "handoffSha256": "65aff65e27a18667644361f458a4258e385ceadca2440f1a8af8201b86a12653",
+    "recoverScriptSha256": "01b549031cd394d8141bd453e598309e944e2d9bf1576a9aae27e26275666efe",
     "envelopeToolSha256": "4682cee7ecbcde05d89847911d80b766ce0af223d4428fdecdc1425be751cbe4",
     "memberCount": 23,
     "reproducibleBuilds": 2
   },
+  "completeFindingBatch": {
+    "reviewedRevision": "3d6ab42fb7187b395819b3d43a42a4a1189502db",
+    "findingId": "IC-M00-A03R-R01",
+    "disposition": "ACCEPTED_AND_RESOLVED_BY_SINGLE_CONSOLIDATED_CORRECTION",
+    "correction": [
+      "Validate the complete A02 metadata contract against a private root-owned staged exact rule before publishing any global authorization.",
+      "Arm unconditional global-rule cleanup before the first fallible write.",
+      "Keep cleanup armed through every fallible post-write step.",
+      "Prove metadata-only rejection exposes no global rule with a 1 ms polling observer.",
+      "Prove failure immediately after the global rule write removes authorization."
+    ]
+  },
   "checks": [
     {
-      "name": "sealed recovery integration suite",
+      "name": "corrected sealed recovery integration suite",
       "result": "PASS",
-      "cases": 6,
+      "cases": 8,
       "failures": 0,
-      "elapsedSeconds": 648.838
+      "elapsedSeconds": 688.177
     },
     {
-      "name": "unchanged A03 complete capability suite",
+      "name": "metadata-only rejection never publishes authorization",
       "result": "PASS",
-      "cases": 26,
-      "failures": 0,
-      "elapsedSeconds": 1031.268
+      "observerIntervalMilliseconds": 1
+    },
+    {
+      "name": "failure immediately after rule write removes authorization",
+      "result": "PASS"
     },
     {
       "name": "exact unauthorized A02 rollback followed by fresh sealed retry",
@@ -57,8 +71,12 @@
       "result": "PASS"
     },
     {
-      "name": "A03 revocation, mismatch forensics, cleanup, and idempotence",
-      "result": "PASS"
+      "name": "unchanged A03 complete capability suite",
+      "result": "PASS_REUSED_EXACT",
+      "cases": 26,
+      "failures": 0,
+      "elapsedSeconds": 1031.268,
+      "reuseBasis": "Every vendored A03 envelope member remains byte-identical to independently approved target envelope 00ea8696be7af50cfadd9035f9d7b44cb9d560b96c1f563c9ded0f6197a1af41."
     },
     {
       "name": "shell syntax, Python syntax, closed envelope, and sudoers syntax",
@@ -83,5 +101,5 @@
   "privilegedBoundaryCrossed": false,
   "candidateInvoked": false,
   "legacyV1Invoked": false,
-  "reviewStatus": "PENDING_ONE_INDEPENDENT_HIGH_RISK_COMPLETE_BATCH"
+  "reviewStatus": "CORRECTED_EXACT_DELTA_REVIEW_PENDING"
 }

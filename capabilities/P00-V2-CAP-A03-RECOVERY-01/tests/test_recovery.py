@@ -9,6 +9,8 @@ import shutil
 import stat
 import subprocess
 import tempfile
+import threading
+import time
 import unittest
 
 
@@ -245,6 +247,78 @@ class RecoveryTests(unittest.TestCase):
                 retry = self.recover(test_root)
                 self.assertEqual(retry.returncode, 0, retry.stderr)
             finally:
+                make_writable(temporary)
+
+    def test_failure_immediately_after_rule_write_removes_authorization(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_text:
+            temporary = pathlib.Path(temporary_text)
+            test_root = self.prepare_legacy_root(temporary)
+            try:
+                self.make_unauthorized_a02(test_root)
+                result = self.recover(
+                    test_root, P00_V2_RECOVERY_TEST_FAIL_AFTER_RULE_WRITE="1"
+                )
+                self.assertNotEqual(result.returncode, 0)
+                sudoers = (
+                    test_root
+                    / "etc/sudoers.d/interviewcopilot-verification-controller"
+                )
+                self.assertFalse(sudoers.exists())
+                controller = (
+                    test_root
+                    / "Users/Shared/InterviewCopilot/verification-controller"
+                )
+                self.assertEqual(
+                    sha256(controller / "v2/libexec/verify-phase-core"),
+                    sha256(A02 / "build/controller"),
+                )
+            finally:
+                make_writable(temporary)
+
+    def test_metadata_rejection_never_publishes_authorization(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_text:
+            temporary = pathlib.Path(temporary_text)
+            test_root = self.prepare_legacy_root(temporary)
+            stop = threading.Event()
+            observed_authorization: list[bool] = []
+            observer: threading.Thread | None = None
+            try:
+                self.make_unauthorized_a02(test_root)
+                controller = (
+                    test_root
+                    / "Users/Shared/InterviewCopilot/verification-controller"
+                )
+                approval = (
+                    controller
+                    / "metadata/P00-V2-CAP-A02/approved-envelope.sha256"
+                )
+                approval.chmod(0o644)
+                approval.write_text("0" * 64 + "\n")
+                approval.chmod(0o444)
+                sudoers = (
+                    test_root
+                    / "etc/sudoers.d/interviewcopilot-verification-controller"
+                )
+
+                def observe() -> None:
+                    while not stop.is_set():
+                        if sudoers.exists():
+                            observed_authorization.append(True)
+                        time.sleep(0.001)
+
+                observer = threading.Thread(target=observe)
+                observer.start()
+                rejected = self.recover(test_root)
+                self.assertNotEqual(rejected.returncode, 0)
+                self.assertFalse(sudoers.exists())
+                self.assertEqual(observed_authorization, [])
+                self.assertFalse(
+                    (controller / "metadata/P00-V2-CAP-A03").exists()
+                )
+            finally:
+                stop.set()
+                if observer is not None:
+                    observer.join(timeout=5)
                 make_writable(temporary)
 
     def test_child_rollback_is_retryable_from_unauthorized_a02(self) -> None:
