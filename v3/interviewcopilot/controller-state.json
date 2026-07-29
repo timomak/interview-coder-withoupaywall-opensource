@@ -94,8 +94,8 @@
       "adminHandoffSha256": "bcf048f5e2bb518233753cb617e22beb3aba54e4c1e3bd0ae4fc7d1d58803bfc",
       "recoveryTests": "10_PASS_0_FAIL",
       "targetA03RevocationTest": "1_PASS_0_FAIL",
-      "independentReview": "RESERVED_HIGH_RISK_EXACT_REVISION",
-      "status": "SEALED_NOT_INVOKED_PENDING_INDEPENDENT_REVIEW"
+      "independentReview": "REQUEST_CHANGES_B01_B02_B03_COMPLETE_BATCH",
+      "status": "CORRECTION_IN_PROGRESS_NOT_INVOKABLE"
     },
     "v1": {
       "installedRoot": "/Users/Shared/InterviewCopilot/verification-controller/v1",
@@ -258,7 +258,7 @@
       "handoffSha256": "bcf048f5e2bb518233753cb617e22beb3aba54e4c1e3bd0ae4fc7d1d58803bfc",
       "validation": "RECOVERY_10_PASS_A03_REVOCATION_1_PASS_REPRODUCIBLE_2",
       "reviewer": "/root/p00_v2_cap_a01_high_review",
-      "reviewStatus": "RESERVED",
+      "reviewStatus": "REQUEST_CHANGES_B01_B02_B03_COMPLETE_BATCH",
       "privilegedBoundaryCrossed": false,
       "candidateInvoked": false
     }
@@ -288,7 +288,7 @@
     "acceptedBlockerCount": 2,
     "postIntegrationDefects": 0,
     "ownershipConflicts": 1,
-    "result": "IN_PROGRESS_FRESH_RECOVERY_HIGH_RISK_REVIEW_RESERVED"
+    "result": "IN_PROGRESS_SINGLE_CONSOLIDATED_RECOVERY_CORRECTION"
   },
-  "nextSafeAction": "Complete one independent HIGH-risk review of P00-V2-CAP-A03-RECOVERY-02 at c756647c01622ff1b4101c1b262cb409e850b89e. Do not invoke either recovery handoff, sudo, A02, A03, v1, or the candidate."
+  "nextSafeAction": "Apply one consolidated non-privileged correction for IC-M00-A03R2-B01 through B03, validate it completely, freeze it, and obtain one exact delta review. Do not invoke either recovery handoff, sudo, A02, A03, v1, or the candidate."
 }

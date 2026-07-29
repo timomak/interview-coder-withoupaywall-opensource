@@ -6,7 +6,7 @@
   "attempt": 3,
   "createdAt": "2026-07-29T22:25:32+02:00",
   "controllerThreadId": "019f9ff6-e24b-7053-a2b3-fe01f8538ab4",
-  "status": "INDEPENDENT_HIGH_RISK_REVIEW_RESERVED",
+  "status": "CONSOLIDATED_CORRECTION_IN_PROGRESS",
   "authority": {
     "source": "standing user delegation for one newly reviewed sealed A02-to-A03 recovery transaction",
     "safePreparationAuthorized": true,
@@ -73,9 +73,37 @@
     "reviewer": "/root/p00_v2_cap_a01_high_review",
     "reviewedRevision": "c756647c01622ff1b4101c1b262cb409e850b89e",
     "scope": "Exact fresh sealed recovery artifact only: immutable binding, exact-subtree relocation, fact preservation, pre-authorization run audit, authorization ordering, rollback/restoration, receipts, one-shot handoff, and unchanged A03/revocation inputs.",
-    "status": "RESERVED",
+    "status": "REQUEST_CHANGES_COMPLETE_BATCH",
     "correctionBudget": 1,
     "deltaReviewBudget": 1
+  },
+  "completeFindingBatch": {
+    "reviewedRevision": "c756647c01622ff1b4101c1b262cb409e850b89e",
+    "reviewedEnvelopeSha256": "15ad0eb6fd06102f8ac58094cf3b6e3f2cddd46a2c404641a9f1f728f91187e0",
+    "reviewedHandoffSha256": "bcf048f5e2bb518233753cb617e22beb3aba54e4c1e3bd0ae4fc7d1d58803bfc",
+    "disposition": "REQUEST_CHANGES",
+    "findings": [
+      {
+        "id": "IC-M00-A03R2-B01",
+        "severity": "HIGH",
+        "classification": "CRASH_REPLAY",
+        "requiredOutcome": "Durable pre-action state plus startup reconciliation, authorization removal first on resume, deterministic relocation reconciliation, and hard-interruption tests across relocation, authorization, and child-transition boundaries."
+      },
+      {
+        "id": "IC-M00-A03R2-B02",
+        "severity": "HIGH",
+        "classification": "OUTER_COMMIT_ROLLBACK",
+        "requiredOutcome": "No fallible failure report after irreversible child commit; make commit and receipt ordering recoverable and test post-child plus receipt failure."
+      },
+      {
+        "id": "IC-M00-A03R2-B03",
+        "severity": "MEDIUM_HIGH",
+        "classification": "EXACT_FACT_CAPTURE",
+        "requiredOutcome": "Capture the relocated root and ACL facts for every member, verify both renames, and test metadata and ACL tampering."
+      }
+    ],
+    "otherScopedChecks": "PASS",
+    "handoffInvocationProhibited": true
   },
   "prohibitedTargets": [
     "expired RECOVERY-01 handoff",
@@ -87,5 +115,5 @@
     "generic or wildcard sudoers authorization",
     "P02 or later milestones"
   ],
-  "nextSafeAction": "Obtain one fresh independent HIGH-risk complete finding batch against exact revision c756647c01622ff1b4101c1b262cb409e850b89e. Do not invoke the handoff."
+  "nextSafeAction": "Apply one consolidated non-privileged correction for IC-M00-A03R2-B01 through B03, rerun the complete disposable-root evidence, freeze one exact correction revision, and obtain one exact delta review. Do not invoke the handoff."
 }
