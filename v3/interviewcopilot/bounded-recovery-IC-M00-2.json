@@ -7,7 +7,7 @@
   "createdAt": "2026-07-29T14:58:47+02:00",
   "authorizedAt": "2026-07-29T14:21:00+02:00",
   "controllerThreadId": "019f9ff6-e24b-7053-a2b3-fe01f8538ab4",
-  "status": "REVIEW_RESERVED",
+  "status": "DELTA_REVIEW_RESERVED",
   "failedTransaction": {
     "evidencePath": "v3/interviewcopilot/a03-activation-failure-2026-07-29.json",
     "evidenceCommit": "1a16ca796e3cab2cf7b77cdbbcf8dec8651a9143",
@@ -60,14 +60,14 @@
   ],
   "preparedTransaction": {
     "artifactId": "P00-V2-CAP-A03-RECOVERY-01",
-    "artifactRevision": "3d6ab42fb7187b395819b3d43a42a4a1189502db",
+    "artifactRevision": "bc9e5a7697c9170b0ec517d491021d5989b47825",
     "artifactPath": "capabilities/P00-V2-CAP-A03-RECOVERY-01",
-    "envelopeSha256": "f54b5785137184e0083997f392148e46f8c28d39e8780c2a9d562cdcb56d6c74",
-    "handoffSha256": "a74413c976f27dd32ed863c5600bf20f1e6f1556612a0fb8ed5f1472f14c2be2",
-    "recoverScriptSha256": "2a4276c9ac8bac25e8f14352bbbcdff9b87ad9fd1fffddee12c1ed363dea5475",
+    "envelopeSha256": "ee32326c6df03c9f67d05292929e1fb17290eee9122242f3536d7f3046a1ea41",
+    "handoffSha256": "65aff65e27a18667644361f458a4258e385ceadca2440f1a8af8201b86a12653",
+    "recoverScriptSha256": "01b549031cd394d8141bd453e598309e944e2d9bf1576a9aae27e26275666efe",
     "memberCount": 23,
     "reproducibleBuilds": 2,
-    "recoveryTests": "6_PASS_0_FAIL",
+    "recoveryTests": "8_PASS_0_FAIL",
     "targetA03Tests": "26_PASS_0_FAIL",
     "privilegedBoundaryCrossed": false,
     "candidateInvoked": false
@@ -78,14 +78,26 @@
       "role": "complete_finding_batch",
       "risk": "HIGH",
       "timing": "before_authoritative_complete",
-      "scope": "Exact sealed recovery artifact at 3d6ab42fb7187b395819b3d43a42a4a1189502db, limited to predecessor admission, transient authorization, rollback, cleanup, immutable target binding, and one-shot handoff safety.",
+      "scope": "Exact sealed recovery artifact at bc9e5a7697c9170b0ec517d491021d5989b47825, limited to predecessor admission, transient authorization, rollback, cleanup, immutable target binding, and one-shot handoff safety.",
       "reviewer": "/root/p00_v2_cap_a01_high_review",
-      "status": "RESERVED",
+      "status": "CHANGES_REQUESTED_R01_RESOLVED_DELTA_RESERVED",
       "correctionBudget": 1,
       "deltaReviewBudget": 1
     }
   ],
+  "completeFindingBatch": {
+    "reviewedRevision": "3d6ab42fb7187b395819b3d43a42a4a1189502db",
+    "disposition": "REQUEST_CHANGES",
+    "findingId": "IC-M00-A03R-R01",
+    "finding": "The global rule was written before cleanup was armed and before complete A02 metadata admission.",
+    "accepted": true,
+    "correctionRevision": "bc9e5a7697c9170b0ec517d491021d5989b47825",
+    "correction": "Validate metadata against a private staged exact rule, arm cleanup before the global write, retain cleanup through all fallible steps, and add metadata-observer plus immediate-post-write failure regressions.",
+    "correctedEnvelopeSha256": "ee32326c6df03c9f67d05292929e1fb17290eee9122242f3536d7f3046a1ea41",
+    "correctedHandoffSha256": "65aff65e27a18667644361f458a4258e385ceadca2440f1a8af8201b86a12653",
+    "correctedRecoveryTests": "8_PASS_0_FAIL"
+  },
   "authoritativeComplete": "After independent approval and one visible password checkpoint, install exact A03, create fresh exact P01 arm and verify requests, and run the one remaining authoritative P01 suite.",
   "terminalCondition": "One material accepted failure remains after the single consolidated correction and exact delta review, or the visible administrator action fails after the approved recovery transaction.",
-  "nextSafeAction": "Dispatch the reserved independent HIGH-risk review against exact artifact revision 3d6ab42fb7187b395819b3d43a42a4a1189502db. Do not invoke sudo, the candidate, A02, A03, or v1."
+  "nextSafeAction": "Run the reserved exact delta review against correction revision bc9e5a7697c9170b0ec517d491021d5989b47825. Do not invoke sudo, the candidate, A02, A03, or v1."
 }

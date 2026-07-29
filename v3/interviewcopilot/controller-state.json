@@ -79,13 +79,13 @@
     },
     "a03Recovery01": {
       "artifactId": "P00-V2-CAP-A03-RECOVERY-01",
-      "artifactRevision": "3d6ab42fb7187b395819b3d43a42a4a1189502db",
-      "envelopeSha256": "f54b5785137184e0083997f392148e46f8c28d39e8780c2a9d562cdcb56d6c74",
-      "adminHandoffSha256": "a74413c976f27dd32ed863c5600bf20f1e6f1556612a0fb8ed5f1472f14c2be2",
-      "recoveryTests": "6_PASS_0_FAIL",
+      "artifactRevision": "bc9e5a7697c9170b0ec517d491021d5989b47825",
+      "envelopeSha256": "ee32326c6df03c9f67d05292929e1fb17290eee9122242f3536d7f3046a1ea41",
+      "adminHandoffSha256": "65aff65e27a18667644361f458a4258e385ceadca2440f1a8af8201b86a12653",
+      "recoveryTests": "8_PASS_0_FAIL",
       "targetA03Tests": "26_PASS_0_FAIL",
-      "independentReview": "RESERVED",
-      "status": "FROZEN_AWAITING_INDEPENDENT_REVIEW"
+      "independentReview": "REQUEST_CHANGES_R01_RESOLVED_DELTA_RESERVED",
+      "status": "FROZEN_CORRECTED_AWAITING_DELTA_REVIEW"
     },
     "v1": {
       "installedRoot": "/Users/Shared/InterviewCopilot/verification-controller/v1",
@@ -219,12 +219,12 @@
       "authorizedAt": "2026-07-29T14:21:00+02:00",
       "packet": "v3/interviewcopilot/bounded-recovery-IC-M00-2.json",
       "artifactId": "P00-V2-CAP-A03-RECOVERY-01",
-      "artifactRevision": "3d6ab42fb7187b395819b3d43a42a4a1189502db",
-      "envelopeSha256": "f54b5785137184e0083997f392148e46f8c28d39e8780c2a9d562cdcb56d6c74",
-      "handoffSha256": "a74413c976f27dd32ed863c5600bf20f1e6f1556612a0fb8ed5f1472f14c2be2",
-      "validation": "RECOVERY_6_PASS_TARGET_A03_26_PASS_REPRODUCIBLE_2",
+      "artifactRevision": "bc9e5a7697c9170b0ec517d491021d5989b47825",
+      "envelopeSha256": "ee32326c6df03c9f67d05292929e1fb17290eee9122242f3536d7f3046a1ea41",
+      "handoffSha256": "65aff65e27a18667644361f458a4258e385ceadca2440f1a8af8201b86a12653",
+      "validation": "RECOVERY_8_PASS_TARGET_A03_26_PASS_REPRODUCIBLE_2",
       "reviewer": "/root/p00_v2_cap_a01_high_review",
-      "reviewStatus": "RESERVED",
+      "reviewStatus": "REQUEST_CHANGES_R01_RESOLVED_DELTA_RESERVED",
       "privilegedBoundaryCrossed": false,
       "candidateInvoked": false
     }
@@ -256,5 +256,5 @@
     "ownershipConflicts": 1,
     "result": "IN_PROGRESS_SEALED_RECOVERY_REVIEW"
   },
-  "nextSafeAction": "Run exactly one independent HIGH-risk complete review against P00-V2-CAP-A03-RECOVERY-01 at 3d6ab42fb7187b395819b3d43a42a4a1189502db. Do not cross the privileged boundary."
+  "nextSafeAction": "Run the reserved exact delta review against P00-V2-CAP-A03-RECOVERY-01 at bc9e5a7697c9170b0ec517d491021d5989b47825. Do not cross the privileged boundary."
 }
