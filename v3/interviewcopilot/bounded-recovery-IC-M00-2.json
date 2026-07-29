@@ -7,7 +7,7 @@
   "createdAt": "2026-07-29T14:58:47+02:00",
   "authorizedAt": "2026-07-29T14:21:00+02:00",
   "controllerThreadId": "019f9ff6-e24b-7053-a2b3-fe01f8538ab4",
-  "status": "DELTA_REVIEW_RESERVED",
+  "status": "WAITING_USER_ADMIN_ACTIVATION",
   "failedTransaction": {
     "evidencePath": "v3/interviewcopilot/a03-activation-failure-2026-07-29.json",
     "evidenceCommit": "1a16ca796e3cab2cf7b77cdbbcf8dec8651a9143",
@@ -80,7 +80,7 @@
       "timing": "before_authoritative_complete",
       "scope": "Exact sealed recovery artifact at bc9e5a7697c9170b0ec517d491021d5989b47825, limited to predecessor admission, transient authorization, rollback, cleanup, immutable target binding, and one-shot handoff safety.",
       "reviewer": "/root/p00_v2_cap_a01_high_review",
-      "status": "CHANGES_REQUESTED_R01_RESOLVED_DELTA_RESERVED",
+      "status": "APPROVED_EXACT_DELTA",
       "correctionBudget": 1,
       "deltaReviewBudget": 1
     }
@@ -97,7 +97,17 @@
     "correctedHandoffSha256": "65aff65e27a18667644361f458a4258e385ceadca2440f1a8af8201b86a12653",
     "correctedRecoveryTests": "8_PASS_0_FAIL"
   },
+  "deltaReview": {
+    "reviewedAt": "2026-07-29T15:25:50+02:00",
+    "reviewedRevision": "bc9e5a7697c9170b0ec517d491021d5989b47825",
+    "disposition": "APPROVE",
+    "findingId": "IC-M00-A03R-R01",
+    "envelopeSha256": "ee32326c6df03c9f67d05292929e1fb17290eee9122242f3536d7f3046a1ea41",
+    "handoffSha256": "65aff65e27a18667644361f458a4258e385ceadca2440f1a8af8201b86a12653",
+    "activationSafe": true,
+    "remainingScopedBlockers": []
+  },
   "authoritativeComplete": "After independent approval and one visible password checkpoint, install exact A03, create fresh exact P01 arm and verify requests, and run the one remaining authoritative P01 suite.",
   "terminalCondition": "One material accepted failure remains after the single consolidated correction and exact delta review, or the visible administrator action fails after the approved recovery transaction.",
-  "nextSafeAction": "Run the reserved exact delta review against correction revision bc9e5a7697c9170b0ec517d491021d5989b47825. Do not invoke sudo, the candidate, A02, A03, or v1."
+  "nextSafeAction": "Open exactly one visible Terminal transaction from capabilities/P00-V2-CAP-A03-RECOVERY-01/build/admin-handoff.txt at SHA-256 65aff65e27a18667644361f458a4258e385ceadca2440f1a8af8201b86a12653 and wait for the user password. Do not invoke the stale A03 handoff."
 }

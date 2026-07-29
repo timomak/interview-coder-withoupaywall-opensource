@@ -84,8 +84,8 @@
       "adminHandoffSha256": "65aff65e27a18667644361f458a4258e385ceadca2440f1a8af8201b86a12653",
       "recoveryTests": "8_PASS_0_FAIL",
       "targetA03Tests": "26_PASS_0_FAIL",
-      "independentReview": "REQUEST_CHANGES_R01_RESOLVED_DELTA_RESERVED",
-      "status": "FROZEN_CORRECTED_AWAITING_DELTA_REVIEW"
+      "independentReview": "APPROVED_EXACT_DELTA_BC9E5A7",
+      "status": "APPROVED_READY_FOR_ADMIN_ACTIVATION"
     },
     "v1": {
       "installedRoot": "/Users/Shared/InterviewCopilot/verification-controller/v1",
@@ -101,7 +101,7 @@
   "currentMilestone": {
     "id": "IC-M00",
     "title": "Trusted local policy rails",
-    "status": "REVIEWING",
+    "status": "WAITING_USER",
     "frozenAt": "2026-07-29T09:10:11+02:00",
     "ownedRequirementIds": [
       "P01"
@@ -224,7 +224,8 @@
       "handoffSha256": "65aff65e27a18667644361f458a4258e385ceadca2440f1a8af8201b86a12653",
       "validation": "RECOVERY_8_PASS_TARGET_A03_26_PASS_REPRODUCIBLE_2",
       "reviewer": "/root/p00_v2_cap_a01_high_review",
-      "reviewStatus": "REQUEST_CHANGES_R01_RESOLVED_DELTA_RESERVED",
+      "reviewStatus": "APPROVED_EXACT_DELTA_BC9E5A7",
+      "reviewedAt": "2026-07-29T15:25:50+02:00",
       "privilegedBoundaryCrossed": false,
       "candidateInvoked": false
     }
@@ -254,7 +255,7 @@
     "acceptedBlockerCount": 2,
     "postIntegrationDefects": 0,
     "ownershipConflicts": 1,
-    "result": "IN_PROGRESS_SEALED_RECOVERY_REVIEW"
+    "result": "WAITING_USER_ADMIN_ACTIVATION"
   },
-  "nextSafeAction": "Run the reserved exact delta review against P00-V2-CAP-A03-RECOVERY-01 at bc9e5a7697c9170b0ec517d491021d5989b47825. Do not cross the privileged boundary."
+  "nextSafeAction": "Open exactly one visible Terminal transaction from capabilities/P00-V2-CAP-A03-RECOVERY-01/build/admin-handoff.txt at SHA-256 65aff65e27a18667644361f458a4258e385ceadca2440f1a8af8201b86a12653 and wait for the user password. Do not invoke the stale A03 handoff."
 }
