@@ -1,0 +1,91 @@
+{
+  "schemaVersion": 1,
+  "kind": "bounded-recovery-packet",
+  "projectKey": "InterviewCopilot",
+  "milestoneId": "IC-M00",
+  "attempt": 2,
+  "createdAt": "2026-07-29T14:58:47+02:00",
+  "authorizedAt": "2026-07-29T14:21:00+02:00",
+  "controllerThreadId": "019f9ff6-e24b-7053-a2b3-fe01f8538ab4",
+  "status": "REVIEW_RESERVED",
+  "failedTransaction": {
+    "evidencePath": "v3/interviewcopilot/a03-activation-failure-2026-07-29.json",
+    "evidenceCommit": "1a16ca796e3cab2cf7b77cdbbcf8dec8651a9143",
+    "staleArtifactRevision": "192baeee0d540d208eec853d40c5f2e99ff0378b",
+    "staleHandoffSha256": "339efedb0dad946efd07fb7af4b91b49f89c8cdacc4712c643f9b9c43e7c4682",
+    "classification": "NON_RETRYABLE_PREDECESSOR_ADMISSION_MISMATCH",
+    "retryProhibited": true
+  },
+  "immutableState": {
+    "sourcePacketRevision": "P00-R9",
+    "sourcePacketCommit": "02ee6ddec78d6e4ea9e2de3c0303ffd6bc9f45bf",
+    "sourcePlanSha256": "da307d1d8bab4d4114a5c93eef3a43f8674d4814ef485108e40e05a5ff8e3671",
+    "installedA02ControllerSha256": "73eda1532baa3044cf4feb989d2ec58d15304c86c31a298ed3d73a1a75c7494d",
+    "installedA02ManifestSha256": "945ffda713b5e9a02d2472d6f4e9e91340111384a6cdeab40890a5f3b572768b",
+    "installedA02Authorization": "ABSENT",
+    "a03Installed": false,
+    "legacyV1Status": "PAYLOAD_RETAINED_QUARANTINED_DO_NOT_INVOKE",
+    "candidateRevision": "2e5045116db6e3c5f6e6cc18b70df6d7fa021baf",
+    "candidateWorktree": "CLEAN",
+    "pullRequest": "155_OPEN_DRAFT_MERGEABLE_CODEQL_SUCCESS"
+  },
+  "findingSet": [
+    {
+      "id": "IC-M00-A03R-B01",
+      "classification": "PRIVILEGED_TRANSACTION_RETRY_CONTRACT",
+      "summary": "The stale A03 installer requires exact A02 sudoers authorization during predecessor admission, but its rollback intentionally leaves that authorization absent.",
+      "requiredOutcome": "A newly sealed transaction must admit only exact unauthorized A02, make the exact A02 rule transiently available inside the same root transaction, remove authorization on every failed path, and commit only exact approved A03."
+    }
+  ],
+  "reusableEvidence": [
+    "Exact A02 installed payload manifest, 2408 of 2408 members",
+    "Exact A03 payload, manifest, controller, sudoers, revoker, and independent approval",
+    "Exact candidate 2e5045116db6e3c5f6e6cc18b70df6d7fa021baf independent approval and CodeQL success",
+    "Exact quarantined v1 observed manifest with authorization absent",
+    "All prior P00-R9 and IC-M00 evidence not invalidated by the activation failure"
+  ],
+  "mutableTargets": [
+    "capabilities/P00-V2-CAP-A03-RECOVERY-01",
+    "v3 InterviewCopilot controller state"
+  ],
+  "prohibitedTargets": [
+    "P00-V2-CAP-A03 stale handoff",
+    "installed A02 payload before approved activation",
+    "candidate 2e5045116db6e3c5f6e6cc18b70df6d7fa021baf",
+    "PR 155",
+    "legacy v1 capability or authorization",
+    "generic or wildcard sudoers authorization",
+    "P02 or later milestones",
+    "deployment, signing, notarization, or product scope"
+  ],
+  "preparedTransaction": {
+    "artifactId": "P00-V2-CAP-A03-RECOVERY-01",
+    "artifactRevision": "3d6ab42fb7187b395819b3d43a42a4a1189502db",
+    "artifactPath": "capabilities/P00-V2-CAP-A03-RECOVERY-01",
+    "envelopeSha256": "f54b5785137184e0083997f392148e46f8c28d39e8780c2a9d562cdcb56d6c74",
+    "handoffSha256": "a74413c976f27dd32ed863c5600bf20f1e6f1556612a0fb8ed5f1472f14c2be2",
+    "recoverScriptSha256": "2a4276c9ac8bac25e8f14352bbbcdff9b87ad9fd1fffddee12c1ed363dea5475",
+    "memberCount": 23,
+    "reproducibleBuilds": 2,
+    "recoveryTests": "6_PASS_0_FAIL",
+    "targetA03Tests": "26_PASS_0_FAIL",
+    "privilegedBoundaryCrossed": false,
+    "candidateInvoked": false
+  },
+  "reviewGates": [
+    {
+      "id": "IC-M00-A03R-G1",
+      "role": "complete_finding_batch",
+      "risk": "HIGH",
+      "timing": "before_authoritative_complete",
+      "scope": "Exact sealed recovery artifact at 3d6ab42fb7187b395819b3d43a42a4a1189502db, limited to predecessor admission, transient authorization, rollback, cleanup, immutable target binding, and one-shot handoff safety.",
+      "reviewer": "/root/p00_v2_cap_a01_high_review",
+      "status": "RESERVED",
+      "correctionBudget": 1,
+      "deltaReviewBudget": 1
+    }
+  ],
+  "authoritativeComplete": "After independent approval and one visible password checkpoint, install exact A03, create fresh exact P01 arm and verify requests, and run the one remaining authoritative P01 suite.",
+  "terminalCondition": "One material accepted failure remains after the single consolidated correction and exact delta review, or the visible administrator action fails after the approved recovery transaction.",
+  "nextSafeAction": "Dispatch the reserved independent HIGH-risk review against exact artifact revision 3d6ab42fb7187b395819b3d43a42a4a1189502db. Do not invoke sudo, the candidate, A02, A03, or v1."
+}

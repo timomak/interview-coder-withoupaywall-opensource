@@ -77,6 +77,16 @@
       "independentReview": "APPROVED_COMPLETE_BATCH_AND_EXACT_DELTA",
       "status": "ACTIVATION_FAILED_DO_NOT_RETRY"
     },
+    "a03Recovery01": {
+      "artifactId": "P00-V2-CAP-A03-RECOVERY-01",
+      "artifactRevision": "3d6ab42fb7187b395819b3d43a42a4a1189502db",
+      "envelopeSha256": "f54b5785137184e0083997f392148e46f8c28d39e8780c2a9d562cdcb56d6c74",
+      "adminHandoffSha256": "a74413c976f27dd32ed863c5600bf20f1e6f1556612a0fb8ed5f1472f14c2be2",
+      "recoveryTests": "6_PASS_0_FAIL",
+      "targetA03Tests": "26_PASS_0_FAIL",
+      "independentReview": "RESERVED",
+      "status": "FROZEN_AWAITING_INDEPENDENT_REVIEW"
+    },
     "v1": {
       "installedRoot": "/Users/Shared/InterviewCopilot/verification-controller/v1",
       "observedManifestSha256": "54997fb321b9b83e4237e23ad6914e10777f130df35ff9de8b9aae692ee7d97e",
@@ -91,7 +101,7 @@
   "currentMilestone": {
     "id": "IC-M00",
     "title": "Trusted local policy rails",
-    "status": "BLOCKED",
+    "status": "REVIEWING",
     "frozenAt": "2026-07-29T09:10:11+02:00",
     "ownedRequirementIds": [
       "P01"
@@ -204,6 +214,19 @@
         "candidateMutated": false,
         "retryProhibited": true
       }
+    },
+    "sealedRecovery": {
+      "authorizedAt": "2026-07-29T14:21:00+02:00",
+      "packet": "v3/interviewcopilot/bounded-recovery-IC-M00-2.json",
+      "artifactId": "P00-V2-CAP-A03-RECOVERY-01",
+      "artifactRevision": "3d6ab42fb7187b395819b3d43a42a4a1189502db",
+      "envelopeSha256": "f54b5785137184e0083997f392148e46f8c28d39e8780c2a9d562cdcb56d6c74",
+      "handoffSha256": "a74413c976f27dd32ed863c5600bf20f1e6f1556612a0fb8ed5f1472f14c2be2",
+      "validation": "RECOVERY_6_PASS_TARGET_A03_26_PASS_REPRODUCIBLE_2",
+      "reviewer": "/root/p00_v2_cap_a01_high_review",
+      "reviewStatus": "RESERVED",
+      "privilegedBoundaryCrossed": false,
+      "candidateInvoked": false
     }
   },
   "metrics": {
@@ -231,7 +254,7 @@
     "acceptedBlockerCount": 2,
     "postIntegrationDefects": 0,
     "ownershipConflicts": 1,
-    "result": "BLOCKED_SECOND_MATERIAL_FAILURE"
+    "result": "IN_PROGRESS_SEALED_RECOVERY_REVIEW"
   },
-  "nextSafeAction": "Do not run the A03 handoff again. A new user-authorized bounded recovery must design and independently review one sealed transition from exact unauthorized A02 payload state; no ad hoc sudoers restoration or capability invocation is allowed."
+  "nextSafeAction": "Run exactly one independent HIGH-risk complete review against P00-V2-CAP-A03-RECOVERY-01 at 3d6ab42fb7187b395819b3d43a42a4a1189502db. Do not cross the privileged boundary."
 }
