@@ -22,6 +22,8 @@ if [[ -n "$test_root" ]]; then
   state_gid=$(/usr/bin/id -g)
   request_uid=$EUID
   request_gid=$state_gid
+  execution_uid=$EUID
+  execution_gid=$state_gid
   previous_metadata_mode=0755
   allow_source_xattrs=1
 else
@@ -36,6 +38,8 @@ else
   state_gid=0
   request_uid=501
   request_gid=20
+  execution_uid=499
+  execution_gid=499
   previous_metadata_mode=0700
   allow_source_xattrs=0
 fi
@@ -356,7 +360,8 @@ fi
   "$controller_root/requests/501"
 /bin/chmod 0711 "$controller_root/requests" "$controller_root/runs"
 /usr/bin/python3 "$upgrade_state_tool" normalize-runs \
-  "$controller_root/runs" "$state_uid" "$state_gid"
+  "$controller_root/runs" "$state_uid" "$state_gid" \
+  "$execution_uid" "$execution_gid"
 if (( upgrading == 1 )); then
   request_snapshot_after=$(
     /usr/bin/python3 "$upgrade_state_tool" request-snapshot \

@@ -233,9 +233,40 @@ def scandir_sorted(path: pathlib.Path) -> list[os.DirEntry[str]]:
     return sorted(os.scandir(path), key=lambda entry: entry.name)
 
 
-def validate_tree_member(path: pathlib.Path, uid: int, gid: int) -> os.stat_result:
+def ownership_is_allowed(
+    observed_uid: int,
+    observed_gid: int,
+    state_uid: int,
+    state_gid: int,
+    execution_uid: int,
+    execution_gid: int,
+    allow_execution: bool,
+) -> bool:
+    owner = (observed_uid, observed_gid)
+    allowed = {(state_uid, state_gid)}
+    if allow_execution:
+        allowed.add((execution_uid, execution_gid))
+    return owner in allowed
+
+
+def validate_tree_member(
+    path: pathlib.Path,
+    state_uid: int,
+    state_gid: int,
+    execution_uid: int,
+    execution_gid: int,
+    allow_execution: bool,
+) -> os.stat_result:
     info = path.lstat()
-    if info.st_uid != uid or info.st_gid != gid:
+    if not ownership_is_allowed(
+        info.st_uid,
+        info.st_gid,
+        state_uid,
+        state_gid,
+        execution_uid,
+        execution_gid,
+        allow_execution,
+    ):
         raise SystemExit(f"run state ownership disagreement: {path}")
     if not (stat.S_ISDIR(info.st_mode) or stat.S_ISREG(info.st_mode)):
         raise SystemExit(f"run state has link or special member: {path}")
@@ -247,8 +278,21 @@ def validate_tree_member(path: pathlib.Path, uid: int, gid: int) -> os.stat_resu
     return info
 
 
-def normalize_runs(runs_root: pathlib.Path, uid: int, gid: int) -> None:
-    root_info = validate_tree_member(runs_root, uid, gid)
+def normalize_runs(
+    runs_root: pathlib.Path,
+    state_uid: int,
+    state_gid: int,
+    execution_uid: int,
+    execution_gid: int,
+) -> None:
+    root_info = validate_tree_member(
+        runs_root,
+        state_uid,
+        state_gid,
+        execution_uid,
+        execution_gid,
+        False,
+    )
     if not stat.S_ISDIR(root_info.st_mode):
         raise SystemExit("runs root is not a directory")
     commits: list[pathlib.Path] = []
@@ -258,19 +302,25 @@ def normalize_runs(runs_root: pathlib.Path, uid: int, gid: int) -> None:
     readable_evidence: list[pathlib.Path] = []
     for commit_entry in scandir_sorted(runs_root):
         commit = pathlib.Path(commit_entry.path)
-        info = validate_tree_member(commit, uid, gid)
+        info = validate_tree_member(
+            commit, state_uid, state_gid, execution_uid, execution_gid, False
+        )
         if not COMMIT_PATTERN.fullmatch(commit_entry.name) or not stat.S_ISDIR(info.st_mode):
             raise SystemExit(f"unexpected runs commit member: {commit}")
         commits.append(commit)
         for phase_entry in scandir_sorted(commit):
             phase = pathlib.Path(phase_entry.path)
-            info = validate_tree_member(phase, uid, gid)
+            info = validate_tree_member(
+                phase, state_uid, state_gid, execution_uid, execution_gid, False
+            )
             if phase_entry.name not in PHASE_NAMES or not stat.S_ISDIR(info.st_mode):
                 raise SystemExit(f"unexpected runs phase member: {phase}")
             phases.append(phase)
             for run_entry in scandir_sorted(phase):
                 run = pathlib.Path(run_entry.path)
-                info = validate_tree_member(run, uid, gid)
+                info = validate_tree_member(
+                    run, state_uid, state_gid, execution_uid, execution_gid, False
+                )
                 if not RUN_PATTERN.fullmatch(run_entry.name) or not stat.S_ISDIR(info.st_mode):
                     raise SystemExit(f"unexpected runs run member: {run}")
                 runs.append(run)
@@ -279,9 +329,23 @@ def normalize_runs(runs_root: pathlib.Path, uid: int, gid: int) -> None:
                     parent = stack.pop()
                     for child_entry in scandir_sorted(parent):
                         child = pathlib.Path(child_entry.path)
-                        child_info = validate_tree_member(child, uid, gid)
+                        child_info = validate_tree_member(
+                            child,
+                            state_uid,
+                            state_gid,
+                            execution_uid,
+                            execution_gid,
+                            True,
+                        )
                         descendants.append((child, child_info))
                         if parent == run and stat.S_ISREG(child_info.st_mode):
+                            if (
+                                child_info.st_uid,
+                                child_info.st_gid,
+                            ) != (state_uid, state_gid):
+                                raise SystemExit(
+                                    f"top-level evidence is not state-owned: {child}"
+                                )
                             readable_evidence.append(child)
                         if stat.S_ISDIR(child_info.st_mode):
                             stack.append(child)
@@ -317,6 +381,8 @@ def main() -> int:
     runs.add_argument("runs_root", type=pathlib.Path)
     runs.add_argument("uid", type=int)
     runs.add_argument("gid", type=int)
+    runs.add_argument("execution_uid", type=int)
+    runs.add_argument("execution_gid", type=int)
     arguments = parser.parse_args()
     if arguments.command == "a02-admission":
         a02_admission(
@@ -338,7 +404,13 @@ def main() -> int:
             )
         )
     else:
-        normalize_runs(arguments.runs_root, arguments.uid, arguments.gid)
+        normalize_runs(
+            arguments.runs_root,
+            arguments.uid,
+            arguments.gid,
+            arguments.execution_uid,
+            arguments.execution_gid,
+        )
     return 0
 
 

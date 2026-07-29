@@ -28,8 +28,12 @@ legacy v1 authorization.
   non-ACL, mode-0444 regular files below traverse-only run ancestors. Candidate
   repository, dependency, scratch, and nested working directories remain
   root-only. The terminal records the evidence-read contract.
-- Existing root-owned P01 run evidence is byte-preserved and normalized to the
-  same read-only top-level contract during the reviewed A02-to-A03 transaction.
+- Existing P01 run state admits exactly the A02-created root identity and
+  execution identity (live `0:0` and `499:499`). Commit/phase/run ancestors and
+  top-level evidence must remain root-owned; nested candidate install/scratch
+  trees may be execution-owned. Links, special files, unsafe modes, ACLs, and a
+  third owner identity fail before mutation. Root-owned evidence bytes are
+  preserved and normalized to the read-only contract.
 - Source, staged, and final installed bytes are checked against one exact
   independently approved manifest before authorization.
 - Installation removes A02 authorization first, holds every phase lock after

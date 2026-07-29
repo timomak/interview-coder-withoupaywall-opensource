@@ -11,6 +11,7 @@ import stat
 import subprocess
 import tempfile
 import unittest
+import importlib.util
 
 
 BUNDLE = pathlib.Path(__file__).resolve().parents[1]
@@ -59,6 +60,21 @@ def make_writable(root: pathlib.Path) -> None:
 
 class CapabilityBundleTests(unittest.TestCase):
     maxDiff = None
+
+    def test_exact_mixed_a02_ownership_contract(self) -> None:
+        spec = importlib.util.spec_from_file_location(
+            "a03_upgrade_state", BUNDLE / "tools/upgrade_state.py"
+        )
+        assert spec is not None and spec.loader is not None
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        allowed = module.ownership_is_allowed
+        self.assertTrue(allowed(0, 0, 0, 0, 499, 499, False))
+        self.assertFalse(allowed(499, 499, 0, 0, 499, 499, False))
+        self.assertTrue(allowed(0, 0, 0, 0, 499, 499, True))
+        self.assertTrue(allowed(499, 499, 0, 0, 499, 499, True))
+        self.assertFalse(allowed(498, 499, 0, 0, 499, 499, True))
+        self.assertFalse(allowed(499, 498, 0, 0, 499, 499, True))
 
     @classmethod
     def setUpClass(cls) -> None:
@@ -221,6 +237,8 @@ class CapabilityBundleTests(unittest.TestCase):
                 BUNDLE / "tools/upgrade_state.py",
                 "normalize-runs",
                 runs,
+                str(os.geteuid()),
+                str(os.getegid()),
                 str(os.geteuid()),
                 str(os.getegid()),
                 check=False,

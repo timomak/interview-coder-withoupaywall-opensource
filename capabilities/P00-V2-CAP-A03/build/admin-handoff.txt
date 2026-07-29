@@ -1,7 +1,7 @@
 /usr/bin/sudo /bin/zsh -c 'set -euo pipefail
 umask 077
 source_root=/Users/thirdfacedev/.codex/orchestration/TimoCodes-ledger/capabilities/P00-V2-CAP-A03
-stage=/Users/Shared/InterviewCopilot/verification-controller-bootstrap/3f4a5e6acf2604063a97fb8ef46e0adee4e9ae7ead29d9af95ce533c2f3d873a
+stage=/Users/Shared/InterviewCopilot/verification-controller-bootstrap/00ea8696be7af50cfadd9035f9d7b44cb9d560b96c1f563c9ded0f6197a1af41
 [[ ! -e "$stage" ]]
 /bin/mkdir -p "$stage"
 /bin/mkdir -p "$stage/build"
@@ -39,10 +39,10 @@ stage=/Users/Shared/InterviewCopilot/verification-controller-bootstrap/3f4a5e6ac
 /bin/chmod 0555 "$stage/source/install.sh"
 /usr/sbin/chown -R root:wheel "$stage"
 /usr/bin/xattr -cr "$stage"
-[[ "$(/usr/bin/shasum -a 256 "$stage/source/install.sh" | /usr/bin/awk '"'"'{print $1}'"'"')" == "bc6a8c44b0471ca754c05f3b04197a374414f271573cec1d1334b8106537b301" ]]
+[[ "$(/usr/bin/shasum -a 256 "$stage/source/install.sh" | /usr/bin/awk '"'"'{print $1}'"'"')" == "277c4aa63e76653cc223ba64c45b2e2424272b89648cb520336ce07835895a1b" ]]
 [[ "$(/usr/bin/shasum -a 256 "$stage/tools/envelope.py" | /usr/bin/awk '"'"'{print $1}'"'"')" == "e8ea6907d240f64ddb3a83236056d9a1860643a1382b4b9f14474ebc3033d399" ]]
 [[ "$(/usr/bin/shasum -a 256 "$stage/tools/manifest.py" | /usr/bin/awk '"'"'{print $1}'"'"')" == "03f25b6923026c8e194fbd711cf60e13b984e46c66ec5f0ea88e40b93be0b407" ]]
-[[ "$(/usr/bin/shasum -a 256 "$stage/build/release-envelope.json" | /usr/bin/awk '"'"'{print $1}'"'"')" == "3f4a5e6acf2604063a97fb8ef46e0adee4e9ae7ead29d9af95ce533c2f3d873a" ]]
-[[ "$(/usr/bin/shasum -a 256 "$stage/build/payload.tar.gz" | /usr/bin/awk '"'"'{print $1}'"'"')" == "61f070d08f8f6bbe528db7573f3d06c353388857d894fdd2063d4230db124e44" ]]
+[[ "$(/usr/bin/shasum -a 256 "$stage/build/release-envelope.json" | /usr/bin/awk '"'"'{print $1}'"'"')" == "00ea8696be7af50cfadd9035f9d7b44cb9d560b96c1f563c9ded0f6197a1af41" ]]
+[[ "$(/usr/bin/shasum -a 256 "$stage/build/payload.tar.gz" | /usr/bin/awk '"'"'{print $1}'"'"')" == "cd9906554c177c80ae5c7bb5bd6912e05539a102e715f07d72c78ec26071e88d" ]]
 /usr/bin/python3 "$stage/tools/envelope.py" verify "$stage" "$stage/build/release-envelope.json"
-exec "$stage/source/install.sh" "$stage" "3f4a5e6acf2604063a97fb8ef46e0adee4e9ae7ead29d9af95ce533c2f3d873a"'
+exec "$stage/source/install.sh" "$stage" "00ea8696be7af50cfadd9035f9d7b44cb9d560b96c1f563c9ded0f6197a1af41"'
