@@ -26,23 +26,20 @@ def main() -> None:
         "/Users/Shared/InterviewCopilot/verification-controller-bootstrap/"
         + envelope_sha
     )
-    receipt = (
-        "/Users/Shared/InterviewCopilot/verification-controller/"
-        "recovery-receipts/P00-V2-CAP-A03-RECOVERY-02.json"
-    )
-    quarantine = (
-        "/Users/Shared/InterviewCopilot/verification-controller/quarantine/"
-        "P00-V2-CAP-A03-RECOVERY-02"
-    )
     lines = [
         "set -euo pipefail",
         "umask 077",
         f"source_root={shlex.quote(str(bundle))}",
         f"stage={shlex.quote(stage)}",
-        '[[ ! -e "$stage" ]]',
-        f"[[ ! -e {shlex.quote(receipt)} ]]",
-        f"[[ ! -e {shlex.quote(quarantine)} ]]",
-        '[[ ! -e "/etc/sudoers.d/interviewcopilot-verification-controller" ]]',
+        # Replays remove the dedicated authorization before any other
+        # reconciliation. The exact staged recovery state machine determines
+        # whether to restore A02 or finalize A03.
+        '/bin/rm -f "/etc/sudoers.d/interviewcopilot-verification-controller"',
+        'if [[ -e "$stage" ]]; then',
+        '  [[ -d "$stage" && ! -L "$stage" ]]',
+        '  /bin/chmod -R u+w "$stage" 2>/dev/null || true',
+        '  /bin/rm -rf "$stage"',
+        "fi",
         "stage_created=0",
         "cleanup() {",
         "  result=$?",
@@ -75,6 +72,7 @@ def main() -> None:
         "source/recover.sh",
         "tools/envelope.py",
         "tools/run_state.py",
+        "tools/journal.py",
         "tools/receipt.py",
         "vendor/a02/config/sudoers",
         "vendor/a03/source/install.sh",

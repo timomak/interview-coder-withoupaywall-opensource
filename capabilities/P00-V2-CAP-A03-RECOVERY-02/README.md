@@ -13,15 +13,25 @@ left after the expired RECOVERY-01 administrator process exited:
 The transaction does not delete or rewrite that historical checkout. Before
 publishing any transient authorization it atomically moves only the exact
 known `node_modules` subtree into an artifact-specific quarantine on the same
-filesystem, records hashes and metadata for every member, and audits every
-remaining run-state member with the exact sealed A03 validator.
+filesystem, records content, ownership, modes, xattrs, and ACL facts for the
+root and every descendant, and audits every remaining run-state member with
+the exact sealed A03 validator.
 
-On any failure, transient authorization is removed first and the dependency
-tree is atomically restored with its recorded facts verified. On success, the
-tree remains quarantined for later evidence-led cleanup. Both outcomes write a
-sanitized immutable receipt, making the artifact one-shot. The unchanged A03
-installer remains responsible for its own atomic payload rollback and final
-empty-argument authorization.
+A root-owned, fsync-backed state journal precedes every relocation,
+authorization, child-transition, and receipt boundary. A replay removes the
+dedicated authorization first. It then restores exact A02 and the dependency
+tree, or finalizes an already exact A03 commit. A verified outer A02 payload
+snapshot and run-metadata snapshot cover interruption around the unchanged
+A03 child installer.
+
+On an orderly pre-commit failure, transient authorization is removed first and
+the dependency tree is atomically restored with its recorded facts verified.
+On success, the tree, exact A02 rollback snapshot, and metadata snapshot remain
+quarantined for later evidence-led cleanup. Terminal outcomes write a
+sanitized immutable receipt; interrupted nonterminal outcomes retain the
+journal for deterministic replay. The unchanged A03 installer remains
+responsible for its own complete installed-byte, native-self-test,
+quiescence, rollback, and final empty-argument authorization checks.
 
 Legacy v1 remains quarantined, unauthorized, and never invoked. The expired
 RECOVERY-01 handoff is neither referenced nor reused.

@@ -1,8 +1,8 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "artifactId": "P00-V2-CAP-A03-RECOVERY-02",
-  "generatedAt": "2026-07-29T20:24:11Z",
-  "result": "PASS_PENDING_INDEPENDENT_REVIEW",
+  "generatedAt": "2026-07-29T22:49:57Z",
+  "result": "PASS_PENDING_EXACT_DELTA_REVIEW",
   "candidateRevision": "2e5045116db6e3c5f6e6cc18b70df6d7fa021baf",
   "approvedPacketRevision": "02ee6ddec78d6e4ea9e2de3c0303ffd6bc9f45bf",
   "predecessor": {
@@ -17,51 +17,83 @@
     "manifestSha256": "d94f06f0d6f585ed6ce368cfc933e5ec4fe4c9914621a39ce2544baa97f0ad39"
   },
   "artifact": {
-    "envelopeSha256": "15ad0eb6fd06102f8ac58094cf3b6e3f2cddd46a2c404641a9f1f728f91187e0",
-    "handoffSha256": "bcf048f5e2bb518233753cb617e22beb3aba54e4c1e3bd0ae4fc7d1d58803bfc",
-    "recoverSha256": "dd76d2fcb12d61c62c06cfdbd8d56351405a749a853ad0ae6cbe49b4e6f61072",
-    "runStateSha256": "99cce7d9e8a08092ab23f77bffd971b1d3a1f988b010acf2c3d7403cc716e969",
-    "receiptSha256": "185e04d0a4356b6ac701f24fb90161738a96ace38e36c24ffadb0aefad7951ca",
-    "envelopeToolSha256": "fc9cdaedc88c67f0d1d228a07d8575f63216ff4500e72a0b72c751905adc5e8d",
-    "handoffToolSha256": "b1acfc6e13a12315d5d7baedd8a69800bad8bf7326e28e9a9062c351c5131abb"
+    "envelopeSha256": "5d9f40df6f6254f76e27e73ae963aa65125174a77819c227f60813b190fc90ec",
+    "handoffSha256": "a23d64b8485f9b82c5e6f486e723e3deeafd62e3b2b0ba54652b3419b16fd0ae",
+    "recoverSha256": "471d8b7b127a1db6ca083bab0d06e0d271e9776d374cf9eb79a744a518f0aa9f",
+    "runStateSha256": "042536b7728c1391102634ffc333d68cd2dfa63ed2f51617a254dba351614c44",
+    "journalSha256": "383af6b0e274a22ab503d873ff0a236af05d5b6a69bfbeca2b9ba6fe010f0742",
+    "receiptSha256": "2bd3ed40b1a030d65783bff3ca24f7eb7940be780c404bee7daed483bf2a4e79",
+    "envelopeToolSha256": "f31b51373ed9a018ee2e70c6a38e3dd41dc57a11bd8854dc9cbd896712253592",
+    "handoffToolSha256": "75ce480f92ddae174c4ac01ecb754e187dd85e8830dd589377cdc32edcc2803a"
   },
   "validation": [
     {
-      "name": "fresh recovery disposable-root suite",
+      "name": "corrected fresh recovery disposable-root suite",
       "result": "PASS",
-      "cases": 10,
-      "elapsedSeconds": 809.172,
+      "testMethods": 15,
+      "elapsedSeconds": 2249.61,
+      "hardCrashSubBoundaries": [
+        "before quarantine mkdir",
+        "after quarantine mkdir",
+        "after prepared relocation manifest publish",
+        "after atomic relocation rename",
+        "before sudoers publish",
+        "after sudoers publish",
+        "before child launch",
+        "after child commit",
+        "before receipt rename",
+        "after receipt rename"
+      ],
       "coverage": [
-        "closed envelope and single bounded sudo handoff",
+        "closed envelope and one bounded sudo handoff",
+        "authorization removal first on replay",
+        "fsync-backed closed recovery journal",
         "exact A02 predecessor admission",
-        "atomic exact-subtree relocation and fact preservation",
-        "pre-authorization remaining-run audit",
+        "same-filesystem exact-subtree relocation",
+        "root and descendant content, ownership, mode, xattr, and ACL facts",
+        "pre-authorization exact remaining-run audit",
+        "outer exact A02 payload and run-metadata rollback snapshots",
         "success retention in artifact-specific quarantine",
-        "failure restoration before and after authorization",
-        "A03 child rollback followed by outer restoration",
+        "orderly and hard-interruption restoration",
+        "irreversible exact A03 commit reconciliation",
+        "receipt-write failure and receipt-rename replay",
         "immutable success and failure receipts",
-        "same-artifact retry rejection",
-        "tampered predecessor and metadata rejection"
+        "tampered predecessor, metadata, root-mode, ACL, and unexpected-link rejection"
       ]
     },
     {
       "name": "exact A03 revoke cleanup and idempotence",
       "result": "PASS",
       "cases": 1,
-      "elapsedSeconds": 145.505
+      "elapsedSeconds": 117.205
     },
     {
       "name": "reproducible build",
       "result": "PASS",
       "runs": 2,
-      "identicalEnvelopeSha256": "15ad0eb6fd06102f8ac58094cf3b6e3f2cddd46a2c404641a9f1f728f91187e0",
-      "identicalHandoffSha256": "bcf048f5e2bb518233753cb617e22beb3aba54e4c1e3bd0ae4fc7d1d58803bfc"
+      "identicalEnvelopeSha256": "5d9f40df6f6254f76e27e73ae963aa65125174a77819c227f60813b190fc90ec",
+      "identicalHandoffSha256": "a23d64b8485f9b82c5e6f486e723e3deeafd62e3b2b0ba54652b3419b16fd0ae"
     },
     {
       "name": "shell and Python syntax",
       "result": "PASS"
     }
   ],
+  "reviewCorrection": {
+    "reviewedRevision": "c756647c01622ff1b4101c1b262cb409e850b89e",
+    "disposition": "REQUEST_CHANGES_COMPLETE_BATCH",
+    "resolvedFindingIds": [
+      "IC-M00-A03R2-B01",
+      "IC-M00-A03R2-B02",
+      "IC-M00-A03R2-B03"
+    ],
+    "correctionSummary": [
+      "Durable pre-action journal and deterministic startup reconciliation cover relocation, authorization, child, and receipt crash boundaries.",
+      "Exact A02 outer rollback plus run metadata snapshots cover interrupted pre-commit child state; exact committed A03 is finalized rather than falsely failed.",
+      "Receipt is the durable commit boundary; receipt failure retains the journal and removes authorization for exact replay.",
+      "Relocation facts include the root and every descendant with ACL and xattr evidence, verified before and after both atomic renames."
+    ]
+  },
   "liveEffects": {
     "sudoInvoked": false,
     "privilegedHelperInvoked": false,
@@ -69,14 +101,8 @@
     "authorizationChanged": false,
     "installedCapabilityChanged": false
   },
-  "history": {
-    "expiredArtifact": "P00-V2-CAP-A03-RECOVERY-01",
-    "expiredArtifactReused": false,
-    "initialRecovery02TestBatch": {
-      "result": "FAIL_CLOSED",
-      "cause": "macOS system Python lacks os.listxattr and the first subprocess fallback did not request hex output",
-      "authorizationLeftPresent": false
-    },
-    "correction": "Use explicit /usr/bin/xattr non-following hex output for sanitized member-fact hashes."
+  "expiredArtifact": {
+    "artifactId": "P00-V2-CAP-A03-RECOVERY-01",
+    "reused": false
   }
 }

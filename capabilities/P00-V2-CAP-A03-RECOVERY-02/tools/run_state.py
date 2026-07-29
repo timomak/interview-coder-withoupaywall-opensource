@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Atomically quarantine and restore the exact historical run dependency tree."""
+"""Crash-recoverable exact run-state relocation and metadata snapshots."""
 
 from __future__ import annotations
 
@@ -9,9 +9,11 @@ import importlib.util
 import json
 import os
 import pathlib
+import signal
 import stat
 import subprocess
 import sys
+import tempfile
 
 
 ARTIFACT_ID = "P00-V2-CAP-A03-RECOVERY-02"
@@ -19,13 +21,7 @@ COMMIT = "1ff0881b9bd59f243146c93b6709be57d58ee17a"
 PHASE = "P01"
 RUN = "70acd85a0202cc85f65e176a995a248f"
 SOURCE_SUFFIX = pathlib.PurePath(
-    "verification-controller",
-    "runs",
-    COMMIT,
-    PHASE,
-    RUN,
-    "repo",
-    "node_modules",
+    "verification-controller", "runs", COMMIT, PHASE, RUN, "repo", "node_modules"
 )
 DESTINATION_SUFFIX = pathlib.PurePath(
     "verification-controller",
@@ -33,6 +29,7 @@ DESTINATION_SUFFIX = pathlib.PurePath(
     ARTIFACT_ID,
     f"{COMMIT}-{PHASE}-{RUN}-repo-node_modules",
 )
+RELOCATION_STATES = {"PREPARED", "RELOCATED"}
 
 
 def canonical(value: object) -> bytes:
@@ -40,6 +37,30 @@ def canonical(value: object) -> bytes:
         json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
         + "\n"
     ).encode()
+
+
+def fsync_directory(path: pathlib.Path) -> None:
+    descriptor = os.open(path, os.O_RDONLY)
+    try:
+        os.fsync(descriptor)
+    finally:
+        os.close(descriptor)
+
+
+def atomic_document(path: pathlib.Path, document: object, mode: int = 0o400) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    descriptor, temporary_name = tempfile.mkstemp(prefix=f".{path.name}.", dir=path.parent)
+    temporary = pathlib.Path(temporary_name)
+    try:
+        with os.fdopen(descriptor, "wb") as handle:
+            handle.write(canonical(document))
+            handle.flush()
+            os.fsync(handle.fileno())
+        temporary.chmod(mode)
+        os.rename(temporary, path)
+        fsync_directory(path.parent)
+    finally:
+        temporary.unlink(missing_ok=True)
 
 
 def sha256_file(path: pathlib.Path) -> str:
@@ -72,53 +93,73 @@ def xattr_facts(path: pathlib.Path) -> list[list[str]]:
     return facts
 
 
-def tree_facts(root: pathlib.Path) -> dict[str, object]:
-    root_info = root.lstat()
-    if not stat.S_ISDIR(root_info.st_mode):
-        raise SystemExit(f"relocation root is not a directory: {root}")
-    rows: list[dict[str, object]] = []
-    counts = {"directory": 0, "regular": 0, "symlink": 0}
-    total_regular_bytes = 0
+def acl_facts(path: pathlib.Path) -> list[str]:
+    output = subprocess.run(
+        ["/bin/ls", "-lde", str(path)],
+        check=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+    ).stdout.splitlines()
+    return [line.rstrip() for line in output[1:]]
+
+
+def member_row(root: pathlib.Path, path: pathlib.Path) -> dict[str, object]:
+    info = path.lstat()
+    relative = "." if path == root else path.relative_to(root).as_posix()
+    common: dict[str, object] = {
+        "path": relative,
+        "uid": info.st_uid,
+        "gid": info.st_gid,
+        "mode": stat.S_IMODE(info.st_mode),
+        "nlink": info.st_nlink,
+        "size": info.st_size,
+        "xattrs": xattr_facts(path),
+        "acl": acl_facts(path),
+    }
+    if stat.S_ISDIR(info.st_mode):
+        return {**common, "type": "directory"}
+    if stat.S_ISREG(info.st_mode):
+        return {**common, "type": "regular", "sha256": sha256_file(path)}
+    if stat.S_ISLNK(info.st_mode):
+        return {**common, "type": "symlink", "target": os.readlink(path)}
+    raise SystemExit(f"unsupported historical dependency member: {path}")
+
+
+def tree_rows(root: pathlib.Path) -> list[dict[str, object]]:
+    if not stat.S_ISDIR(root.lstat().st_mode):
+        raise SystemExit(f"tree root is not a directory: {root}")
+    rows = [member_row(root, root)]
     stack = [root]
     while stack:
         parent = stack.pop()
-        entries = sorted(os.scandir(parent), key=lambda entry: entry.name)
-        for entry in entries:
+        for entry in sorted(os.scandir(parent), key=lambda item: item.name):
             path = pathlib.Path(entry.path)
-            info = path.lstat()
-            relative = path.relative_to(root).as_posix()
-            common = {
-                "path": relative,
-                "uid": info.st_uid,
-                "gid": info.st_gid,
-                "mode": stat.S_IMODE(info.st_mode),
-                "nlink": info.st_nlink,
-                "size": info.st_size,
-                "xattrs": xattr_facts(path),
-            }
-            if stat.S_ISDIR(info.st_mode):
-                counts["directory"] += 1
-                rows.append({**common, "type": "directory"})
+            row = member_row(root, path)
+            rows.append(row)
+            if row["type"] == "directory":
                 stack.append(path)
-            elif stat.S_ISREG(info.st_mode):
-                counts["regular"] += 1
-                total_regular_bytes += info.st_size
-                rows.append(
-                    {**common, "type": "regular", "sha256": sha256_file(path)}
-                )
-            elif stat.S_ISLNK(info.st_mode):
-                counts["symlink"] += 1
-                rows.append(
-                    {**common, "type": "symlink", "target": os.readlink(path)}
-                )
-            else:
-                raise SystemExit(f"unsupported historical dependency member: {path}")
     rows.sort(key=lambda row: str(row["path"]))
+    return rows
+
+
+def tree_facts(root: pathlib.Path) -> dict[str, object]:
+    rows = tree_rows(root)
+    counts = {"directory": 0, "regular": 0, "symlink": 0}
+    total_regular_bytes = 0
+    acl_member_count = 0
+    for row in rows:
+        counts[str(row["type"])] += 1
+        if row["type"] == "regular":
+            total_regular_bytes += int(row["size"])
+        if row["acl"]:
+            acl_member_count += 1
     return {
         "factsSha256": hashlib.sha256(canonical(rows)).hexdigest(),
-        "memberCount": len(rows),
-        "typeCounts": counts,
+        "memberCountIncludingRoot": len(rows),
+        "typeCountsIncludingRoot": counts,
         "totalRegularBytes": total_regular_bytes,
+        "aclMemberCount": acl_member_count,
     }
 
 
@@ -126,6 +167,204 @@ def require_suffix(path: pathlib.Path, suffix: pathlib.PurePath, label: str) -> 
     observed = pathlib.PurePath(*path.parts[-len(suffix.parts) :])
     if observed != suffix:
         raise SystemExit(f"{label} path disagreement: {path}")
+
+
+def hard_crash_parent(point: str) -> None:
+    if (
+        os.environ.get("P00_V2_TEST_ROOT")
+        and os.geteuid() != 0
+        and os.environ.get("P00_V2_RECOVERY_TEST_HARD_CRASH_POINT") == point
+    ):
+        os.kill(os.getppid(), signal.SIGKILL)
+        os._exit(137)
+
+
+def relocation_document(
+    source: pathlib.Path,
+    destination: pathlib.Path,
+    facts: dict[str, object],
+    state: str,
+) -> dict[str, object]:
+    return {
+        "schemaVersion": 2,
+        "artifactId": ARTIFACT_ID,
+        "state": state,
+        "source": str(source),
+        "destination": str(destination),
+        "tree": facts,
+    }
+
+
+def load_relocation(
+    source: pathlib.Path, destination: pathlib.Path, manifest: pathlib.Path
+) -> dict[str, object]:
+    document = json.loads(manifest.read_text())
+    if (
+        set(document)
+        != {
+            "schemaVersion",
+            "artifactId",
+            "state",
+            "source",
+            "destination",
+            "tree",
+        }
+        or document["schemaVersion"] != 2
+        or document["artifactId"] != ARTIFACT_ID
+        or document["state"] not in RELOCATION_STATES
+        or document["source"] != str(source)
+        or document["destination"] != str(destination)
+        or not isinstance(document["tree"], dict)
+    ):
+        raise SystemExit("relocation manifest disagreement")
+    return document
+
+
+def prepare_relocation(
+    source: pathlib.Path, destination: pathlib.Path, manifest: pathlib.Path
+) -> None:
+    require_suffix(source, SOURCE_SUFFIX, "source")
+    require_suffix(destination, DESTINATION_SUFFIX, "destination")
+    if not source.is_dir() or destination.exists() or manifest.exists():
+        raise SystemExit("relocation preparation state disagreement")
+    destination.parent.mkdir(parents=True, mode=0o700)
+    destination.parent.chmod(0o700)
+    fsync_directory(destination.parent.parent)
+    hard_crash_parent("after-quarantine-mkdir")
+    if source.stat().st_dev != destination.parent.stat().st_dev:
+        raise SystemExit("relocation must remain on one filesystem")
+    facts = tree_facts(source)
+    atomic_document(
+        manifest, relocation_document(source, destination, facts, "PREPARED"), 0o400
+    )
+    if tree_facts(source) != facts:
+        raise SystemExit("source tree changed while preparing relocation")
+    hard_crash_parent("after-manifest-publish")
+
+
+def move_relocation(
+    source: pathlib.Path, destination: pathlib.Path, manifest: pathlib.Path
+) -> None:
+    require_suffix(source, SOURCE_SUFFIX, "source")
+    require_suffix(destination, DESTINATION_SUFFIX, "destination")
+    document = load_relocation(source, destination, manifest)
+    if document["state"] != "PREPARED" or not source.is_dir() or destination.exists():
+        raise SystemExit("relocation move state disagreement")
+    if tree_facts(source) != document["tree"]:
+        raise SystemExit("prepared source tree facts disagreement")
+    os.rename(source, destination)
+    fsync_directory(source.parent)
+    fsync_directory(destination.parent)
+    hard_crash_parent("after-relocation-rename")
+    if tree_facts(destination) != document["tree"]:
+        raise SystemExit("relocated tree facts disagreement")
+    atomic_document(
+        manifest,
+        relocation_document(source, destination, document["tree"], "RELOCATED"),
+        0o400,
+    )
+
+
+def finalize_retained(
+    source: pathlib.Path, destination: pathlib.Path, manifest: pathlib.Path
+) -> None:
+    document = load_relocation(source, destination, manifest)
+    if source.exists() or not destination.is_dir():
+        raise SystemExit("retained relocation state disagreement")
+    if tree_facts(destination) != document["tree"]:
+        raise SystemExit("retained relocation facts disagreement")
+    if document["state"] != "RELOCATED":
+        atomic_document(
+            manifest,
+            relocation_document(source, destination, document["tree"], "RELOCATED"),
+            0o400,
+        )
+    manifest.chmod(0o444)
+
+
+def restore_relocation(
+    source: pathlib.Path, destination: pathlib.Path, manifest: pathlib.Path
+) -> None:
+    require_suffix(source, SOURCE_SUFFIX, "source")
+    require_suffix(destination, DESTINATION_SUFFIX, "destination")
+    document = load_relocation(source, destination, manifest)
+    if source.exists() or not destination.is_dir():
+        raise SystemExit("relocation restore state disagreement")
+    if tree_facts(destination) != document["tree"]:
+        raise SystemExit("relocation restore pre-rename facts disagreement")
+    os.rename(destination, source)
+    fsync_directory(source.parent)
+    fsync_directory(destination.parent)
+    if tree_facts(source) != document["tree"]:
+        raise SystemExit("restored tree facts disagreement")
+    manifest.unlink()
+    fsync_directory(manifest.parent)
+
+
+def reconcile_relocation(
+    source: pathlib.Path, destination: pathlib.Path, manifest: pathlib.Path
+) -> None:
+    require_suffix(source, SOURCE_SUFFIX, "source")
+    require_suffix(destination, DESTINATION_SUFFIX, "destination")
+    if manifest.exists():
+        document = load_relocation(source, destination, manifest)
+        if source.is_dir() and not destination.exists():
+            if tree_facts(source) != document["tree"]:
+                raise SystemExit("prepared source facts disagree during reconciliation")
+            manifest.unlink()
+            fsync_directory(manifest.parent)
+        elif not source.exists() and destination.is_dir():
+            restore_relocation(source, destination, manifest)
+        else:
+            raise SystemExit("ambiguous relocation state during reconciliation")
+    elif source.is_dir() and not destination.exists():
+        pass
+    else:
+        raise SystemExit("unrecoverable relocation state without manifest")
+    try:
+        destination.parent.rmdir()
+        fsync_directory(destination.parent.parent)
+    except OSError:
+        pass
+
+
+def snapshot_tree(root: pathlib.Path, output: pathlib.Path) -> None:
+    document = {
+        "schemaVersion": 1,
+        "artifactId": ARTIFACT_ID,
+        "root": str(root),
+        "rows": tree_rows(root),
+    }
+    atomic_document(output, document, 0o400)
+
+
+def row_without_mode(row: dict[str, object]) -> dict[str, object]:
+    return {key: value for key, value in row.items() if key != "mode"}
+
+
+def restore_tree_metadata(root: pathlib.Path, snapshot: pathlib.Path) -> None:
+    document = json.loads(snapshot.read_text())
+    if (
+        set(document) != {"schemaVersion", "artifactId", "root", "rows"}
+        or document["schemaVersion"] != 1
+        or document["artifactId"] != ARTIFACT_ID
+        or document["root"] != str(root)
+        or not isinstance(document["rows"], list)
+    ):
+        raise SystemExit("tree metadata snapshot disagreement")
+    expected = document["rows"]
+    observed = tree_rows(root)
+    if [row_without_mode(row) for row in observed] != [
+        row_without_mode(row) for row in expected
+    ]:
+        raise SystemExit("tree identity changed; metadata restore refused")
+    for row in expected:
+        path = root if row["path"] == "." else root / str(row["path"])
+        if row["type"] == "symlink":
+            continue
+        path.chmod(int(row["mode"]))
+    if tree_rows(root) != expected:
+        raise SystemExit("tree metadata restoration disagreement")
 
 
 def load_upgrade_state(path: pathlib.Path):
@@ -191,77 +430,38 @@ def audit_runs(
                             execution_gid,
                             True,
                         )
+                        if parent == run and stat.S_ISREG(child_info.st_mode):
+                            if (child_info.st_uid, child_info.st_gid) != (
+                                state_uid,
+                                state_gid,
+                            ):
+                                raise SystemExit(
+                                    f"top-level evidence is not state-owned: {child}"
+                                )
                         if stat.S_ISDIR(child_info.st_mode):
                             stack.append(child)
-
-
-def relocate(
-    source: pathlib.Path, destination: pathlib.Path, manifest: pathlib.Path
-) -> None:
-    require_suffix(source, SOURCE_SUFFIX, "source")
-    require_suffix(destination, DESTINATION_SUFFIX, "destination")
-    if destination.exists() or manifest.exists():
-        raise SystemExit("relocation destination or manifest already exists")
-    facts = tree_facts(source)
-    destination.parent.mkdir(parents=True, mode=0o700)
-    destination.parent.chmod(0o700)
-    if source.stat().st_dev != destination.parent.stat().st_dev:
-        raise SystemExit("relocation must remain on one filesystem")
-    temporary = destination.parent / ".relocation.json.tmp"
-    document = {
-        "schemaVersion": 1,
-        "artifactId": ARTIFACT_ID,
-        "source": str(source),
-        "destination": str(destination),
-        "tree": facts,
-    }
-    temporary.write_bytes(canonical(document))
-    temporary.chmod(0o400)
-    os.rename(source, destination)
-    try:
-        if tree_facts(destination) != facts:
-            raise SystemExit("relocated tree facts disagreement")
-        os.rename(temporary, manifest)
-        manifest.chmod(0o444)
-    except BaseException:
-        if destination.exists() and not source.exists():
-            os.rename(destination, source)
-        temporary.unlink(missing_ok=True)
-        raise
-
-
-def restore(source: pathlib.Path, destination: pathlib.Path, manifest: pathlib.Path) -> None:
-    require_suffix(source, SOURCE_SUFFIX, "source")
-    require_suffix(destination, DESTINATION_SUFFIX, "destination")
-    if source.exists() or not destination.is_dir() or not manifest.is_file():
-        raise SystemExit("relocation restore state disagreement")
-    document = json.loads(manifest.read_text())
-    if (
-        document.get("schemaVersion") != 1
-        or document.get("artifactId") != ARTIFACT_ID
-        or document.get("source") != str(source)
-        or document.get("destination") != str(destination)
-        or document.get("tree") != tree_facts(destination)
-    ):
-        raise SystemExit("relocation restore manifest disagreement")
-    os.rename(destination, source)
-    if tree_facts(source) != document["tree"]:
-        raise SystemExit("restored tree facts disagreement")
-    manifest.unlink()
-    destination.parent.rmdir()
 
 
 def main() -> None:
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(dest="command", required=True)
-    relocate_parser = subparsers.add_parser("relocate")
-    relocate_parser.add_argument("source", type=pathlib.Path)
-    relocate_parser.add_argument("destination", type=pathlib.Path)
-    relocate_parser.add_argument("manifest", type=pathlib.Path)
-    restore_parser = subparsers.add_parser("restore")
-    restore_parser.add_argument("source", type=pathlib.Path)
-    restore_parser.add_argument("destination", type=pathlib.Path)
-    restore_parser.add_argument("manifest", type=pathlib.Path)
+    for name in (
+        "prepare-relocation",
+        "move-relocation",
+        "restore-relocation",
+        "reconcile-relocation",
+        "finalize-retained",
+    ):
+        operation = subparsers.add_parser(name)
+        operation.add_argument("source", type=pathlib.Path)
+        operation.add_argument("destination", type=pathlib.Path)
+        operation.add_argument("manifest", type=pathlib.Path)
+    snapshot_parser = subparsers.add_parser("snapshot-tree")
+    snapshot_parser.add_argument("root", type=pathlib.Path)
+    snapshot_parser.add_argument("output", type=pathlib.Path)
+    restore_parser = subparsers.add_parser("restore-tree-metadata")
+    restore_parser.add_argument("root", type=pathlib.Path)
+    restore_parser.add_argument("snapshot", type=pathlib.Path)
     audit_parser = subparsers.add_parser("audit-runs")
     audit_parser.add_argument("runs_root", type=pathlib.Path)
     audit_parser.add_argument("state_uid", type=int)
@@ -270,18 +470,40 @@ def main() -> None:
     audit_parser.add_argument("execution_gid", type=int)
     audit_parser.add_argument("upgrade_state", type=pathlib.Path)
     arguments = parser.parse_args()
-    if arguments.command == "relocate":
-        relocate(
+    if arguments.command == "prepare-relocation":
+        prepare_relocation(
             arguments.source.resolve(),
             arguments.destination.resolve(),
             arguments.manifest.resolve(),
         )
-    elif arguments.command == "restore":
-        restore(
+    elif arguments.command == "move-relocation":
+        move_relocation(
             arguments.source.resolve(),
             arguments.destination.resolve(),
             arguments.manifest.resolve(),
         )
+    elif arguments.command == "restore-relocation":
+        restore_relocation(
+            arguments.source.resolve(),
+            arguments.destination.resolve(),
+            arguments.manifest.resolve(),
+        )
+    elif arguments.command == "reconcile-relocation":
+        reconcile_relocation(
+            arguments.source.resolve(),
+            arguments.destination.resolve(),
+            arguments.manifest.resolve(),
+        )
+    elif arguments.command == "finalize-retained":
+        finalize_retained(
+            arguments.source.resolve(),
+            arguments.destination.resolve(),
+            arguments.manifest.resolve(),
+        )
+    elif arguments.command == "snapshot-tree":
+        snapshot_tree(arguments.root.resolve(), arguments.output.resolve())
+    elif arguments.command == "restore-tree-metadata":
+        restore_tree_metadata(arguments.root.resolve(), arguments.snapshot.resolve())
     else:
         audit_runs(
             arguments.runs_root.resolve(),

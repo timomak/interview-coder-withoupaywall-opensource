@@ -182,6 +182,8 @@ class RecoveryTests(unittest.TestCase):
             / "Users/Shared/InterviewCopilot/verification-controller-bootstrap"
             / envelope_sha
         )
+        if stage.is_dir():
+            return stage
         for relative in [*sorted(envelope["members"]), "build/release-envelope.json"]:
             source = BUNDLE / relative
             target = stage / relative
@@ -238,12 +240,19 @@ class RecoveryTests(unittest.TestCase):
         )
         self.assertIn("tools/run_state.py", envelope["members"])
         self.assertIn("tools/receipt.py", envelope["members"])
+        self.assertIn("tools/journal.py", envelope["members"])
         handoff = (BUNDLE / "build/admin-handoff.txt").read_text()
         self.assertEqual(handoff.count("/usr/bin/sudo "), 1)
-        self.assertIn("recovery-receipts/P00-V2-CAP-A03-RECOVERY-02", handoff)
-        self.assertIn("quarantine/P00-V2-CAP-A03-RECOVERY-02", handoff)
+        self.assertIn(
+            '/bin/rm -f "/etc/sudoers.d/interviewcopilot-verification-controller"',
+            handoff,
+        )
         self.assertIn("trap cleanup EXIT", handoff)
         self.assertLess(handoff.index("trap cleanup EXIT"), handoff.index("/bin/mkdir -p"))
+        self.assertLess(
+            handoff.index('/bin/rm -f "/etc/sudoers.d/'),
+            handoff.index('if [[ -e "$stage" ]]'),
+        )
         self.assertNotIn("%admin", handoff)
         self.assertNotIn(" *", handoff)
         self.assertNotIn("P00-V2-CAP-A03/build/admin-handoff.txt", handoff)
@@ -280,6 +289,10 @@ class RecoveryTests(unittest.TestCase):
                 self.assertEqual(
                     receipt["installedControllerSha256"],
                     sha256(A03 / "build/controller"),
+                )
+                self.assertTrue((quarantined.parent / "a02-rollback").is_dir())
+                self.assertTrue(
+                    (quarantined.parent / "runs-metadata-before-child.json").is_file()
                 )
             finally:
                 make_writable(temporary)
@@ -360,9 +373,13 @@ class RecoveryTests(unittest.TestCase):
                 self.assertNotEqual(result.returncode, 0)
                 self.assertFalse(self.sudoers(test_root).exists())
                 self.assertTrue(self.original_node_modules(test_root).is_dir())
-                receipt = json.loads(self.receipt(test_root).read_text())
-                self.assertEqual(receipt["status"], "FAILURE")
-                self.assertEqual(receipt["relocation"], "NOT_STARTED")
+                self.assertFalse(self.receipt(test_root).exists())
+                self.assertFalse(
+                    (
+                        self.controller(test_root)
+                        / f"recovery-journals/{ARTIFACT}.json"
+                    ).exists()
+                )
             finally:
                 make_writable(temporary)
 
@@ -431,11 +448,205 @@ class RecoveryTests(unittest.TestCase):
                 self.assertEqual(first.returncode, 0, first.stderr)
                 expected = sha256(self.sudoers(test_root))
                 second = self.recover(test_root)
-                self.assertNotEqual(second.returncode, 0)
+                self.assertEqual(second.returncode, 0, second.stderr)
                 self.assertTrue(self.sudoers(test_root).is_file())
                 self.assertEqual(sha256(self.sudoers(test_root)), expected)
             finally:
                 make_writable(temporary)
+
+    def test_hard_crash_boundaries_reconcile_before_new_terminal_attempt(self) -> None:
+        points = [
+            "before-quarantine-mkdir",
+            "after-quarantine-mkdir",
+            "after-manifest-publish",
+            "after-relocation-rename",
+            "before-sudoers-publish",
+            "after-sudoers-publish",
+            "before-child-launch",
+        ]
+        point_filter = os.environ.get("P00_V2_RECOVERY_TEST_POINT_FILTER")
+        if point_filter:
+            points = [point_filter]
+        for point in points:
+            with self.subTest(point=point):
+                with tempfile.TemporaryDirectory() as temporary_text:
+                    temporary = pathlib.Path(temporary_text)
+                    test_root = self.prepare_legacy_root(temporary)
+                    try:
+                        self.make_unauthorized_a02(test_root)
+                        crashed = self.recover(
+                            test_root,
+                            P00_V2_RECOVERY_TEST_HARD_CRASH_POINT=point,
+                        )
+                        self.assertNotEqual(crashed.returncode, 0)
+                        self.assertFalse(self.receipt(test_root).exists())
+                        self.assertTrue(
+                            (
+                                self.controller(test_root)
+                                / f"recovery-journals/{ARTIFACT}.json"
+                            ).is_file()
+                        )
+                        retry = self.recover(
+                            test_root,
+                            P00_V2_RECOVERY_TEST_FAIL_AFTER_RELOCATION="1",
+                        )
+                        if not self.original_node_modules(test_root).is_dir():
+                            observed = sorted(
+                                str(path.relative_to(self.controller(test_root)))
+                                for path in self.controller(test_root).rglob("*")
+                                if (
+                                    ARTIFACT in str(path)
+                                    or RUN_ID in str(path)
+                                )
+                                and len(path.relative_to(self.controller(test_root)).parts)
+                                <= 4
+                            )
+                            self.fail(
+                                f"{point} failed to restore node_modules; "
+                                f"exit={retry.returncode}; stderr={retry.stderr}; "
+                                f"observed={observed}"
+                            )
+                        self.assert_failed_and_restored(test_root, retry)
+                    finally:
+                        make_writable(temporary)
+
+    def test_hard_crash_after_child_commit_finalizes_exact_a03(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_text:
+            temporary = pathlib.Path(temporary_text)
+            test_root = self.prepare_legacy_root(temporary)
+            try:
+                self.make_unauthorized_a02(test_root)
+                crashed = self.recover(
+                    test_root,
+                    P00_V2_RECOVERY_TEST_HARD_CRASH_POINT="after-child-commit",
+                )
+                self.assertNotEqual(crashed.returncode, 0)
+                self.assertFalse(self.receipt(test_root).exists())
+                self.assertEqual(
+                    sha256(self.controller(test_root) / "v2/libexec/verify-phase-core"),
+                    sha256(A03 / "build/controller"),
+                )
+                resumed = self.recover(test_root)
+                self.assertEqual(resumed.returncode, 0, resumed.stderr)
+                receipt = json.loads(self.receipt(test_root).read_text())
+                self.assertEqual(receipt["status"], "SUCCESS")
+                self.assertEqual(
+                    sha256(self.sudoers(test_root)), sha256(A03 / "config/sudoers")
+                )
+            finally:
+                make_writable(temporary)
+
+    def test_receipt_failure_is_recoverable_without_failure_receipt(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_text:
+            temporary = pathlib.Path(temporary_text)
+            test_root = self.prepare_legacy_root(temporary)
+            try:
+                self.make_unauthorized_a02(test_root)
+                failed = self.recover(
+                    test_root, P00_V2_RECOVERY_TEST_RECEIPT_FAILURE="1"
+                )
+                self.assertNotEqual(failed.returncode, 0)
+                self.assertFalse(self.receipt(test_root).exists())
+                self.assertFalse(self.sudoers(test_root).exists())
+                self.assertEqual(
+                    sha256(self.controller(test_root) / "v2/libexec/verify-phase-core"),
+                    sha256(A03 / "build/controller"),
+                )
+                resumed = self.recover(test_root)
+                self.assertEqual(resumed.returncode, 0, resumed.stderr)
+                self.assertEqual(
+                    json.loads(self.receipt(test_root).read_text())["status"], "SUCCESS"
+                )
+            finally:
+                make_writable(temporary)
+
+    def test_hard_crash_around_receipt_rename_is_recoverable(self) -> None:
+        for point in ("before-receipt-rename", "after-receipt-rename"):
+            with self.subTest(point=point):
+                with tempfile.TemporaryDirectory() as temporary_text:
+                    temporary = pathlib.Path(temporary_text)
+                    test_root = self.prepare_legacy_root(temporary)
+                    try:
+                        self.make_unauthorized_a02(test_root)
+                        crashed = self.recover(
+                            test_root,
+                            P00_V2_RECOVERY_TEST_HARD_CRASH_POINT=point,
+                        )
+                        self.assertNotEqual(crashed.returncode, 0)
+                        resumed = self.recover(test_root)
+                        self.assertEqual(resumed.returncode, 0, resumed.stderr)
+                        receipt = json.loads(self.receipt(test_root).read_text())
+                        self.assertEqual(receipt["status"], "SUCCESS")
+                        self.assertEqual(
+                            sha256(self.sudoers(test_root)),
+                            sha256(A03 / "config/sudoers"),
+                        )
+                    finally:
+                        make_writable(temporary)
+
+    def test_root_mode_and_acl_drift_are_detected_by_relocation_facts(self) -> None:
+        for drift in ("root-mode", "descendant-acl"):
+            with self.subTest(drift=drift):
+                with tempfile.TemporaryDirectory() as temporary_text:
+                    temporary = pathlib.Path(temporary_text)
+                    source = (
+                        temporary
+                        / f"verification-controller/runs/{COMMIT}/{PHASE}/{RUN_ID}/repo/node_modules"
+                    )
+                    member = source / "package/file"
+                    member.parent.mkdir(parents=True)
+                    member.write_text("exact\n")
+                    destination = (
+                        temporary
+                        / f"verification-controller/quarantine/{ARTIFACT}/"
+                        f"{COMMIT}-{PHASE}-{RUN_ID}-repo-node_modules"
+                    )
+                    manifest = destination.parent / "relocation.json"
+                    run(
+                        "/usr/bin/python3",
+                        BUNDLE / "tools/run_state.py",
+                        "prepare-relocation",
+                        source,
+                        destination,
+                        manifest,
+                    )
+                    run(
+                        "/usr/bin/python3",
+                        BUNDLE / "tools/run_state.py",
+                        "move-relocation",
+                        source,
+                        destination,
+                        manifest,
+                    )
+                    document = json.loads(manifest.read_text())
+                    self.assertEqual(
+                        document["tree"]["memberCountIncludingRoot"], 3
+                    )
+                    if drift == "root-mode":
+                        destination.chmod(0o700)
+                    else:
+                        changed = run(
+                            "/bin/chmod",
+                            "+a",
+                            "everyone deny delete",
+                            destination / "package",
+                            check=False,
+                        )
+                        self.assertEqual(changed.returncode, 0, changed.stderr)
+                    restored = run(
+                        "/usr/bin/python3",
+                        BUNDLE / "tools/run_state.py",
+                        "restore-relocation",
+                        source,
+                        destination,
+                        manifest,
+                        check=False,
+                    )
+                    self.assertNotEqual(restored.returncode, 0)
+                    if drift == "root-mode":
+                        destination.chmod(0o755)
+                    else:
+                        run("/bin/chmod", "-N", destination / "package")
 
 
 if __name__ == "__main__":

@@ -78,6 +78,14 @@ def create(bundle: pathlib.Path, output: pathlib.Path) -> None:
                 "/Users/Shared/InterviewCopilot/verification-controller/"
                 "recovery-receipts/P00-V2-CAP-A03-RECOVERY-02.json"
             ),
+            "journal": (
+                "/Users/Shared/InterviewCopilot/verification-controller/"
+                "recovery-journals/P00-V2-CAP-A03-RECOVERY-02.json"
+            ),
+            "outerRollback": (
+                "/Users/Shared/InterviewCopilot/verification-controller/quarantine/"
+                "P00-V2-CAP-A03-RECOVERY-02/a02-rollback"
+            ),
         },
         "members": observed_members(bundle),
     }
@@ -133,6 +141,14 @@ def verify(bundle: pathlib.Path, envelope: pathlib.Path) -> None:
             "receipt": (
                 "/Users/Shared/InterviewCopilot/verification-controller/"
                 "recovery-receipts/P00-V2-CAP-A03-RECOVERY-02.json"
+            ),
+            "journal": (
+                "/Users/Shared/InterviewCopilot/verification-controller/"
+                "recovery-journals/P00-V2-CAP-A03-RECOVERY-02.json"
+            ),
+            "outerRollback": (
+                "/Users/Shared/InterviewCopilot/verification-controller/quarantine/"
+                "P00-V2-CAP-A03-RECOVERY-02/a02-rollback"
             ),
         }
     ):

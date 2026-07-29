@@ -55,6 +55,10 @@ historical_node_modules=$runs_root/$historical_commit/$historical_phase/$histori
 quarantine_root=$controller_root/quarantine/$artifact_id
 quarantined_node_modules=$quarantine_root/$historical_commit-$historical_phase-$historical_run-repo-node_modules
 relocation_manifest=$quarantine_root/relocation.json
+a02_rollback=$quarantine_root/a02-rollback
+runs_snapshot=$quarantine_root/runs-metadata-before-child.json
+journal_root=$controller_root/recovery-journals
+journal_path=$journal_root/$artifact_id.json
 receipt_root=$controller_root/recovery-receipts
 receipt_path=$receipt_root/$artifact_id.json
 a02_root=$bundle_root/vendor/a02
@@ -62,10 +66,12 @@ a03_root=$bundle_root/vendor/a03
 envelope=$bundle_root/build/release-envelope.json
 envelope_tool=$bundle_root/tools/envelope.py
 run_state_tool=$bundle_root/tools/run_state.py
+journal_tool=$bundle_root/tools/journal.py
 receipt_tool=$bundle_root/tools/receipt.py
 a03_manifest_tool=$a03_root/tools/manifest.py
 a03_upgrade_tool=$a03_root/tools/upgrade_state.py
 a02_sudoers=$a02_root/config/sudoers
+a03_sudoers=$a03_root/config/sudoers
 a02_manifest=$a02_root/build/expected-install-manifest.json
 a03_manifest=$a03_root/build/expected-install-manifest.json
 a03_envelope=$a03_root/build/release-envelope.json
@@ -75,12 +81,21 @@ admission_sudoers=$bundle_root/.a02-admission-sudoers
 expected_a02_manifest_sha=945ffda713b5e9a02d2472d6f4e9e91340111384a6cdeab40890a5f3b572768b
 expected_a02_envelope_sha=69f88512f7b2740326346c57593ed428812a2e278eb86b62a005b17b9e56286f
 expected_a02_sudoers_sha=7fe7480026d425056231200a518c26c0e40b79ef59c130d6924d5af30e23170b
+expected_a02_controller_sha=73eda1532baa3044cf4feb989d2ec58d15304c86c31a298ed3d73a1a75c7494d
 expected_a03_manifest_sha=d94f06f0d6f585ed6ce368cfc933e5ec4fe4c9914621a39ce2544baa97f0ad39
 expected_a03_envelope_sha=00ea8696be7af50cfadd9035f9d7b44cb9d560b96c1f563c9ded0f6197a1af41
 expected_a03_controller_sha=d7e5b3e0e59629ae151635add38fc544d4bce5e4160eced388c44d51f84b1302
 
 hash_file() {
   /usr/bin/shasum -a 256 "$1" | /usr/bin/awk '{print $1}'
+}
+
+hard_crash() {
+  local point=$1
+  if [[ -n "$test_root" &&
+        "${P00_V2_RECOVERY_TEST_HARD_CRASH_POINT:-}" == "$point" ]]; then
+    /bin/kill -9 $$
+  fi
 }
 
 [[ "$approved_envelope_sha" != *[^a-f0-9]* &&
@@ -107,53 +122,158 @@ fi
 
 cleanup_stage=1
 temporary_authorization=0
-relocated=0
+journal_active=0
+relocation_active=0
+child_started=0
+child_committed=0
 committed=0
+terminal_receipt=0
 checkpoint=stage_admitted
+
+a02_is_exact() {
+  [[ -d "$install_root" &&
+      "$(hash_file "$install_root/libexec/verify-phase-core")" ==
+        "$expected_a02_controller_sha" ]] || return 1
+  /usr/bin/python3 "$a03_manifest_tool" verify \
+    "$install_root" "$a02_manifest" "${verify_options[@]}" \
+    >/dev/null 2>&1
+}
+
+a03_is_exact_without_authorization() {
+  [[ -d "$install_root" && -d "$a03_metadata" &&
+      "$(hash_file "$install_root/libexec/verify-phase-core")" ==
+        "$expected_a03_controller_sha" &&
+      "$(hash_file "$a03_metadata/expected-install-manifest.json")" ==
+        "$expected_a03_manifest_sha" &&
+      "$(hash_file "$a03_metadata/release-envelope.json")" ==
+        "$expected_a03_envelope_sha" &&
+      "$(/usr/bin/tr -d '[:space:]' < "$a03_metadata/approved-envelope.sha256")" ==
+        "$expected_a03_envelope_sha" ]] || return 1
+  /usr/bin/python3 "$a03_manifest_tool" verify \
+    "$install_root" "$a03_manifest" "${verify_options[@]}" \
+    >/dev/null 2>&1
+}
+
+publish_authorization() {
+  local source=$1
+  /bin/mkdir -p "${sudoers_target:h}"
+  temporary_authorization=1
+  /usr/bin/install -m 0440 "$source" "$sudoers_target"
+  [[ -n "$test_root" ]] || /usr/sbin/chown root:wheel "$sudoers_target"
+  /usr/sbin/visudo -cf "$sudoers_target"
+  [[ "$(hash_file "$sudoers_target")" == "$expected_a02_sudoers_sha" ]]
+}
+
+cleanup_child_temporaries() {
+  setopt local_options null_glob
+  local path
+  local paths=(
+    "$shared_root"/.verification-controller-v2-stage.<->
+    "$shared_root"/.verification-controller-v2-quiescence.<->
+    "$controller_root"/.v2-before-P00-V2-CAP-A03.<->
+  )
+  for path in "${paths[@]}"; do
+    [[ -d "$path" && ! -L "$path" ]] || {
+      print -u2 "unexpected child temporary member: $path"
+      return 74
+    }
+    /bin/chmod -R u+w "$path" 2>/dev/null || true
+    /bin/rm -rf "$path"
+  done
+}
+
+rollback_child_to_a02() {
+  if [[ -d "$a02_rollback" ]]; then
+    /usr/bin/python3 "$a03_manifest_tool" verify \
+      "$a02_rollback" "$a02_manifest" "${verify_options[@]}"
+    if [[ -e "$install_root" ]]; then
+      [[ -d "$install_root" && ! -L "$install_root" ]] || return 74
+      /bin/chmod -R u+w "$install_root" 2>/dev/null || true
+      /bin/rm -rf "$install_root"
+    fi
+    if [[ -n "$test_root" ]]; then
+      # com.apple.provenance prevents this cross-directory rename in a
+      # non-root disposable root. Copy for simulation, then verify below; the
+      # live root transaction uses the atomic rename.
+      /usr/bin/ditto "$a02_rollback" "$install_root"
+      /bin/chmod -R u+w "$a02_rollback" 2>/dev/null || true
+      /bin/rm -rf "$a02_rollback"
+    else
+      /bin/mv "$a02_rollback" "$install_root"
+    fi
+  fi
+  if [[ -e "$a03_metadata" ]]; then
+    [[ -d "$a03_metadata" && ! -L "$a03_metadata" ]] || return 74
+    /bin/chmod -R u+w "$a03_metadata" 2>/dev/null || true
+    /bin/rm -rf "$a03_metadata"
+  fi
+  cleanup_child_temporaries
+  if [[ -f "$runs_snapshot" ]]; then
+    /usr/bin/python3 "$run_state_tool" restore-tree-metadata \
+      "$runs_root" "$runs_snapshot"
+    /bin/rm -f "$runs_snapshot"
+  fi
+  a02_is_exact
+}
+
+remove_journal() {
+  if [[ -e "$journal_path" ]]; then
+    [[ -f "$journal_path" && ! -L "$journal_path" ]] || return 74
+    /bin/rm -f "$journal_path"
+  fi
+}
+
+write_receipt() {
+  local receipt_status=$1
+  local exit_code=$2
+  local relocation=$3
+  /usr/bin/python3 "$receipt_tool" write \
+    --root "$receipt_root" \
+    --artifact "$artifact_id" \
+    --envelope "$approved_envelope_sha" \
+    --status "$receipt_status" \
+    --exit-code "$exit_code" \
+    --checkpoint "$checkpoint" \
+    --relocation "$relocation" \
+    --candidate "$candidate" \
+    --install-root "$install_root" \
+    --sudoers "$sudoers_target" \
+    --stage "$bundle_root"
+}
+
 cleanup() {
   local result=$?
-  local relocation_outcome=NOT_STARTED
+  local recovery_ok=1
   trap - EXIT
-
-  if (( committed == 0 && temporary_authorization == 1 )); then
-    /bin/rm -f "$sudoers_target"
-    temporary_authorization=0
-  fi
-  if (( committed == 0 && relocated == 1 )); then
-    if /usr/bin/python3 "$run_state_tool" restore \
-      "$historical_node_modules" "$quarantined_node_modules" \
-      "$relocation_manifest"; then
-      relocation_outcome=RESTORED
-      relocated=0
-    else
-      relocation_outcome=RESTORE_FAILED
-      result=74
+  if (( committed == 0 )); then
+    if [[ -e "$sudoers_target" ]]; then
+      /bin/rm -f "$sudoers_target"
     fi
-  elif (( committed == 1 && relocated == 1 )); then
-    relocation_outcome=RETAINED_QUARANTINED
-  fi
-
-  if (( committed == 1 && result == 0 )); then
-    receipt_status=SUCCESS
-  else
-    receipt_status=FAILURE
-  fi
-  if [[ ! -e "$receipt_path" ]]; then
-    /usr/bin/python3 "$receipt_tool" \
-      --root "$receipt_root" \
-      --artifact "$artifact_id" \
-      --envelope "$approved_envelope_sha" \
-      --status "$receipt_status" \
-      --exit-code "$result" \
-      --checkpoint "$checkpoint" \
-      --relocation "$relocation_outcome" \
-      --candidate "$candidate" \
-      --install-root "$install_root" \
-      --sudoers "$sudoers_target" \
-      --stage "$bundle_root" || {
-        print -u2 "failed to write immutable recovery receipt"
-        (( result == 0 )) && result=74
-      }
+    temporary_authorization=0
+    if (( child_committed == 1 )); then
+      # Exact A03 may already be irreversible. Leave the journal and
+      # quarantine durable so the next exact invocation can finalize it.
+      recovery_ok=0
+    else
+      if (( child_started == 1 )) || [[ -d "$a02_rollback" ]]; then
+        rollback_child_to_a02 || recovery_ok=0
+      fi
+      if [[ -e "$relocation_manifest" || -e "$quarantined_node_modules" ||
+            -d "$quarantine_root" ]]; then
+        /usr/bin/python3 "$run_state_tool" reconcile-relocation \
+          "$historical_node_modules" "$quarantined_node_modules" \
+          "$relocation_manifest" || recovery_ok=0
+      fi
+      if (( journal_active == 1 && terminal_receipt == 0 && recovery_ok == 1 )); then
+        if write_receipt FAILURE "$result" RESTORED; then
+          terminal_receipt=1
+          remove_journal || true
+        else
+          recovery_ok=0
+        fi
+      fi
+    fi
+    (( recovery_ok == 1 )) || result=74
   fi
   if (( cleanup_stage == 1 )); then
     /bin/chmod -R u+w "$bundle_root" 2>/dev/null || true
@@ -163,10 +283,29 @@ cleanup() {
 }
 trap cleanup EXIT
 
-[[ ! -e "$receipt_path" && ! -e "$quarantine_root" ]] || {
-  print -u2 "recovery receipt or quarantine already exists"
-  exit 73
+# On every replay, revoke the dedicated rule before inspecting any durable
+# progress. The staged script and envelope were already verified above.
+if [[ -e "$sudoers_target" ]]; then
+  /bin/rm -f "$sudoers_target"
+fi
+
+checkpoint=sealed_inputs
+[[ "$(hash_file "$a02_manifest")" == "$expected_a02_manifest_sha" &&
+    "$(hash_file "$a02_root/build/release-envelope.json")" == "$expected_a02_envelope_sha" &&
+    "$(hash_file "$a02_sudoers")" == "$expected_a02_sudoers_sha" &&
+    "$(hash_file "$a03_sudoers")" == "$expected_a02_sudoers_sha" ]] || {
+  print -u2 "sealed predecessor or authorization inputs disagree"
+  exit 65
 }
+[[ "$(hash_file "$a03_manifest")" == "$expected_a03_manifest_sha" &&
+    "$(hash_file "$a03_envelope")" == "$expected_a03_envelope_sha" ]] || {
+  print -u2 "sealed A03 target inputs disagree"
+  exit 65
+}
+/usr/bin/python3 "$a03_root/tools/envelope.py" verify "$a03_root" "$a03_envelope"
+/usr/bin/python3 "$a03_manifest_tool" verify \
+  "$legacy_root" "$a03_root/build/legacy-v1-observed-manifest.json" \
+  "${verify_options[@]}"
 
 if [[ -z "$test_root" ]]; then
   [[ "$(/usr/bin/id -u thirdfacedev)" == 501 ]] || {
@@ -180,56 +319,112 @@ if [[ -z "$test_root" ]]; then
   }
 fi
 
-checkpoint=sealed_inputs
-[[ "$(hash_file "$a02_manifest")" == "$expected_a02_manifest_sha" &&
-    "$(hash_file "$a02_root/build/release-envelope.json")" == "$expected_a02_envelope_sha" &&
-    "$(hash_file "$a02_sudoers")" == "$expected_a02_sudoers_sha" ]] || {
-  print -u2 "sealed A02 recovery inputs disagree"
-  exit 65
-}
-[[ "$(hash_file "$a03_manifest")" == "$expected_a03_manifest_sha" &&
-    "$(hash_file "$a03_envelope")" == "$expected_a03_envelope_sha" ]] || {
-  print -u2 "sealed A03 target inputs disagree"
-  exit 65
-}
-/usr/bin/python3 "$a03_root/tools/envelope.py" verify "$a03_root" "$a03_envelope"
-/usr/bin/python3 "$a03_manifest_tool" verify \
-  "$legacy_root" "$a03_root/build/legacy-v1-observed-manifest.json" \
-  "${verify_options[@]}"
+# A terminal success receipt can survive a crash immediately after its rename.
+# Reconcile it only against exact A03 and the exact retained relocation.
+if [[ -e "$receipt_path" ]]; then
+  terminal_receipt=1
+  if /usr/bin/python3 "$receipt_tool" verify "$receipt_path" \
+    --artifact "$artifact_id" --envelope "$approved_envelope_sha" \
+    --status SUCCESS --candidate "$candidate"; then
+    a03_is_exact_without_authorization || {
+      print -u2 "success receipt exists without exact A03"
+      exit 74
+    }
+    /usr/bin/python3 "$run_state_tool" finalize-retained \
+      "$historical_node_modules" "$quarantined_node_modules" \
+      "$relocation_manifest"
+    publish_authorization "$a03_sudoers"
+    temporary_authorization=0
+    remove_journal || true
+    committed=1
+    print "reconciled committed P00-V2-CAP-A03 recovery receipt"
+    exit 0
+  fi
+  print -u2 "terminal recovery receipt forbids this artifact"
+  exit 73
+fi
+
+# A durable journal means a prior process was interrupted. Refuse to race a
+# still-running child; otherwise either finalize exact A03 or restore exact A02
+# and the relocation before starting again.
+if [[ -e "$journal_path" ]]; then
+  journal_active=1
+  /usr/bin/python3 "$journal_tool" verify "$journal_path" "$approved_envelope_sha"
+  prior_child_pid=$(
+    /usr/bin/python3 "$journal_tool" child-pid \
+      "$journal_path" "$approved_envelope_sha"
+  )
+  if [[ -n "$prior_child_pid" ]] &&
+    /bin/kill -0 "$prior_child_pid" 2>/dev/null; then
+    print -u2 "recorded A03 child is still active"
+    exit 75
+  fi
+  if a03_is_exact_without_authorization; then
+    child_committed=1
+    checkpoint=reconcile_committed_a03
+    /usr/bin/python3 "$run_state_tool" finalize-retained \
+      "$historical_node_modules" "$quarantined_node_modules" \
+      "$relocation_manifest"
+    publish_authorization "$a03_sudoers"
+    checkpoint=committed
+    write_receipt SUCCESS 0 RETAINED_QUARANTINED
+    terminal_receipt=1
+    /usr/bin/python3 "$journal_tool" set "$journal_path" \
+      "$approved_envelope_sha" RECEIPT_COMMITTED
+    remove_journal
+    child_committed=0
+    temporary_authorization=0
+    committed=1
+    print "reconciled exact committed P00-V2-CAP-A03"
+    exit 0
+  fi
+  checkpoint=reconcile_interrupted_predecessor
+  if [[ -d "$a02_rollback" ]]; then
+    rollback_child_to_a02
+  fi
+  /usr/bin/python3 "$run_state_tool" reconcile-relocation \
+    "$historical_node_modules" "$quarantined_node_modules" \
+    "$relocation_manifest"
+  remove_journal
+  journal_active=0
+fi
 
 checkpoint=predecessor_admission
-[[ -d "$install_root" && -d "$a02_metadata" ]] || {
-  print -u2 "exact A02 predecessor is absent"
-  exit 65
-}
-[[ ! -e "$sudoers_target" && ! -e "$a03_metadata" ]] || {
+[[ -d "$install_root" && -d "$a02_metadata" &&
+    ! -e "$a03_metadata" && ! -e "$sudoers_target" ]] || {
   print -u2 "recovery requires exact unauthorized A02 predecessor state"
   exit 73
 }
-/usr/bin/python3 "$a03_manifest_tool" verify \
-  "$install_root" "$a02_manifest" "${verify_options[@]}"
+a02_is_exact || {
+  print -u2 "exact A02 predecessor payload is absent"
+  exit 65
+}
 
 /usr/bin/install -m 0440 "$a02_sudoers" "$admission_sudoers"
 [[ -n "$test_root" ]] || /usr/sbin/chown root:wheel "$admission_sudoers"
 /usr/sbin/visudo -cf "$admission_sudoers"
-[[ "$(hash_file "$admission_sudoers")" == "$expected_a02_sudoers_sha" ]] || {
-  print -u2 "private A02 admission rule hash disagreement"
-  exit 65
-}
 /usr/bin/python3 "$a03_upgrade_tool" a02-admission \
   "$a02_metadata" "$admission_sudoers" "$state_uid" "$state_gid" \
   "$metadata_mode" "$allow_source_xattrs"
 /bin/rm -f "$admission_sudoers"
 
+/usr/bin/python3 "$journal_tool" init "$journal_path" \
+  "$approved_envelope_sha" STARTED
+journal_active=1
+
 checkpoint=run_state_relocation
-[[ -d "$historical_node_modules" ]] || {
-  print -u2 "exact historical dependency tree is absent"
-  exit 65
-}
-/usr/bin/python3 "$run_state_tool" relocate \
+hard_crash before-quarantine-mkdir
+/usr/bin/python3 "$run_state_tool" prepare-relocation \
   "$historical_node_modules" "$quarantined_node_modules" \
   "$relocation_manifest"
-relocated=1
+/usr/bin/python3 "$journal_tool" set "$journal_path" \
+  "$approved_envelope_sha" RELOCATION_PREPARED
+/usr/bin/python3 "$run_state_tool" move-relocation \
+  "$historical_node_modules" "$quarantined_node_modules" \
+  "$relocation_manifest"
+relocation_active=1
+/usr/bin/python3 "$journal_tool" set "$journal_path" \
+  "$approved_envelope_sha" RELOCATION_MOVED
 
 if [[ -n "$test_root" &&
       "${P00_V2_RECOVERY_TEST_FAIL_AFTER_RELOCATION:-0}" == 1 ]]; then
@@ -241,23 +436,31 @@ checkpoint=remaining_run_state_audit
 /usr/bin/python3 "$run_state_tool" audit-runs \
   "$runs_root" "$state_uid" "$state_gid" \
   "$execution_uid" "$execution_gid" "$a03_upgrade_tool"
+/usr/bin/python3 "$journal_tool" set "$journal_path" \
+  "$approved_envelope_sha" RUNS_AUDITED
+
+checkpoint=rollback_snapshot
+/usr/bin/python3 "$run_state_tool" snapshot-tree "$runs_root" "$runs_snapshot"
+/usr/bin/ditto "$install_root" "$a02_rollback"
+/usr/bin/python3 "$a03_manifest_tool" verify \
+  "$a02_rollback" "$a02_manifest" "${verify_options[@]}"
+/usr/bin/python3 "$journal_tool" set "$journal_path" \
+  "$approved_envelope_sha" ROLLBACK_SNAPSHOTTED
 
 checkpoint=transient_authorization
-/bin/mkdir -p "${sudoers_target:h}"
-temporary_authorization=1
-/usr/bin/install -m 0440 "$a02_sudoers" "$sudoers_target"
+/usr/bin/python3 "$journal_tool" set "$journal_path" \
+  "$approved_envelope_sha" AUTHORIZATION_PUBLISHING
+hard_crash before-sudoers-publish
+publish_authorization "$a02_sudoers"
+/usr/bin/python3 "$journal_tool" set "$journal_path" \
+  "$approved_envelope_sha" AUTHORIZATION_PUBLISHED
+hard_crash after-sudoers-publish
+
 if [[ -n "$test_root" &&
       "${P00_V2_RECOVERY_TEST_FAIL_AFTER_RULE_WRITE:-0}" == 1 ]]; then
   print -u2 "injected recovery failure after global rule write"
   exit 89
 fi
-[[ -n "$test_root" ]] || /usr/sbin/chown root:wheel "$sudoers_target"
-/usr/sbin/visudo -cf "$sudoers_target"
-[[ "$(hash_file "$sudoers_target")" == "$expected_a02_sudoers_sha" ]] || {
-  print -u2 "transient A02 authorization hash disagreement"
-  exit 65
-}
-
 if [[ -n "$test_root" &&
       "${P00_V2_RECOVERY_TEST_FAIL_BEFORE_A03:-0}" == 1 ]]; then
   print -u2 "injected recovery failure before A03 transition"
@@ -265,23 +468,39 @@ if [[ -n "$test_root" &&
 fi
 
 checkpoint=a03_transition
-/bin/zsh "$a03_installer" "$a03_root" "$expected_a03_envelope_sha"
+child_started=1
+/usr/bin/python3 "$journal_tool" set "$journal_path" \
+  "$approved_envelope_sha" CHILD_STARTING
+hard_crash before-child-launch
+/bin/zsh "$a03_installer" "$a03_root" "$expected_a03_envelope_sha" &
+child_pid=$!
+/usr/bin/python3 "$journal_tool" set "$journal_path" \
+  "$approved_envelope_sha" CHILD_RUNNING --child-pid "$child_pid"
+wait "$child_pid"
 
-checkpoint=installed_a03_verification
-/usr/bin/python3 "$a03_manifest_tool" verify \
-  "$install_root" "$a03_manifest" "${verify_options[@]}"
-[[ "$(hash_file "$install_root/libexec/verify-phase-core")" ==
-    "$expected_a03_controller_sha" ]] || {
-  print -u2 "installed A03 controller hash disagreement"
-  exit 65
-}
-[[ -d "$a03_metadata" &&
-    "$(hash_file "$sudoers_target")" == "$expected_a02_sudoers_sha" ]] || {
-  print -u2 "installed A03 metadata or authorization disagreement"
-  exit 65
-}
+# The exact A03 installer performs its complete installed-manifest, native
+# self-test, authorization, quiescence, and rollback checks before returning.
+# From this point onward A03 is irreversible to the child. Do not emit a
+# FAILURE receipt. The durable journal makes receipt finalization replayable.
+child_committed=1
+/usr/bin/python3 "$journal_tool" set "$journal_path" \
+  "$approved_envelope_sha" CHILD_COMMITTED
+hard_crash after-child-commit
 
 checkpoint=committed
-committed=1
+/usr/bin/python3 "$run_state_tool" finalize-retained \
+  "$historical_node_modules" "$quarantined_node_modules" \
+  "$relocation_manifest"
+if ! write_receipt SUCCESS 0 RETAINED_QUARANTINED; then
+  /bin/rm -f "$sudoers_target"
+  temporary_authorization=0
+  exit 74
+fi
+terminal_receipt=1
+/usr/bin/python3 "$journal_tool" set "$journal_path" \
+  "$approved_envelope_sha" RECEIPT_COMMITTED
+remove_journal
+child_committed=0
 temporary_authorization=0
+committed=1
 print "recovered exact unauthorized A02 predecessor to P00-V2-CAP-A03"
