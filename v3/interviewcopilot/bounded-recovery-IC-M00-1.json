@@ -1,0 +1,115 @@
+{
+  "schemaVersion": 1,
+  "kind": "bounded-recovery-packet",
+  "projectKey": "InterviewCopilot",
+  "milestoneId": "IC-M00",
+  "attempt": 1,
+  "createdAt": "2026-07-29T09:28:48+02:00",
+  "controllerThreadId": "019f9ff6-e24b-7053-a2b3-fe01f8538ab4",
+  "status": "AWAITING_EXPLICIT_USER_AUTHORIZATION",
+  "immutableState": {
+    "sourcePacketRevision": "P00-R9",
+    "sourcePacketCommit": "02ee6ddec78d6e4ea9e2de3c0303ffd6bc9f45bf",
+    "sourcePlanSha256": "da307d1d8bab4d4114a5c93eef3a43f8674d4814ef485108e40e05a5ff8e3671",
+    "candidateRevision": "1ff0881b9bd59f243146c93b6709be57d58ee17a",
+    "candidateParent": "b2b35d56d8d396591bdc2e6b7b9193bcde947de5",
+    "pullRequest": 155,
+    "pullRequestState": "OPEN_DRAFT_MERGEABLE_CODEQL_SUCCESS",
+    "approvedCapabilityHandoffSha256": "642af58b43219ca542efd7ad621df033a950d78c02d6735e76b07f30d795e83b",
+    "installedA02ManifestSha256": "945ffda713b5e9a02d2472d6f4e9e91340111384a6cdeab40890a5f3b572768b",
+    "installedA02MemberCount": 2408,
+    "quarantinedV1ObservedManifestSha256": "54997fb321b9b83e4237e23ad6914e10777f130df35ff9de8b9aae692ee7d97e",
+    "quarantinedV1MemberCount": 2401
+  },
+  "authoritativeAttempt": {
+    "armRequestSha256": "d4f8d21f4ab4aaff48676ff2bf2d89c1ee2f3a64231090b6506e03847e4d7488",
+    "verifyRequestSha256": "d4e274b304493e9e6db5936aa3c61df1a66ea901fd1a7109781df2fc91d9d3ac",
+    "anchorSha256": "b9d361c767aa23cadc3db42138b90a271bf3977354ac6ee98347e32d9643a567",
+    "runId": "70acd85a0202cc85f65e176a995a248f",
+    "runRoot": "/Users/Shared/InterviewCopilot/verification-controller/runs/1ff0881b9bd59f243146c93b6709be57d58ee17a/P01/70acd85a0202cc85f65e176a995a248f",
+    "aggregateExit": 1,
+    "finalReopen": true,
+    "accepted": false,
+    "authoritativeFullSuiteCount": 1
+  },
+  "completeFindingBatch": [
+    {
+      "id": "IC-M00-BR01",
+      "classification": "CANDIDATE_AND_CAPABILITY_CONTRACT_MISMATCH",
+      "summary": "The P01 filesystem-identity validator checks that device, inode, and size are integers but does not compare them with anchored expected values.",
+      "evidence": "The exact-candidate test tests/policy/verificationReporter.test.ts rejects the current behavior in its same-size overwrite, rename, symlink, hardlink, case-collision, and TOCTOU hostile-probe case. Correct isolated diagnostics produced 34 passing and 1 failing unit test; test:p01 produced 25 passing and the same 1 failure.",
+      "impact": "The exact candidate cannot satisfy P01 acceptance."
+    },
+    {
+      "id": "IC-M00-BR02",
+      "classification": "PRIVILEGED_CAPABILITY_AMENDMENT_REQUIRED",
+      "summary": "A candidate-only correction cannot be admitted by A02 because the affected P00-owned reporter is hash-pinned, while A02 native file facts omit size, flags, and timestamp fields required by the frozen P00-R9 descriptor contract.",
+      "evidence": "A provisional isolated comparison fix passed the targeted hostile-probe test and the complete verification-reporter test file, but changing the pinned reporter would correctly make the installed A02 arm operation fail closed.",
+      "impact": "The smallest safe correction must update the reviewed capability contract and its exact approved bytes before another authoritative candidate run."
+    },
+    {
+      "id": "IC-M00-BR03",
+      "classification": "INDEPENDENT_REVIEW_EVIDENCE_UNAVAILABLE",
+      "summary": "The authoritative run evidence is retained root:wheel with mode 0400 and has no sealed principal-bound read-only export path.",
+      "evidence": "The authoritative run created its complete evidence set, but the unprivileged sole controller and independent reviewer cannot read the root-owned evidence. Generic administrator access was not used.",
+      "impact": "A complete independent exact-evidence review cannot be performed under the current A02 interface."
+    }
+  ],
+  "invalidatedEvidence": [
+    "P01 authoritative acceptance for run 70acd85a0202cc85f65e176a995a248f",
+    "Any conclusion that A02 fully implements the frozen P00-R9 descriptor contract",
+    "Any conclusion that the current authoritative evidence can receive an independent complete review"
+  ],
+  "reusableEvidence": [
+    "P00-R9 source packet identity and all unchanged prior evidence",
+    "A02 artifact independent approval at commit 0feae7e04dc65e40894a9664e3358e57c39e0843",
+    "Installed A02 exact root-owned manifest, 2408 of 2408 members",
+    "Quarantined v1 exact observed root-owned manifest, 2401 of 2401 members, with authorization absent",
+    "PR 155 exact head, base, draft/open/mergeable state, and CodeQL success",
+    "A02 exact arm success at the immutable candidate and anchor",
+    "Authoritative run final process-reopen proof",
+    "Corrected isolated diagnostics: policy, lint, typecheck, build, and legacy test passed; one exact hostile-probe defect remained in unit and P01 tests",
+    "Provisional isolated comparison logic passed the targeted hostile-probe test and the complete verification-reporter test file"
+  ],
+  "proposedRecovery": {
+    "scope": "One narrow IC-M00 A03 capability amendment and one candidate remediation at the same P01/PR boundary.",
+    "mutableTargets": [
+      "A03 controller metadata contract and capability self-tests",
+      "sealed principal-bound read-only evidence export or equivalent reviewed evidence-read contract",
+      "P00-owned phase reporter and its exact hostile-probe tests and approved manifest",
+      "P01 candidate on PR 155"
+    ],
+    "prohibitedTargets": [
+      "quarantined v1 capability",
+      "deployment",
+      "signing or notarization",
+      "product scope",
+      "P02 or later milestones",
+      "generic or wildcard administrator authorization"
+    ],
+    "requiredChecks": [
+      "Non-privileged A03 unit, negative, principal, empty-argument, installed-byte, idempotence, rollback, and revocation tests",
+      "Exact candidate targeted hostile-probe and P01 tests",
+      "Exactly one independent HIGH-risk review of immutable A03 and remediation artifacts, with at most one bounded remediation and delta review",
+      "One visible one-shot administrator activation only after independent approval",
+      "Fresh single-use arm and verify requests at the resulting exact candidate",
+      "Exactly one user-authorized final authoritative suite",
+      "Exactly one complete independent exact-candidate and exact-evidence review"
+    ],
+    "cleanupAndRetention": "Revoke A02 authorization before activating A03, retain immutable A02 and failed-run evidence, keep v1 quarantined and unauthorized, and preserve an exact tested A03 revocation path."
+  },
+  "ownership": {
+    "candidateRemediationWorktree": "/Users/thirdfacedev/.codex/worktrees/ic-m00-remediation/TimoCodes",
+    "candidateRemediationWorktreeRevision": "1ff0881b9bd59f243146c93b6709be57d58ee17a",
+    "candidateRemediationWorktreeClean": true,
+    "canonicalUserWorktree": "PRESERVED_DIRTY",
+    "ownershipConflictCount": 1,
+    "ownershipConflict": "An initial diagnostic npm ci ran in the canonical user worktree instead of the isolated checkout and refreshed ignored dependency state. It made no tracked-file change. The dependency tree was not deleted or restored because it is user-owned."
+  },
+  "decision": {
+    "required": true,
+    "question": "Authorize exactly one bounded IC-M00 recovery attempt comprising the narrow A03 amendment, one independently approved visible administrator checkpoint, one candidate remediation, and one final authoritative suite.",
+    "declineEffect": "IC-M00 remains blocked at the unchanged P01 candidate and no privileged or candidate command is run."
+  },
+  "nextSafeAction": "Wait for explicit authorization of this one bounded recovery attempt. Do not create a capability writer or reviewer, start an administrator transaction, mutate the candidate, or rerun the suite before authorization."
+}

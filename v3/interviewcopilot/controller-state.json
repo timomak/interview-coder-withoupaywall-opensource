@@ -37,10 +37,13 @@
     "canonicalRemote": "https://github.com/j4wg/interview-coder-withoupaywall-opensource",
     "baseBranch": "main",
     "baseRevision": "9dcb4b2d39607273a8528a24657cdb4f5bfc3412",
-    "candidateWorktree": "/Users/thirdfacedev/.codex/worktrees/f1f2/TimoCodes",
+    "candidateWorktree": "ABSENT",
     "candidateRevision": "1ff0881b9bd59f243146c93b6709be57d58ee17a",
     "candidateParent": "b2b35d56d8d396591bdc2e6b7b9193bcde947de5",
-    "candidateWorktreeClean": true,
+    "candidateWorktreeClean": null,
+    "remediationWorktree": "/Users/thirdfacedev/.codex/worktrees/ic-m00-remediation/TimoCodes",
+    "remediationWorktreeRevision": "1ff0881b9bd59f243146c93b6709be57d58ee17a",
+    "remediationWorktreeClean": true,
     "pullRequest": {
       "number": 155,
       "url": "https://github.com/j4wg/interview-coder-withoupaywall-opensource/pull/155",
@@ -51,7 +54,7 @@
       "mergeable": true,
       "codeql": "SUCCESS"
     },
-    "canonicalUserWorktree": "PRESERVE_UNCHANGED"
+    "canonicalUserWorktree": "PRESERVED_DIRTY_TRACKED_STATE_UNCHANGED_IGNORED_DEPENDENCY_STATE_REFRESHED"
   },
   "capabilities": {
     "approvedHandoffSha256": "642af58b43219ca542efd7ad621df033a950d78c02d6735e76b07f30d795e83b",
@@ -78,7 +81,7 @@
   "currentMilestone": {
     "id": "IC-M00",
     "title": "Trusted local policy rails",
-    "status": "FROZEN",
+    "status": "WAITING_USER_BOUNDED_RECOVERY",
     "frozenAt": "2026-07-29T09:10:11+02:00",
     "ownedRequirementIds": [
       "P01"
@@ -142,6 +145,25 @@
       "authoritativeComplete": "Run the exact empty-argument A02 verify operation once at the armed immutable P01 candidate and reconcile the complete root-owned run evidence.",
       "independentReview": "One read-only complete finding batch against exact candidate, full diff, P01 requirements, and authoritative evidence.",
       "postMergeSmoke": "Verify protected integration identity, focused P01 policy/gate smoke, and unchanged capability authorization/quarantine state."
+    },
+    "authoritativeAttempt": {
+      "armRequestSha256": "d4f8d21f4ab4aaff48676ff2bf2d89c1ee2f3a64231090b6506e03847e4d7488",
+      "verifyRequestSha256": "d4e274b304493e9e6db5936aa3c61df1a66ea901fd1a7109781df2fc91d9d3ac",
+      "anchorSha256": "b9d361c767aa23cadc3db42138b90a271bf3977354ac6ee98347e32d9643a567",
+      "runId": "70acd85a0202cc85f65e176a995a248f",
+      "runRoot": "/Users/Shared/InterviewCopilot/verification-controller/runs/1ff0881b9bd59f243146c93b6709be57d58ee17a/P01/70acd85a0202cc85f65e176a995a248f",
+      "aggregateExit": 1,
+      "finalReopen": true,
+      "accepted": false
+    },
+    "diagnosis": {
+      "completeFindingIds": [
+        "IC-M00-BR01",
+        "IC-M00-BR02",
+        "IC-M00-BR03"
+      ],
+      "summary": "The exact candidate lacks anchored device/inode/size equality; A02 pins the affected reporter and omits required descriptor fields; root-only 0400 evidence has no independently reviewable export path.",
+      "boundedRecoveryPacket": "v3/interviewcopilot/bounded-recovery-IC-M00-1.json"
     }
   },
   "metrics": {
@@ -164,12 +186,12 @@
     "workPackageCount": 1,
     "maximumConcurrentWriters": 0,
     "candidateRevisionCount": 1,
-    "authoritativeFullSuiteCount": 0,
+    "authoritativeFullSuiteCount": 1,
     "reviewAttemptCount": 0,
-    "acceptedBlockerCount": 0,
+    "acceptedBlockerCount": 1,
     "postIntegrationDefects": 0,
-    "ownershipConflicts": 0,
-    "result": "IN_PROGRESS"
+    "ownershipConflicts": 1,
+    "result": "BLOCKED_USER"
   },
-  "nextSafeAction": "Refresh exact single-use P01 request nonces, run exact A02 arm metadata validation, then execute the one authoritative P01 verification."
+  "nextSafeAction": "Await explicit authorization of bounded-recovery-IC-M00-1.json. Do not create a capability writer or reviewer, start an administrator transaction, mutate the candidate, or rerun the authoritative suite before authorization."
 }
