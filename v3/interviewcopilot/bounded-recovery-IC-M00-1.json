@@ -6,7 +6,7 @@
   "attempt": 1,
   "createdAt": "2026-07-29T09:28:48+02:00",
   "controllerThreadId": "019f9ff6-e24b-7053-a2b3-fe01f8538ab4",
-  "status": "AUTHORIZED_INDEPENDENT_REVIEW",
+  "status": "WAITING_USER_ADMIN_ACTIVATION",
   "immutableState": {
     "sourcePacketRevision": "P00-R9",
     "sourcePacketCommit": "02ee6ddec78d6e4ea9e2de3c0303ffd6bc9f45bf",
@@ -113,15 +113,19 @@
     "declineEffect": "IC-M00 remains blocked at the unchanged P01 candidate and no privileged or candidate command is run."
   },
   "preparedTransaction": {
-    "artifactRevision": "77cd5e2693a634b2aef06613547020dbb6e3a9f4",
+    "artifactRevision": "192baeee0d540d208eec853d40c5f2e99ff0378b",
     "candidateRevision": "2e5045116db6e3c5f6e6cc18b70df6d7fa021baf",
     "controllerSha256": "d7e5b3e0e59629ae151635add38fc544d4bce5e4160eced388c44d51f84b1302",
-    "expectedInstallManifestSha256": "ebc72ef97d6422db7fe12b2fcbf375f57e73c4fbfbf2609c9f54ad343b0e3dc2",
-    "releaseEnvelopeSha256": "3f4a5e6acf2604063a97fb8ef46e0adee4e9ae7ead29d9af95ce533c2f3d873a",
-    "adminHandoffSha256": "d942f091af15f730a8d152c9c92c0b88f222f139f5c0ccda0984d43819298c93",
-    "capabilityTests": "25_PASS_0_FAIL",
+    "expectedInstallManifestSha256": "d94f06f0d6f585ed6ce368cfc933e5ec4fe4c9914621a39ce2544baa97f0ad39",
+    "releaseEnvelopeSha256": "00ea8696be7af50cfadd9035f9d7b44cb9d560b96c1f563c9ded0f6197a1af41",
+    "adminHandoffSha256": "339efedb0dad946efd07fb7af4b91b49f89c8cdacc4712c643f9b9c43e7c4682",
+    "capabilityTests": "26_PASS_0_FAIL",
     "candidateTargetedChecks": "PASS",
-    "privilegedBoundaryCrossed": false
+    "privilegedBoundaryCrossed": false,
+    "completeFindingBatch": "IC-M00-A03-R01",
+    "correctionDisposition": "RESOLVED",
+    "deltaReview": "APPROVE_192baeee0d540d208eec853d40c5f2e99ff0378b",
+    "candidateReview": "APPROVE_2e5045116db6e3c5f6e6cc18b70df6d7fa021baf"
   },
-  "nextSafeAction": "Run one independent HIGH-risk complete finding batch against the exact prepared transaction. Do not activate A03 or invoke sudo."
+  "nextSafeAction": "User runs the exact one-shot command in capabilities/P00-V2-CAP-A03/build/admin-handoff.txt and enters the administrator password once. Do not start a duplicate transaction."
 }

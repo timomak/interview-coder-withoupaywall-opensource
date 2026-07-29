@@ -67,6 +67,16 @@
       "authorization": "PRINCIPAL_BOUND_EMPTY_ARGUMENT_ARM_AND_VERIFY_ONLY",
       "status": "INSTALLED_EXACT_ACTIVE"
     },
+    "a03": {
+      "artifactRevision": "192baeee0d540d208eec853d40c5f2e99ff0378b",
+      "controllerSha256": "d7e5b3e0e59629ae151635add38fc544d4bce5e4160eced388c44d51f84b1302",
+      "expectedManifestSha256": "d94f06f0d6f585ed6ce368cfc933e5ec4fe4c9914621a39ce2544baa97f0ad39",
+      "releaseEnvelopeSha256": "00ea8696be7af50cfadd9035f9d7b44cb9d560b96c1f563c9ded0f6197a1af41",
+      "adminHandoffSha256": "339efedb0dad946efd07fb7af4b91b49f89c8cdacc4712c643f9b9c43e7c4682",
+      "authorization": "PRINCIPAL_BOUND_EMPTY_ARGUMENT_P01_ARM_AND_VERIFY_ONLY",
+      "independentReview": "APPROVED_COMPLETE_BATCH_AND_EXACT_DELTA",
+      "status": "APPROVED_NOT_INSTALLED"
+    },
     "v1": {
       "installedRoot": "/Users/Shared/InterviewCopilot/verification-controller/v1",
       "observedManifestSha256": "54997fb321b9b83e4237e23ad6914e10777f130df35ff9de8b9aae692ee7d97e",
@@ -81,7 +91,7 @@
   "currentMilestone": {
     "id": "IC-M00",
     "title": "Trusted local policy rails",
-    "status": "REVIEWING",
+    "status": "WAITING_USER",
     "frozenAt": "2026-07-29T09:10:11+02:00",
     "ownedRequirementIds": [
       "P01"
@@ -167,15 +177,22 @@
     },
     "boundedRecovery": {
       "authorizedAt": "2026-07-29T11:06:21+02:00",
-      "artifactRevision": "77cd5e2693a634b2aef06613547020dbb6e3a9f4",
+      "artifactRevision": "192baeee0d540d208eec853d40c5f2e99ff0378b",
       "candidateRevision": "2e5045116db6e3c5f6e6cc18b70df6d7fa021baf",
       "controllerSha256": "d7e5b3e0e59629ae151635add38fc544d4bce5e4160eced388c44d51f84b1302",
-      "expectedInstallManifestSha256": "ebc72ef97d6422db7fe12b2fcbf375f57e73c4fbfbf2609c9f54ad343b0e3dc2",
-      "releaseEnvelopeSha256": "3f4a5e6acf2604063a97fb8ef46e0adee4e9ae7ead29d9af95ce533c2f3d873a",
-      "adminHandoffSha256": "d942f091af15f730a8d152c9c92c0b88f222f139f5c0ccda0984d43819298c93",
-      "validation": "CAPABILITY_25_PASS_0_FAIL_CANDIDATE_TARGETED_PASS",
+      "expectedInstallManifestSha256": "d94f06f0d6f585ed6ce368cfc933e5ec4fe4c9914621a39ce2544baa97f0ad39",
+      "releaseEnvelopeSha256": "00ea8696be7af50cfadd9035f9d7b44cb9d560b96c1f563c9ded0f6197a1af41",
+      "adminHandoffSha256": "339efedb0dad946efd07fb7af4b91b49f89c8cdacc4712c643f9b9c43e7c4682",
+      "validation": "CAPABILITY_26_PASS_0_FAIL_CANDIDATE_TARGETED_PASS",
       "privilegedBoundaryCrossed": false,
-      "reviewDisposition": "IN_PROGRESS"
+      "reviewDisposition": "APPROVED",
+      "reviewedAt": "2026-07-29T11:55:15+02:00",
+      "completeFindingBatch": {
+        "finding": "IC-M00-A03-R01",
+        "disposition": "RESOLVED_BY_SINGLE_CONSOLIDATED_CORRECTION"
+      },
+      "deltaReview": "APPROVE_192baeee0d540d208eec853d40c5f2e99ff0378b",
+      "candidateReview": "APPROVE_2e5045116db6e3c5f6e6cc18b70df6d7fa021baf"
     }
   },
   "metrics": {
@@ -199,11 +216,11 @@
     "maximumConcurrentWriters": 0,
     "candidateRevisionCount": 2,
     "authoritativeFullSuiteCount": 1,
-    "reviewAttemptCount": 1,
+    "reviewAttemptCount": 2,
     "acceptedBlockerCount": 1,
     "postIntegrationDefects": 0,
     "ownershipConflicts": 1,
-    "result": "IN_PROGRESS"
+    "result": "BLOCKED_USER"
   },
-  "nextSafeAction": "Run the one independent HIGH-risk complete finding batch against exact artifact 77cd5e2693a634b2aef06613547020dbb6e3a9f4 and candidate 2e5045116db6e3c5f6e6cc18b70df6d7fa021baf. Do not cross the administrator boundary."
+  "nextSafeAction": "User runs the exact independently approved one-shot command in capabilities/P00-V2-CAP-A03/build/admin-handoff.txt and enters the administrator password once. Do not start another transaction."
 }
