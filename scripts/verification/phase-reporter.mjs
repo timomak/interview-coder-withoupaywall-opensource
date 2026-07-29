@@ -348,8 +348,21 @@ export function validateFilesystemIdentity(record) {
     !SHA256_PATTERN.test(record.sha256 ?? "") ||
     record.sha256 !== record.expectedSha256 ||
     !Number.isInteger(record.device) ||
+    record.device !== record.expectedDevice ||
     !Number.isInteger(record.inode) ||
-    !Number.isInteger(record.size)
+    record.inode !== record.expectedInode ||
+    !Number.isInteger(record.size) ||
+    record.size !== record.expectedSize ||
+    !Number.isInteger(record.flags) ||
+    record.flags !== record.expectedFlags ||
+    !Number.isInteger(record.mtimeSeconds) ||
+    record.mtimeSeconds !== record.expectedMtimeSeconds ||
+    !Number.isInteger(record.mtimeNanoseconds) ||
+    record.mtimeNanoseconds !== record.expectedMtimeNanoseconds ||
+    !Number.isInteger(record.ctimeSeconds) ||
+    record.ctimeSeconds !== record.expectedCtimeSeconds ||
+    !Number.isInteger(record.ctimeNanoseconds) ||
+    record.ctimeNanoseconds !== record.expectedCtimeNanoseconds
   ) {
     return ["controller filesystem identity is invalid"]
   }
