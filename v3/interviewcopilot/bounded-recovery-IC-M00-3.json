@@ -1,0 +1,91 @@
+{
+  "schemaVersion": 1,
+  "kind": "bounded-recovery-packet",
+  "projectKey": "InterviewCopilot",
+  "milestoneId": "IC-M00",
+  "attempt": 3,
+  "createdAt": "2026-07-29T22:25:32+02:00",
+  "controllerThreadId": "019f9ff6-e24b-7053-a2b3-fe01f8538ab4",
+  "status": "INDEPENDENT_HIGH_RISK_REVIEW_RESERVED",
+  "authority": {
+    "source": "standing user delegation for one newly reviewed sealed A02-to-A03 recovery transaction",
+    "safePreparationAuthorized": true,
+    "privilegedActivationAuthorizedNow": false,
+    "passwordPromptAuthorizedNow": false
+  },
+  "immutableState": {
+    "sourcePacketRevision": "P00-R9",
+    "sourcePacketCommit": "02ee6ddec78d6e4ea9e2de3c0303ffd6bc9f45bf",
+    "installedA02ControllerSha256": "73eda1532baa3044cf4feb989d2ec58d15304c86c31a298ed3d73a1a75c7494d",
+    "installedA02ManifestSha256": "945ffda713b5e9a02d2472d6f4e9e91340111384a6cdeab40890a5f3b572768b",
+    "installedA02Authorization": "ABSENT",
+    "a03Installed": false,
+    "legacyV1Status": "PAYLOAD_RETAINED_QUARANTINED_DO_NOT_INVOKE",
+    "candidateRevision": "2e5045116db6e3c5f6e6cc18b70df6d7fa021baf",
+    "candidateWorktree": "CLEAN",
+    "pullRequest": "155_OPEN_DRAFT_MERGEABLE_CODEQL_SUCCESS"
+  },
+  "expiredTransaction": {
+    "artifactId": "P00-V2-CAP-A03-RECOVERY-01",
+    "artifactRevision": "bc9e5a7697c9170b0ec517d491021d5989b47825",
+    "handoffSha256": "65aff65e27a18667644361f458a4258e385ceadca2440f1a8af8201b86a12653",
+    "status": "ACTIVATION_FAILED_EXPIRED_DO_NOT_REUSE",
+    "failureEvidence": "v3/interviewcopilot/a03-recovery01-activation-failure-2026-07-29.json",
+    "exactRejectedPath": "/Users/Shared/InterviewCopilot/verification-controller/runs/1ff0881b9bd59f243146c93b6709be57d58ee17a/P01/70acd85a0202cc85f65e176a995a248f/repo/node_modules/vitest/node_modules/.bin/esbuild"
+  },
+  "preparedTransaction": {
+    "artifactId": "P00-V2-CAP-A03-RECOVERY-02",
+    "artifactRevision": "c756647c01622ff1b4101c1b262cb409e850b89e",
+    "artifactPath": "capabilities/P00-V2-CAP-A03-RECOVERY-02",
+    "envelopeSha256": "15ad0eb6fd06102f8ac58094cf3b6e3f2cddd46a2c404641a9f1f728f91187e0",
+    "handoffSha256": "bcf048f5e2bb518233753cb617e22beb3aba54e4c1e3bd0ae4fc7d1d58803bfc",
+    "recoverScriptSha256": "dd76d2fcb12d61c62c06cfdbd8d56351405a749a853ad0ae6cbe49b4e6f61072",
+    "runStateToolSha256": "99cce7d9e8a08092ab23f77bffd971b1d3a1f988b010acf2c3d7403cc716e969",
+    "receiptToolSha256": "185e04d0a4356b6ac701f24fb90161738a96ace38e36c24ffadb0aefad7951ca",
+    "reproducibleBuilds": 2,
+    "recoveryTests": "10_PASS_0_FAIL",
+    "targetA03RevocationTest": "1_PASS_0_FAIL",
+    "privilegedBoundaryCrossed": false,
+    "candidateInvoked": false
+  },
+  "recoveryContract": {
+    "relocateOnly": "/Users/Shared/InterviewCopilot/verification-controller/runs/1ff0881b9bd59f243146c93b6709be57d58ee17a/P01/70acd85a0202cc85f65e176a995a248f/repo/node_modules",
+    "quarantineOnly": "/Users/Shared/InterviewCopilot/verification-controller/quarantine/P00-V2-CAP-A03-RECOVERY-02/1ff0881b9bd59f243146c93b6709be57d58ee17a-P01-70acd85a0202cc85f65e176a995a248f-repo-node_modules",
+    "remainingRunsAudit": "EXACT_A03_VALIDATOR_BEFORE_GLOBAL_AUTHORIZATION",
+    "failureOrder": [
+      "remove transient authorization",
+      "restore exact dependency tree and verify recorded facts",
+      "write sanitized immutable failure receipt",
+      "remove bootstrap stage"
+    ],
+    "successOrder": [
+      "verify exact installed A03 and empty-argument authorization",
+      "retain exact dependency tree in artifact-specific quarantine",
+      "write sanitized immutable success receipt",
+      "remove bootstrap stage"
+    ],
+    "sameArtifactRetry": "PROHIBITED_BY_IMMUTABLE_RECEIPT"
+  },
+  "reviewGate": {
+    "id": "IC-M00-A03R2-G1",
+    "role": "complete_finding_batch",
+    "risk": "HIGH",
+    "reviewer": "/root/p00_v2_cap_a01_high_review",
+    "reviewedRevision": "c756647c01622ff1b4101c1b262cb409e850b89e",
+    "scope": "Exact fresh sealed recovery artifact only: immutable binding, exact-subtree relocation, fact preservation, pre-authorization run audit, authorization ordering, rollback/restoration, receipts, one-shot handoff, and unchanged A03/revocation inputs.",
+    "status": "RESERVED",
+    "correctionBudget": 1,
+    "deltaReviewBudget": 1
+  },
+  "prohibitedTargets": [
+    "expired RECOVERY-01 handoff",
+    "live sudo or administrator prompt before approval",
+    "installed A02 payload before approved activation",
+    "candidate 2e5045116db6e3c5f6e6cc18b70df6d7fa021baf",
+    "PR 155",
+    "legacy v1 capability or authorization",
+    "generic or wildcard sudoers authorization",
+    "P02 or later milestones"
+  ],
+  "nextSafeAction": "Obtain one fresh independent HIGH-risk complete finding batch against exact revision c756647c01622ff1b4101c1b262cb409e850b89e. Do not invoke the handoff."
+}

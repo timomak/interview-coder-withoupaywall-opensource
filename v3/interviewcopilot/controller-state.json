@@ -87,6 +87,16 @@
       "independentReview": "APPROVED_EXACT_DELTA_BC9E5A7",
       "status": "ACTIVATION_FAILED_EXPIRED_DO_NOT_REUSE"
     },
+    "a03Recovery02": {
+      "artifactId": "P00-V2-CAP-A03-RECOVERY-02",
+      "artifactRevision": "c756647c01622ff1b4101c1b262cb409e850b89e",
+      "envelopeSha256": "15ad0eb6fd06102f8ac58094cf3b6e3f2cddd46a2c404641a9f1f728f91187e0",
+      "adminHandoffSha256": "bcf048f5e2bb518233753cb617e22beb3aba54e4c1e3bd0ae4fc7d1d58803bfc",
+      "recoveryTests": "10_PASS_0_FAIL",
+      "targetA03RevocationTest": "1_PASS_0_FAIL",
+      "independentReview": "RESERVED_HIGH_RISK_EXACT_REVISION",
+      "status": "SEALED_NOT_INVOKED_PENDING_INDEPENDENT_REVIEW"
+    },
     "v1": {
       "installedRoot": "/Users/Shared/InterviewCopilot/verification-controller/v1",
       "observedManifestSha256": "54997fb321b9b83e4237e23ad6914e10777f130df35ff9de8b9aae692ee7d97e",
@@ -239,6 +249,18 @@
         "a03": "ABSENT",
         "candidateMutated": false
       }
+    },
+    "freshSealedRecovery": {
+      "packet": "v3/interviewcopilot/bounded-recovery-IC-M00-3.json",
+      "artifactId": "P00-V2-CAP-A03-RECOVERY-02",
+      "artifactRevision": "c756647c01622ff1b4101c1b262cb409e850b89e",
+      "envelopeSha256": "15ad0eb6fd06102f8ac58094cf3b6e3f2cddd46a2c404641a9f1f728f91187e0",
+      "handoffSha256": "bcf048f5e2bb518233753cb617e22beb3aba54e4c1e3bd0ae4fc7d1d58803bfc",
+      "validation": "RECOVERY_10_PASS_A03_REVOCATION_1_PASS_REPRODUCIBLE_2",
+      "reviewer": "/root/p00_v2_cap_a01_high_review",
+      "reviewStatus": "RESERVED",
+      "privilegedBoundaryCrossed": false,
+      "candidateInvoked": false
     }
   },
   "metrics": {
@@ -266,7 +288,7 @@
     "acceptedBlockerCount": 2,
     "postIntegrationDefects": 0,
     "ownershipConflicts": 1,
-    "result": "IN_PROGRESS_FRESH_SEALED_RECOVERY_PREPARATION"
+    "result": "IN_PROGRESS_FRESH_RECOVERY_HIGH_RISK_REVIEW_RESERVED"
   },
-  "nextSafeAction": "Prepare and independently review a fresh sealed run-state relocation plus A03 activation artifact. Do not invoke the expired RECOVERY-01 handoff, sudo, A02, A03, v1, or the candidate."
+  "nextSafeAction": "Complete one independent HIGH-risk review of P00-V2-CAP-A03-RECOVERY-02 at c756647c01622ff1b4101c1b262cb409e850b89e. Do not invoke either recovery handoff, sudo, A02, A03, v1, or the candidate."
 }
