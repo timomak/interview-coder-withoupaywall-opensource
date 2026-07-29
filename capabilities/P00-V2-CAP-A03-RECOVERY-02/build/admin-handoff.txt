@@ -1,0 +1,88 @@
+/usr/bin/sudo /bin/zsh -c 'set -euo pipefail
+umask 077
+source_root=/Users/thirdfacedev/.codex/orchestration/TimoCodes-ledger/capabilities/P00-V2-CAP-A03-RECOVERY-02
+stage=/Users/Shared/InterviewCopilot/verification-controller-bootstrap/15ad0eb6fd06102f8ac58094cf3b6e3f2cddd46a2c404641a9f1f728f91187e0
+[[ ! -e "$stage" ]]
+[[ ! -e /Users/Shared/InterviewCopilot/verification-controller/recovery-receipts/P00-V2-CAP-A03-RECOVERY-02.json ]]
+[[ ! -e /Users/Shared/InterviewCopilot/verification-controller/quarantine/P00-V2-CAP-A03-RECOVERY-02 ]]
+[[ ! -e "/etc/sudoers.d/interviewcopilot-verification-controller" ]]
+stage_created=0
+cleanup() {
+  result=$?
+  trap - EXIT
+  if (( stage_created == 1 )); then
+    /bin/chmod -R u+w "$stage" 2>/dev/null || true
+    /bin/rm -rf "$stage"
+  fi
+  exit "$result"
+}
+trap cleanup EXIT
+/bin/mkdir -p "$stage"
+stage_created=1
+/bin/mkdir -p "$stage/source"
+/usr/bin/install -m 0444 "$source_root/source/recover.sh" "$stage/source/recover.sh"
+/bin/mkdir -p "$stage/tools"
+/usr/bin/install -m 0444 "$source_root/tools/admin_handoff.py" "$stage/tools/admin_handoff.py"
+/bin/mkdir -p "$stage/tools"
+/usr/bin/install -m 0444 "$source_root/tools/envelope.py" "$stage/tools/envelope.py"
+/bin/mkdir -p "$stage/tools"
+/usr/bin/install -m 0444 "$source_root/tools/receipt.py" "$stage/tools/receipt.py"
+/bin/mkdir -p "$stage/tools"
+/usr/bin/install -m 0444 "$source_root/tools/run_state.py" "$stage/tools/run_state.py"
+/bin/mkdir -p "$stage/vendor/a02/build"
+/usr/bin/install -m 0444 "$source_root/vendor/a02/build/expected-install-manifest.json" "$stage/vendor/a02/build/expected-install-manifest.json"
+/bin/mkdir -p "$stage/vendor/a02/build"
+/usr/bin/install -m 0444 "$source_root/vendor/a02/build/legacy-v1-observed-manifest.json" "$stage/vendor/a02/build/legacy-v1-observed-manifest.json"
+/bin/mkdir -p "$stage/vendor/a02/build"
+/usr/bin/install -m 0444 "$source_root/vendor/a02/build/release-envelope.json" "$stage/vendor/a02/build/release-envelope.json"
+/bin/mkdir -p "$stage/vendor/a02/config"
+/usr/bin/install -m 0444 "$source_root/vendor/a02/config/sudoers" "$stage/vendor/a02/config/sudoers"
+/bin/mkdir -p "$stage/vendor/a03/build"
+/usr/bin/install -m 0444 "$source_root/vendor/a03/build/Controller.swift" "$stage/vendor/a03/build/Controller.swift"
+/bin/mkdir -p "$stage/vendor/a03/build"
+/usr/bin/install -m 0444 "$source_root/vendor/a03/build/controller" "$stage/vendor/a03/build/controller"
+/bin/mkdir -p "$stage/vendor/a03/build"
+/usr/bin/install -m 0444 "$source_root/vendor/a03/build/expected-install-manifest.json" "$stage/vendor/a03/build/expected-install-manifest.json"
+/bin/mkdir -p "$stage/vendor/a03/build"
+/usr/bin/install -m 0444 "$source_root/vendor/a03/build/legacy-v1-observed-manifest.json" "$stage/vendor/a03/build/legacy-v1-observed-manifest.json"
+/bin/mkdir -p "$stage/vendor/a03/build"
+/usr/bin/install -m 0444 "$source_root/vendor/a03/build/native-self-test.json" "$stage/vendor/a03/build/native-self-test.json"
+/bin/mkdir -p "$stage/vendor/a03/build"
+/usr/bin/install -m 0444 "$source_root/vendor/a03/build/payload.tar.gz" "$stage/vendor/a03/build/payload.tar.gz"
+/bin/mkdir -p "$stage/vendor/a03/build"
+/usr/bin/install -m 0444 "$source_root/vendor/a03/build/release-envelope.json" "$stage/vendor/a03/build/release-envelope.json"
+/bin/mkdir -p "$stage/vendor/a03/config"
+/usr/bin/install -m 0444 "$source_root/vendor/a03/config/capability-registry.json" "$stage/vendor/a03/config/capability-registry.json"
+/bin/mkdir -p "$stage/vendor/a03/config"
+/usr/bin/install -m 0444 "$source_root/vendor/a03/config/request-schema.json" "$stage/vendor/a03/config/request-schema.json"
+/bin/mkdir -p "$stage/vendor/a03/config"
+/usr/bin/install -m 0444 "$source_root/vendor/a03/config/sudoers" "$stage/vendor/a03/config/sudoers"
+/bin/mkdir -p "$stage/vendor/a03/source"
+/usr/bin/install -m 0444 "$source_root/vendor/a03/source/install.sh" "$stage/vendor/a03/source/install.sh"
+/bin/mkdir -p "$stage/vendor/a03/source"
+/usr/bin/install -m 0444 "$source_root/vendor/a03/source/revoke.sh" "$stage/vendor/a03/source/revoke.sh"
+/bin/mkdir -p "$stage/vendor/a03/tools"
+/usr/bin/install -m 0444 "$source_root/vendor/a03/tools/envelope.py" "$stage/vendor/a03/tools/envelope.py"
+/bin/mkdir -p "$stage/vendor/a03/tools"
+/usr/bin/install -m 0444 "$source_root/vendor/a03/tools/manifest.py" "$stage/vendor/a03/tools/manifest.py"
+/bin/mkdir -p "$stage/vendor/a03/tools"
+/usr/bin/install -m 0444 "$source_root/vendor/a03/tools/upgrade_state.py" "$stage/vendor/a03/tools/upgrade_state.py"
+/bin/mkdir -p "$stage/vendor/a03/tools"
+/usr/bin/install -m 0444 "$source_root/vendor/a03/tools/write-request.py" "$stage/vendor/a03/tools/write-request.py"
+/bin/mkdir -p "$stage/build"
+/usr/bin/install -m 0444 "$source_root/build/release-envelope.json" "$stage/build/release-envelope.json"
+/bin/chmod 0555 "$stage/source/recover.sh"
+/usr/sbin/chown -R root:wheel "$stage"
+/usr/bin/xattr -cr "$stage"
+[[ "$(/usr/bin/shasum -a 256 "$stage/source/recover.sh" | /usr/bin/awk '"'"'{print $1}'"'"')" == "dd76d2fcb12d61c62c06cfdbd8d56351405a749a853ad0ae6cbe49b4e6f61072" ]]
+[[ "$(/usr/bin/shasum -a 256 "$stage/tools/envelope.py" | /usr/bin/awk '"'"'{print $1}'"'"')" == "fc9cdaedc88c67f0d1d228a07d8575f63216ff4500e72a0b72c751905adc5e8d" ]]
+[[ "$(/usr/bin/shasum -a 256 "$stage/tools/run_state.py" | /usr/bin/awk '"'"'{print $1}'"'"')" == "99cce7d9e8a08092ab23f77bffd971b1d3a1f988b010acf2c3d7403cc716e969" ]]
+[[ "$(/usr/bin/shasum -a 256 "$stage/tools/receipt.py" | /usr/bin/awk '"'"'{print $1}'"'"')" == "185e04d0a4356b6ac701f24fb90161738a96ace38e36c24ffadb0aefad7951ca" ]]
+[[ "$(/usr/bin/shasum -a 256 "$stage/vendor/a02/config/sudoers" | /usr/bin/awk '"'"'{print $1}'"'"')" == "7fe7480026d425056231200a518c26c0e40b79ef59c130d6924d5af30e23170b" ]]
+[[ "$(/usr/bin/shasum -a 256 "$stage/vendor/a03/source/install.sh" | /usr/bin/awk '"'"'{print $1}'"'"')" == "277c4aa63e76653cc223ba64c45b2e2424272b89648cb520336ce07835895a1b" ]]
+[[ "$(/usr/bin/shasum -a 256 "$stage/vendor/a03/build/release-envelope.json" | /usr/bin/awk '"'"'{print $1}'"'"')" == "00ea8696be7af50cfadd9035f9d7b44cb9d560b96c1f563c9ded0f6197a1af41" ]]
+[[ "$(/usr/bin/shasum -a 256 "$stage/build/release-envelope.json" | /usr/bin/awk '"'"'{print $1}'"'"')" == "15ad0eb6fd06102f8ac58094cf3b6e3f2cddd46a2c404641a9f1f728f91187e0" ]]
+/usr/bin/python3 "$stage/tools/envelope.py" verify "$stage" "$stage/build/release-envelope.json"
+stage_created=0
+trap - EXIT
+exec "$stage/source/recover.sh" "$stage" "15ad0eb6fd06102f8ac58094cf3b6e3f2cddd46a2c404641a9f1f728f91187e0"'

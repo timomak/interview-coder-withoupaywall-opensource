@@ -1,0 +1,82 @@
+{
+  "schemaVersion": 1,
+  "artifactId": "P00-V2-CAP-A03-RECOVERY-02",
+  "generatedAt": "2026-07-29T20:24:11Z",
+  "result": "PASS_PENDING_INDEPENDENT_REVIEW",
+  "candidateRevision": "2e5045116db6e3c5f6e6cc18b70df6d7fa021baf",
+  "approvedPacketRevision": "02ee6ddec78d6e4ea9e2de3c0303ffd6bc9f45bf",
+  "predecessor": {
+    "capability": "P00-V2-CAP-A02",
+    "authorization": "ABSENT",
+    "manifestSha256": "945ffda713b5e9a02d2472d6f4e9e91340111384a6cdeab40890a5f3b572768b",
+    "sudoersSha256": "7fe7480026d425056231200a518c26c0e40b79ef59c130d6924d5af30e23170b"
+  },
+  "target": {
+    "capability": "P00-V2-CAP-A03",
+    "envelopeSha256": "00ea8696be7af50cfadd9035f9d7b44cb9d560b96c1f563c9ded0f6197a1af41",
+    "manifestSha256": "d94f06f0d6f585ed6ce368cfc933e5ec4fe4c9914621a39ce2544baa97f0ad39"
+  },
+  "artifact": {
+    "envelopeSha256": "15ad0eb6fd06102f8ac58094cf3b6e3f2cddd46a2c404641a9f1f728f91187e0",
+    "handoffSha256": "bcf048f5e2bb518233753cb617e22beb3aba54e4c1e3bd0ae4fc7d1d58803bfc",
+    "recoverSha256": "dd76d2fcb12d61c62c06cfdbd8d56351405a749a853ad0ae6cbe49b4e6f61072",
+    "runStateSha256": "99cce7d9e8a08092ab23f77bffd971b1d3a1f988b010acf2c3d7403cc716e969",
+    "receiptSha256": "185e04d0a4356b6ac701f24fb90161738a96ace38e36c24ffadb0aefad7951ca",
+    "envelopeToolSha256": "fc9cdaedc88c67f0d1d228a07d8575f63216ff4500e72a0b72c751905adc5e8d",
+    "handoffToolSha256": "b1acfc6e13a12315d5d7baedd8a69800bad8bf7326e28e9a9062c351c5131abb"
+  },
+  "validation": [
+    {
+      "name": "fresh recovery disposable-root suite",
+      "result": "PASS",
+      "cases": 10,
+      "elapsedSeconds": 809.172,
+      "coverage": [
+        "closed envelope and single bounded sudo handoff",
+        "exact A02 predecessor admission",
+        "atomic exact-subtree relocation and fact preservation",
+        "pre-authorization remaining-run audit",
+        "success retention in artifact-specific quarantine",
+        "failure restoration before and after authorization",
+        "A03 child rollback followed by outer restoration",
+        "immutable success and failure receipts",
+        "same-artifact retry rejection",
+        "tampered predecessor and metadata rejection"
+      ]
+    },
+    {
+      "name": "exact A03 revoke cleanup and idempotence",
+      "result": "PASS",
+      "cases": 1,
+      "elapsedSeconds": 145.505
+    },
+    {
+      "name": "reproducible build",
+      "result": "PASS",
+      "runs": 2,
+      "identicalEnvelopeSha256": "15ad0eb6fd06102f8ac58094cf3b6e3f2cddd46a2c404641a9f1f728f91187e0",
+      "identicalHandoffSha256": "bcf048f5e2bb518233753cb617e22beb3aba54e4c1e3bd0ae4fc7d1d58803bfc"
+    },
+    {
+      "name": "shell and Python syntax",
+      "result": "PASS"
+    }
+  ],
+  "liveEffects": {
+    "sudoInvoked": false,
+    "privilegedHelperInvoked": false,
+    "candidateInvoked": false,
+    "authorizationChanged": false,
+    "installedCapabilityChanged": false
+  },
+  "history": {
+    "expiredArtifact": "P00-V2-CAP-A03-RECOVERY-01",
+    "expiredArtifactReused": false,
+    "initialRecovery02TestBatch": {
+      "result": "FAIL_CLOSED",
+      "cause": "macOS system Python lacks os.listxattr and the first subprocess fallback did not request hex output",
+      "authorizationLeftPresent": false
+    },
+    "correction": "Use explicit /usr/bin/xattr non-following hex output for sanitized member-fact hashes."
+  }
+}

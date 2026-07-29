@@ -1,0 +1,94 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://timofey.dev/schemas/interviewcopilot-capability-request-v1.json",
+  "oneOf": [
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "operation",
+        "projectKey",
+        "phase",
+        "role",
+        "approvedPacketSha",
+        "prNumber",
+        "expectedHead",
+        "nonce"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "const": 1
+        },
+        "operation": {
+          "const": "arm"
+        },
+        "projectKey": {
+          "const": "InterviewCopilot"
+        },
+        "phase": {
+          "enum": [
+            "P01"
+          ]
+        },
+        "role": {
+          "const": "local"
+        },
+        "approvedPacketSha": {
+          "const": "02ee6ddec78d6e4ea9e2de3c0303ffd6bc9f45bf"
+        },
+        "prNumber": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "expectedHead": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{40}$"
+        },
+        "nonce": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{32}$"
+        }
+      }
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "operation",
+        "projectKey",
+        "phase",
+        "role",
+        "approvedPacketSha",
+        "nonce"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "const": 1
+        },
+        "operation": {
+          "const": "verify"
+        },
+        "projectKey": {
+          "const": "InterviewCopilot"
+        },
+        "phase": {
+          "enum": [
+            "P01"
+          ]
+        },
+        "role": {
+          "const": "local"
+        },
+        "approvedPacketSha": {
+          "const": "02ee6ddec78d6e4ea9e2de3c0303ffd6bc9f45bf"
+        },
+        "nonce": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{32}$"
+        }
+      }
+    }
+  ]
+}
