@@ -85,7 +85,7 @@
       "recoveryTests": "8_PASS_0_FAIL",
       "targetA03Tests": "26_PASS_0_FAIL",
       "independentReview": "APPROVED_EXACT_DELTA_BC9E5A7",
-      "status": "APPROVED_READY_FOR_ADMIN_ACTIVATION"
+      "status": "ACTIVATION_FAILED_EXPIRED_DO_NOT_REUSE"
     },
     "v1": {
       "installedRoot": "/Users/Shared/InterviewCopilot/verification-controller/v1",
@@ -101,7 +101,7 @@
   "currentMilestone": {
     "id": "IC-M00",
     "title": "Trusted local policy rails",
-    "status": "WAITING_USER",
+    "status": "IMPLEMENTING",
     "frozenAt": "2026-07-29T09:10:11+02:00",
     "ownedRequirementIds": [
       "P01"
@@ -228,6 +228,17 @@
       "reviewedAt": "2026-07-29T15:25:50+02:00",
       "privilegedBoundaryCrossed": false,
       "candidateInvoked": false
+      ,
+      "activationFailure": {
+        "capturedAt": "2026-07-29T21:40:27+02:00",
+        "evidencePath": "v3/interviewcopilot/a03-recovery01-activation-failure-2026-07-29.json",
+        "classification": "PRESERVED_HISTORICAL_RUN_DEPENDENCY_SYMLINK_BLOCKS_A03_NORMALIZATION",
+        "handoffExpired": true,
+        "installedA02Payload": "EXACT",
+        "authorization": "ABSENT",
+        "a03": "ABSENT",
+        "candidateMutated": false
+      }
     }
   },
   "metrics": {
@@ -255,7 +266,7 @@
     "acceptedBlockerCount": 2,
     "postIntegrationDefects": 0,
     "ownershipConflicts": 1,
-    "result": "WAITING_USER_ADMIN_ACTIVATION"
+    "result": "IN_PROGRESS_FRESH_SEALED_RECOVERY_PREPARATION"
   },
-  "nextSafeAction": "Open exactly one visible Terminal transaction from capabilities/P00-V2-CAP-A03-RECOVERY-01/build/admin-handoff.txt at SHA-256 65aff65e27a18667644361f458a4258e385ceadca2440f1a8af8201b86a12653 and wait for the user password. Do not invoke the stale A03 handoff."
+  "nextSafeAction": "Prepare and independently review a fresh sealed run-state relocation plus A03 activation artifact. Do not invoke the expired RECOVERY-01 handoff, sudo, A02, A03, v1, or the candidate."
 }

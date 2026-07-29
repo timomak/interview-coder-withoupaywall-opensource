@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "kind": "privileged-capability-activation-failure",
+  "projectKey": "InterviewCopilot",
+  "milestoneId": "IC-M00",
+  "capturedAt": "2026-07-29T21:40:27+02:00",
+  "controllerThreadId": "019f9ff6-e24b-7053-a2b3-fe01f8538ab4",
+  "transaction": {
+    "artifactId": "P00-V2-CAP-A03-RECOVERY-01",
+    "artifactRevision": "bc9e5a7697c9170b0ec517d491021d5989b47825",
+    "envelopeSha256": "ee32326c6df03c9f67d05292929e1fb17290eee9122242f3536d7f3046a1ea41",
+    "handoffSha256": "65aff65e27a18667644361f458a4258e385ceadca2440f1a8af8201b86a12653",
+    "independentReview": "APPROVED_EXACT_DELTA",
+    "processExited": true
+  },
+  "terminalEvidence": {
+    "privateAdmissionRule": "PARSED_OK",
+    "globalAuthorizationRule": "PARSED_OK",
+    "targetA03Rule": "PARSED_OK",
+    "failure": "run state has link or special member",
+    "exactRejectedPath": "/Users/Shared/InterviewCopilot/verification-controller/runs/1ff0881b9bd59f243146c93b6709be57d58ee17a/P01/70acd85a0202cc85f65e176a995a248f/repo/node_modules/vitest/node_modules/.bin/esbuild",
+    "rollbackMessage": "installation rolled back; legacy wildcard authorization remains removed"
+  },
+  "observedStateAfterExit": {
+    "activeTransactionProcesses": 0,
+    "bootstrapStage": "ABSENT",
+    "installedControllerSha256": "73eda1532baa3044cf4feb989d2ec58d15304c86c31a298ed3d73a1a75c7494d",
+    "installedCapabilityIdentity": "P00-V2-CAP-A02_PAYLOAD_EXACT",
+    "authorization": "ABSENT",
+    "a03": "ABSENT",
+    "candidateRevision": "2e5045116db6e3c5f6e6cc18b70df6d7fa021baf",
+    "candidateWorktree": "CLEAN",
+    "pullRequest": "155_OPEN_DRAFT_MERGEABLE_CODEQL_SUCCESS"
+  },
+  "diagnosis": {
+    "classification": "PRESERVED_HISTORICAL_RUN_DEPENDENCY_SYMLINK_BLOCKS_A03_NORMALIZATION",
+    "impact": "The exact A03 installer refuses to normalize the preserved failed-run tree while ignored node_modules symlinks remain inside runs.",
+    "candidateImpact": "None. No candidate command was invoked and PR 155 remains unchanged.",
+    "expiredHandoff": true
+  },
+  "nextSafeAction": "Prepare and independently review a fresh sealed transaction that atomically relocates only the exact known historical failed-run repo/node_modules subtree to immutable quarantine before A03 normalization, restores it on any failure, retains it on success, and emits a sanitized durable receipt. Do not invoke the expired handoff or restore authorization ad hoc."
+}

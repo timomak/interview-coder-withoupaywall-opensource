@@ -7,7 +7,7 @@
   "createdAt": "2026-07-29T14:58:47+02:00",
   "authorizedAt": "2026-07-29T14:21:00+02:00",
   "controllerThreadId": "019f9ff6-e24b-7053-a2b3-fe01f8538ab4",
-  "status": "WAITING_USER_ADMIN_ACTIVATION",
+  "status": "ACTIVATION_FAILED_EXPIRED",
   "failedTransaction": {
     "evidencePath": "v3/interviewcopilot/a03-activation-failure-2026-07-29.json",
     "evidenceCommit": "1a16ca796e3cab2cf7b77cdbbcf8dec8651a9143",
@@ -107,7 +107,19 @@
     "activationSafe": true,
     "remainingScopedBlockers": []
   },
+  "activationFailure": {
+    "capturedAt": "2026-07-29T21:40:27+02:00",
+    "evidencePath": "v3/interviewcopilot/a03-recovery01-activation-failure-2026-07-29.json",
+    "classification": "PRESERVED_HISTORICAL_RUN_DEPENDENCY_SYMLINK_BLOCKS_A03_NORMALIZATION",
+    "exactRejectedPath": "/Users/Shared/InterviewCopilot/verification-controller/runs/1ff0881b9bd59f243146c93b6709be57d58ee17a/P01/70acd85a0202cc85f65e176a995a248f/repo/node_modules/vitest/node_modules/.bin/esbuild",
+    "installedA02Payload": "EXACT",
+    "authorization": "ABSENT",
+    "a03": "ABSENT",
+    "bootstrapStage": "ABSENT",
+    "candidateMutated": false,
+    "handoffExpired": true
+  },
   "authoritativeComplete": "After independent approval and one visible password checkpoint, install exact A03, create fresh exact P01 arm and verify requests, and run the one remaining authoritative P01 suite.",
   "terminalCondition": "One material accepted failure remains after the single consolidated correction and exact delta review, or the visible administrator action fails after the approved recovery transaction.",
-  "nextSafeAction": "Open exactly one visible Terminal transaction from capabilities/P00-V2-CAP-A03-RECOVERY-01/build/admin-handoff.txt at SHA-256 65aff65e27a18667644361f458a4258e385ceadca2440f1a8af8201b86a12653 and wait for the user password. Do not invoke the stale A03 handoff."
+  "nextSafeAction": "Do not invoke the expired RECOVERY-01 handoff. Prepare and independently review a fresh sealed transaction that relocates the exact failed-run repo/node_modules subtree to quarantine with failure restoration and durable sanitized receipts."
 }
