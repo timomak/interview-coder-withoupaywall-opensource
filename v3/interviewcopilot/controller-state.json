@@ -1,0 +1,175 @@
+{
+  "schemaVersion": 3,
+  "kind": "long-horizon-controller-state",
+  "projectKey": "InterviewCopilot",
+  "controllerThreadId": "019f9ff6-e24b-7053-a2b3-fe01f8538ab4",
+  "adoptedAt": "2026-07-29T09:10:11+02:00",
+  "adoption": {
+    "transitionManifestPath": "/Users/thirdfacedev/Documents/Codex/2026-07-28/long-horizon-supervisor/outputs/v3-transition-manifests/interviewcopilot-transition.json",
+    "transitionManifestSha256": "9323fc2185284a445356c329e6aca965311f5cd5563ee2e4339e347df575e407",
+    "milestoneMapPath": "/Users/thirdfacedev/Documents/Codex/2026-07-28/long-horizon-supervisor/outputs/v3-maps/interviewcopilot-milestone-map.json",
+    "milestoneMapSha256": "f19223b0f4562578ee0f5e2a283c14b69d7e98023ff3f0dd96df050d9952ffc1",
+    "validatorResult": "VALID_0_ERRORS_0_WARNINGS",
+    "planningReview": {
+      "disposition": "ONE_CORRECTION_BATCH_APPLIED_AND_FROZEN",
+      "reviewedTransitionSha256": "c312225fd113a05937bafe0a3bb0af8119794893155626283120acb775f38707",
+      "reviewedMilestoneMapSha256": "d16f34927d4c5d396274e52980bfbe4d176e9423256ac115a884bcab59fe3933",
+      "correctionScope": [
+        "completed A02 current state",
+        "intra-milestone dependency and mutable-target safety",
+        "explicit source deferrals",
+        "genuine provider/session/visual/context/prompt high-risk gates"
+      ],
+      "additionalPlanningReviewAllowed": false
+    }
+  },
+  "legacyState": {
+    "ledgerPath": "/Users/thirdfacedev/.codex/orchestration/TimoCodes-ledger/ledger.json",
+    "ledgerSha256": "66c411a5a45ad0e4e303c20b9240ad999e9ef28ab5e8520be909d0b68d4e5f8c",
+    "ledgerGitCommit": "4b7407a6b90ff226c4dcafeca10977eeeadedd73",
+    "mutationProhibited": true,
+    "sourcePacketRevision": "P00-R9",
+    "sourcePacketCommit": "02ee6ddec78d6e4ea9e2de3c0303ffd6bc9f45bf",
+    "sourcePlanSha256": "da307d1d8bab4d4114a5c93eef3a43f8674d4814ef485108e40e05a5ff8e3671"
+  },
+  "repositoryState": {
+    "repository": "/Users/thirdfacedev/Development/TimoCodes",
+    "canonicalRemote": "https://github.com/j4wg/interview-coder-withoupaywall-opensource",
+    "baseBranch": "main",
+    "baseRevision": "9dcb4b2d39607273a8528a24657cdb4f5bfc3412",
+    "candidateWorktree": "/Users/thirdfacedev/.codex/worktrees/f1f2/TimoCodes",
+    "candidateRevision": "1ff0881b9bd59f243146c93b6709be57d58ee17a",
+    "candidateParent": "b2b35d56d8d396591bdc2e6b7b9193bcde947de5",
+    "candidateWorktreeClean": true,
+    "pullRequest": {
+      "number": 155,
+      "url": "https://github.com/j4wg/interview-coder-withoupaywall-opensource/pull/155",
+      "state": "OPEN",
+      "draft": true,
+      "headRevision": "1ff0881b9bd59f243146c93b6709be57d58ee17a",
+      "baseRevision": "9dcb4b2d39607273a8528a24657cdb4f5bfc3412",
+      "mergeable": true,
+      "codeql": "SUCCESS"
+    },
+    "canonicalUserWorktree": "PRESERVE_UNCHANGED"
+  },
+  "capabilities": {
+    "approvedHandoffSha256": "642af58b43219ca542efd7ad621df033a950d78c02d6735e76b07f30d795e83b",
+    "a02": {
+      "artifactCommit": "0feae7e04dc65e40894a9664e3358e57c39e0843",
+      "installedRoot": "/Users/Shared/InterviewCopilot/verification-controller/v2",
+      "expectedManifestSha256": "945ffda713b5e9a02d2472d6f4e9e91340111384a6cdeab40890a5f3b572768b",
+      "memberCount": 2408,
+      "manifestResult": "PASS_ROOT_OWNED_EXACT",
+      "authorization": "PRINCIPAL_BOUND_EMPTY_ARGUMENT_ARM_AND_VERIFY_ONLY",
+      "status": "INSTALLED_EXACT_ACTIVE"
+    },
+    "v1": {
+      "installedRoot": "/Users/Shared/InterviewCopilot/verification-controller/v1",
+      "observedManifestSha256": "54997fb321b9b83e4237e23ad6914e10777f130df35ff9de8b9aae692ee7d97e",
+      "memberCount": 2401,
+      "manifestResult": "PASS_ROOT_OWNED_EXACT",
+      "authorization": "ABSENT",
+      "status": "PAYLOAD_RETAINED_QUARANTINED_DO_NOT_INVOKE"
+    },
+    "bootstrapStage": "ABSENT",
+    "retentionContract": "Retain exact A02 empty-argument verification authorization through the remaining accepted milestones; preflight exact installed bytes before each use; never invoke v1; revoke A02 authorization first and retain immutable evidence at final completion or earlier safety failure."
+  },
+  "currentMilestone": {
+    "id": "IC-M00",
+    "title": "Trusted local policy rails",
+    "status": "FROZEN",
+    "frozenAt": "2026-07-29T09:10:11+02:00",
+    "ownedRequirementIds": [
+      "P01"
+    ],
+    "riskBoundaryIds": [
+      "IC-RISK-PRIVILEGE"
+    ],
+    "baseRevision": "9dcb4b2d39607273a8528a24657cdb4f5bfc3412",
+    "candidateRevision": "1ff0881b9bd59f243146c93b6709be57d58ee17a",
+    "mutableTargets": [
+      "verification-capability",
+      "policy-rails",
+      "PR-155"
+    ],
+    "workPackages": [
+      {
+        "id": "IC-M00-W1",
+        "title": "Close P01 capability and candidate verification",
+        "mutableTargets": [
+          "verification-capability",
+          "policy-rails",
+          "PR-155"
+        ],
+        "dependencies": []
+      }
+    ],
+    "behaviorExpectations": [
+      "A02 validates its root-only metadata and complete installed bytes before admitting P01.",
+      "P01 verification executes only the exact immutable candidate and approved P01 plan.",
+      "All package gates continue after an individual failure and aggregate exactly.",
+      "Candidate mutation, process survival, PR-head drift, or evidence-integrity drift fails closed.",
+      "Legacy v1 remains present only as quarantined evidence and is never authorized or invoked."
+    ],
+    "compatibilityExpectations": [
+      "PR 155 remains based on 9dcb4b2d39607273a8528a24657cdb4f5bfc3412.",
+      "The canonical user worktree and all uncommitted user changes remain untouched.",
+      "All accepted P00-R9 P01 evidence remains reusable when bound to immutable revisions."
+    ],
+    "failureExpectations": [
+      "Any installed-byte, metadata, request, candidate, plan, process, or final-reopen disagreement returns nonzero and produces no accepted success.",
+      "No failed verification is integrated.",
+      "No new administrator transaction or broader privileged authorization is created."
+    ],
+    "rollback": "Remove A02 authorization first, retain anchors/runs/receipts/metadata and the unchanged P01 candidate, and keep v1 quarantined.",
+    "acceptance": [
+      "Fresh single-use arm and verify requests bind P01, P00-R9, PR 155, and exact candidate 1ff0881b9bd59f243146c93b6709be57d58ee17a.",
+      "Exact A02 arm succeeds and thereby validates protected A02 metadata plus installed bytes.",
+      "One authoritative P01 complete suite succeeds with aggregate exit zero and exact immutable evidence.",
+      "One independent complete P01 review batch approves the same exact candidate and evidence, or one bounded remediation plus delta review resolves its complete finding batch.",
+      "PR 155 integrates through the protected workflow at the approved revision.",
+      "Focused post-merge verification passes and A02 retention is recorded explicitly."
+    ],
+    "verification": {
+      "reusedEvidence": [
+        "A02 artifact independent approval: 25/25 at 0feae7e04dc65e40894a9664e3358e57c39e0843",
+        "Installed A02 manifest: 2408/2408 exact",
+        "Quarantined v1 observed manifest: 2401/2401 exact",
+        "PR 155 CodeQL success at 1ff0881b9bd59f243146c93b6709be57d58ee17a"
+      ],
+      "targetedPreflight": "Refresh the UID-501 arm and verify nonces without changing phase, packet, PR, or candidate; run the exact empty-argument A02 arm operation once.",
+      "authoritativeComplete": "Run the exact empty-argument A02 verify operation once at the armed immutable P01 candidate and reconcile the complete root-owned run evidence.",
+      "independentReview": "One read-only complete finding batch against exact candidate, full diff, P01 requirements, and authoritative evidence.",
+      "postMergeSmoke": "Verify protected integration identity, focused P01 policy/gate smoke, and unchanged capability authorization/quarantine state."
+    }
+  },
+  "metrics": {
+    "projectKey": "InterviewCopilot",
+    "milestoneId": "IC-M00",
+    "startedAt": "2026-07-29T09:10:11+02:00",
+    "completedAt": null,
+    "activeMinutes": {
+      "implementation": 0,
+      "orchestration": 0,
+      "verification": 0,
+      "review": 0
+    },
+    "waitMinutes": {
+      "user": 722.733,
+      "external": 0,
+      "capacity": 0
+    },
+    "requirementsCompleted": [],
+    "workPackageCount": 1,
+    "maximumConcurrentWriters": 0,
+    "candidateRevisionCount": 1,
+    "authoritativeFullSuiteCount": 0,
+    "reviewAttemptCount": 0,
+    "acceptedBlockerCount": 0,
+    "postIntegrationDefects": 0,
+    "ownershipConflicts": 0,
+    "result": "IN_PROGRESS"
+  },
+  "nextSafeAction": "Refresh exact single-use P01 request nonces, run exact A02 arm metadata validation, then execute the one authoritative P01 verification."
+}
