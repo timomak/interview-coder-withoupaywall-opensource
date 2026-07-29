@@ -38,18 +38,18 @@
     "baseBranch": "main",
     "baseRevision": "9dcb4b2d39607273a8528a24657cdb4f5bfc3412",
     "candidateWorktree": "ABSENT",
-    "candidateRevision": "1ff0881b9bd59f243146c93b6709be57d58ee17a",
+    "candidateRevision": "2e5045116db6e3c5f6e6cc18b70df6d7fa021baf",
     "candidateParent": "b2b35d56d8d396591bdc2e6b7b9193bcde947de5",
     "candidateWorktreeClean": null,
     "remediationWorktree": "/Users/thirdfacedev/.codex/worktrees/ic-m00-remediation/TimoCodes",
-    "remediationWorktreeRevision": "1ff0881b9bd59f243146c93b6709be57d58ee17a",
+    "remediationWorktreeRevision": "2e5045116db6e3c5f6e6cc18b70df6d7fa021baf",
     "remediationWorktreeClean": true,
     "pullRequest": {
       "number": 155,
       "url": "https://github.com/j4wg/interview-coder-withoupaywall-opensource/pull/155",
       "state": "OPEN",
       "draft": true,
-      "headRevision": "1ff0881b9bd59f243146c93b6709be57d58ee17a",
+      "headRevision": "2e5045116db6e3c5f6e6cc18b70df6d7fa021baf",
       "baseRevision": "9dcb4b2d39607273a8528a24657cdb4f5bfc3412",
       "mergeable": true,
       "codeql": "SUCCESS"
@@ -81,7 +81,7 @@
   "currentMilestone": {
     "id": "IC-M00",
     "title": "Trusted local policy rails",
-    "status": "WAITING_USER_BOUNDED_RECOVERY",
+    "status": "REVIEWING",
     "frozenAt": "2026-07-29T09:10:11+02:00",
     "ownedRequirementIds": [
       "P01"
@@ -90,7 +90,7 @@
       "IC-RISK-PRIVILEGE"
     ],
     "baseRevision": "9dcb4b2d39607273a8528a24657cdb4f5bfc3412",
-    "candidateRevision": "1ff0881b9bd59f243146c93b6709be57d58ee17a",
+    "candidateRevision": "2e5045116db6e3c5f6e6cc18b70df6d7fa021baf",
     "mutableTargets": [
       "verification-capability",
       "policy-rails",
@@ -109,7 +109,7 @@
       }
     ],
     "behaviorExpectations": [
-      "A02 validates its root-only metadata and complete installed bytes before admitting P01.",
+      "A03 validates exact A02 predecessor identity plus its own staged and installed bytes before admitting only P01.",
       "P01 verification executes only the exact immutable candidate and approved P01 plan.",
       "All package gates continue after an individual failure and aggregate exactly.",
       "Candidate mutation, process survival, PR-head drift, or evidence-integrity drift fails closed.",
@@ -125,10 +125,10 @@
       "No failed verification is integrated.",
       "No new administrator transaction or broader privileged authorization is created."
     ],
-    "rollback": "Remove A02 authorization first, retain anchors/runs/receipts/metadata and the unchanged P01 candidate, and keep v1 quarantined.",
+    "rollback": "A03 activation removes A02 authorization first; failure restores exact A02 payload without authorization. A03 revocation removes authorization first, retains evidence and metadata, and keeps v1 quarantined.",
     "acceptance": [
-      "Fresh single-use arm and verify requests bind P01, P00-R9, PR 155, and exact candidate 1ff0881b9bd59f243146c93b6709be57d58ee17a.",
-      "Exact A02 arm succeeds and thereby validates protected A02 metadata plus installed bytes.",
+      "Fresh single-use arm and verify requests bind P01, P00-R9, PR 155, and exact candidate 2e5045116db6e3c5f6e6cc18b70df6d7fa021baf.",
+      "Exact A03 arm succeeds and thereby validates protected A03 metadata plus installed bytes.",
       "One authoritative P01 complete suite succeeds with aggregate exit zero and exact immutable evidence.",
       "One independent complete P01 review batch approves the same exact candidate and evidence, or one bounded remediation plus delta review resolves its complete finding batch.",
       "PR 155 integrates through the protected workflow at the approved revision.",
@@ -141,8 +141,8 @@
         "Quarantined v1 observed manifest: 2401/2401 exact",
         "PR 155 CodeQL success at 1ff0881b9bd59f243146c93b6709be57d58ee17a"
       ],
-      "targetedPreflight": "Refresh the UID-501 arm and verify nonces without changing phase, packet, PR, or candidate; run the exact empty-argument A02 arm operation once.",
-      "authoritativeComplete": "Run the exact empty-argument A02 verify operation once at the armed immutable P01 candidate and reconcile the complete root-owned run evidence.",
+      "targetedPreflight": "After independently approved one-shot A02-to-A03 activation, refresh the UID-501 arm and verify nonces and run the exact empty-argument A03 arm operation once.",
+      "authoritativeComplete": "Run the exact empty-argument A03 verify operation once at the armed immutable P01 candidate and reconcile the complete root-owned read-only run evidence.",
       "independentReview": "One read-only complete finding batch against exact candidate, full diff, P01 requirements, and authoritative evidence.",
       "postMergeSmoke": "Verify protected integration identity, focused P01 policy/gate smoke, and unchanged capability authorization/quarantine state."
     },
@@ -164,6 +164,18 @@
       ],
       "summary": "The exact candidate lacks anchored device/inode/size equality; A02 pins the affected reporter and omits required descriptor fields; root-only 0400 evidence has no independently reviewable export path.",
       "boundedRecoveryPacket": "v3/interviewcopilot/bounded-recovery-IC-M00-1.json"
+    },
+    "boundedRecovery": {
+      "authorizedAt": "2026-07-29T11:06:21+02:00",
+      "artifactRevision": "77cd5e2693a634b2aef06613547020dbb6e3a9f4",
+      "candidateRevision": "2e5045116db6e3c5f6e6cc18b70df6d7fa021baf",
+      "controllerSha256": "d7e5b3e0e59629ae151635add38fc544d4bce5e4160eced388c44d51f84b1302",
+      "expectedInstallManifestSha256": "ebc72ef97d6422db7fe12b2fcbf375f57e73c4fbfbf2609c9f54ad343b0e3dc2",
+      "releaseEnvelopeSha256": "3f4a5e6acf2604063a97fb8ef46e0adee4e9ae7ead29d9af95ce533c2f3d873a",
+      "adminHandoffSha256": "d942f091af15f730a8d152c9c92c0b88f222f139f5c0ccda0984d43819298c93",
+      "validation": "CAPABILITY_25_PASS_0_FAIL_CANDIDATE_TARGETED_PASS",
+      "privilegedBoundaryCrossed": false,
+      "reviewDisposition": "IN_PROGRESS"
     }
   },
   "metrics": {
@@ -185,13 +197,13 @@
     "requirementsCompleted": [],
     "workPackageCount": 1,
     "maximumConcurrentWriters": 0,
-    "candidateRevisionCount": 1,
+    "candidateRevisionCount": 2,
     "authoritativeFullSuiteCount": 1,
-    "reviewAttemptCount": 0,
+    "reviewAttemptCount": 1,
     "acceptedBlockerCount": 1,
     "postIntegrationDefects": 0,
     "ownershipConflicts": 1,
-    "result": "BLOCKED_USER"
+    "result": "IN_PROGRESS"
   },
-  "nextSafeAction": "Await explicit authorization of bounded-recovery-IC-M00-1.json. Do not create a capability writer or reviewer, start an administrator transaction, mutate the candidate, or rerun the authoritative suite before authorization."
+  "nextSafeAction": "Run the one independent HIGH-risk complete finding batch against exact artifact 77cd5e2693a634b2aef06613547020dbb6e3a9f4 and candidate 2e5045116db6e3c5f6e6cc18b70df6d7fa021baf. Do not cross the administrator boundary."
 }

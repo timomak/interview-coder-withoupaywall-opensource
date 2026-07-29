@@ -6,7 +6,7 @@
   "attempt": 1,
   "createdAt": "2026-07-29T09:28:48+02:00",
   "controllerThreadId": "019f9ff6-e24b-7053-a2b3-fe01f8538ab4",
-  "status": "AWAITING_EXPLICIT_USER_AUTHORIZATION",
+  "status": "AUTHORIZED_INDEPENDENT_REVIEW",
   "immutableState": {
     "sourcePacketRevision": "P00-R9",
     "sourcePacketCommit": "02ee6ddec78d6e4ea9e2de3c0303ffd6bc9f45bf",
@@ -107,9 +107,21 @@
     "ownershipConflict": "An initial diagnostic npm ci ran in the canonical user worktree instead of the isolated checkout and refreshed ignored dependency state. It made no tracked-file change. The dependency tree was not deleted or restored because it is user-owned."
   },
   "decision": {
-    "required": true,
+    "required": false,
+    "authorizedAt": "2026-07-29T11:06:21+02:00",
     "question": "Authorize exactly one bounded IC-M00 recovery attempt comprising the narrow A03 amendment, one independently approved visible administrator checkpoint, one candidate remediation, and one final authoritative suite.",
     "declineEffect": "IC-M00 remains blocked at the unchanged P01 candidate and no privileged or candidate command is run."
   },
-  "nextSafeAction": "Wait for explicit authorization of this one bounded recovery attempt. Do not create a capability writer or reviewer, start an administrator transaction, mutate the candidate, or rerun the suite before authorization."
+  "preparedTransaction": {
+    "artifactRevision": "77cd5e2693a634b2aef06613547020dbb6e3a9f4",
+    "candidateRevision": "2e5045116db6e3c5f6e6cc18b70df6d7fa021baf",
+    "controllerSha256": "d7e5b3e0e59629ae151635add38fc544d4bce5e4160eced388c44d51f84b1302",
+    "expectedInstallManifestSha256": "ebc72ef97d6422db7fe12b2fcbf375f57e73c4fbfbf2609c9f54ad343b0e3dc2",
+    "releaseEnvelopeSha256": "3f4a5e6acf2604063a97fb8ef46e0adee4e9ae7ead29d9af95ce533c2f3d873a",
+    "adminHandoffSha256": "d942f091af15f730a8d152c9c92c0b88f222f139f5c0ccda0984d43819298c93",
+    "capabilityTests": "25_PASS_0_FAIL",
+    "candidateTargetedChecks": "PASS",
+    "privilegedBoundaryCrossed": false
+  },
+  "nextSafeAction": "Run one independent HIGH-risk complete finding batch against the exact prepared transaction. Do not activate A03 or invoke sudo."
 }
