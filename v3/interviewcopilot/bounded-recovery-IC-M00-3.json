@@ -6,7 +6,7 @@
   "attempt": 3,
   "createdAt": "2026-07-29T22:25:32+02:00",
   "controllerThreadId": "019f9ff6-e24b-7053-a2b3-fe01f8538ab4",
-  "status": "EXACT_DELTA_REVIEW_RESERVED",
+  "status": "BLOCKED_SECOND_MATERIAL_FAILURE_AFTER_EXACT_DELTA",
   "authority": {
     "source": "standing user delegation for one newly reviewed sealed A02-to-A03 recovery transaction",
     "safePreparationAuthorized": true,
@@ -74,7 +74,7 @@
     "reviewer": "/root/p00_v2_cap_a01_high_review",
     "reviewedRevision": "7dd0c4d012b95372293be54c0195139afd7d02b0",
     "scope": "Exact correction delta from c756647c01622ff1b4101c1b262cb409e850b89e to 7dd0c4d012b95372293be54c0195139afd7d02b0, limited to IC-M00-A03R2-B01, B02, and B03 plus regression safety of already-passing scoped checks.",
-    "status": "EXACT_DELTA_REVIEW_RESERVED",
+    "status": "REQUEST_CHANGES_EXACT_DELTA_TERMINAL",
     "correctionBudget": 1,
     "deltaReviewBudget": 1
   },
@@ -112,8 +112,8 @@
     "envelopeSha256": "5d9f40df6f6254f76e27e73ae963aa65125174a77819c227f60813b190fc90ec",
     "handoffSha256": "a23d64b8485f9b82c5e6f486e723e3deeafd62e3b2b0ba54652b3419b16fd0ae",
     "findingDispositions": {
-      "IC-M00-A03R2-B01": "RESOLVED_BY_FSYNC_JOURNAL_AUTHORIZATION_FIRST_REPLAY_AND_10_HARD_CRASH_BOUNDARIES",
-      "IC-M00-A03R2-B02": "RESOLVED_BY_OUTER_A02_AND_RUN_METADATA_SNAPSHOTS_PLUS_RECEIPT_COMMIT_REPLAY",
+      "IC-M00-A03R2-B01": "UNRESOLVED_CHILD_FORK_TO_PID_JOURNAL_GAP",
+      "IC-M00-A03R2-B02": "UNRESOLVED_NONATOMIC_ROLLBACK_SNAPSHOT_AND_INCOMPLETE_A03_COMMIT_RECOGNITION",
       "IC-M00-A03R2-B03": "RESOLVED_BY_ROOT_AND_DESCENDANT_CONTENT_MODE_OWNER_XATTR_ACL_FACTS"
     },
     "validation": {
@@ -124,7 +124,23 @@
       "liveEffects": "NONE"
     },
     "correctionBudgetRemaining": 0,
-    "deltaReviewBudgetRemaining": 1
+    "deltaReviewBudgetRemaining": 0
+  },
+  "deltaReview": {
+    "reviewedAt": "2026-07-30T01:00:16+02:00",
+    "reviewedRevision": "7dd0c4d012b95372293be54c0195139afd7d02b0",
+    "reviewedEnvelopeSha256": "5d9f40df6f6254f76e27e73ae963aa65125174a77819c227f60813b190fc90ec",
+    "reviewedHandoffSha256": "a23d64b8485f9b82c5e6f486e723e3deeafd62e3b2b0ba54652b3419b16fd0ae",
+    "disposition": "REQUEST_CHANGES_TERMINAL",
+    "classification": "SECOND_MATERIAL_FAILURE_AFTER_SINGLE_CONSOLIDATED_CORRECTION",
+    "findingDispositions": {
+      "IC-M00-A03R2-B01": "UNRESOLVED_HIGH_CHILD_MAY_RUN_BEFORE_PID_IS_DURABLY_JOURNALED",
+      "IC-M00-A03R2-B02": "UNRESOLVED_HIGH_A02_SNAPSHOT_IS_NONATOMIC_AND_PARTIAL_A03_CAN_BE_MISCLASSIFIED_AS_COMMITTED",
+      "IC-M00-A03R2-B03": "RESOLVED"
+    },
+    "otherScopedChecks": "PASS",
+    "handoffInvocationProhibited": true,
+    "automaticCorrectionBudgetExhausted": true
   },
   "prohibitedTargets": [
     "expired RECOVERY-01 handoff",
@@ -136,5 +152,5 @@
     "generic or wildcard sudoers authorization",
     "P02 or later milestones"
   ],
-  "nextSafeAction": "Obtain one exact delta review of correction revision 7dd0c4d012b95372293be54c0195139afd7d02b0 against IC-M00-A03R2-B01 through B03. Do not invoke the handoff."
+  "nextSafeAction": "Require a genuinely new user decision authorizing a new bounded recovery design cycle. Do not invoke RECOVERY-02, any expired handoff, sudo, A02, A03, v1, or the candidate."
 }

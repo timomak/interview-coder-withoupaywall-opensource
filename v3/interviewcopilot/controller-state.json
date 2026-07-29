@@ -94,8 +94,8 @@
       "adminHandoffSha256": "a23d64b8485f9b82c5e6f486e723e3deeafd62e3b2b0ba54652b3419b16fd0ae",
       "recoveryTests": "15_METHODS_PASS_0_FAIL_WITH_10_HARD_CRASH_SUB_BOUNDARIES",
       "targetA03RevocationTest": "1_PASS_0_FAIL",
-      "independentReview": "EXACT_DELTA_REVIEW_RESERVED_FOR_B01_B02_B03",
-      "status": "CORRECTED_SEALED_NOT_INVOKED_PENDING_EXACT_DELTA_REVIEW"
+      "independentReview": "REQUEST_CHANGES_EXACT_DELTA_B01_B02_UNRESOLVED_B03_RESOLVED",
+      "status": "BLOCKED_DO_NOT_INVOKE"
     },
     "v1": {
       "installedRoot": "/Users/Shared/InterviewCopilot/verification-controller/v1",
@@ -111,7 +111,7 @@
   "currentMilestone": {
     "id": "IC-M00",
     "title": "Trusted local policy rails",
-    "status": "IMPLEMENTING",
+    "status": "BLOCKED_USER_DECISION_REQUIRED",
     "frozenAt": "2026-07-29T09:10:11+02:00",
     "ownedRequirementIds": [
       "P01"
@@ -258,7 +258,13 @@
       "handoffSha256": "a23d64b8485f9b82c5e6f486e723e3deeafd62e3b2b0ba54652b3419b16fd0ae",
       "validation": "RECOVERY_15_METHODS_10_HARD_CRASH_SUB_BOUNDARIES_PASS_A03_REVOCATION_1_PASS_REPRODUCIBLE_2",
       "reviewer": "/root/p00_v2_cap_a01_high_review",
-      "reviewStatus": "EXACT_DELTA_REVIEW_RESERVED_B01_B02_B03",
+      "reviewStatus": "REQUEST_CHANGES_EXACT_DELTA_TERMINAL_B01_B02_UNRESOLVED_B03_RESOLVED",
+      "deltaReview": {
+        "reviewedAt": "2026-07-30T01:00:16+02:00",
+        "disposition": "REQUEST_CHANGES_TERMINAL",
+        "classification": "SECOND_MATERIAL_FAILURE_AFTER_SINGLE_CONSOLIDATED_CORRECTION",
+        "handoffInvocationProhibited": true
+      },
       "privilegedBoundaryCrossed": false,
       "candidateInvoked": false
     }
@@ -284,11 +290,11 @@
     "maximumConcurrentWriters": 0,
     "candidateRevisionCount": 2,
     "authoritativeFullSuiteCount": 1,
-    "reviewAttemptCount": 2,
-    "acceptedBlockerCount": 2,
+    "reviewAttemptCount": 3,
+    "acceptedBlockerCount": 3,
     "postIntegrationDefects": 0,
     "ownershipConflicts": 1,
-    "result": "IN_PROGRESS_EXACT_RECOVERY_DELTA_REVIEW_RESERVED"
+    "result": "BLOCKED_SECOND_MATERIAL_RECOVERY_FAILURE"
   },
-  "nextSafeAction": "Complete one exact delta review of P00-V2-CAP-A03-RECOVERY-02 at 7dd0c4d012b95372293be54c0195139afd7d02b0 against IC-M00-A03R2-B01 through B03. Do not invoke either recovery handoff, sudo, A02, A03, v1, or the candidate."
+  "nextSafeAction": "Require a genuinely new user decision authorizing a new bounded recovery design cycle. Do not invoke RECOVERY-02, any expired handoff, sudo, A02, A03, v1, or the candidate."
 }
