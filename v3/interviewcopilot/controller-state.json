@@ -39,7 +39,7 @@
     "baseRevision": "9dcb4b2d39607273a8528a24657cdb4f5bfc3412",
     "candidateWorktree": "ABSENT",
     "candidateRevision": "2e5045116db6e3c5f6e6cc18b70df6d7fa021baf",
-    "candidateParent": "b2b35d56d8d396591bdc2e6b7b9193bcde947de5",
+    "candidateParent": "1ff0881b9bd59f243146c93b6709be57d58ee17a",
     "candidateWorktreeClean": null,
     "remediationWorktree": "/Users/thirdfacedev/.codex/worktrees/ic-m00-remediation/TimoCodes",
     "remediationWorktreeRevision": "2e5045116db6e3c5f6e6cc18b70df6d7fa021baf",
@@ -64,8 +64,8 @@
       "expectedManifestSha256": "945ffda713b5e9a02d2472d6f4e9e91340111384a6cdeab40890a5f3b572768b",
       "memberCount": 2408,
       "manifestResult": "PASS_ROOT_OWNED_EXACT",
-      "authorization": "PRINCIPAL_BOUND_EMPTY_ARGUMENT_ARM_AND_VERIFY_ONLY",
-      "status": "INSTALLED_EXACT_ACTIVE"
+      "authorization": "ABSENT_AFTER_FAILED_A03_TRANSACTION",
+      "status": "INSTALLED_EXACT_QUARANTINED_UNAUTHORIZED"
     },
     "a03": {
       "artifactRevision": "192baeee0d540d208eec853d40c5f2e99ff0378b",
@@ -75,7 +75,7 @@
       "adminHandoffSha256": "339efedb0dad946efd07fb7af4b91b49f89c8cdacc4712c643f9b9c43e7c4682",
       "authorization": "PRINCIPAL_BOUND_EMPTY_ARGUMENT_P01_ARM_AND_VERIFY_ONLY",
       "independentReview": "APPROVED_COMPLETE_BATCH_AND_EXACT_DELTA",
-      "status": "APPROVED_NOT_INSTALLED"
+      "status": "ACTIVATION_FAILED_DO_NOT_RETRY"
     },
     "v1": {
       "installedRoot": "/Users/Shared/InterviewCopilot/verification-controller/v1",
@@ -86,12 +86,12 @@
       "status": "PAYLOAD_RETAINED_QUARANTINED_DO_NOT_INVOKE"
     },
     "bootstrapStage": "ABSENT",
-    "retentionContract": "Retain exact A02 empty-argument verification authorization through the remaining accepted milestones; preflight exact installed bytes before each use; never invoke v1; revoke A02 authorization first and retain immutable evidence at final completion or earlier safety failure."
+    "retentionContract": "Retain exact A02 payload bytes as unauthorized rollback evidence; do not invoke A02, A03, or v1; retain failed activation evidence; require a newly reviewed sealed transition before any future authorization."
   },
   "currentMilestone": {
     "id": "IC-M00",
     "title": "Trusted local policy rails",
-    "status": "WAITING_USER",
+    "status": "BLOCKED",
     "frozenAt": "2026-07-29T09:10:11+02:00",
     "ownedRequirementIds": [
       "P01"
@@ -184,7 +184,7 @@
       "releaseEnvelopeSha256": "00ea8696be7af50cfadd9035f9d7b44cb9d560b96c1f563c9ded0f6197a1af41",
       "adminHandoffSha256": "339efedb0dad946efd07fb7af4b91b49f89c8cdacc4712c643f9b9c43e7c4682",
       "validation": "CAPABILITY_26_PASS_0_FAIL_CANDIDATE_TARGETED_PASS",
-      "privilegedBoundaryCrossed": false,
+      "privilegedBoundaryCrossed": true,
       "reviewDisposition": "APPROVED",
       "reviewedAt": "2026-07-29T11:55:15+02:00",
       "completeFindingBatch": {
@@ -192,7 +192,18 @@
         "disposition": "RESOLVED_BY_SINGLE_CONSOLIDATED_CORRECTION"
       },
       "deltaReview": "APPROVE_192baeee0d540d208eec853d40c5f2e99ff0378b",
-      "candidateReview": "APPROVE_2e5045116db6e3c5f6e6cc18b70df6d7fa021baf"
+      "candidateReview": "APPROVE_2e5045116db6e3c5f6e6cc18b70df6d7fa021baf",
+      "activationFailure": {
+        "status": "BLOCKED_SECOND_MATERIAL_FAILURE",
+        "attemptCount": 2,
+        "evidencePath": "v3/interviewcopilot/a03-activation-failure-2026-07-29.json",
+        "installedControllerSha256": "73eda1532baa3044cf4feb989d2ec58d15304c86c31a298ed3d73a1a75c7494d",
+        "authorization": "ABSENT",
+        "bootstrapStage": "ABSENT",
+        "candidateRevision": "2e5045116db6e3c5f6e6cc18b70df6d7fa021baf",
+        "candidateMutated": false,
+        "retryProhibited": true
+      }
     }
   },
   "metrics": {
@@ -217,10 +228,10 @@
     "candidateRevisionCount": 2,
     "authoritativeFullSuiteCount": 1,
     "reviewAttemptCount": 2,
-    "acceptedBlockerCount": 1,
+    "acceptedBlockerCount": 2,
     "postIntegrationDefects": 0,
     "ownershipConflicts": 1,
-    "result": "BLOCKED_USER"
+    "result": "BLOCKED_SECOND_MATERIAL_FAILURE"
   },
-  "nextSafeAction": "User runs the exact independently approved one-shot command in capabilities/P00-V2-CAP-A03/build/admin-handoff.txt and enters the administrator password once. Do not start another transaction."
+  "nextSafeAction": "Do not run the A03 handoff again. A new user-authorized bounded recovery must design and independently review one sealed transition from exact unauthorized A02 payload state; no ad hoc sudoers restoration or capability invocation is allowed."
 }

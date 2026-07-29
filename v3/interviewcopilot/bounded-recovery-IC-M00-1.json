@@ -6,7 +6,7 @@
   "attempt": 1,
   "createdAt": "2026-07-29T09:28:48+02:00",
   "controllerThreadId": "019f9ff6-e24b-7053-a2b3-fe01f8538ab4",
-  "status": "WAITING_USER_ADMIN_ACTIVATION",
+  "status": "BLOCKED_SECOND_MATERIAL_FAILURE",
   "immutableState": {
     "sourcePacketRevision": "P00-R9",
     "sourcePacketCommit": "02ee6ddec78d6e4ea9e2de3c0303ffd6bc9f45bf",
@@ -121,11 +121,26 @@
     "adminHandoffSha256": "339efedb0dad946efd07fb7af4b91b49f89c8cdacc4712c643f9b9c43e7c4682",
     "capabilityTests": "26_PASS_0_FAIL",
     "candidateTargetedChecks": "PASS",
-    "privilegedBoundaryCrossed": false,
+    "privilegedBoundaryCrossed": true,
     "completeFindingBatch": "IC-M00-A03-R01",
     "correctionDisposition": "RESOLVED",
     "deltaReview": "APPROVE_192baeee0d540d208eec853d40c5f2e99ff0378b",
     "candidateReview": "APPROVE_2e5045116db6e3c5f6e6cc18b70df6d7fa021baf"
   },
-  "nextSafeAction": "User runs the exact one-shot command in capabilities/P00-V2-CAP-A03/build/admin-handoff.txt and enters the administrator password once. Do not start a duplicate transaction."
+  "activationFailure": {
+    "capturedAt": "2026-07-29T13:23:06+02:00",
+    "attemptCount": 2,
+    "evidencePath": "v3/interviewcopilot/a03-activation-failure-2026-07-29.json",
+    "installedCapability": "P00-V2-CAP-A02_PAYLOAD_EXACT_UNAUTHORIZED",
+    "installedControllerSha256": "73eda1532baa3044cf4feb989d2ec58d15304c86c31a298ed3d73a1a75c7494d",
+    "a03Installed": false,
+    "a03Metadata": "ABSENT",
+    "authorization": "ABSENT",
+    "bootstrapStage": "ABSENT",
+    "candidateRevision": "2e5045116db6e3c5f6e6cc18b70df6d7fa021baf",
+    "candidateMutated": false,
+    "retryProhibited": true,
+    "terminalConditionSatisfied": true
+  },
+  "nextSafeAction": "Do not run the A03 handoff again. A new user-authorized bounded recovery must design and independently review one sealed transition from exact unauthorized A02 payload state; no ad hoc sudoers restoration or capability invocation is allowed."
 }

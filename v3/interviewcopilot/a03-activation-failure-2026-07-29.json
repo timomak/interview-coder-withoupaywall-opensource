@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "kind": "privileged-capability-activation-failure",
+  "projectKey": "InterviewCopilot",
+  "milestoneId": "IC-M00",
+  "capturedAt": "2026-07-29T13:23:06+02:00",
+  "controllerThreadId": "019f9ff6-e24b-7053-a2b3-fe01f8538ab4",
+  "transaction": {
+    "capability": "P00-V2-CAP-A03",
+    "artifactRevision": "192baeee0d540d208eec853d40c5f2e99ff0378b",
+    "adminHandoffSha256": "339efedb0dad946efd07fb7af4b91b49f89c8cdacc4712c643f9b9c43e7c4682",
+    "releaseEnvelopeSha256": "00ea8696be7af50cfadd9035f9d7b44cb9d560b96c1f563c9ded0f6197a1af41",
+    "expectedControllerSha256": "d7e5b3e0e59629ae151635add38fc544d4bce5e4160eced388c44d51f84b1302",
+    "attemptCount": 2,
+    "secondAttemptSudoPid": 77710,
+    "secondAttemptTty": "ttys000",
+    "userReportedPasswordEntryComplete": true
+  },
+  "observedState": {
+    "activeTransactionProcesses": 0,
+    "bootstrapStage": "ABSENT",
+    "installedRoot": "/Users/Shared/InterviewCopilot/verification-controller/v2",
+    "installedControllerSha256": "73eda1532baa3044cf4feb989d2ec58d15304c86c31a298ed3d73a1a75c7494d",
+    "installedCapabilityIdentity": "P00-V2-CAP-A02_PAYLOAD",
+    "a03Metadata": "ABSENT",
+    "authorizationPath": "/etc/sudoers.d/interviewcopilot-verification-controller",
+    "authorization": "ABSENT",
+    "legacyV1Manifest": "PASS_ROOT_OWNED_EXACT",
+    "legacyV1Status": "PAYLOAD_RETAINED_QUARANTINED_DO_NOT_INVOKE",
+    "candidateRevision": "2e5045116db6e3c5f6e6cc18b70df6d7fa021baf",
+    "candidateWorktree": "CLEAN",
+    "pullRequest": "155_OPEN_DRAFT_MERGEABLE_CODEQL_SUCCESS"
+  },
+  "diagnosis": {
+    "classification": "BLOCKS_CONTINUATION_SECOND_MATERIAL_FAILURE",
+    "firstAttempt": "The exact reviewed handoff exited without installing A03. It retained exact A02 payload bytes but left the predecessor authorization absent. No independently readable terminal receipt survived, so the first failing statement is not asserted.",
+    "secondAttempt": "The exact reviewed handoff cannot admit the resulting predecessor state. install.sh invokes upgrade_state.py a02-admission before creating the A03 stage, and a02-admission unconditionally requires the A02 sudoers path as a root-owned mode-0440 regular file with SHA-256 7fe7480026d425056231200a518c26c0e40b79ef59c130d6924d5af30e23170b. That path is absent.",
+    "retrySafety": "A third invocation of the same immutable handoff cannot satisfy its own predecessor admission contract and is prohibited.",
+    "candidateImpact": "None. The candidate and PR remain unchanged and no authoritative candidate command was invoked."
+  },
+  "nextSafeAction": "Freeze the failed handoff. A new user-authorized bounded recovery would need one newly designed and independently reviewed sealed transaction that admits the exact unauthorized A02 predecessor or restores its exact authorization as part of the same fail-closed transition. Do not restore authorization ad hoc and do not invoke A02, A03, or v1."
+}
