@@ -89,13 +89,13 @@
     },
     "a03Recovery02": {
       "artifactId": "P00-V2-CAP-A03-RECOVERY-02",
-      "artifactRevision": "c756647c01622ff1b4101c1b262cb409e850b89e",
-      "envelopeSha256": "15ad0eb6fd06102f8ac58094cf3b6e3f2cddd46a2c404641a9f1f728f91187e0",
-      "adminHandoffSha256": "bcf048f5e2bb518233753cb617e22beb3aba54e4c1e3bd0ae4fc7d1d58803bfc",
-      "recoveryTests": "10_PASS_0_FAIL",
+      "artifactRevision": "7dd0c4d012b95372293be54c0195139afd7d02b0",
+      "envelopeSha256": "5d9f40df6f6254f76e27e73ae963aa65125174a77819c227f60813b190fc90ec",
+      "adminHandoffSha256": "a23d64b8485f9b82c5e6f486e723e3deeafd62e3b2b0ba54652b3419b16fd0ae",
+      "recoveryTests": "15_METHODS_PASS_0_FAIL_WITH_10_HARD_CRASH_SUB_BOUNDARIES",
       "targetA03RevocationTest": "1_PASS_0_FAIL",
-      "independentReview": "REQUEST_CHANGES_B01_B02_B03_COMPLETE_BATCH",
-      "status": "CORRECTION_IN_PROGRESS_NOT_INVOKABLE"
+      "independentReview": "EXACT_DELTA_REVIEW_RESERVED_FOR_B01_B02_B03",
+      "status": "CORRECTED_SEALED_NOT_INVOKED_PENDING_EXACT_DELTA_REVIEW"
     },
     "v1": {
       "installedRoot": "/Users/Shared/InterviewCopilot/verification-controller/v1",
@@ -253,12 +253,12 @@
     "freshSealedRecovery": {
       "packet": "v3/interviewcopilot/bounded-recovery-IC-M00-3.json",
       "artifactId": "P00-V2-CAP-A03-RECOVERY-02",
-      "artifactRevision": "c756647c01622ff1b4101c1b262cb409e850b89e",
-      "envelopeSha256": "15ad0eb6fd06102f8ac58094cf3b6e3f2cddd46a2c404641a9f1f728f91187e0",
-      "handoffSha256": "bcf048f5e2bb518233753cb617e22beb3aba54e4c1e3bd0ae4fc7d1d58803bfc",
-      "validation": "RECOVERY_10_PASS_A03_REVOCATION_1_PASS_REPRODUCIBLE_2",
+      "artifactRevision": "7dd0c4d012b95372293be54c0195139afd7d02b0",
+      "envelopeSha256": "5d9f40df6f6254f76e27e73ae963aa65125174a77819c227f60813b190fc90ec",
+      "handoffSha256": "a23d64b8485f9b82c5e6f486e723e3deeafd62e3b2b0ba54652b3419b16fd0ae",
+      "validation": "RECOVERY_15_METHODS_10_HARD_CRASH_SUB_BOUNDARIES_PASS_A03_REVOCATION_1_PASS_REPRODUCIBLE_2",
       "reviewer": "/root/p00_v2_cap_a01_high_review",
-      "reviewStatus": "REQUEST_CHANGES_B01_B02_B03_COMPLETE_BATCH",
+      "reviewStatus": "EXACT_DELTA_REVIEW_RESERVED_B01_B02_B03",
       "privilegedBoundaryCrossed": false,
       "candidateInvoked": false
     }
@@ -288,7 +288,7 @@
     "acceptedBlockerCount": 2,
     "postIntegrationDefects": 0,
     "ownershipConflicts": 1,
-    "result": "IN_PROGRESS_SINGLE_CONSOLIDATED_RECOVERY_CORRECTION"
+    "result": "IN_PROGRESS_EXACT_RECOVERY_DELTA_REVIEW_RESERVED"
   },
-  "nextSafeAction": "Apply one consolidated non-privileged correction for IC-M00-A03R2-B01 through B03, validate it completely, freeze it, and obtain one exact delta review. Do not invoke either recovery handoff, sudo, A02, A03, v1, or the candidate."
+  "nextSafeAction": "Complete one exact delta review of P00-V2-CAP-A03-RECOVERY-02 at 7dd0c4d012b95372293be54c0195139afd7d02b0 against IC-M00-A03R2-B01 through B03. Do not invoke either recovery handoff, sudo, A02, A03, v1, or the candidate."
 }
