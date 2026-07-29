@@ -1,0 +1,2 @@
+thirdfacedev ALL=(root) NOPASSWD: /Users/Shared/InterviewCopilot/verification-controller/v2/libexec/arm-phase-core ""
+thirdfacedev ALL=(root) NOPASSWD: /Users/Shared/InterviewCopilot/verification-controller/v2/libexec/verify-phase-core ""
