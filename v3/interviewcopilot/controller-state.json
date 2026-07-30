@@ -476,7 +476,16 @@
     "baseRevision": "a8cdcbdeb49a897946dd520981d59d9a1a3813b6",
     "candidateBranch": "codex/ic-m01-runtime-storage-session",
     "candidateWorktree": "/Users/thirdfacedev/.codex/worktrees/ic-m01/TimoCodes",
-    "activeWriters": [],
+    "activeWriters": [
+      {
+        "task": "/root/ic_m01_w3_session_integration",
+        "workPackage": "IC-M01-W3",
+        "branch": "codex/ic-m01-runtime-storage-session",
+        "worktree": "/Users/thirdfacedev/.codex/worktrees/ic-m01/TimoCodes",
+        "parentRevision": "a81665e09420bce21a964474a920675d78112a2c",
+        "mutableTargets": "P04_SESSION_AND_FROZEN_CUMULATIVE_INTEGRATION_PLUS_TWO_PATH_ADDENDUM"
+      }
+    ],
     "completedHandoffs": [
       {
         "task": "/root/ic_m01_w1_runtime",
@@ -509,9 +518,10 @@
       "scope": "P02_AC1_SUPABASE_WINDOW_OPEN_FIXTURE_TWO_PATHS_ONLY",
       "owner": "IC-M01-W3"
     },
-    "readyWorkPackage": {
+    "activeWorkPackage": {
       "id": "IC-M01-W3",
-      "reason": "EXACT_W1_AND_W2_HANDOFFS_INTEGRATED"
+      "reason": "EXACT_W1_AND_W2_HANDOFFS_INTEGRATED",
+      "status": "IMPLEMENTING"
     },
     "releaseAssuranceParallelState": "IC-M00-G-RELEASE_PENDING_NOT_INVOKED"
   },
@@ -557,5 +567,5 @@
     "privilegedBoundaryCrossed": false,
     "candidateInvoked": false
   },
-  "nextSafeAction": "Start the single IC-M01-W3 writer on integrated candidate a81665e09420bce21a964474a920675d78112a2c, including only its frozen integration/session targets and the two-path target addendum. After targeted W3 convergence, freeze the cumulative exact candidate for IC-M01-G1. Keep A04 release assurance pending and do not invoke privilege, integrate PR 155, deploy, or mark P01 SATISFIED."
+  "nextSafeAction": "Reconcile the single IC-M01-W3 handoff after its P04 and cumulative targeted checks converge, then freeze the cumulative exact candidate for the one IC-M01-G1 HIGH complete finding batch. Keep A04 release assurance pending and do not invoke privilege, integrate PR 155, deploy, or mark P01 SATISFIED."
 }
