@@ -453,7 +453,7 @@
   "readyMilestones": [
     {
       "id": "IC-M01",
-      "status": "FROZEN_APPROVED_READY_TO_IMPLEMENT",
+      "status": "IMPLEMENTING",
       "entryGate": "IC-M00-G-DEV",
       "entryGateEvidence": "v3/interviewcopilot/development-admission-IC-M00-1.json",
       "entryGateEvidenceSha256": "d11b7297df1f9cfacb233428fc1b0f83e05c711b54a6a946a1b6c0e852ab2efb",
@@ -468,6 +468,36 @@
       "privileged": false
     }
   ],
+  "activeProductMilestone": {
+    "id": "IC-M01",
+    "status": "IMPLEMENTING",
+    "freezePacket": "v3/interviewcopilot/milestone-IC-M01-freeze-1.json",
+    "freezePacketSha256": "ce40840212f4b1f5f114f5746acec721c430fc17a372522df1b52a153d09d05b",
+    "baseRevision": "a8cdcbdeb49a897946dd520981d59d9a1a3813b6",
+    "candidateBranch": "codex/ic-m01-runtime-storage-session",
+    "candidateWorktree": "/Users/thirdfacedev/.codex/worktrees/ic-m01/TimoCodes",
+    "activeWriters": [
+      {
+        "task": "/root/ic_m01_w1_runtime",
+        "workPackage": "IC-M01-W1",
+        "branch": "codex/ic-m01-w1-runtime",
+        "worktree": "/Users/thirdfacedev/.codex/worktrees/ic-m01-w1/TimoCodes",
+        "mutableTargets": "P02_RUNTIME_CONFIG_ONBOARDING_ONLY"
+      },
+      {
+        "task": "/root/ic_m01_w2_storage",
+        "workPackage": "IC-M01-W2",
+        "branch": "codex/ic-m01-w2-storage",
+        "worktree": "/Users/thirdfacedev/.codex/worktrees/ic-m01-w2/TimoCodes",
+        "mutableTargets": "P03_ENCRYPTED_STORAGE_ONLY"
+      }
+    ],
+    "blockedWorkPackage": {
+      "id": "IC-M01-W3",
+      "reason": "WAITING_FOR_EXACT_W1_AND_W2_HANDOFFS"
+    },
+    "releaseAssuranceParallelState": "IC-M00-G-RELEASE_PENDING_NOT_INVOKED"
+  },
   "metrics": {
     "projectKey": "InterviewCopilot",
     "milestoneId": "IC-M00",
@@ -510,5 +540,5 @@
     "privilegedBoundaryCrossed": false,
     "candidateInvoked": false
   },
-  "nextSafeAction": "Create isolated exact-base IC-M01 worktrees and start only disjoint IC-M01-W1 provider/config/onboarding and IC-M01-W2 encrypted-storage work. W3 waits for both exact handoffs. Keep A04 release assurance pending and do not invoke privilege, integrate PR 155, deploy, or mark P01 SATISFIED."
+  "nextSafeAction": "Reconcile the exact IC-M01-W1 and IC-M01-W2 handoffs when both targeted packages pass, integrate them into codex/ic-m01-runtime-storage-session without altering their owned evidence, then start IC-M01-W3. Keep A04 release assurance pending and do not invoke privilege, integrate PR 155, deploy, or mark P01 SATISFIED."
 }
