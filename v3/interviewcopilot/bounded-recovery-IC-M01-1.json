@@ -1,0 +1,191 @@
+{
+  "schemaVersion": 1,
+  "kind": "bounded-milestone-recovery",
+  "projectKey": "InterviewCopilot",
+  "milestoneId": "IC-M01",
+  "recoveryId": "IC-M01-REC-01",
+  "authority": "STANDING_CHECKER_AUTHORIZATION_ONE_ADDITIONAL_NARROWLY_BOUNDED_MILESTONE_LEVEL_RECOVERY",
+  "failedRevision": "d630f68628462ac925d9257c2f73d799d2db5d02",
+  "failedRevisionParent": "32c24ab275e2d3b6d8cb00c1e6a8ba6d48377cd0",
+  "admittedBase": "a8cdcbdeb49a897946dd520981d59d9a1a3813b6",
+  "pullRequest": {
+    "number": 155,
+    "state": "OPEN_DRAFT",
+    "headRevision": "a8cdcbdeb49a897946dd520981d59d9a1a3813b6",
+    "baseRevision": "9dcb4b2d39607273a8528a24657cdb4f5bfc3412",
+    "mutationAuthorized": false
+  },
+  "sourceReview": {
+    "path": "v3/interviewcopilot/milestone-IC-M01-delta-review-result-1.json",
+    "sha256": "8acec4d385bc4a19414ee81f5afcee38df44303a51c166fae64c1ec456a81c0f",
+    "disposition": "REQUEST_CHANGES_TERMINAL",
+    "completeFindingBatchReused": true,
+    "newGeneralFindingBatchProhibited": true
+  },
+  "preservedClosedFindings": [
+    {
+      "id": "IC-M01-G1-B01",
+      "status": "CLOSED_DO_NOT_REOPEN",
+      "evidence": "Explicit provider create/resume modes, provider-returned IDs, and nonexistent-resume rejection at d630f68628462ac925d9257c2f73d799d2db5d02."
+    },
+    {
+      "id": "IC-M01-G1-B02",
+      "status": "CLOSED_DO_NOT_REOPEN",
+      "evidence": "Subscription-only diagnostics, production onboarding, configuration validation, and Start authorization at d630f68628462ac925d9257c2f73d799d2db5d02."
+    },
+    {
+      "id": "IC-M01-G1-B05",
+      "status": "CLOSED_DO_NOT_REOPEN",
+      "evidence": "Normalized streaming, partial persistence, and blocking cancellation coverage at d630f68628462ac925d9257c2f73d799d2db5d02."
+    }
+  ],
+  "findings": [
+    {
+      "id": "IC-M01-G1-B03",
+      "severity": "BLOCKER",
+      "requirementBoundary": [
+        "P03-AC6",
+        "M-02",
+        "M-03"
+      ],
+      "exactRemainingDelta": "Enumerate and inject before and after every individual journal save as well as every filesystem mutation during M-02 and M-03 forward replay and rollback. The test must prove every boundary occurrence is reached, interrupted, reconciled, and preserves at least one readable copy."
+    },
+    {
+      "id": "IC-M01-G1-B04",
+      "severity": "HIGH",
+      "requirementBoundary": [
+        "P04-AC3",
+        "P04-AC4",
+        "P04-AC10",
+        "P04-AC12"
+      ],
+      "exactRemainingDelta": "Cancel a real orchestrator provider turn after its pending context packet is durably prepared; prove the encrypted snapshot retains the byte-exact pending packet and unadvanced cursor, then resume and prove the identical packet is delivered and committed once."
+    },
+    {
+      "id": "IC-M01-G1-B06",
+      "severity": "HIGH",
+      "requirementBoundary": [
+        "P04-AC2",
+        "P04-AC8",
+        "P04-AC9",
+        "P04-AC10",
+        "P04-AC12"
+      ],
+      "exactRemainingDelta": "Prove per-session serialization with concurrent submissions, a hostile delayed repository that attempts out-of-order saves, and Reset during a compact chat or clarification turn. The archive must await cancellation and no stale provider event or snapshot may survive the generation change."
+    },
+    {
+      "id": "IC-M01-G1-B07",
+      "severity": "HIGH",
+      "requirementBoundary": [
+        "P04-AC14"
+      ],
+      "exactRemainingDelta": "Submit both material and immaterial ambiguity through InterviewOrchestrator and inspect the actual provider prompt. Prove the frozen mode-specific assumptions and clarification suggestions appear only for material missing fields."
+    },
+    {
+      "id": "IC-M01-G1-B08",
+      "severity": "HIGH",
+      "requirementBoundary": [
+        "P01_CAPTURE_REGRESSION",
+        "P03_AT_REST",
+        "P04_SOLE_AUTHORITY"
+      ],
+      "exactRemainingDelta": "Eliminate all production-reachable plaintext PNG persistence. Capture must remain reachable through typed session commands, use in-memory acquisition including Windows fallbacks, persist queued screenshots only as authenticated encrypted blobs under the installation-key boundary, decrypt only for immediate preview/submission, and delete encrypted blobs on exclusion/reset/retention. Prove no raw, base64, or hex screenshot marker appears under userData or temp."
+    }
+  ],
+  "invalidatedEvidence": [
+    "IC-M01 candidate d630f68628462ac925d9257c2f73d799d2db5d02 as an approvable milestone revision",
+    "P03 at-rest acceptance for production screenshot capture",
+    "B03 every-boundary crash and rollback coverage",
+    "B04 cancellation delivery-cursor acceptance",
+    "B06 hostile serialization and Reset-during-compact acceptance",
+    "B07 material clarification end-to-end acceptance"
+  ],
+  "reusableEvidence": [
+    "Immutable P00-R9 source and P01 development-admission evidence",
+    "Closed B01, B02, and B05 implementation and tests at d630f68628462ac925d9257c2f73d799d2db5d02",
+    "Node 20 lint, strict typecheck, policy, P01 27, P02 11, P03 11, and P04 21 passing checks at d630f68628462ac925d9257c2f73d799d2db5d02 where unchanged",
+    "All frozen IC-M01 requirements, target addenda, rollback expectations, and user-worktree preservation"
+  ],
+  "mutableTargets": [
+    "electron/ScreenshotHelper.ts",
+    "electron/ScreenshotHelper.test.ts",
+    "electron/main.ts",
+    "electron/windowOpenPolicy.test.ts",
+    "electron/orchestrator/InterviewOrchestrator.ts",
+    "electron/orchestrator/captureIntegration.ts",
+    "electron/orchestrator/contextPolicy.ts",
+    "electron/orchestrator/crashRecovery.test.ts",
+    "electron/orchestrator/resetSemantics.test.ts",
+    "electron/orchestrator/bestEffortClarification.test.ts",
+    "electron/orchestrator/responseRouting.ts",
+    "electron/orchestrator/sessionRepository.ts",
+    "electron/orchestrator/testSupport.ts",
+    "electron/storage/migrations.ts",
+    "electron/storage/plaintextMigration.test.ts",
+    "electron/storage/plaintextLeak.test.ts",
+    "electron/storage/repositories.ts",
+    "docs/encrypted-storage-threat-model.md",
+    "docs/session-domain-and-orchestrator.md",
+    "scripts/verification/test-manifest.json",
+    "scripts/verification/plan-manifest.json",
+    "scripts/verification/plans/P03.json",
+    "scripts/verification/plans/P04.json"
+  ],
+  "scopeGuards": [
+    "No file outside mutableTargets may change.",
+    "No new dependency, provider behavior, onboarding behavior, mode feature, P05 or later scope, or privilege capability work.",
+    "B01, B02, and B05 are immutable closed proof and may only receive a regression-preserving compatibility adjustment forced by an in-scope type boundary.",
+    "The canonical user worktree remains read-only and its dirty state is preserved.",
+    "The recovery branch remains local until the exact closure review and authoritative suite approve."
+  ],
+  "writer": {
+    "task": "/root/ic_m01_w3_session_integration",
+    "singleWriter": true,
+    "duplicateWriterProhibited": true,
+    "parentRevision": "d630f68628462ac925d9257c2f73d799d2db5d02"
+  },
+  "targetedChecks": [
+    "B03 boundary-occurrence matrix proves every M-02 and M-03 forward and rollback journal/filesystem boundary is interrupted and replayed",
+    "B04 end-to-end cancellation snapshot and exact replay proof",
+    "B06 concurrent-submit, delayed-save ordering, and Reset-during-compact hostile tests",
+    "B07 material and immaterial orchestrator-to-provider prompt proof",
+    "B08 production composition-root and encrypted screenshot-at-rest proof including raw/base64/hex scans of userData and temp",
+    "P01, P02, P03, P04 targeted suites with zero failures or skips and no decreased passing count",
+    "Node 20 lint, strict typecheck/inventory, policy, immutable manifest hashes, build/package inventory, diff check, and exact mutable-target audit"
+  ],
+  "reviewGates": [
+    {
+      "id": "IC-M01-REC-01-G1",
+      "role": "EXACT_FIVE_FINDING_CLOSURE",
+      "reviewer": "/root/ic_m01_g1_high_review",
+      "scope": "B03, B04, B06, B07, and B08 closure plus regression preservation for closed B01, B02, and B05 only.",
+      "newGeneralFindingBatchProhibited": true,
+      "additionalCorrectionAfterReviewProhibited": true
+    }
+  ],
+  "gateOrder": [
+    "one coherent implementation at exact parent",
+    "targeted and cumulative non-authoritative checks",
+    "one exact five-finding closure review",
+    "IC-M01-AUTH-01 exactly once only after approval",
+    "protected integration and downstream continuation only when separately authorized by the existing map and controller constraints"
+  ],
+  "authoritativeComplete": {
+    "id": "IC-M01-AUTH-01",
+    "status": "UNSPENT",
+    "invocationBeforeClosureApprovalProhibited": true,
+    "route": "One clean exact-candidate Node 20 P01/P02/P03/P04/unit/policy/lint/typecheck/manifest/build suite using the already-frozen authoritative contract."
+  },
+  "implementationAttemptBudget": 1,
+  "closureReviewBudget": 1,
+  "correctionBudgetAfterClosureReview": 0,
+  "terminalCondition": "Any identical material B03, B04, B06, B07, or B08 finding survives the exact closure review.",
+  "prohibitions": [
+    "no A04 activation, sudo, password prompt, privileged helper, or legacy v1 invocation",
+    "no PR 155 mutation or integration, merge, deploy, release, or P01 SATISFIED transition",
+    "no second writer, second review, or additional recovery loop",
+    "no IC-M01-AUTH-01 before exact closure approval"
+  ],
+  "rollback": "Reset the local recovery branch to preserved failed revision d630f68628462ac925d9257c2f73d799d2db5d02; retain the immutable delta-review evidence and all closed-finding proof.",
+  "status": "AUTHORIZED_BEFORE_DISPATCH"
+}
