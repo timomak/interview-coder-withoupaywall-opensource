@@ -486,7 +486,7 @@
         "packetSha256": "420820528e7dcfe89384c054eff8104c2f1b48568ea2a568254e51898a7c620b",
         "duplicateWriterProhibited": true,
         "authoritativeRouteInvoked": false,
-        "status": "RESERVED_BEFORE_DISPATCH"
+        "status": "RUNNING"
       }
     ],
     "completedHandoffs": [
@@ -586,7 +586,7 @@
       "correctionBudgetRemainingAfterDispatch": 0,
       "nextReview": "IC-M01-G1-DELTA_BY_SAME_REVIEWER",
       "authoritativeRouteInvoked": false,
-      "status": "RESERVED_BEFORE_DISPATCH"
+      "status": "RUNNING"
     },
     "releaseAssuranceParallelState": "IC-M00-G-RELEASE_PENDING_NOT_INVOKED"
   },
