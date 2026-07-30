@@ -8,7 +8,7 @@
   "targetCapabilityArtifactId": "P00-V2-CAP-A04",
   "createdAt": "2026-07-30T13:49:47+02:00",
   "controllerThreadId": "019f9ff6-e24b-7053-a2b3-fe01f8538ab4",
-  "status": "READY_FOR_EXACT_CLOSURE_REVIEW",
+  "status": "APPROVED_RELEASE_ASSURANCE_ARTIFACT_READY_NO_ACTIVATION",
   "authority": {
     "source": "Standing checker authorization for one additional narrowly bounded IC-M00/A04 technical recovery limited to unresolved G1-B02.",
     "safeNonPrivilegedDesignBuildTestReviewAuthorized": true,
@@ -103,6 +103,20 @@
       "correctionBudget": 0
     }
   ],
+  "closureReview": {
+    "gateId": "IC-M00-A04R1-G1",
+    "reviewedRevision": "774595fdf33d1024f06a980521f64cdb95095996",
+    "reviewer": "/root/a04_recovery01_closure_review",
+    "disposition": "APPROVE",
+    "findingDispositions": {
+      "IC-M00-RP01-G1-B02": "CLOSED"
+    },
+    "evidence": "Receipt and journal creation explicitly establish requested UID/GID; path and reopened descriptor enforce exact st_gid; wrong-group terminal receipt replay fails closed; wrong-group journal replay rejects before namespace or authorization mutation.",
+    "regression": "No regression found in UID501 empty-argument authorization, P01-only namespace, validation boundaries, publication ordering, authorization-first revocation, rejected A04 preservation, candidate/PR identity, or legacy nonmutation.",
+    "identicalFailureRecurred": false,
+    "privilegedPathInvoked": false,
+    "candidateInvoked": false
+  },
   "targetedChecks": [
     "Receipt publish explicitly establishes requested UID and GID and reopens with exact member facts.",
     "Journal create explicitly establishes requested UID and GID and reopens with exact member facts.",
@@ -114,5 +128,6 @@
   "authoritativeComplete": "Only after IC-M00-A04R1-G1 APPROVE, return to the already-frozen A04 authoritative path. No privileged or candidate command is part of this recovery preparation.",
   "correctionBudget": 0,
   "terminalCondition": "Identical IC-M00-RP01-G1-B02 material group-identity failure remains after the one fresh exact closure review.",
-  "continuation": "AUTO_ON_APPROVAL"
+  "continuation": "AUTO_TO_AUTHORIZED_THROUGHPUT_REPLAN",
+  "nextSafeAction": "Durably split non-privileged development admission from later A04 release assurance before any activation. Preserve this approved exact artifact for the final release-assurance boundary; invoke no privileged or candidate command during the replan."
 }

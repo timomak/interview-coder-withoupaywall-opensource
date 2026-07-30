@@ -164,7 +164,11 @@
             "adminHandoffSha256": "94a235a2be1c78300fb4aa69e2fa8eab5d2a9f365226e1ec18a4bf735ef0e374",
             "payloadArchiveSha256": "9d58d271e82c2973da3ed0152a7e14253b79ec6aea339c1551977bb09e343901",
             "validation": "16_PASS_0_FAIL_REPRODUCIBLE_3_OF_3",
-            "status": "READY_FOR_EXACT_CLOSURE_REVIEW"
+            "artifactRevision": "774595fdf33d1024f06a980521f64cdb95095996",
+            "closureReview": "APPROVE_G1_B02_CLOSED_EXACT_774595F",
+            "reviewer": "/root/a04_recovery01_closure_review",
+            "handoff": "REVIEWED_NOT_AUTHORIZED_FOR_ACTIVATION",
+            "status": "APPROVED_RELEASE_ASSURANCE_ARTIFACT_READY_NO_ACTIVATION"
         },
         "v1": {
       "installedRoot": "/Users/Shared/InterviewCopilot/verification-controller/v1",
@@ -207,12 +211,14 @@
         "activeRecovery": {
             "id": "IC-M00-A04-RECOVERY-01",
             "path": "v3/interviewcopilot/bounded-recovery-IC-M00-5.json",
-            "packetSha256": "899f57776f37e5ed9be74e92284d1d4c58161ab9a749dc3fc37fd8d61e60abab",
+            "packetSha256": "55fd4406f2d8c77556e0e829b2598b5503435e4ccdd929eedbca1242b4073da1",
             "scope": "IC-M00-RP01-G1-B02_ONLY",
-            "status": "READY_FOR_EXACT_CLOSURE_REVIEW",
+            "status": "APPROVED",
             "privilegedBoundaryCrossed": false,
             "candidateInvoked": false,
-            "terminalOnIdenticalRecurrence": true
+            "terminalOnIdenticalRecurrence": true,
+            "reviewedRevision": "774595fdf33d1024f06a980521f64cdb95095996",
+            "reviewDisposition": "APPROVE_G1_B02_CLOSED"
         },
         "frozenAt": "2026-07-29T09:10:11+02:00",
     "ownedRequirementIds": [
