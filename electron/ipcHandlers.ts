@@ -48,6 +48,7 @@ export interface IpcHandlerDependencies {
   ) => ShortcutRegistrationResult
   readonly resetShortcutBindings: () => ShortcutRegistrationResult
   readonly setHudState: (state: HudState) => void
+  readonly closeComposer: () => void
 }
 
 export function initializeIpcHandlers(
@@ -151,6 +152,10 @@ export function initializeIpcHandlers(
       throw new Error("HUD state is malformed")
     }
     dependencies.setHudState(value)
+    return { success: true }
+  })
+  ipcMain.handle("shell:composer-closed", () => {
+    dependencies.closeComposer()
     return { success: true }
   })
   ipcMain.handle("capture:screenshot", async () => {

@@ -39,6 +39,7 @@ import { ScreenshotHelper } from "./ScreenshotHelper"
 import { ShortcutsHelper } from "./shortcuts"
 import { clampWindowBounds } from "./window/displayGeometry"
 import { DisplayGeometryStore } from "./window/displayGeometry"
+import { ComposerVisibilityController } from "./window/composerVisibility"
 import type {
   ProviderDiagnostics,
   ProviderId,
@@ -68,6 +69,8 @@ const state = {
 
 let currentHudState: HudState = "compact-bar"
 let geometryStore = new DisplayGeometryStore()
+const composerVisibility = new ComposerVisibilityController()
+let geometryPersistTimer: NodeJS.Timeout | undefined
 
 function availableDisplayGeometry() {
   return screen.getAllDisplays().map((display) => ({
@@ -106,6 +109,14 @@ function persistGeometry(): void {
       geometry: geometryStore.snapshot()
     }
   })
+}
+
+function scheduleGeometryPersistence(): void {
+  if (geometryPersistTimer) clearTimeout(geometryPersistTimer)
+  geometryPersistTimer = setTimeout(() => {
+    geometryPersistTimer = undefined
+    persistGeometry()
+  }, 200)
 }
 
 function setHudState(nextState: HudState): void {
@@ -191,12 +202,15 @@ function createWindow(): void {
     const [x, y] = mainWindow.getPosition()
     state.currentX = x
     state.currentY = y
+    rememberCurrentGeometry()
+    scheduleGeometryPersistence()
   })
   mainWindow.on("resize", () => {
     const [width, height] = mainWindow.getSize()
     state.windowWidth = width
     state.windowHeight = height
     rememberCurrentGeometry()
+    scheduleGeometryPersistence()
   })
   if (isDevelopment) {
     void mainWindow.loadURL("http://localhost:54321")
@@ -448,8 +462,9 @@ async function initializeApplication(): Promise<void> {
           moveWindowVertical(state.step)
           return
         default:
-          if (action === "composer" && !state.visible) {
-            showMainWindow()
+          if (action === "composer") {
+            const transition = composerVisibility.open(state.visible)
+            if (transition.reveal) showMainWindow()
           }
           state.mainWindow?.webContents.send("shell:shortcut", action)
       }
@@ -459,19 +474,24 @@ async function initializeApplication(): Promise<void> {
     configHelper.loadConfig().shell?.shortcuts ?? DEFAULT_SHORTCUT_BINDINGS
   shortcuts.registerGlobalShortcuts(configuredShortcuts)
   const applyShortcutBindings = (bindings: ShortcutBindings) => {
+    const previous = shortcuts.currentBindings()
     const result = shortcuts.applyBindings(bindings)
     if (result.ok) {
-      const config = configHelper.loadConfig()
-      configHelper.updateConfig({
-        shell: {
-          ...(config.shell ?? {
-            density: "compact",
-            textSize: "standard",
-            geometry: {}
-          }),
-          shortcuts: result.bindings
+      try {
+        const config = configHelper.loadConfig()
+        configHelper.updateConfig({
+          shell: {
+            ...(config.shell ?? DEFAULT_LIVE_SHELL_PREFERENCES),
+            shortcuts: result.bindings
+          }
+        })
+      } catch (error) {
+        const rollback = shortcuts.applyBindings(previous)
+        if (!rollback.ok) {
+          throw new Error("Shortcut persistence failed and rollback was unavailable")
         }
-      })
+        throw error
+      }
     }
     return result
   }
@@ -483,6 +503,9 @@ async function initializeApplication(): Promise<void> {
     setWindowPointerEvents: (ignore, forward) =>
       state.mainWindow?.setIgnoreMouseEvents(ignore, { forward }),
     setHudState,
+    closeComposer: () => {
+      if (composerVisibility.close().hide) hideMainWindow()
+    },
     getShortcutBindings: () => shortcuts.currentBindings(),
     updateShortcutBindings: applyShortcutBindings,
     resetShortcutBindings: () =>

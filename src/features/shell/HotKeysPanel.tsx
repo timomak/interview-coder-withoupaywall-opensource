@@ -46,15 +46,20 @@ export function HotKeysPanel({
   }, [returnFocusTo])
 
   const save = async () => {
-    const result = await window.electronAPI.updateShortcutBindings(bindings)
-    setBindings(result.bindings)
-    setStatus(
-      result.ok
-        ? "Shortcuts saved."
-        : result.rejectedAccelerator
-          ? `${result.rejectedAccelerator} is already used by the system.`
-          : "Resolve shortcut conflicts before saving."
-    )
+    try {
+      const result = await window.electronAPI.updateShortcutBindings(bindings)
+      setBindings(result.bindings)
+      setStatus(
+        result.ok
+          ? "Shortcuts saved."
+          : result.rejectedAccelerator
+            ? `${result.rejectedAccelerator} is already used by the system.`
+            : "Resolve shortcut conflicts before saving."
+      )
+    } catch {
+      setBindings(await window.electronAPI.getShortcutBindings())
+      setStatus("Shortcuts were not changed because preferences could not be saved.")
+    }
   }
 
   const reset = async () => {

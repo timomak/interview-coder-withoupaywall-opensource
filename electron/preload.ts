@@ -79,6 +79,7 @@ const electronAPI = {
     ipcRenderer.invoke("shortcuts:update", bindings),
   resetShortcutBindings: (): Promise<ShortcutRegistrationResult> =>
     ipcRenderer.invoke("shortcuts:reset"),
+  closeComposer: () => ipcRenderer.invoke("shell:composer-closed"),
   onShellShortcut: (callback: (action: ShortcutAction) => void) => {
     const listener = (_event: IpcRendererEvent, action: ShortcutAction) =>
       callback(action)

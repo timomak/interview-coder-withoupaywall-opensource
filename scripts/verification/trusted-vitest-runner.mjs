@@ -55,6 +55,7 @@ const SUITES = {
   ],
   p05: [
     "electron/window/windowVisibility.test.ts",
+    "electron/window/composerVisibility.test.ts",
     "electron/window/captureProtection.integration.test.ts",
     "electron/window/displayGeometry.test.ts",
     "electron/config/shellPreferencesMigration.test.ts",
@@ -68,6 +69,7 @@ const SUITES = {
   ],
   "electron-shell": [
     "electron/window/windowVisibility.test.ts",
+    "electron/window/composerVisibility.test.ts",
     "electron/window/captureProtection.integration.test.ts",
     "electron/window/displayGeometry.test.ts",
     "electron/shortcuts/shortcutRegistry.test.ts",

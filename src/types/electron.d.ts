@@ -60,6 +60,7 @@ export interface ElectronAPI {
     bindings: ShortcutBindings
   ) => Promise<ShortcutRegistrationResult>
   resetShortcutBindings: () => Promise<ShortcutRegistrationResult>
+  closeComposer: () => Promise<{ success: boolean }>
   onShellShortcut: (
     callback: (action: ShortcutAction) => void
   ) => () => void

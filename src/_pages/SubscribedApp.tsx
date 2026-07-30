@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useLayoutEffect, useRef, useState } from "react"
 import type { SubscriptionConfig } from "../../electron/config"
 import {
   createIdleInterviewSession
@@ -22,9 +22,13 @@ import type { HudState } from "../shared/shell"
 
 interface SubscribedAppProps {
   readonly config: SubscriptionConfig
+  readonly settingsOpen: boolean
 }
 
-export default function SubscribedApp({ config }: SubscribedAppProps) {
+export default function SubscribedApp({
+  config,
+  settingsOpen
+}: SubscribedAppProps) {
   if (!config.provider || !config.model) {
     throw new Error("SubscribedApp requires a configured provider")
   }
@@ -42,10 +46,19 @@ export default function SubscribedApp({ config }: SubscribedAppProps) {
   const [composerOpen, setComposerOpen] = useState(false)
   const [hotKeysOpen, setHotKeysOpen] = useState(false)
   const [shellStatus, setShellStatus] = useState("")
-  const [hudState, setHudState] = useState<HudState>("compact-bar")
+  const [workspaceExpanded, setWorkspaceExpanded] = useState(false)
   const hotKeysButton = useRef<HTMLButtonElement>(null)
+  const shell = useRef<HTMLElement>(null)
   const sectionCount =
     session.lifecycle === "active" ? session.sections.length : 0
+  const artifactCount =
+    session.lifecycle === "active" ? session.artifacts.length : 0
+  const hudState: HudState =
+    settingsOpen || workspaceExpanded
+      ? "expanded"
+      : composerOpen || hotKeysOpen || sectionCount > 0
+        ? "compact-answer"
+        : "compact-bar"
 
   useEffect(() => {
     void window.electronAPI.getInterviewState().then(setSession)
@@ -54,18 +67,35 @@ export default function SubscribedApp({ config }: SubscribedAppProps) {
   }, [])
 
   useEffect(() => {
-    if (hudState !== "expanded") {
-      setHudState(
-        session.lifecycle === "active" && sectionCount > 0
-          ? "compact-answer"
-          : "compact-bar"
-      )
-    }
-  }, [hudState, session.lifecycle, sectionCount])
-
-  useEffect(() => {
     void window.electronAPI.setHudState(hudState)
   }, [hudState])
+
+  useLayoutEffect(() => {
+    if (hudState === "expanded") return
+    const frame = requestAnimationFrame(() => {
+      const surface = shell.current
+      if (!surface) return
+      const width =
+        hudState === "compact-bar"
+          ? Math.min(520, Math.max(320, surface.scrollWidth))
+          : 520
+      const height =
+        hudState === "compact-bar"
+          ? config.shell?.density === "comfortable"
+            ? 52
+            : 44
+          : Math.max(80, surface.scrollHeight)
+      void window.electronAPI.updateContentDimensions({ width, height })
+    })
+    return () => cancelAnimationFrame(frame)
+  }, [
+    composerOpen,
+    config.shell?.density,
+    hotKeysOpen,
+    hudState,
+    sectionCount,
+    artifactCount
+  ])
 
   const start = async () => {
     const result = await window.electronAPI.dispatchInterviewCommand({
@@ -109,8 +139,16 @@ export default function SubscribedApp({ config }: SubscribedAppProps) {
     [input, session]
   )
 
+  useEffect(() => {
+    if (session.lifecycle === "idle" && composerOpen) {
+      setComposerOpen(false)
+      void window.electronAPI.closeComposer()
+    }
+  }, [composerOpen, session.lifecycle])
+
   return (
     <section
+      ref={shell}
       className={`quiet-shell quiet-shell-${hudState}`}
       data-density={config.shell?.density ?? "compact"}
       data-text-size={config.shell?.textSize ?? "standard"}
@@ -133,11 +171,7 @@ export default function SubscribedApp({ config }: SubscribedAppProps) {
         onSubmit={() => void submit()}
         onHotKeys={() => setHotKeysOpen((open) => !open)}
         hotKeysButtonRef={hotKeysButton}
-        onWorkspace={() =>
-          setHudState((current) =>
-            current === "expanded" ? "compact-answer" : "expanded"
-          )
-        }
+        onWorkspace={() => setWorkspaceExpanded((expanded) => !expanded)}
         onReset={() =>
           void window.electronAPI
             .dispatchInterviewCommand({ type: "reset" })
@@ -169,7 +203,10 @@ export default function SubscribedApp({ config }: SubscribedAppProps) {
             (artifact) => artifact.selected && !artifact.submitted
           )}
           onSubmit={(message) => submit(message)}
-          onClose={() => setComposerOpen(false)}
+          onClose={() => {
+            setComposerOpen(false)
+            void window.electronAPI.closeComposer()
+          }}
         />
       ) : null}
       <p className="quiet-status" role="status">{shellStatus}</p>

@@ -432,6 +432,11 @@
       "sha256": "e4309d5389fff141fff796d8d689dbab6b61d0f1d8d79b2ffa36bf9825e57829"
     },
     {
+      "path": "electron/window/composerVisibility.test.ts",
+      "name": "restores the exact hidden or visible origin on close",
+      "sha256": "ebe86ffd293051b046d84c512c662e4d291d166c9154c69948ea389add8b9111"
+    },
+    {
       "path": "electron/shortcuts/shortcutRegistry.test.ts",
       "name": "registers remaps and rolls back conflicts atomically",
       "sha256": "8341538c01bd438ec534aae2e0c7167ae4eaca0aa9c92d1afa694f84647994e5"

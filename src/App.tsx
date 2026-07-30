@@ -83,9 +83,15 @@ export default function App() {
   return (
     <ToastProvider>
       <ToastContext.Provider value={{ showToast }}>
-        <main className="min-h-screen bg-black text-white">
+        <main
+          className={
+            config?.provider && config.model
+              ? "min-h-screen bg-transparent text-white"
+              : "min-h-screen bg-black text-white"
+          }
+        >
           {config?.provider && config.model ? (
-            <SubscribedApp config={config} />
+            <SubscribedApp config={config} settingsOpen={settingsOpen} />
           ) : (
             <div className="mx-auto max-w-xl p-6">
               <ProviderSetup
