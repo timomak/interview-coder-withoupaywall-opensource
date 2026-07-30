@@ -1,0 +1,96 @@
+{
+  "schemaVersion": 1,
+  "kind": "bounded-recovery-packet",
+  "projectKey": "InterviewCopilot",
+  "milestoneId": "IC-M00",
+  "recoveryId": "IC-M00-A04-RECOVERY-01",
+  "artifactId": "P00-V2-CAP-A04-RECOVERY-01",
+  "targetCapabilityArtifactId": "P00-V2-CAP-A04",
+  "createdAt": "2026-07-30T13:49:47+02:00",
+  "controllerThreadId": "019f9ff6-e24b-7053-a2b3-fe01f8538ab4",
+  "status": "AUTHORIZED_IMPLEMENTING",
+  "authority": {
+    "source": "Standing checker authorization for one additional narrowly bounded IC-M00/A04 technical recovery limited to unresolved G1-B02.",
+    "safeNonPrivilegedDesignBuildTestReviewAuthorized": true,
+    "privilegedActivationAuthorizedNow": false,
+    "passwordPromptAuthorizedNow": false,
+    "candidateInvocationAuthorizedNow": false,
+    "additionalRecoveryAfterThisCycleAuthorized": false
+  },
+  "checkpoint": {
+    "durableRevision": "35766b33fb33b2a7c71a2a0941d7904405ecb3ae",
+    "failedReviewedRevision": "c56f78ae050331a2cd3a999260aa7c887e0f2f1e",
+    "failedReplanPacket": "v3/interviewcopilot/milestone-IC-M00-replan-1.json",
+    "failedReplanPacketSha256": "1d40a2503d223864b94ad1d4b544ab956aa399da20837a12a479b76de04d56e1",
+    "candidateRevision": "2e5045116db6e3c5f6e6cc18b70df6d7fa021baf",
+    "pullRequest": "155_OPEN_DRAFT_HEAD_EXACT_CODEQL_SUCCESS",
+    "failedArtifactDisposition": "PRESERVED_IMMUTABLE_QUARANTINED_DO_NOT_INVOKE",
+    "liveA04State": "ABSENT_UNAUTHORIZED",
+    "legacyState": "UNCHANGED_QUARANTINED"
+  },
+  "failedRevision": "c56f78ae050331a2cd3a999260aa7c887e0f2f1e",
+  "findings": [
+    {
+      "id": "IC-M00-RP01-G1-B02",
+      "severity": "HIGH",
+      "classification": "TERMINAL_MEMBER_GROUP_IDENTITY_NOT_ENFORCED",
+      "exactFailure": "The receipt and journal member validators enforce owner, mode, link count, ACL, and extended attributes but omit the frozen root:wheel group check. Creation relies on inherited group and wrong-group receipt/journal replay is untested.",
+      "requiredOutcome": "Receipt and journal publication explicitly establish the exact requested group, reopen and verify st_gid equals that group, and reject wrong-group terminal receipt replay and journal replay while preserving every previously passing boundary."
+    }
+  ],
+  "invalidatedEvidence": [
+    "P00-V2-CAP-A04 administrator handoff at c56f78ae050331a2cd3a999260aa7c887e0f2f1e",
+    "IC-M00-RP01-G1 approval eligibility at c56f78ae050331a2cd3a999260aa7c887e0f2f1e"
+  ],
+  "reusableEvidence": [
+    "P00-R9 source packet at 02ee6ddec78d6e4ea9e2de3c0303ffd6bc9f45bf",
+    "Exact candidate 2e5045116db6e3c5f6e6cc18b70df6d7fa021baf and PR 155 CodeQL success",
+    "G1-B01 closed installed-state admission evidence at c56f78ae050331a2cd3a999260aa7c887e0f2f1e",
+    "G1-B03 closed durable journal/publication/core-admission evidence at c56f78ae050331a2cd3a999260aa7c887e0f2f1e",
+    "UID501 exact empty-argument authorization, P01-only fresh namespace, exact source/stage/payload/installed byte validation, authorization-first revocation, and legacy nonmutation review evidence",
+    "Fourteen-test disposable suite and three-of-three reproducibility evidence except the missing group-identity assertions"
+  ],
+  "mutableTargets": [
+    "capabilities/P00-V2-CAP-A04-RECOVERY-01",
+    "v3/interviewcopilot/bounded-recovery-IC-M00-5.json",
+    "v3/interviewcopilot/controller-state.json"
+  ],
+  "prohibitedTargets": [
+    "capabilities/P00-V2-CAP-A04",
+    "candidate or PR 155 content",
+    "authorization scope or sudoers semantics",
+    "A04 installed namespace or live authorization",
+    "legacy v1, A02, A03, RECOVERY-01, RECOVERY-02, or RECOVERY-03 state",
+    "P01 acceptance requirements",
+    "P02 or later milestones"
+  ],
+  "implementationBoundary": {
+    "receiptMember": "Enforce exact requested st_uid and st_gid, mode 0444, regular file, link count 1, no ACL, no extended attributes, canonical bytes, descriptor/reopen equality, and durable publication.",
+    "journalMember": "Enforce exact requested st_uid and st_gid, mode 0400, regular file, link count 1, no ACL, no extended attributes, canonical bytes, descriptor/reopen equality, and durable publication/removal.",
+    "creation": "Explicitly establish both requested owner and group before terminal reopen validation in live and disposable roots.",
+    "tests": "Add explicit wrong-group terminal receipt replay rejection and wrong-group journal replay rejection without changing unrelated acceptance."
+  },
+  "reviewGates": [
+    {
+      "id": "IC-M00-A04R1-G1",
+      "role": "complementary_high_risk",
+      "risk": "HIGH",
+      "timing": "before_authoritative_complete",
+      "scope": "One fresh exact closure review limited to G1-B02 member group establishment/validation, wrong-group adversarial replay, and regression of the previously passing A04 security boundary.",
+      "exactShaReusable": true,
+      "correctionBudget": 0
+    }
+  ],
+  "targetedChecks": [
+    "Receipt publish explicitly establishes requested UID and GID and reopens with exact member facts.",
+    "Journal create explicitly establishes requested UID and GID and reopens with exact member facts.",
+    "Terminal SUCCESS receipt replay rejects a wrong member group.",
+    "Interrupted transaction journal replay rejects a wrong member group before state mutation.",
+    "Existing owner, mode, link, ACL, xattr, schema, installed-state, publication, crash/replay, idempotence, revocation, namespace, authorization, and legacy-nonmutation checks remain green.",
+    "Three clean builds reproduce controller, manifest, envelope, handoff, archive, and native self-test identities."
+  ],
+  "authoritativeComplete": "Only after IC-M00-A04R1-G1 APPROVE, return to the already-frozen A04 authoritative path. No privileged or candidate command is part of this recovery preparation.",
+  "correctionBudget": 0,
+  "terminalCondition": "Identical IC-M00-RP01-G1-B02 material group-identity failure remains after the one fresh exact closure review.",
+  "continuation": "AUTO_ON_APPROVAL"
+}

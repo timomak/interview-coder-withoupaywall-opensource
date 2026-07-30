@@ -148,6 +148,18 @@
             "handoff": "QUARANTINED_DO_NOT_INVOKE",
             "status": "PREACTIVATION_REVIEW_REJECTED_TERMINAL_IN_REPLAN"
         },
+        "a04Recovery01": {
+            "artifactId": "P00-V2-CAP-A04-RECOVERY-01",
+            "targetCapabilityArtifactId": "P00-V2-CAP-A04",
+            "packet": "v3/interviewcopilot/bounded-recovery-IC-M00-5.json",
+            "authority": "ONE_NON_PRIVILEGED_G1_B02_GROUP_IDENTITY_CORRECTION_AND_ONE_FRESH_HIGH_RISK_CLOSURE_REVIEW",
+            "failedReviewedRevision": "c56f78ae050331a2cd3a999260aa7c887e0f2f1e",
+            "candidateRevision": "2e5045116db6e3c5f6e6cc18b70df6d7fa021baf",
+            "installed": false,
+            "authorization": "ABSENT",
+            "candidateInvoked": false,
+            "status": "AUTHORIZED_IMPLEMENTING"
+        },
         "v1": {
       "installedRoot": "/Users/Shared/InterviewCopilot/verification-controller/v1",
       "observedManifestSha256": "54997fb321b9b83e4237e23ad6914e10777f130df35ff9de8b9aae692ee7d97e",
@@ -162,7 +174,7 @@
     "currentMilestone": {
         "id": "IC-M00",
         "title": "Trusted local policy rails",
-        "status": "BLOCKED",
+        "status": "IMPLEMENTING",
         "activeReplan": {
             "id": "IC-M00-RP01",
             "path": "v3/interviewcopilot/milestone-IC-M00-replan-1.json",
@@ -185,6 +197,16 @@
             "candidateInvoked": false,
             "administratorInteractionRequired": false,
             "retryProhibitedWithinReplan": true
+        },
+        "activeRecovery": {
+            "id": "IC-M00-A04-RECOVERY-01",
+            "path": "v3/interviewcopilot/bounded-recovery-IC-M00-5.json",
+            "packetSha256": "b662a736d951126fb30c5abd8dcd36cb80777e33189e101f568bc360edd88a3c",
+            "scope": "IC-M00-RP01-G1-B02_ONLY",
+            "status": "AUTHORIZED_IMPLEMENTING",
+            "privilegedBoundaryCrossed": false,
+            "candidateInvoked": false,
+            "terminalOnIdenticalRecurrence": true
         },
         "frozenAt": "2026-07-29T09:10:11+02:00",
     "ownedRequirementIds": [
