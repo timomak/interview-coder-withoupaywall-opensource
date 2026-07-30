@@ -7,12 +7,28 @@ import {
   parseInterviewCommand
 } from "../src/shared/interview"
 import type { InterviewOrchestrator } from "./orchestrator"
+import {
+  PROVIDER_CONFIGURE_CHANNEL,
+  PROVIDER_DIAGNOSTICS_CHANNEL,
+  createSelection,
+  isProviderId,
+  type ProviderDiagnostics,
+  type ProviderId,
+  type ResponseMode
+} from "../src/shared/provider"
+import type { SubscriptionConfig } from "./config"
 
 export interface IpcHandlerDependencies {
   readonly orchestrator: InterviewOrchestrator
   readonly setWindowDimensions: (width: number, height: number) => void
   readonly toggleMainWindow: () => void
   readonly showSettings: () => void
+  readonly diagnoseProviders: () => Promise<readonly ProviderDiagnostics[]>
+  readonly configureProvider: (
+    provider: ProviderId,
+    model: string,
+    responseMode: ResponseMode
+  ) => Promise<SubscriptionConfig>
 }
 
 export function initializeIpcHandlers(
@@ -23,7 +39,43 @@ export function initializeIpcHandlers(
     if (typeof updates !== "object" || updates === null) {
       throw new Error("Configuration update is malformed")
     }
+    if ("provider" in updates || "model" in updates) {
+      throw new Error("Provider configuration requires verified diagnostics")
+    }
     return configHelper.updateConfig(updates)
+  })
+  ipcMain.handle(PROVIDER_DIAGNOSTICS_CHANNEL, () =>
+    dependencies.diagnoseProviders()
+  )
+  ipcMain.handle(PROVIDER_CONFIGURE_CHANNEL, (_event, value: unknown) => {
+    if (
+      typeof value !== "object" ||
+      value === null ||
+      Object.keys(value).some(
+        (key) => !["provider", "model", "responseMode"].includes(key)
+      )
+    ) {
+      throw new Error("Provider configuration is malformed")
+    }
+    const candidate = value as Record<string, unknown>
+    if (
+      !isProviderId(candidate.provider) ||
+      typeof candidate.model !== "string" ||
+      (candidate.responseMode !== "fast" &&
+        candidate.responseMode !== "reasoning")
+    ) {
+      throw new Error("Provider configuration is malformed")
+    }
+    createSelection(
+      candidate.provider,
+      candidate.model,
+      candidate.responseMode
+    )
+    return dependencies.configureProvider(
+      candidate.provider,
+      candidate.model,
+      candidate.responseMode
+    )
   })
 
   ipcMain.handle(INTERVIEW_STATE_CHANNEL, () =>

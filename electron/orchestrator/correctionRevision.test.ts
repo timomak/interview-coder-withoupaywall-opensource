@@ -38,7 +38,8 @@ describe("correction revision", () => {
               kind: "structured",
               sections: before.map(({ id, body }) => ({ id, body }))
             }
-          }
+          },
+          { type: "completed", sequence: 2 }
         ]
       },
       {
@@ -56,7 +57,8 @@ describe("correction revision", () => {
               kind: "correction",
               sections: [{ id: "complexity", body: "O(log n)" }]
             }
-          }
+          },
+          { type: "completed", sequence: 2 }
         ]
       }
     )

@@ -15,6 +15,15 @@ import type {
 } from "../src/shared/interview"
 import type { SubscriptionConfig } from "./config"
 import type { UpdateInfo } from "../src/types/electron"
+import {
+  PROVIDER_CONFIGURE_CHANNEL,
+  PROVIDER_DIAGNOSTICS_CHANNEL
+} from "../src/shared/provider"
+import type {
+  ProviderDiagnostics,
+  ProviderId,
+  ResponseMode
+} from "../src/shared/provider"
 
 const electronAPI = {
   getConfig: (): Promise<SubscriptionConfig> =>
@@ -23,6 +32,14 @@ const electronAPI = {
     updates: Partial<SubscriptionConfig>
   ): Promise<SubscriptionConfig> =>
     ipcRenderer.invoke("config:update", updates),
+  getProviderDiagnostics: (): Promise<readonly ProviderDiagnostics[]> =>
+    ipcRenderer.invoke(PROVIDER_DIAGNOSTICS_CHANNEL),
+  configureProvider: (selection: {
+    provider: ProviderId
+    model: string
+    responseMode: ResponseMode
+  }): Promise<SubscriptionConfig> =>
+    ipcRenderer.invoke(PROVIDER_CONFIGURE_CHANNEL, selection),
   getInterviewState: (): Promise<InterviewSession> =>
     ipcRenderer.invoke(INTERVIEW_STATE_CHANNEL),
   getInterviewRecovery: () =>

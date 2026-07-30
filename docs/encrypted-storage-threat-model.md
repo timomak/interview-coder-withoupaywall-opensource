@@ -99,8 +99,11 @@ whether it is case-insensitive.
 ## M-02 and M-03 migration/rollback
 
 Both migrations use an AES-GCM-encrypted, atomically written v1 journal. Replay
-must supply the exact same ordered source/ID/content-type set. Every transition
-is saved before the next destructive action, making replay idempotent.
+must supply the exact same ordered source/ID/content-type set. A write intent is
+saved before every target write, quarantine rename/delete, rollback restore,
+and target delete. Replay reconciles actual source/quarantine/target presence
+against that intent before continuing, covering a crash after the filesystem
+mutation but before its completion stage can be journaled.
 
 M-02 converts legacy plaintext screenshot/temp/cache artifacts:
 
@@ -114,8 +117,9 @@ M-02 converts legacy plaintext screenshot/temp/cache artifacts:
    the quarantine copy.
 5. Mark complete. An interruption resumes from the saved stage.
 
-No newly created plaintext copy exists. Until step 4, rollback removes the new
-encrypted blob and renames the quarantine entry back to its original location.
+No newly created plaintext copy exists. Until step 4, rollback restores the
+quarantine entry by rename, verifies the restored source hash, and only then
+removes the new encrypted blob.
 After verified quarantine deletion, rollback is explicitly unavailable rather
 than fabricating a new plaintext copy. Raw audio and symlink sources are
 rejected and left untouched.
@@ -153,9 +157,10 @@ The eight storage-owned tests bind directly to P03:
   exactly prior-or-new valid state.
 - `pathSafety.test.ts` proves modes, traversal/symlink rejection, canonical
   roots, outside-file preservation, and volume case behavior.
-- `plaintextMigration.test.ts` proves M-02 encrypted journals, interruption
-  replay, decrypt-before-delete, idempotence, rollback, and M-03 quarantine
-  rollback.
+- `plaintextMigration.test.ts` proves M-02 encrypted journals, crash replay
+  before and after each filesystem mutation, decrypt-before-delete,
+  idempotence, verified rollback replay, and M-03 migration/rollback crash
+  reconciliation.
 - `retentionPolicy.test.ts` proves raw-audio rejection and absence of temporary
   fixture bytes.
 - `recovery.test.ts` proves locked/wrong-user key recovery and isolated,

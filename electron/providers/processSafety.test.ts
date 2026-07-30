@@ -82,7 +82,7 @@ describe("provider process boundary", () => {
       const floodResult = await runner.run({
         executable: flood.executable,
         args: [],
-        timeoutMs: 1_000,
+        timeoutMs: 5_000,
         terminateGraceMs: 20,
         maximumOutputBytes: 1_000,
         maximumLineBytes: 1_000

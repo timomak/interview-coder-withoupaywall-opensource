@@ -5,6 +5,11 @@ import type {
   InterviewSession,
   RecoveryChoice
 } from "../shared/interview"
+import type {
+  ProviderDiagnostics,
+  ProviderId,
+  ResponseMode
+} from "../shared/provider"
 
 export interface UpdateInfo {
   version?: string
@@ -18,6 +23,12 @@ export interface ElectronAPI {
   updateConfig: (
     updates: Partial<SubscriptionConfig>
   ) => Promise<SubscriptionConfig>
+  getProviderDiagnostics: () => Promise<readonly ProviderDiagnostics[]>
+  configureProvider: (selection: {
+    provider: ProviderId
+    model: string
+    responseMode: ResponseMode
+  }) => Promise<SubscriptionConfig>
   getInterviewState: () => Promise<InterviewSession>
   getInterviewRecovery: () => Promise<RecoveryChoice>
   dispatchInterviewCommand: (

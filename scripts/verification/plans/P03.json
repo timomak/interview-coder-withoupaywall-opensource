@@ -78,7 +78,7 @@
       ],
       "classification": "test",
       "expectedExit": 0,
-      "minimumPassed": 8
+      "minimumPassed": 11
     },
     {
       "label": "manifest",

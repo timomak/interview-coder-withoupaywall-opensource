@@ -5,6 +5,31 @@ import {
 } from "../../src/shared/provider"
 import { SafeProcessRunner } from "./processRunner"
 
+function subscriptionAuthentication(
+  provider: ProviderId,
+  stdoutLines: readonly string[],
+  stderr: string
+): boolean {
+  if (provider === "claude-code") {
+    if (stdoutLines.length !== 1) return false
+    try {
+      const value = JSON.parse(stdoutLines[0]) as Record<string, unknown>
+      return (
+        value.loggedIn === true &&
+        value.authMethod === "claude.ai" &&
+        value.apiProvider === "firstParty" &&
+        typeof value.subscriptionType === "string" &&
+        value.subscriptionType.length > 0
+      )
+    } catch {
+      return false
+    }
+  }
+  return /^Logged in using ChatGPT$/i.test(
+    [...stdoutLines, stderr].join("\n").trim()
+  )
+}
+
 export async function diagnoseProvider(
   provider: ProviderId,
   executable: string,
@@ -44,16 +69,23 @@ export async function diagnoseProvider(
       maximumOutputBytes: 32_000,
       maximumLineBytes: 8_000
     })
+    const authenticated =
+      authResult.failure === undefined &&
+      subscriptionAuthentication(
+        provider,
+        authResult.stdoutLines,
+        authResult.stderr
+      )
     return {
       provider,
       installed: true,
-      authenticated: authResult.failure === undefined,
+      authenticated,
       supported: true,
       version,
       reason:
-        authResult.failure === undefined
+        authenticated
           ? undefined
-          : "Sign in with the provider CLI and retry"
+          : "Sign in with a supported provider subscription and retry"
     }
   } catch {
     return {

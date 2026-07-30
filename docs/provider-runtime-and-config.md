@@ -16,11 +16,14 @@ answer process starts:
 | Codex | `codex-app-server-jsonrpc@2` | `>=0.144.0 <0.145.0` | `gpt-5.3-codex`, `gpt-5.4` | Fast → `low`; Reasoning → `high` |
 
 Install one CLI using its provider's official instructions and sign in with
-`claude auth` or `codex login`. Onboarding uses installation, version, and
-sign-in exit diagnostics only. It suppresses diagnostic output because it can
-contain account identifiers. After reconnecting or upgrading a CLI, retry the
-provider diagnostic. Unsupported versions require an explicit application
-capability update; there is no optimistic protocol fallback.
+`claude auth` or `codex login`. Onboarding verifies the returned authentication
+method, not merely a successful exit: Claude must report a first-party
+`claude.ai` subscription and Codex must report ChatGPT login. API credentials
+and ambiguous output remain unconfigured, and Start rechecks the selected
+provider. Diagnostic output is not surfaced because it can contain account
+identifiers. After reconnecting or upgrading a CLI, retry the provider
+diagnostic. Unsupported versions require an explicit application capability
+update; there is no optimistic protocol fallback.
 
 Provider, model, response mode, and native effort are frozen when an interview
 session is created. A setting changed during that session applies only to the
@@ -44,17 +47,20 @@ compaction, stop, completion, and recoverable sanitized error. A selected
 provider failure ends the turn. The other executable is never probed or
 started.
 
-## Caller-owned conversation IDs
+## Explicit create and resume
 
-P02 accepts a caller-supplied Claude session ID or Codex thread ID and passes it
-to the selected CLI on every turn. The runtime holds that opaque value only in
-the caller/session object. Reconstructing the driver or child and supplying the
-same value resumes the same provider conversation; P02 does not claim
-application-restart recovery.
+The runtime exposes distinct create and resume operations. Claude create uses a
+caller-generated session UUID and `--session-id`; resume uses `--resume`.
+Codex create calls app-server `thread/start`, persists only the opaque thread ID
+returned by that response, and starts the turn against that ID. Resume calls
+`thread/resume` and rejects an unknown thread instead of silently creating
+one. Both drivers stream line-normalized events as they arrive.
 
 No P02 configuration, backup, log, recovery record, or provider-state directory
-stores the value. P03/P04 later own encrypted application-restart recovery and
-will pass the decrypted opaque value back into this API.
+stores the value. P03/P04 own encrypted application-restart recovery and pass
+the decrypted opaque value back only to the explicit resume API. This split
+prevents a missing provider conversation from being mistaken for successful
+recovery.
 
 ## M-01 migration and rollback
 

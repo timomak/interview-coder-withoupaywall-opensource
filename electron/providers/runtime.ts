@@ -20,16 +20,39 @@ export interface ProviderRuntimeOptions {
   maximumLineBytes?: number
 }
 
-export interface StartProviderSession {
+interface ProviderSessionSelection {
   provider: ProviderId
   model: string
   responseMode: ResponseMode
-  conversationId: string
 }
+
+export type StartProviderSession =
+  | (ProviderSessionSelection & {
+      mode: "create"
+      requestedConversationId: string
+    })
+  | (ProviderSessionSelection & {
+      mode: "resume"
+      conversationId: string
+    })
+
+export type ProviderEventSink = (
+  event: ProviderEvent
+) => void | Promise<void>
 
 export interface ProviderSession {
   readonly selection: Readonly<ProviderSelection>
-  runTurn(prompt: string, signal?: AbortSignal): Promise<ProviderTurnResult>
+  conversationId(): string | undefined
+  runTurn(
+    prompt: string,
+    signal?: AbortSignal,
+    onEvent?: ProviderEventSink
+  ): Promise<ProviderTurnResult>
+}
+
+interface ProviderConversation {
+  mode: "create" | "resume"
+  conversationId: string
 }
 
 const DEFAULTS = {
@@ -92,19 +115,53 @@ export class ProviderRuntime {
   }
 
   startSession(request: StartProviderSession): ProviderSession {
-    assertOpaqueId(request.conversationId)
+    const requestedId =
+      request.mode === "create"
+        ? request.requestedConversationId
+        : request.conversationId
+    assertOpaqueId(requestedId)
     const selection = createSelection(
       request.provider,
       request.model,
       request.responseMode
     )
     const executable = this.configuration.executables[selection.provider]
-    const conversationId = request.conversationId
+    const conversation: ProviderConversation = {
+      mode: request.mode,
+      conversationId: requestedId
+    }
+    let acceptedConversationId =
+      selection.provider === "claude-code" ? requestedId : undefined
 
     return Object.freeze({
       selection,
-      runTurn: (prompt: string, signal?: AbortSignal) =>
-        this.runTurn(executable, selection, conversationId, prompt, signal)
+      conversationId: () => acceptedConversationId,
+      runTurn: async (
+        prompt: string,
+        signal?: AbortSignal,
+        onEvent?: ProviderEventSink
+      ) => {
+        const outcome = await this.runTurn(
+          executable,
+          selection,
+          conversation,
+          prompt,
+          signal,
+          onEvent,
+          (conversationId) => {
+            acceptedConversationId = conversationId
+            conversation.conversationId = conversationId
+            conversation.mode = "resume"
+          }
+        )
+        if (
+          outcome.events.some((event) => event.type === "completed") &&
+          !outcome.events.some((event) => event.type === "error")
+        ) {
+          conversation.mode = "resume"
+        }
+        return outcome
+      }
     })
   }
 
@@ -133,41 +190,86 @@ export class ProviderRuntime {
   private async runTurn(
     executable: string,
     selection: Readonly<ProviderSelection>,
-    conversationId: string,
+    conversation: ProviderConversation,
     prompt: string,
-    signal?: AbortSignal
+    signal?: AbortSignal,
+    onEvent?: ProviderEventSink,
+    onConversationId?: (conversationId: string) => void
   ): Promise<ProviderTurnResult> {
-    await this.verifyVersion(executable, selection, conversationId, signal)
+    await this.verifyVersion(
+      executable,
+      selection,
+      conversation.conversationId,
+      signal
+    )
+    const events: ProviderEvent[] = []
+    let sequence = 0
+    let conversationAnnounced = false
+    const emit = async (event: ProviderEvent): Promise<void> => {
+      const normalized = { ...event, sequence: sequence++ } as ProviderEvent
+      events.push(normalized)
+      await onEvent?.(normalized)
+    }
     const request =
       selection.provider === "claude-code"
-        ? this.claudeRequest(selection, conversationId, prompt, signal)
-        : this.codexRequest(selection, conversationId, prompt, signal)
+        ? this.claudeRequest(
+            selection,
+            conversation,
+            prompt,
+            signal,
+            async (line) => {
+              for (const event of normalizeClaudeEvents([line], [
+                conversation.conversationId
+              ])) {
+                await emit(event)
+              }
+            }
+          )
+        : this.codexRequest(
+            selection,
+            conversation,
+            prompt,
+            signal,
+            async (line, input) => {
+              const returnedId = this.codexConversationId(line)
+              if (returnedId) {
+                if (
+                  conversation.mode === "resume" &&
+                  returnedId !== conversation.conversationId
+                ) {
+                  throw new Error("Codex resumed an unexpected thread")
+                }
+                assertOpaqueId(returnedId)
+                onConversationId?.(returnedId)
+                if (!conversationAnnounced) {
+                  conversationAnnounced = true
+                  await emit({ type: "started", sequence: 0 })
+                }
+                input.writeLine(
+                  JSON.stringify(
+                    this.codexTurnStart(selection, returnedId, prompt)
+                  )
+                )
+                input.end()
+              } else if (this.codexConversationRejected(line)) {
+                input.end()
+              }
+              for (const event of normalizeCodexEvents([line], [
+                conversation.conversationId
+              ])) {
+                if (event.type === "started" && conversationAnnounced) continue
+                await emit(event)
+              }
+            }
+          )
     const result = await this.runner.run(request)
     const processError = errorFromProcess(result)
-    let events: ProviderEvent[]
     if (processError) {
-      events = [processError]
-    } else {
-      try {
-        events =
-          selection.provider === "claude-code"
-            ? normalizeClaudeEvents(result.stdoutLines, [conversationId])
-            : normalizeCodexEvents(result.stdoutLines, [conversationId])
-      } catch {
-        events = [
-          {
-            type: "error",
-            sequence: 0,
-            code: "PROTOCOL_ERROR",
-            message: "Provider emitted an unsupported protocol event",
-            recoverable: true
-          }
-        ]
-      }
+      await emit(processError)
     }
 
     if (events.length === 0) {
-      events.push({
+      await emit({
         type: "error",
         sequence: 0,
         code: "PROTOCOL_ERROR",
@@ -180,10 +282,17 @@ export class ProviderRuntime {
 
   private claudeRequest(
     selection: Readonly<ProviderSelection>,
-    conversationId: string,
+    conversation: ProviderConversation,
     prompt: string,
-    signal?: AbortSignal
+    signal: AbortSignal | undefined,
+    onStdoutLine: NonNullable<
+      Parameters<SafeProcessRunner["run"]>[0]["onStdoutLine"]
+    >
   ) {
+    const conversationArgument =
+      conversation.mode === "create"
+        ? ["--session-id", conversation.conversationId]
+        : ["--resume", conversation.conversationId]
     return {
       executable: this.configuration.executables["claude-code"],
       args: [
@@ -192,8 +301,7 @@ export class ProviderRuntime {
         "stream-json",
         "--include-partial-messages",
         "--verbose",
-        "--resume",
-        conversationId,
+        ...conversationArgument,
         "--model",
         selection.model,
         "--effort",
@@ -211,16 +319,20 @@ export class ProviderRuntime {
         prompt
       ],
       signal,
-      sensitiveValues: [conversationId],
+      sensitiveValues: [conversation.conversationId],
+      onStdoutLine,
       ...this.options
     }
   }
 
   private codexRequest(
     selection: Readonly<ProviderSelection>,
-    conversationId: string,
+    conversation: ProviderConversation,
     prompt: string,
-    signal?: AbortSignal
+    signal: AbortSignal | undefined,
+    onStdoutLine: NonNullable<
+      Parameters<SafeProcessRunner["run"]>[0]["onStdoutLine"]
+    >
   ) {
     const messages = [
       {
@@ -232,31 +344,84 @@ export class ProviderRuntime {
         }
       },
       { method: "initialized", params: {} },
-      {
-        id: 2,
-        method: "thread/resume",
-        params: { threadId: conversationId }
-      },
-      {
-        id: 3,
-        method: "turn/start",
-        params: {
-          threadId: conversationId,
-          input: [{ type: "text", text: prompt }],
-          model: selection.model,
-          effort: selection.effort,
-          approvalPolicy: "never",
-          sandboxPolicy: { type: "readOnly" }
-        }
-      }
+      conversation.mode === "create"
+        ? {
+            id: 2,
+            method: "thread/start",
+            params: {
+              model: selection.model,
+              approvalPolicy: "never",
+              sandbox: "read-only",
+              ephemeral: false
+            }
+          }
+        : {
+            id: 2,
+            method: "thread/resume",
+            params: {
+              threadId: conversation.conversationId,
+              model: selection.model,
+              approvalPolicy: "never",
+              sandbox: "read-only"
+            }
+          }
     ]
     return {
       executable: this.configuration.executables.codex,
       args: ["app-server", "--stdio", "--strict-config"],
       stdinLines: messages.map((message) => JSON.stringify(message)),
+      closeStdin: false,
+      onStdoutLine,
       signal,
-      sensitiveValues: [conversationId],
+      sensitiveValues: [conversation.conversationId],
       ...this.options
+    }
+  }
+
+  private codexConversationId(line: string): string | undefined {
+    let value: unknown
+    try {
+      value = JSON.parse(line)
+    } catch {
+      throw new Error("Codex emitted malformed JSON")
+    }
+    if (typeof value !== "object" || value === null) return undefined
+    const message = value as Record<string, unknown>
+    if (message.id !== 2 || typeof message.result !== "object" || !message.result) {
+      return undefined
+    }
+    const thread = (message.result as Record<string, unknown>).thread
+    if (typeof thread !== "object" || thread === null) {
+      throw new Error("Codex did not return a thread")
+    }
+    const id = (thread as Record<string, unknown>).id
+    if (typeof id !== "string") throw new Error("Codex returned an invalid thread")
+    return id
+  }
+
+  private codexConversationRejected(line: string): boolean {
+    const value = JSON.parse(line) as unknown
+    if (typeof value !== "object" || value === null) return false
+    const message = value as Record<string, unknown>
+    return message.id === 2 && message.error !== undefined
+  }
+
+  private codexTurnStart(
+    selection: Readonly<ProviderSelection>,
+    conversationId: string,
+    prompt: string
+  ) {
+    return {
+      id: 3,
+      method: "turn/start",
+      params: {
+        threadId: conversationId,
+        input: [{ type: "text", text: prompt, text_elements: [] }],
+        model: selection.model,
+        effort: selection.effort,
+        approvalPolicy: "never",
+        sandboxPolicy: { type: "readOnly" }
+      }
     }
   }
 }

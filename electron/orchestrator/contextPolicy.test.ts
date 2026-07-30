@@ -16,11 +16,15 @@ describe("ordered context policy", () => {
       ]
     })
     const policy = new OrderedContextPolicy()
-    const seed = policy.next(session)
-    const delta = policy.next(session, [
+    const seedAttempt = policy.prepare(session, "seed-attempt")
+    expect(policy.prepare(session, "ignored-retry")).toEqual(seedAttempt)
+    policy.commit("seed-attempt")
+    const deltaAttempt = policy.prepare(session, "delta-attempt", [
       ...session.snapshot.context,
       { id: "transcript", category: "transcript", revision: 1, content: "new" }
     ])
+    const seed = seedAttempt.packet
+    const delta = deltaAttempt.packet
     expect(seed.kind).toBe("seed")
     expect(seed.items.map((item) => item.id)).toEqual(["instructions"])
     expect(delta).toMatchObject({
@@ -30,5 +34,25 @@ describe("ordered context policy", () => {
     expect(serializeContextPacket(seed)).not.toMatch(
       /PROFILE_BYTES|OPPORTUNITY_BYTES/
     )
+    expect(policy.snapshot().pending?.attemptId).toBe("delta-attempt")
+  })
+
+  it("replays the byte-exact pending packet until accepted completion", () => {
+    const session = startedSession()
+    const firstProcess = new OrderedContextPolicy()
+    const failed = firstProcess.prepare(session, "attempt-before-crash")
+    const encryptedSnapshot = firstProcess.snapshot()
+
+    const afterCrash = new OrderedContextPolicy(encryptedSnapshot)
+    const retried = afterCrash.prepare(session, "ignored-new-attempt")
+    expect(serializeContextPacket(retried.packet)).toBe(
+      serializeContextPacket(failed.packet)
+    )
+    expect(retried.attemptId).toBe("attempt-before-crash")
+    expect(afterCrash.snapshot().cursor.seeded).toBe(false)
+
+    afterCrash.commit(retried.attemptId)
+    const delta = afterCrash.prepare(session, "accepted-next-turn")
+    expect(delta.packet).toEqual({ kind: "delta", items: [], evidence: [] })
   })
 })

@@ -102,5 +102,22 @@ describe("window-open capture lifecycle policy", () => {
       "deny handler must be the first executable statement after protected construction"
     )
     expect(mainSource).not.toContain('action: "allow"')
+
+    const shortcutsSource = fs.readFileSync(
+      path.join(process.cwd(), "electron/shortcuts.ts"),
+      "utf8"
+    )
+    const screenshotSource = fs.readFileSync(
+      path.join(process.cwd(), "electron/ScreenshotHelper.ts"),
+      "utf8"
+    )
+    expect(mainSource).toMatch(
+      /new ScreenshotHelper\(\)[\s\S]*new InterviewCaptureController\([\s\S]*new ShortcutsHelper\([\s\S]*registerGlobalShortcuts\(\)/
+    )
+    expect(shortcutsSource).not.toMatch(
+      /setView|reset-view|screenshot-taken|processingHelper/
+    )
+    expect(screenshotSource.match(/screenshotQueue/g)).not.toHaveLength(0)
+    expect(screenshotSource).not.toMatch(/extraScreenshotQueue|setView/)
   })
 })

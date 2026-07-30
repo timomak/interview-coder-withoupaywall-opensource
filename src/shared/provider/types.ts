@@ -62,6 +62,9 @@ export interface ProviderDiagnostics {
   reason?: string
 }
 
+export const PROVIDER_DIAGNOSTICS_CHANNEL = "provider:diagnostics" as const
+export const PROVIDER_CONFIGURE_CHANNEL = "provider:configure" as const
+
 export function isProviderId(value: unknown): value is ProviderId {
   return typeof value === "string" && PROVIDER_IDS.includes(value as ProviderId)
 }

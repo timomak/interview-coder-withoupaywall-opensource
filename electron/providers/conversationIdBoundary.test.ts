@@ -61,10 +61,11 @@ describe("opaque provider ID boundary", () => {
         processRunner: runner
       })
         .startSession({
+          mode: "create",
           provider: "codex",
           model: "gpt-5.3-codex",
           responseMode: "fast",
-          conversationId: opaqueId
+          requestedConversationId: opaqueId
         })
         .runTurn("one in-memory turn")
       expect(result.events.at(-1)?.type).toBe("completed")

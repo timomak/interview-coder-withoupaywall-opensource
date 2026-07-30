@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react"
 import SubscribedApp from "./_pages/SubscribedApp"
 import { SettingsDialog } from "./components/Settings/SettingsDialog"
 import { UpdateNotification } from "./components/UpdateNotification"
-import { WelcomeScreen } from "./components/WelcomeScreen"
+import { ProviderSetup } from "./features/onboarding"
 import {
   Toast,
   ToastDescription,
@@ -12,9 +12,16 @@ import {
 } from "./components/ui/toast"
 import { ToastContext } from "./contexts/toast"
 import type { SubscriptionConfig } from "../electron/config"
+import type {
+  ProviderDiagnostics,
+  ProviderSelection
+} from "./shared/provider"
 
 export default function App() {
   const [config, setConfig] = useState<SubscriptionConfig | null>(null)
+  const [diagnostics, setDiagnostics] = useState<
+    readonly ProviderDiagnostics[]
+  >([])
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [toast, setToast] = useState({
     open: false,
@@ -33,9 +40,14 @@ export default function App() {
   )
 
   useEffect(() => {
-    void window.electronAPI
-      .getConfig()
-      .then(setConfig)
+    void Promise.all([
+      window.electronAPI.getConfig(),
+      window.electronAPI.getProviderDiagnostics()
+    ])
+      .then(([nextConfig, nextDiagnostics]) => {
+        setConfig(nextConfig)
+        setDiagnostics(nextDiagnostics)
+      })
       .catch((error: unknown) => {
         showToast(
           "Configuration issue",
@@ -46,6 +58,28 @@ export default function App() {
     return window.electronAPI.onShowSettings(() => setSettingsOpen(true))
   }, [showToast])
 
+  const completeProviderSetup = async (
+    selection: Readonly<ProviderSelection>
+  ) => {
+    try {
+      const next = await window.electronAPI.configureProvider({
+        provider: selection.provider,
+        model: selection.model,
+        responseMode: selection.responseMode
+      })
+      setConfig(next)
+    } catch (error) {
+      setDiagnostics(await window.electronAPI.getProviderDiagnostics())
+      showToast(
+        "Provider unavailable",
+        error instanceof Error
+          ? error.message
+          : "Provider subscription could not be verified",
+        "error"
+      )
+    }
+  }
+
   return (
     <ToastProvider>
       <ToastContext.Provider value={{ showToast }}>
@@ -53,7 +87,19 @@ export default function App() {
           {config?.provider && config.model ? (
             <SubscribedApp config={config} />
           ) : (
-            <WelcomeScreen onOpenSettings={() => setSettingsOpen(true)} />
+            <div className="mx-auto max-w-xl p-6">
+              <ProviderSetup
+                diagnostics={diagnostics}
+                onComplete={(selection) =>
+                  void completeProviderSetup(selection)
+                }
+                onRetry={() =>
+                  void window.electronAPI
+                    .getProviderDiagnostics()
+                    .then(setDiagnostics)
+                }
+              />
+            </div>
           )}
           <UpdateNotification />
         </main>

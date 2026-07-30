@@ -28,10 +28,11 @@ describe("strict provider selection", () => {
         processRunner: runner
       })
         .startSession({
+          mode: "create",
           provider: "claude-code",
           model: "sonnet",
           responseMode: "fast",
-          conversationId: "22222222-2222-4222-8222-222222222222"
+          requestedConversationId: "22222222-2222-4222-8222-222222222222"
         })
         .runTurn("answer")
 

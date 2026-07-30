@@ -46,17 +46,21 @@ describe("provider conversation continuity", () => {
         }
         const first = new ProviderRuntime(options)
           .startSession({
+            mode: "create",
             provider: fixture.provider,
             model: fixture.model,
             responseMode: "fast",
-            conversationId: fixture.id
+            requestedConversationId: fixture.id
           })
         const firstTurn = await first.runTurn("turn one")
+        const createdId = first.conversationId()
+        expect(createdId).toBeDefined()
         const restarted = new ProviderRuntime(options).startSession({
+          mode: "resume",
           provider: fixture.provider,
           model: fixture.model,
           responseMode: "fast",
-          conversationId: fixture.id
+          conversationId: createdId!
         })
         const secondTurn = await restarted.runTurn("turn two")
         expect(firstTurn.events).toContainEqual(
@@ -73,18 +77,59 @@ describe("provider conversation continuity", () => {
             ? turnRequests.flatMap((request) => request.args)
             : turnRequests.flatMap((request) => request.stdinLines ?? [])
         expect(turnRequests).toHaveLength(2)
-        expect(
-          turnRequests.every((request) =>
+        const requestsContainingConversationId = turnRequests.filter(
+          (request) =>
             [...request.args, ...(request.stdinLines ?? [])].some((value) =>
-              value.includes(fixture.id)
+              value.includes(
+                fixture.provider === "claude-code" ? fixture.id : createdId!
+              )
+            )
+        )
+        expect(requestsContainingConversationId).toHaveLength(
+          fixture.provider === "claude-code" ? 2 : 1
+        )
+        expect(
+          transport.some((value) =>
+            value.includes(
+              fixture.provider === "claude-code" ? fixture.id : createdId!
             )
           )
         ).toBe(true)
-        expect(transport.some((value) => value.includes(fixture.id))).toBe(true)
+        if (fixture.provider === "claude-code") {
+          expect(turnRequests[0].args).toContain("--session-id")
+          expect(turnRequests[0].args).not.toContain("--resume")
+          expect(turnRequests[1].args).toContain("--resume")
+        } else {
+          expect(turnRequests[0].stdinLines).toEqual(
+            expect.arrayContaining([
+              expect.stringContaining('"method":"thread/start"')
+            ])
+          )
+          expect(turnRequests[1].stdinLines).toEqual(
+            expect.arrayContaining([
+              expect.stringContaining('"method":"thread/resume"')
+            ])
+          )
+        }
+
+        const nonexistent = new ProviderRuntime(options).startSession({
+          mode: "resume",
+          provider: fixture.provider,
+          model: fixture.model,
+          responseMode: "fast",
+          conversationId:
+            fixture.provider === "claude-code"
+              ? "99999999-9999-4999-8999-999999999999"
+              : "019f-codex-thread-missing"
+        })
+        const rejected = await nonexistent.runTurn("must reject")
+        expect(rejected.events).toContainEqual(
+          expect.objectContaining({ type: "error" })
+        )
       }
     } finally {
       fs.rmSync(claude.directory, { recursive: true })
       fs.rmSync(codex.directory, { recursive: true })
     }
-  })
+  }, 15_000)
 })

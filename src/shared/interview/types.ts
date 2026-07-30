@@ -168,6 +168,11 @@ export type InterviewSessionEvent =
       readonly complete: boolean
     })
   | (EventEnvelope & {
+      readonly type: "section-completed"
+      readonly requestId: string
+      readonly sectionId: string
+    })
+  | (EventEnvelope & {
       readonly type: "request-cancelled"
       readonly requestId: string
     })

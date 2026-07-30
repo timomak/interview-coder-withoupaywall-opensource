@@ -17,9 +17,10 @@ import { configHelper } from "./ConfigHelper"
 import { initializeIpcHandlers } from "./ipcHandlers"
 import {
   ActiveSessionRepository,
+  InterviewCaptureController,
   InterviewOrchestrator
 } from "./orchestrator"
-import { ProviderRuntime } from "./providers"
+import { ProviderRuntime, diagnoseProvider } from "./providers"
 import {
   ElectronSafeStorageKeyProtector,
   EncryptedRecordRepository,
@@ -32,6 +33,13 @@ import type {
 import type { ResetArchive } from "../src/shared/interview"
 import { INTERVIEW_STATE_EVENT } from "../src/shared/interview"
 import { createWindowOpenHandler } from "./windowOpenPolicy"
+import { ScreenshotHelper } from "./ScreenshotHelper"
+import { ShortcutsHelper } from "./shortcuts"
+import type {
+  ProviderDiagnostics,
+  ProviderId,
+  ResponseMode
+} from "../src/shared/provider"
 
 const isDevelopment = process.env.NODE_ENV === "development"
 
@@ -39,25 +47,12 @@ const state = {
   mainWindow: null as BrowserWindow | null,
   visible: false,
   screenWidth: 0,
-  screenHeight: 0
-}
-
-export interface IShortcutsHelperDeps {
-  getMainWindow: () => BrowserWindow | null
-  takeScreenshot: () => Promise<string>
-  getImagePreview: (filePath: string) => Promise<string>
-  processingHelper: {
-    processScreenshots(): Promise<void>
-    cancelOngoingRequests(): void
-  } | null
-  clearQueues: () => void
-  setView: (view: "queue" | "solutions" | "debug") => void
-  isVisible: () => boolean
-  toggleMainWindow: () => void
-  moveWindowLeft: () => void
-  moveWindowRight: () => void
-  moveWindowUp: () => void
-  moveWindowDown: () => void
+  screenHeight: 0,
+  currentX: 0,
+  currentY: 50,
+  windowWidth: 800,
+  windowHeight: 600,
+  step: 60
 }
 
 function focusMainWindow(mainWindow: BrowserWindow): void {
@@ -119,6 +114,16 @@ function createWindow(): void {
     state.mainWindow = null
     state.visible = false
   })
+  mainWindow.on("move", () => {
+    const [x, y] = mainWindow.getPosition()
+    state.currentX = x
+    state.currentY = y
+  })
+  mainWindow.on("resize", () => {
+    const [width, height] = mainWindow.getSize()
+    state.windowWidth = width
+    state.windowHeight = height
+  })
   if (isDevelopment) {
     void mainWindow.loadURL("http://localhost:54321")
   } else {
@@ -140,6 +145,44 @@ function toggleMainWindow(): void {
     focusMainWindow(mainWindow)
     state.visible = true
   }
+}
+
+function hideMainWindow(): void {
+  const mainWindow = state.mainWindow
+  if (!mainWindow || mainWindow.isDestroyed()) return
+  mainWindow.hide()
+  state.visible = false
+}
+
+function showMainWindow(): void {
+  const mainWindow = state.mainWindow
+  if (!mainWindow || mainWindow.isDestroyed()) return
+  showMainWindowInactive(mainWindow)
+  state.visible = true
+}
+
+function moveWindowHorizontal(delta: number): void {
+  const mainWindow = state.mainWindow
+  if (!mainWindow) return
+  const minimum = -state.windowWidth / 2
+  const maximum = state.screenWidth - state.windowWidth / 2
+  state.currentX = Math.max(
+    minimum,
+    Math.min(maximum, state.currentX + delta)
+  )
+  mainWindow.setPosition(Math.round(state.currentX), Math.round(state.currentY))
+}
+
+function moveWindowVertical(delta: number): void {
+  const mainWindow = state.mainWindow
+  if (!mainWindow) return
+  const minimum = -(state.windowHeight * 2) / 3
+  const maximum = state.screenHeight - state.windowHeight / 3
+  state.currentY = Math.max(
+    minimum,
+    Math.min(maximum, state.currentY + delta)
+  )
+  mainWindow.setPosition(Math.round(state.currentX), Math.round(state.currentY))
 }
 
 function setWindowDimensions(width: number, height: number): void {
@@ -171,7 +214,34 @@ function executableFromEnvironment(
   return executable
 }
 
-function createOrchestrator(): InterviewOrchestrator {
+type ProviderExecutables = Readonly<Record<ProviderId, string>>
+
+function providerExecutables(): ProviderExecutables {
+  return {
+    "claude-code": executableFromEnvironment(
+      "CLAUDE_CODE_EXECUTABLE",
+      "/opt/homebrew/bin/claude"
+    ),
+    codex: executableFromEnvironment(
+      "CODEX_EXECUTABLE",
+      "/opt/homebrew/bin/codex"
+    )
+  }
+}
+
+async function providerDiagnostics(
+  executables: ProviderExecutables
+): Promise<readonly ProviderDiagnostics[]> {
+  return Promise.all(
+    (["claude-code", "codex"] as const).map((provider) =>
+      diagnoseProvider(provider, executables[provider])
+    )
+  )
+}
+
+function createOrchestrator(
+  executables: ProviderExecutables
+): InterviewOrchestrator {
   const storagePaths = new StoragePaths(
     path.join(app.getPath("userData"), "encrypted")
   )
@@ -183,27 +253,45 @@ function createOrchestrator(): InterviewOrchestrator {
     M04ActiveSnapshot | ResetArchive
   >(storagePaths, keyService)
   const providerRuntime = new ProviderRuntime({
-    executables: {
-      "claude-code": executableFromEnvironment(
-        "CLAUDE_CODE_EXECUTABLE",
-        "/opt/homebrew/bin/claude"
-      ),
-      codex: executableFromEnvironment(
-        "CODEX_EXECUTABLE",
-        "/opt/homebrew/bin/codex"
-      )
-    }
+    executables
   })
   return new InterviewOrchestrator({
     repository: new ActiveSessionRepository(records),
     providerFactory: {
-      create: (snapshot, opaqueProviderConversationId) =>
+      create: (snapshot, requestedConversationId) =>
         providerRuntime.startSession({
+          mode: "create",
           provider: snapshot.provider,
           model: snapshot.model,
           responseMode: snapshot.responseMode,
-          conversationId: opaqueProviderConversationId
+          requestedConversationId
+        }),
+      resume: (snapshot, conversationId) =>
+        providerRuntime.startSession({
+          mode: "resume",
+          provider: snapshot.provider,
+          model: snapshot.model,
+          responseMode: snapshot.responseMode,
+          conversationId
         })
+    },
+    authorizeStart: async (snapshot) => {
+      const config = configHelper.loadConfig()
+      if (
+        config.provider !== snapshot.provider ||
+        config.model !== snapshot.model
+      ) {
+        return false
+      }
+      const diagnostics = await diagnoseProvider(
+        snapshot.provider,
+        executables[snapshot.provider]
+      )
+      return (
+        diagnostics.installed &&
+        diagnostics.authenticated &&
+        diagnostics.supported
+      )
     },
     onState: (session) => {
       state.mainWindow?.webContents.send(INTERVIEW_STATE_EVENT, session)
@@ -214,12 +302,53 @@ function createOrchestrator(): InterviewOrchestrator {
 async function initializeApplication(): Promise<void> {
   const userData = path.join(app.getPath("appData"), "InterviewCopilot")
   app.setPath("userData", userData)
-  const orchestrator = createOrchestrator()
+  const executables = providerExecutables()
+  const orchestrator = createOrchestrator(executables)
   createWindow()
+  const screenshots = new ScreenshotHelper()
+  const capture = new InterviewCaptureController(
+    orchestrator,
+    screenshots,
+    hideMainWindow,
+    showMainWindow
+  )
+  const shortcuts = new ShortcutsHelper({
+    getMainWindow: () => state.mainWindow,
+    captureScreenshot: () => capture.capture(),
+    submitSelectedEvidence: () => capture.submitSelectedEvidence(),
+    resetInterview: () => capture.reset(),
+    excludeLastScreenshot: () => capture.excludeLastScreenshot(),
+    isVisible: () => state.visible,
+    toggleMainWindow,
+    moveWindowLeft: () => moveWindowHorizontal(-state.step),
+    moveWindowRight: () => moveWindowHorizontal(state.step),
+    moveWindowUp: () => moveWindowVertical(-state.step),
+    moveWindowDown: () => moveWindowVertical(state.step)
+  })
+  shortcuts.registerGlobalShortcuts()
   initializeIpcHandlers({
     orchestrator,
     setWindowDimensions,
     toggleMainWindow,
+    diagnoseProviders: () => providerDiagnostics(executables),
+    configureProvider: async (
+      provider: ProviderId,
+      model: string,
+      responseMode: ResponseMode
+    ) => {
+      const diagnostics = await diagnoseProvider(
+        provider,
+        executables[provider]
+      )
+      if (
+        !diagnostics.installed ||
+        !diagnostics.authenticated ||
+        !diagnostics.supported
+      ) {
+        throw new Error("Selected provider subscription is not ready")
+      }
+      return configHelper.updateConfig({ provider, model, responseMode })
+    },
     showSettings: () =>
       state.mainWindow?.webContents.send("settings:show")
   })

@@ -26,7 +26,7 @@ interface ProviderConfigBridge {
     model?: string
     responseMode?: ResponseMode
   }>
-  updateConfig(config: {
+  configureProvider(config: {
     provider: ProviderId
     model: string
     responseMode: ResponseMode
@@ -86,7 +86,7 @@ export function SettingsDialog({
   const save = async () => {
     setIsLoading(true)
     try {
-      await bridge.updateConfig({ provider, model, responseMode })
+      await bridge.configureProvider({ provider, model, responseMode })
       showToast("Saved", "Provider settings apply to the next interview", "success")
       changeOpen(false)
     } catch {

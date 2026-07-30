@@ -265,6 +265,40 @@ function activeReduction(
         })
       }
     }
+    case "section-completed": {
+      const request = state.requests.find(
+        (candidate) => candidate.id === event.requestId
+      )
+      const section = state.sections.find(
+        (candidate) => candidate.id === event.sectionId
+      )
+      if (
+        !request ||
+        request.cancelled ||
+        !request.sectionIds.includes(event.sectionId) ||
+        !section ||
+        section.state === "complete" ||
+        section.body.length === 0
+      ) {
+        return reject(state, "invalid-transition")
+      }
+      const sections = state.sections.map((candidate) =>
+        candidate.id === event.sectionId
+          ? { ...candidate, state: "complete" as const }
+          : candidate
+      )
+      return {
+        accepted: true,
+        state: advance(state, event, {
+          sections,
+          requests: updateRequestCompletion(
+            state.requests,
+            sections,
+            event.requestId
+          )
+        })
+      }
+    }
     case "request-cancelled": {
       const request = state.requests.find(
         (candidate) => candidate.id === event.requestId

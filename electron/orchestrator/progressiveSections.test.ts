@@ -1,5 +1,64 @@
+import type { ProviderSession } from "../providers"
+import type {
+  ProviderEvent,
+  ProviderSelection
+} from "../../src/shared/provider"
 import { reduceInterviewSession } from "../../src/domain/interview"
-import { reduceAccepted, startedSession } from "./testSupport"
+import type { StartSnapshot } from "../../src/shared/interview"
+import type { ProviderConversationFactory } from "./InterviewOrchestrator"
+import {
+  TEST_SNAPSHOT,
+  createTestOrchestratorWithFactory,
+  currentActive,
+  reduceAccepted,
+  startedSession
+} from "./testSupport"
+
+const selection: ProviderSelection = {
+  provider: "codex",
+  model: "gpt-5.4",
+  responseMode: "fast",
+  effort: "low"
+}
+
+class BlockingStreamingFactory implements ProviderConversationFactory {
+  create(
+    _snapshot: StartSnapshot,
+    requestedConversationId: string
+  ): ProviderSession {
+    return this.session(requestedConversationId)
+  }
+
+  resume(_snapshot: StartSnapshot, conversationId: string): ProviderSession {
+    return this.session(conversationId)
+  }
+
+  private session(conversationId: string): ProviderSession {
+    return {
+      selection,
+      conversationId: () => conversationId,
+      runTurn: async (_prompt, signal, onEvent) => {
+        const partial: ProviderEvent = {
+          type: "typed-payload",
+          sequence: 1,
+          payload: {
+            kind: "structured",
+            sections: [{ id: "answer", body: "persisted partial", complete: false }]
+          }
+        }
+        await onEvent?.(partial)
+        await new Promise<void>((resolve) => {
+          if (signal?.aborted) {
+            resolve()
+            return
+          }
+          signal?.addEventListener("abort", () => resolve(), { once: true })
+        })
+        return { selection, events: [partial] }
+      }
+    }
+  }
+}
 
 describe("progressive response sections", () => {
   it("streams stable independently final sections", () => {
@@ -40,5 +99,55 @@ describe("progressive response sections", () => {
     })
     expect(replacement.accepted).toBe(false)
     expect(state.sections[1].body).toBe("const answer = 42")
+  })
+
+  it("persists a streamed partial section before cancellation settles", async () => {
+    const fixture = createTestOrchestratorWithFactory(
+      new BlockingStreamingFactory()
+    )
+    expect(
+      await fixture.orchestrator.command({
+        type: "start",
+        snapshot: TEST_SNAPSHOT
+      })
+    ).toMatchObject({ ok: true })
+    const submission = fixture.orchestrator.command({
+      type: "submit",
+      route: "mode-action",
+      input: "solve progressively",
+      sectionIds: ["answer"]
+    })
+
+    await vi.waitFor(() => {
+      expect(
+        currentActive(fixture.orchestrator.current()).sections[0]
+      ).toMatchObject({
+        body: "persisted partial",
+        state: "partial"
+      })
+    })
+    const requestId = currentActive(
+      fixture.orchestrator.current()
+    ).requests[0].id
+    const cancelled = fixture.orchestrator.command({
+      type: "cancel",
+      requestId
+    })
+
+    expect(await submission).toMatchObject({ ok: true })
+    expect(await cancelled).toMatchObject({ ok: true })
+    expect(
+      currentActive(fixture.orchestrator.current()).sections[0]
+    ).toMatchObject({
+      body: "persisted partial",
+      state: "partial"
+    })
+    expect(
+      fixture.records.values.get("active-interview-session")?.session
+        .sections[0]
+    ).toMatchObject({
+      body: "persisted partial",
+      state: "partial"
+    })
   })
 })

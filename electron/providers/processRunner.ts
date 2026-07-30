@@ -40,6 +40,14 @@ export interface ProcessRequest {
   maximumLineBytes: number
   signal?: AbortSignal
   sensitiveValues?: readonly string[]
+  closeStdin?: boolean
+  onStdoutLine?: (
+    line: string,
+    input: {
+      writeLine(line: string): void
+      end(): void
+    }
+  ) => void | Promise<void>
 }
 
 export class SafeProcessRunner {
@@ -59,6 +67,8 @@ export class SafeProcessRunner {
       let failure: ProviderProcessFailure | undefined
       let settled = false
       let forceTimer: NodeJS.Timeout | undefined
+      let lineHandling = Promise.resolve()
+      let lineHandlingError: unknown
 
       const child = this.spawnChild(request.executable, request.args, {
         shell: false,
@@ -97,7 +107,26 @@ export class SafeProcessRunner {
         }
         const lines = stdoutBuffer.split(/\r?\n/)
         stdoutBuffer = lines.pop() ?? ""
-        stdoutLines.push(...lines.filter((line) => line.length > 0))
+        for (const line of lines.filter((candidate) => candidate.length > 0)) {
+          stdoutLines.push(line)
+          if (request.onStdoutLine) {
+            lineHandling = lineHandling
+              .then(() =>
+                request.onStdoutLine?.(line, {
+                  writeLine(value: string) {
+                    if (!child.stdin.destroyed) child.stdin.write(`${value}\n`)
+                  },
+                  end() {
+                    if (!child.stdin.destroyed) child.stdin.end()
+                  }
+                })
+              )
+              .catch((error: unknown) => {
+                lineHandlingError = error
+                terminate("process-failed")
+              })
+          }
+        }
       }
 
       child.stdout.on("data", (chunk: Buffer) => consume(chunk, "stdout"))
@@ -110,13 +139,30 @@ export class SafeProcessRunner {
           reject(error)
         }
       })
-      child.once("close", (exitCode, signal) => {
+      child.once("close", async (exitCode, signal) => {
         if (settled) return
         settled = true
         clearTimeout(timeout)
         if (forceTimer) clearTimeout(forceTimer)
         request.signal?.removeEventListener("abort", onAbort)
-        if (stdoutBuffer.length > 0) stdoutLines.push(stdoutBuffer)
+        if (stdoutBuffer.length > 0) {
+          stdoutLines.push(stdoutBuffer)
+          if (request.onStdoutLine) {
+            lineHandling = lineHandling.then(() =>
+              request.onStdoutLine?.(stdoutBuffer, {
+                writeLine() {
+                  throw new Error("Provider stdin is already closed")
+                },
+                end() {}
+              })
+            )
+          }
+        }
+        await lineHandling
+        if (lineHandlingError) {
+          reject(lineHandlingError)
+          return
+        }
         if (failure === undefined && exitCode !== 0) failure = "process-failed"
         resolve({
           stdoutLines,
@@ -133,7 +179,7 @@ export class SafeProcessRunner {
       if (request.signal?.aborted) onAbort()
 
       for (const line of request.stdinLines ?? []) child.stdin.write(`${line}\n`)
-      child.stdin.end()
+      if (request.closeStdin !== false) child.stdin.end()
     })
   }
 }

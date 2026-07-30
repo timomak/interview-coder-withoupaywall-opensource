@@ -7,15 +7,15 @@
     },
     "P02": {
       "file": "P02.json",
-      "sha256": "6de5f5e316c54385f4f61bc8bcde819a1880aff6c85bbf69c0025a8f930f38dd"
+      "sha256": "2094a5c6314e60cc2f088ab48fa2e94a5df59fe64eee4377a23f9e0cc07571d1"
     },
     "P03": {
       "file": "P03.json",
-      "sha256": "9fcb0381a00c05c3b42c7f13701406277cff97019d8aef41f718dd452c1b35c3"
+      "sha256": "a01fc357fc5f76cd4883142f2fd17c442ccb70138e36fc86f832da497a836862"
     },
     "P04": {
       "file": "P04.json",
-      "sha256": "615b053cd67174f36c087e470a05d02b0e9b2275c92ac0e952a19e5672d0689b"
+      "sha256": "3074dba35ce12f9774d103267ecac60cc9012a20c09d5ae7d942223725a919ef"
     },
     "P05": {
       "file": "P05.json",

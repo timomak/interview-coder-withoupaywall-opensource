@@ -30,18 +30,20 @@ describe("selection capabilities", () => {
     try {
       expect(() =>
         runtime.startSession({
+          mode: "create",
           provider: "codex",
           model: "silently-substituted-model",
           responseMode: "fast",
-          conversationId: "thread-selection-1"
+          requestedConversationId: "thread-selection-1"
         })
       ).toThrow(/does not advertise model/)
 
       const request = {
+        mode: "create" as const,
         provider: "claude-code" as const,
         model: "sonnet",
         responseMode: "reasoning" as const,
-        conversationId: "33333333-3333-4333-8333-333333333333"
+        requestedConversationId: "33333333-3333-4333-8333-333333333333"
       }
       const session = runtime.startSession(request)
       request.model = "opus"

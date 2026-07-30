@@ -11,6 +11,7 @@ import {
 interface ProviderSetupProps {
   diagnostics: readonly ProviderDiagnostics[]
   onComplete: (selection: Readonly<ProviderSelection>) => void
+  onRetry?: () => void
 }
 
 const LABELS: Readonly<Record<ProviderId, string>> = {
@@ -20,7 +21,8 @@ const LABELS: Readonly<Record<ProviderId, string>> = {
 
 export function ProviderSetup({
   diagnostics,
-  onComplete
+  onComplete,
+  onRetry
 }: ProviderSetupProps) {
   const available = useMemo(
     () =>
@@ -127,9 +129,16 @@ export function ProviderSetup({
       )}
 
       {available.length === 0 && (
-        <p role="status" className="text-sm text-amber-300">
-          Install and sign in to one supported provider, then retry.
-        </p>
+        <div>
+          <p role="status" className="text-sm text-amber-300">
+            Install and sign in to one supported provider, then retry.
+          </p>
+          {onRetry && (
+            <button type="button" onClick={onRetry}>
+              Retry diagnostics
+            </button>
+          )}
+        </div>
       )}
       <button
         type="button"

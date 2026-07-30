@@ -1,5 +1,6 @@
 import type { ProviderSession } from "../providers"
 import type {
+  ProviderEvent,
   ProviderSelection,
   ProviderTurnResult
 } from "../../src/shared/provider"
@@ -95,21 +96,45 @@ const selection: Readonly<ProviderSelection> = Object.freeze({
 
 export class FakeProviderFactory implements ProviderConversationFactory {
   readonly conversationIds: string[] = []
+  readonly resumeIds: string[] = []
   readonly prompts: string[] = []
   readonly signals: Array<AbortSignal | undefined> = []
   readonly queued: ProviderTurnResult[] = []
+  readonly nativeConversations: Set<string>
+
+  constructor(nativeConversations = new Set<string>()) {
+    this.nativeConversations = nativeConversations
+  }
 
   create(
     _snapshot: StartSnapshot,
     opaqueProviderConversationId: string
   ): ProviderSession {
     this.conversationIds.push(opaqueProviderConversationId)
+    this.nativeConversations.add(opaqueProviderConversationId)
+    return this.session(opaqueProviderConversationId)
+  }
+
+  resume(
+    _snapshot: StartSnapshot,
+    opaqueProviderConversationId: string
+  ): ProviderSession {
+    if (!this.nativeConversations.has(opaqueProviderConversationId)) {
+      throw new Error("Cannot resume a nonexistent provider conversation")
+    }
+    this.conversationIds.push(opaqueProviderConversationId)
+    this.resumeIds.push(opaqueProviderConversationId)
+    return this.session(opaqueProviderConversationId)
+  }
+
+  private session(opaqueProviderConversationId: string): ProviderSession {
     return {
       selection,
-      runTurn: async (prompt, signal) => {
+      conversationId: () => opaqueProviderConversationId,
+      runTurn: async (prompt, signal, onEvent) => {
         this.prompts.push(prompt)
         this.signals.push(signal)
-        return (
+        const result =
           this.queued.shift() ?? {
             selection,
             events: [
@@ -117,25 +142,36 @@ export class FakeProviderFactory implements ProviderConversationFactory {
               { type: "completed", sequence: 2 }
             ]
           }
-        )
+        for (const event of result.events) {
+          await onEvent?.(event as ProviderEvent)
+        }
+        return result
       }
     }
   }
 }
 
+let deterministicIdNamespace = 0
+
 export function deterministicIds(): () => string {
+  const namespace = ++deterministicIdNamespace
   let sequence = 0
-  return () => `test-opaque-id-${String(++sequence).padStart(4, "0")}`
+  return () =>
+    `test-opaque-id-${String(namespace).padStart(4, "0")}-${String(
+      ++sequence
+    ).padStart(4, "0")}`
 }
 
-export function createTestOrchestrator(
-  providerFactory = new FakeProviderFactory(),
-  records = new MemoryRecordRepository<M04ActiveSnapshot>()
-): {
+interface TestOrchestratorFixture<T extends ProviderConversationFactory> {
   orchestrator: InterviewOrchestrator
-  providerFactory: FakeProviderFactory
+  providerFactory: T
   records: MemoryRecordRepository<M04ActiveSnapshot>
-} {
+}
+
+function buildTestOrchestrator<T extends ProviderConversationFactory>(
+  providerFactory: T,
+  records = new MemoryRecordRepository<M04ActiveSnapshot>()
+): TestOrchestratorFixture<T> {
   let tick = 0
   const orchestrator = new InterviewOrchestrator({
     providerFactory,
@@ -144,6 +180,22 @@ export function createTestOrchestrator(
     now: () => `2026-07-30T12:00:${String(tick++).padStart(2, "0")}Z`
   })
   return { orchestrator, providerFactory, records }
+}
+
+export function createTestOrchestrator(
+  providerFactory = new FakeProviderFactory(),
+  records = new MemoryRecordRepository<M04ActiveSnapshot>()
+): TestOrchestratorFixture<FakeProviderFactory> {
+  return buildTestOrchestrator(providerFactory, records)
+}
+
+export function createTestOrchestratorWithFactory<
+  T extends ProviderConversationFactory
+>(
+  providerFactory: T,
+  records = new MemoryRecordRepository<M04ActiveSnapshot>()
+): TestOrchestratorFixture<T> {
+  return buildTestOrchestrator(providerFactory, records)
 }
 
 export function startedSession(

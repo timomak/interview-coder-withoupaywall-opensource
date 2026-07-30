@@ -23,7 +23,8 @@ describe("response routing", () => {
               kind: "structured",
               sections: [{ id: "answer", body: "byte-stable curated" }]
             }
-          }
+          },
+          { type: "completed", sequence: 2 }
         ]
       },
       {
@@ -33,7 +34,10 @@ describe("response routing", () => {
           responseMode: "fast",
           effort: "low"
         },
-        events: [{ type: "text-delta", sequence: 1, text: "short reply" }]
+        events: [
+          { type: "text-delta", sequence: 1, text: "short reply" },
+          { type: "completed", sequence: 2 }
+        ]
       }
     )
     await fixture.orchestrator.start(TEST_SNAPSHOT)
