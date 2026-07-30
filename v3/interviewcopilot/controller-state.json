@@ -536,7 +536,7 @@
       "reviewedCandidate": "32c24ab275e2d3b6d8cb00c1e6a8ba6d48377cd0",
       "reviewedBase": "a8cdcbdeb49a897946dd520981d59d9a1a3813b6",
       "authoritativeRouteInvoked": false,
-      "status": "RESERVED_BEFORE_DISPATCH"
+      "status": "RUNNING"
     },
     "releaseAssuranceParallelState": "IC-M00-G-RELEASE_PENDING_NOT_INVOKED"
   },
