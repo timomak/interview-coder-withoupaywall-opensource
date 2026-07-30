@@ -486,7 +486,7 @@
         "packetSha256": "dc0444bde9a7e71a4565486afbc292e6b567b5de5eb35dca682ef4f547599bd9",
         "duplicateWriterProhibited": true,
         "authoritativeRouteInvoked": false,
-        "status": "RESERVED_BEFORE_DISPATCH"
+        "status": "RUNNING"
       }
     ],
     "completedHandoffs": [
@@ -661,7 +661,7 @@
       "closureReviewBudget": 1,
       "correctionBudgetAfterClosureReview": 0,
       "authoritativeRouteInvoked": false,
-      "status": "RESERVED_BEFORE_DISPATCH"
+      "status": "RUNNING"
     }
   },
   "metrics": {
