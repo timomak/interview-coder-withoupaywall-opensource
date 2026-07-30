@@ -68,6 +68,32 @@
       "minimumPassed": 1
     },
     {
+      "label": "p02",
+      "argv": [
+        "npm",
+        "run",
+        "test:p02",
+        "--",
+        "--reporter=verbose"
+      ],
+      "classification": "test",
+      "expectedExit": 0,
+      "minimumPassed": 9
+    },
+    {
+      "label": "p03",
+      "argv": [
+        "npm",
+        "run",
+        "test:p03",
+        "--",
+        "--reporter=verbose"
+      ],
+      "classification": "test",
+      "expectedExit": 0,
+      "minimumPassed": 8
+    },
+    {
       "label": "p04",
       "argv": [
         "npm",

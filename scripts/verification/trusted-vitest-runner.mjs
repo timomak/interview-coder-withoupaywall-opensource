@@ -13,6 +13,44 @@ const SUITES = {
     "tests/policy",
     "electron/captureProtection.test.ts",
     "electron/windowOpenPolicy.test.ts"
+  ],
+  p02: [
+    "electron/config/configMigration.test.ts",
+    "electron/providers/conversationIdBoundary.test.ts",
+    "electron/providers/eventNormalization.contract.test.ts",
+    "electron/providers/noFallback.contract.test.ts",
+    "electron/providers/persistence.contract.test.ts",
+    "electron/providers/processSafety.test.ts",
+    "electron/providers/providerBoundary.test.ts",
+    "electron/providers/selectionSnapshot.test.ts",
+    "src/features/onboarding/ProviderSetup.test.tsx"
+  ],
+  p03: [
+    "electron/storage/atomicity.test.ts",
+    "electron/storage/envelopeCrypto.test.ts",
+    "electron/storage/keyLifecycle.test.ts",
+    "electron/storage/pathSafety.test.ts",
+    "electron/storage/plaintextLeak.test.ts",
+    "electron/storage/plaintextMigration.test.ts",
+    "electron/storage/recovery.test.ts",
+    "electron/storage/retentionPolicy.test.ts"
+  ],
+  p04: [
+    "src/domain/interview/sessionLifecycle.test.ts",
+    "src/domain/interview/sessionReducer.property.test.ts",
+    "electron/orchestrator/contextPolicy.test.ts",
+    "electron/orchestrator/pendingArtifacts.test.ts",
+    "electron/orchestrator/evidenceAuthority.test.ts",
+    "src/domain/interview/contextStatus.test.ts",
+    "electron/orchestrator/progressiveSections.test.ts",
+    "electron/orchestrator/cancelContinue.test.ts",
+    "electron/orchestrator/resetSemantics.test.ts",
+    "electron/orchestrator/crashRecovery.test.ts",
+    "src/domain/interview/contextDetail.test.ts",
+    "electron/orchestrator/sharedConversation.test.ts",
+    "electron/orchestrator/responseRouting.test.ts",
+    "electron/orchestrator/bestEffortClarification.test.ts",
+    "electron/orchestrator/correctionRevision.test.ts"
   ]
 }
 const RESULT_PREFIX = "VERIFICATION_COORDINATOR_RESULT "

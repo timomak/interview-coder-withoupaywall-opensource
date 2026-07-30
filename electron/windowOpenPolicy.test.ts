@@ -75,7 +75,7 @@ describe("window-open capture lifecycle policy", () => {
     expect(handler({ url: "https://docs.google.com/document/1" })).toEqual({
       action: "deny"
     })
-    expect(handler({ url: "https://project.supabase.co/dashboard" })).toEqual({
+    expect(handler({ url: "https://calendar.google.com/calendar" })).toEqual({
       action: "deny"
     })
     expect(openExternal).toHaveBeenNthCalledWith(
@@ -84,7 +84,7 @@ describe("window-open capture lifecycle policy", () => {
     )
     expect(openExternal).toHaveBeenNthCalledWith(
       2,
-      "https://project.supabase.co/dashboard"
+      "https://calendar.google.com/calendar"
     )
 
     const mainSource = fs.readFileSync(

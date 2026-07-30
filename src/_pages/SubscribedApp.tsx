@@ -1,158 +1,148 @@
-// file: src/components/SubscribedApp.tsx
-import { useQueryClient } from "@tanstack/react-query"
-import { useEffect, useRef, useState, type FC } from "react"
-import Queue from "../_pages/Queue"
-import Solutions from "../_pages/Solutions"
-import { useToast } from "../contexts/toast"
+import { useEffect, useState } from "react"
+import type { SubscriptionConfig } from "../../electron/config"
+import {
+  createIdleInterviewSession
+} from "../domain/interview"
+import type {
+  InterviewMode,
+  InterviewSession,
+  RecoveryChoice
+} from "../shared/interview"
+import { ContextDetail } from "../components/ContextDetail/ContextDetail"
+import { Header } from "../components/Header/Header"
 
 interface SubscribedAppProps {
-  credits: number
-  currentLanguage: string
-  setLanguage: (language: string) => void
+  readonly config: SubscriptionConfig
 }
 
-const SubscribedApp: FC<SubscribedAppProps> = ({
-  credits,
-  currentLanguage,
-  setLanguage
-}) => {
-  const queryClient = useQueryClient()
-  const [view, setView] = useState<"queue" | "solutions" | "debug">("queue")
-  const containerRef = useRef<HTMLDivElement>(null)
-  const { showToast } = useToast()
+export default function SubscribedApp({ config }: SubscribedAppProps) {
+  if (!config.provider || !config.model) {
+    throw new Error("SubscribedApp requires a configured provider")
+  }
+  const provider = config.provider
+  const model = config.model
+  const [session, setSession] = useState<InterviewSession>(
+    createIdleInterviewSession()
+  )
+  const [recovery, setRecovery] = useState<RecoveryChoice>({
+    available: false,
+    captureActive: false
+  })
+  const [mode, setMode] = useState<InterviewMode>("coding")
+  const [input, setInput] = useState("")
 
-  // Let's ensure we reset queries etc. if some electron signals happen
   useEffect(() => {
-    const cleanup = window.electronAPI.onResetView(() => {
-      queryClient.invalidateQueries({
-        queryKey: ["screenshots"]
-      })
-      queryClient.invalidateQueries({
-        queryKey: ["problem_statement"]
-      })
-      queryClient.invalidateQueries({
-        queryKey: ["solution"]
-      })
-      queryClient.invalidateQueries({
-        queryKey: ["new_solution"]
-      })
-      setView("queue")
-    })
-
-    return () => {
-      cleanup()
-    }
+    void window.electronAPI.getInterviewState().then(setSession)
+    void window.electronAPI.getInterviewRecovery().then(setRecovery)
+    return window.electronAPI.onInterviewState(setSession)
   }, [])
 
-  // Dynamically update the window size
-  useEffect(() => {
-    if (!containerRef.current) return
-
-    const updateDimensions = () => {
-      if (!containerRef.current) return
-      const height = containerRef.current.scrollHeight || 600
-      const width = containerRef.current.scrollWidth || 800
-      window.electronAPI?.updateContentDimensions({ width, height })
-    }
-
-    // Force initial dimension update immediately
-    updateDimensions()
-    
-    // Set a fallback timer to ensure dimensions are set even if content isn't fully loaded
-    const fallbackTimer = setTimeout(() => {
-      window.electronAPI?.updateContentDimensions({ width: 800, height: 600 })
-    }, 500)
-
-    const resizeObserver = new ResizeObserver(updateDimensions)
-    resizeObserver.observe(containerRef.current)
-
-    // Also watch DOM changes
-    const mutationObserver = new MutationObserver(updateDimensions)
-    mutationObserver.observe(containerRef.current, {
-      childList: true,
-      subtree: true,
-      attributes: true,
-      characterData: true
+  const start = async () => {
+    const result = await window.electronAPI.dispatchInterviewCommand({
+      type: "start",
+      snapshot: {
+        mode,
+        provider,
+        model,
+        responseMode: config.responseMode,
+        language: config.language,
+        context: []
+      }
     })
+    setSession(result.state)
+  }
 
-    // Do another update after a delay to catch any late-loading content
-    const delayedUpdate = setTimeout(updateDimensions, 1000)
-
-    return () => {
-      resizeObserver.disconnect()
-      mutationObserver.disconnect()
-      clearTimeout(fallbackTimer)
-      clearTimeout(delayedUpdate)
-    }
-  }, [view])
-
-  // Listen for events that might switch views or show errors
-  useEffect(() => {
-    const cleanupFunctions = [
-      window.electronAPI.onSolutionStart(() => {
-        setView("solutions")
-      }),
-      window.electronAPI.onUnauthorized(() => {
-        queryClient.removeQueries({
-          queryKey: ["screenshots"]
-        })
-        queryClient.removeQueries({
-          queryKey: ["solution"]
-        })
-        queryClient.removeQueries({
-          queryKey: ["problem_statement"]
-        })
-        setView("queue")
-      }),
-      window.electronAPI.onResetView(() => {
-        queryClient.removeQueries({
-          queryKey: ["screenshots"]
-        })
-        queryClient.removeQueries({
-          queryKey: ["solution"]
-        })
-        queryClient.removeQueries({
-          queryKey: ["problem_statement"]
-        })
-        setView("queue")
-      }),
-      window.electronAPI.onResetView(() => {
-        queryClient.setQueryData(["problem_statement"], null)
-      }),
-      window.electronAPI.onProblemExtracted((data) => {
-        if (view === "queue") {
-          queryClient.invalidateQueries({
-            queryKey: ["problem_statement"]
-          })
-          queryClient.setQueryData(["problem_statement"], data)
-        }
-      }),
-      window.electronAPI.onSolutionError((error: string) => {
-        showToast("Error", error, "error")
-      })
-    ]
-    return () => cleanupFunctions.forEach((fn) => fn())
-  }, [view])
+  const submit = async () => {
+    const result = await window.electronAPI.dispatchInterviewCommand({
+      type: "submit",
+      route: "chat",
+      input
+    })
+    setSession(result.state)
+    if (result.ok) setInput("")
+  }
 
   return (
-    <div ref={containerRef} className="min-h-0">
-      {view === "queue" ? (
-        <Queue
-          setView={setView}
-          credits={credits}
-          currentLanguage={currentLanguage}
-          setLanguage={setLanguage}
-        />
-      ) : view === "solutions" ? (
-        <Solutions
-          setView={setView}
-          credits={credits}
-          currentLanguage={currentLanguage}
-          setLanguage={setLanguage}
-        />
+    <section className="mx-auto max-w-3xl p-4">
+      <Header
+        session={session}
+        onOpenSettings={() => void window.electronAPI.openSettings()}
+      />
+      {recovery.available && session.lifecycle === "idle" ? (
+        <div className="my-4 rounded border border-amber-400/30 p-3">
+          <p>Previous interview found. Capture remains off.</p>
+          <div className="mt-2 flex gap-2">
+            <button
+              onClick={() =>
+                void window.electronAPI
+                  .dispatchInterviewCommand({ type: "resume" })
+                  .then((result) => {
+                    setSession(result.state)
+                    setRecovery({ available: false, captureActive: false })
+                  })
+              }
+            >
+              Resume
+            </button>
+            <button
+              onClick={() =>
+                void window.electronAPI
+                  .dispatchInterviewCommand({ type: "reset" })
+                  .then((result) => {
+                    setSession(result.state)
+                    setRecovery({ available: false, captureActive: false })
+                  })
+              }
+            >
+              Reset
+            </button>
+          </div>
+        </div>
       ) : null}
-    </div>
+      {session.lifecycle === "idle" ? (
+        <div className="mt-6 space-y-3">
+          <label className="block text-sm">
+            Mode
+            <select
+              className="ml-2 bg-neutral-900"
+              value={mode}
+              onChange={(event) => setMode(event.target.value as InterviewMode)}
+            >
+              <option value="coding">Coding</option>
+              <option value="system-design">System design</option>
+              <option value="behavioral">Behavioral</option>
+            </select>
+          </label>
+          <button onClick={() => void start()}>Start interview</button>
+        </div>
+      ) : (
+        <>
+          <ContextDetail session={session} />
+          <div className="mt-6 space-y-2">
+            {session.sections.map((section) => (
+              <article key={section.id} className="rounded border border-white/10 p-3">
+                <h2>{section.id}</h2>
+                <pre className="whitespace-pre-wrap">{section.body}</pre>
+              </article>
+            ))}
+            {session.compactExchanges.map((exchange) => (
+              <article key={exchange.id} className="rounded bg-white/5 p-3">
+                <p>{exchange.prompt}</p>
+                <p className="text-white/70">{exchange.answer}</p>
+              </article>
+            ))}
+          </div>
+          <div className="mt-4 flex gap-2">
+            <input
+              aria-label="Interview chat"
+              className="flex-1 bg-neutral-900 p-2"
+              value={input}
+              onChange={(event) => setInput(event.target.value)}
+            />
+            <button onClick={() => void submit()}>Send</button>
+          </div>
+        </>
+      )}
+    </section>
   )
 }
-
-export default SubscribedApp
