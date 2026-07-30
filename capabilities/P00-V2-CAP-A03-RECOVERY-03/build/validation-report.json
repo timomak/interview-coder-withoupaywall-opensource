@@ -1,0 +1,82 @@
+{
+  "schemaVersion": 3,
+  "artifactId": "P00-V2-CAP-A03-RECOVERY-03",
+  "generatedAt": "2026-07-30T07:16:50Z",
+  "result": "PASS_PENDING_EXACT_CLOSURE_REVIEW",
+  "candidateRevision": "2e5045116db6e3c5f6e6cc18b70df6d7fa021baf",
+  "approvedPacketRevision": "02ee6ddec78d6e4ea9e2de3c0303ffd6bc9f45bf",
+  "predecessor": {
+    "capability": "P00-V2-CAP-A02",
+    "authorization": "ABSENT",
+    "manifestSha256": "945ffda713b5e9a02d2472d6f4e9e91340111384a6cdeab40890a5f3b572768b",
+    "controllerSha256": "73eda1532baa3044cf4feb989d2ec58d15304c86c31a298ed3d73a1a75c7494d"
+  },
+  "target": {
+    "capability": "P00-V2-CAP-A03",
+    "envelopeSha256": "00ea8696be7af50cfadd9035f9d7b44cb9d560b96c1f563c9ded0f6197a1af41",
+    "manifestSha256": "d94f06f0d6f585ed6ce368cfc933e5ec4fe4c9914621a39ce2544baa97f0ad39"
+  },
+  "artifact": {
+    "envelopeSha256": "c745aaae855cf6a9fc5c9c2673e6f67eb1af2de3ca862180d2c0847f94c324a9",
+    "handoffSha256": "dfb835f8b7a10906eabd9b0ab3bc5b9f98bf923a0a20e4c8206774b4289f9902",
+    "recoverSha256": "e9490a7582fd37a67565cc44f6507a734182066ffaceaebfe5c8afb79ab8ac9e",
+    "runStateSha256": "029a352d070362109032877805bfac52a3e516bfd50145528a33c8b09a0e21b9",
+    "journalSha256": "9011a744a1562cf8b345b2c3ffefc129282d79949085239a8248d24e380bc288",
+    "receiptSha256": "2bd3ed40b1a030d65783bff3ca24f7eb7940be780c404bee7daed483bf2a4e79",
+    "childRunnerSha256": "b3c477ea1140501e0b2fc3b4601670e9630bf42e151c97fa6624e5809091eb24",
+    "a03StateSha256": "be9c38f4be034c6fba3e2bc395ea64b927c8e9f4f8b71eaa65b4f7333c7b71f1",
+    "envelopeToolSha256": "7f6d63b5600a8835e6c9ff70e0281eb93bf8674903237d4f5968945ec1b6a321",
+    "handoffToolSha256": "03738c438efbff8240e39ebb259c256526a1b4bf8e211cff6041a40e7b1bf555"
+  },
+  "validation": [
+    {
+      "name": "RECOVERY-03 complete disposable-root suite",
+      "result": "PASS",
+      "testMethods": 18,
+      "elapsedSeconds": 2814.911,
+      "coverage": [
+        "post-fork/pre-PID lifecycle lock refusal and token invalidation",
+        "durable PID publication before A03 child mutation",
+        "partial rollback snapshot rejection and replay",
+        "verified atomic A02 rollback publication",
+        "closed A03 metadata member-set validation",
+        "installed A03 self-test evidence validation",
+        "incomplete A03 rollback to exact A02 without authorization",
+        "all reused relocation, authorization, receipt, rollback, ACL, and tamper checks"
+      ]
+    },
+    {
+      "name": "exact A03 revoke cleanup and idempotence",
+      "result": "PASS",
+      "cases": 1,
+      "elapsedSeconds": 115.588
+    },
+    {
+      "name": "reproducible build",
+      "result": "PASS",
+      "runs": 3,
+      "identicalEnvelopeSha256": "c745aaae855cf6a9fc5c9c2673e6f67eb1af2de3ca862180d2c0847f94c324a9",
+      "identicalHandoffSha256": "dfb835f8b7a10906eabd9b0ab3bc5b9f98bf923a0a20e4c8206774b4289f9902"
+    },
+    {
+      "name": "shell Python and envelope syntax",
+      "result": "PASS"
+    }
+  ],
+  "findingCoverage": {
+    "IC-M00-A03R3-B01": "COVERED_BY_TOKEN_BOUND_LIFECYCLE_LOCK_DURABLE_PID_AND_CONCURRENT_REPLAY_TEST",
+    "IC-M00-A03R3-B02": "COVERED_BY_ATOMIC_ROLLBACK_PUBLICATION_PARTIAL_SNAPSHOT_REPLAY_AND_CLOSED_A03_METADATA_SELF_TEST_VALIDATION"
+  },
+  "liveEffects": {
+    "sudoInvoked": false,
+    "passwordPromptOpened": false,
+    "privilegedHelperInvoked": false,
+    "candidateInvoked": false,
+    "authorizationChanged": false,
+    "installedCapabilityChanged": false
+  },
+  "quarantinedArtifacts": [
+    "P00-V2-CAP-A03-RECOVERY-01",
+    "P00-V2-CAP-A03-RECOVERY-02"
+  ]
+}
