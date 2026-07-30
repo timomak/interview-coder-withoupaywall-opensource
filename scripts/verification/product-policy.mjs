@@ -285,6 +285,35 @@ export function scanDependencyNames(packageJson) {
     .map((name) => `forbidden analytics/crash/fingerprint dependency: ${name}`)
 }
 
+export function scanMilestoneIntegration(packageJson, sources) {
+  const errors = []
+  const forbiddenDependencies = new Set([
+    "@anthropic-ai/sdk",
+    "@supabase/supabase-js",
+    "axios",
+    "dotenv",
+    "form-data",
+    "openai"
+  ])
+  for (const dependency of Object.keys({
+    ...packageJson.dependencies,
+    ...packageJson.devDependencies,
+    ...packageJson.optionalDependencies
+  })) {
+    if (forbiddenDependencies.has(dependency)) {
+      errors.push(`legacy answer/cloud dependency remains: ${dependency}`)
+    }
+  }
+  const forbiddenSurface =
+    /\b(?:checkApiKey|validateApiKey|decrementCredits|onCreditsUpdated|openSubscriptionPortal|onSubscriptionUpdated|onSubscriptionPortalClosed|problemInfo|hasDebugged|__CREDITS__|__AUTH_TOKEN__)\b|(?:check|validate)-api-key|credits-updated|out-of-credits/i
+  for (const [relativePath, source] of Object.entries(sources)) {
+    if (forbiddenSurface.test(source)) {
+      errors.push(`legacy answer/cloud/session surface remains: ${relativePath}`)
+    }
+  }
+  return errors
+}
+
 export function scanSourceText(relativePath, source) {
   const sourceFile = ts.createSourceFile(
     relativePath,
@@ -747,6 +776,30 @@ export function scanProductPolicy(root = REPOSITORY_ROOT) {
     ...validateIdentity(packageJson, visibleFiles),
     ...scanDependencyNames(packageJson)
   ]
+  const integrationPaths = [
+    "electron/ProcessingHelper.ts",
+    "electron/ipcHandlers.ts",
+    "electron/main.ts",
+    "electron/preload.ts",
+    "src/App.tsx",
+    "src/_pages/SubscribedApp.tsx",
+    "src/components/Header/Header.tsx",
+    "src/components/Queue/QueueCommands.tsx",
+    "src/components/Solutions/SolutionCommands.tsx",
+    "src/env.d.ts",
+    "src/types/electron.d.ts"
+  ]
+  errors.push(
+    ...scanMilestoneIntegration(
+      packageJson,
+      Object.fromEntries(
+        integrationPaths.map((relativePath) => [
+          relativePath,
+          fs.readFileSync(path.join(root, relativePath), "utf8")
+        ])
+      )
+    )
+  )
 
   for (const relativePath of discoverExecutableSourceFiles(root).filter(
     isShippedSource
@@ -773,7 +826,7 @@ function main() {
   const errors = scanProductPolicy()
   if (errors.length > 0) throw new Error(errors.join("\n"))
   console.log(
-    "Product policy accepted: InterviewCopilot, AGPL-3.0-or-later, no analytics, fingerprinting, automatic crash upload, or environment-secret logging entry points."
+    "Product policy accepted: InterviewCopilot, AGPL-3.0-or-later, subscription-only provider/session boundary, and no analytics, fingerprinting, automatic crash upload, or environment-secret logging entry points."
   )
 }
 

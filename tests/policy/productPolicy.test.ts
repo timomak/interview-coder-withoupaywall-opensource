@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest"
 import {
   isShippedSource,
   scanDependencyNames,
+  scanMilestoneIntegration,
   scanProductPolicy,
   scanSourceText,
   validateIdentity
@@ -64,6 +65,24 @@ describe("product policy", () => {
         "environment-secret logging entry point: secrets.ts"
       ])
     )
+  })
+
+  it("enforces cumulative subscription and session boundary", () => {
+    expect(
+      scanMilestoneIntegration(
+        { dependencies: { openai: "1.0.0" } },
+        { "electron/preload.ts": "const checkApiKey = true" }
+      )
+    ).toEqual([
+      "legacy answer/cloud dependency remains: openai",
+      "legacy answer/cloud/session surface remains: electron/preload.ts"
+    ])
+    expect(
+      scanMilestoneIntegration(
+        { dependencies: { electron: "29.1.4" } },
+        { "electron/preload.ts": "const command = 'interview:command'" }
+      )
+    ).toEqual([])
   })
 
   it("P01-R1-B05 rejects syntax-aware privacy bypasses without inert-text false positives", () => {

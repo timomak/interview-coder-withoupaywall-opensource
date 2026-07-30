@@ -34,17 +34,32 @@
     {
       "path": "tests/policy/productPolicy.test.ts",
       "name": "enforces canonical identity and AGPL metadata",
-      "sha256": "9c669d5a1e78525815bb85b91439c1193b0a4cc22450812a2654f616e4bbee66"
+      "sha256": "b2083fdaed1f9cc12724d3f0a541556102aa3db7fe1c2368d3057f7aed781d57"
     },
     {
       "path": "tests/policy/productPolicy.test.ts",
       "name": "rejects telemetry crash upload and secret logging entry points",
-      "sha256": "9c669d5a1e78525815bb85b91439c1193b0a4cc22450812a2654f616e4bbee66"
+      "sha256": "b2083fdaed1f9cc12724d3f0a541556102aa3db7fe1c2368d3057f7aed781d57"
     },
     {
       "path": "electron/windowOpenPolicy.test.ts",
       "name": "P01-R1-B01 denies every implicit child while preserving external links",
-      "sha256": "10b22bde6a6cdef5cb5e54ce536a9eb6a969878711f7fb871bf81e087018ce7f"
+      "sha256": "bb7ebdea283661aa4f09100b1136895ded2f303c605db97793ccb2d2df3d68db"
+    },
+    {
+      "path": "electron/ScreenshotHelper.test.ts",
+      "name": "captures previews retains and deletes without plaintext PNG persistence",
+      "sha256": "5fed072edfbd7323a3b640ee9e285230a62b96710c5f249660b086d7341d6e7c"
+    },
+    {
+      "path": "electron/ScreenshotHelper.test.ts",
+      "name": "uses the Windows in-memory fallback without a filename",
+      "sha256": "5fed072edfbd7323a3b640ee9e285230a62b96710c5f249660b086d7341d6e7c"
+    },
+    {
+      "path": "electron/ScreenshotHelper.test.ts",
+      "name": "clears retained encrypted screenshots after restart without queue rehydration",
+      "sha256": "5fed072edfbd7323a3b640ee9e285230a62b96710c5f249660b086d7341d6e7c"
     },
     {
       "path": "scripts/qualification/repositoryDiscovery.test.cjs",
@@ -94,7 +109,7 @@
     {
       "path": "tests/policy/productPolicy.test.ts",
       "name": "P01-R1-B05 rejects syntax-aware privacy bypasses without inert-text false positives",
-      "sha256": "9c669d5a1e78525815bb85b91439c1193b0a4cc22450812a2654f616e4bbee66"
+      "sha256": "b2083fdaed1f9cc12724d3f0a541556102aa3db7fe1c2368d3057f7aed781d57"
     },
     {
       "path": "tests/policy/sourceGate.test.ts",
@@ -175,6 +190,241 @@
       "path": "tests/policy/verificationReporter.test.ts",
       "name": "rejects any surviving child or detached descendant before zero",
       "sha256": "397c77550017e77c0f004a9827dccdcdb68d5f868122642c0fc303efce99f758"
+    },
+    {
+      "path": "tests/policy/productPolicy.test.ts",
+      "name": "enforces cumulative subscription and session boundary",
+      "sha256": "b2083fdaed1f9cc12724d3f0a541556102aa3db7fe1c2368d3057f7aed781d57"
+    },
+    {
+      "path": "electron/config/configMigration.test.ts",
+      "name": "migrates legacy settings once without persisting secrets",
+      "sha256": "99bae04eeca40aa752335c53daf54addfac0e62311de3037d3ca8e148f09ffae"
+    },
+    {
+      "path": "electron/providers/conversationIdBoundary.test.ts",
+      "name": "prohibits plaintext provider conversation persistence",
+      "sha256": "8da2fed2c570e3578e612c616e66409af797e705288438a566d3699470657227"
+    },
+    {
+      "path": "electron/providers/eventNormalization.contract.test.ts",
+      "name": "normalizes streaming and compaction events",
+      "sha256": "afe2ea05ff01561a2a05227a9c58d9ebe83910fe327adeef233c58d23935ac51"
+    },
+    {
+      "path": "electron/providers/noFallback.contract.test.ts",
+      "name": "never invokes the unselected provider",
+      "sha256": "cce9880380340b748fd615ec87746285728cb13daee5a1eba6936eb789e9e710"
+    },
+    {
+      "path": "electron/providers/persistence.contract.test.ts",
+      "name": "resumes caller-owned conversations after process restart",
+      "sha256": "fb5b187e1bb6e51c188bb1e27793902c7d99933a943cef830903a0bd11da1e63"
+    },
+    {
+      "path": "electron/providers/processSafety.test.ts",
+      "name": "constrains provider child processes",
+      "sha256": "a3e61959d170703ffb2d1b9f7c28f45f10035c49b52318cc37406f8897fc8d06"
+    },
+    {
+      "path": "electron/providers/providerBoundary.test.ts",
+      "name": "rejects legacy providers and entitlement surfaces",
+      "sha256": "9994666d7acd3f3706903e70298b71c6bada636c6385f8abaa1c5e8e10a9f441"
+    },
+    {
+      "path": "electron/providers/providerBoundary.test.ts",
+      "name": "accepts only explicit first-party subscription authentication",
+      "sha256": "9994666d7acd3f3706903e70298b71c6bada636c6385f8abaa1c5e8e10a9f441"
+    },
+    {
+      "path": "electron/providers/selectionSnapshot.test.ts",
+      "name": "locks explicit provider model and effort",
+      "sha256": "dd3a3137319f0cb9d2835c728c2ff0690649d45c1c481ed859f7cf72d6d7a007"
+    },
+    {
+      "path": "src/features/onboarding/ProviderSetup.test.tsx",
+      "name": "completes provider-only onboarding",
+      "sha256": "e41dda173fd1e617f96d8c12de945a4711ea92266982723d7be1d207a5aa0bd5"
+    },
+    {
+      "path": "src/features/onboarding/ProviderSetup.test.tsx",
+      "name": "blocks completion and retries when no subscription is ready",
+      "sha256": "e41dda173fd1e617f96d8c12de945a4711ea92266982723d7be1d207a5aa0bd5"
+    },
+    {
+      "path": "electron/storage/atomicity.test.ts",
+      "name": "survives interruption and disk exhaustion",
+      "sha256": "e50623fc1eb469388ab4a8462b11e10a749a5412808d4c18ff7173e3f86aa4ad"
+    },
+    {
+      "path": "electron/storage/envelopeCrypto.test.ts",
+      "name": "authenticates envelope metadata and rejects tampering",
+      "sha256": "38eba016fc795801a0175132a73970fbe146c4f9cf84a31804d6cae60163ae6d"
+    },
+    {
+      "path": "electron/storage/keyLifecycle.test.ts",
+      "name": "creates protects and reopens one installation key",
+      "sha256": "c72b47777a27774e3f792c5396c75b033dbc6060a12665c50681058e7288d187"
+    },
+    {
+      "path": "electron/storage/pathSafety.test.ts",
+      "name": "confines encrypted storage and file modes",
+      "sha256": "b086cd09d86d555bfb3669c85bc194071cf75d06354c68ab52816a95bb2c11a7"
+    },
+    {
+      "path": "electron/storage/plaintextLeak.test.ts",
+      "name": "finds no sensitive fixture bytes at rest",
+      "sha256": "6ffc8be25000c1a06030d0eb8a5e9942d13c25fbc760d32be090cb060e007aa8"
+    },
+    {
+      "path": "electron/storage/plaintextMigration.test.ts",
+      "name": "journals verifies and resumes legacy artifact migration",
+      "sha256": "b93caeac6923e7d7690fad3b50b13c8cde0b504c7a0f6ef4cf041513320b9e47"
+    },
+    {
+      "path": "electron/storage/plaintextMigration.test.ts",
+      "name": "reconciles every write-ahead filesystem boundary after a crash",
+      "sha256": "b93caeac6923e7d7690fad3b50b13c8cde0b504c7a0f6ef4cf041513320b9e47"
+    },
+    {
+      "path": "electron/storage/plaintextMigration.test.ts",
+      "name": "restores and verifies the prior copy before rollback target deletion",
+      "sha256": "b93caeac6923e7d7690fad3b50b13c8cde0b504c7a0f6ef4cf041513320b9e47"
+    },
+    {
+      "path": "electron/storage/plaintextMigration.test.ts",
+      "name": "reconciles M-03 filesystem boundaries after a crash",
+      "sha256": "b93caeac6923e7d7690fad3b50b13c8cde0b504c7a0f6ef4cf041513320b9e47"
+    },
+    {
+      "path": "electron/storage/recovery.test.ts",
+      "name": "preserves data on key and record failures",
+      "sha256": "c13f8eb8db0af1d3de28e1f1ded939a94a09d1827efb175eaa7961d5c56f5e42"
+    },
+    {
+      "path": "electron/storage/retentionPolicy.test.ts",
+      "name": "refuses raw audio persistence",
+      "sha256": "f410080aa2bf031e5c7c2415ed44a63b6405ded3ec684134361896dae25b036b"
+    },
+    {
+      "path": "src/domain/interview/sessionLifecycle.test.ts",
+      "name": "locks start snapshot until reset",
+      "sha256": "431673ef1b09ed4feac0968df6a25d573856c1756143a13c392b7f149b3876da"
+    },
+    {
+      "path": "src/domain/interview/sessionReducer.property.test.ts",
+      "name": "preserves invariants under event permutations",
+      "sha256": "a9208363ab29b98c184ad8ce3b89c91b7bfde9e026c0eb91a7024f1b8b505e56"
+    },
+    {
+      "path": "electron/orchestrator/contextPolicy.test.ts",
+      "name": "seeds once sends deltas and excludes coding personal context",
+      "sha256": "7ec4c82116399d10ce5a91a308ff838e77a163cdd2f5ba257ff70fc5ffcff7b3"
+    },
+    {
+      "path": "electron/orchestrator/contextPolicy.test.ts",
+      "name": "replays the byte-exact pending packet until accepted completion",
+      "sha256": "7ec4c82116399d10ce5a91a308ff838e77a163cdd2f5ba257ff70fc5ffcff7b3"
+    },
+    {
+      "path": "electron/orchestrator/pendingArtifacts.test.ts",
+      "name": "stages removes submits and deduplicates evidence",
+      "sha256": "8c8592b184dba5419517899e4b27bdadbf729048ad9fb2788ce8c18306080d9d"
+    },
+    {
+      "path": "electron/orchestrator/evidenceAuthority.test.ts",
+      "name": "applies screenshot authority rule",
+      "sha256": "7c465d197d1a98b204aa2552c194feeef051973cb8b4fbba641a42e784221944"
+    },
+    {
+      "path": "src/domain/interview/contextStatus.test.ts",
+      "name": "derives honest synchronization and compaction state",
+      "sha256": "e85911f675cd8eae0d97732740e8288e6af2215b1ae9a952312a73bbe38beb4e"
+    },
+    {
+      "path": "electron/orchestrator/progressiveSections.test.ts",
+      "name": "streams stable independently final sections",
+      "sha256": "9d123a429db82dc68fdfa7783e8ec0d50ec9e74689ec4ea695e4880faa90cb30"
+    },
+    {
+      "path": "electron/orchestrator/progressiveSections.test.ts",
+      "name": "persists a streamed partial section before cancellation settles",
+      "sha256": "9d123a429db82dc68fdfa7783e8ec0d50ec9e74689ec4ea695e4880faa90cb30"
+    },
+    {
+      "path": "electron/orchestrator/cancelContinue.test.ts",
+      "name": "resumes unfinished sections without duplicate evidence",
+      "sha256": "b5dee324463f3a21f47af51e0ab10c7d30a7c6d904cfb59e5ad29e961c47ec8c"
+    },
+    {
+      "path": "electron/orchestrator/resetSemantics.test.ts",
+      "name": "performs the sole terminal lifecycle transition",
+      "sha256": "4324f568a23f9025948ce45952e5d33223a1c51a9b5318798e747665fa144bc1"
+    },
+    {
+      "path": "electron/orchestrator/resetSemantics.test.ts",
+      "name": "routes capture queue actions through typed interview commands",
+      "sha256": "4324f568a23f9025948ce45952e5d33223a1c51a9b5318798e747665fa144bc1"
+    },
+    {
+      "path": "electron/orchestrator/resetSemantics.test.ts",
+      "name": "serializes reset after compact cancellation before archiving",
+      "sha256": "4324f568a23f9025948ce45952e5d33223a1c51a9b5318798e747665fa144bc1"
+    },
+    {
+      "path": "electron/orchestrator/resetSemantics.test.ts",
+      "name": "serializes hostile concurrent submissions and delayed saves",
+      "sha256": "4324f568a23f9025948ce45952e5d33223a1c51a9b5318798e747665fa144bc1"
+    },
+    {
+      "path": "electron/orchestrator/crashRecovery.test.ts",
+      "name": "restores one encrypted provider conversation with capture off",
+      "sha256": "8661e2f81db1061c1ceb45e5aa58fc8ab4941f29ab61199453568c28bc2fc51a"
+    },
+    {
+      "path": "electron/orchestrator/crashRecovery.test.ts",
+      "name": "retries the exact pending delivery after failure and crash",
+      "sha256": "8661e2f81db1061c1ceb45e5aa58fc8ab4941f29ab61199453568c28bc2fc51a"
+    },
+    {
+      "path": "electron/orchestrator/crashRecovery.test.ts",
+      "name": "retains and replays byte-exact pending context after cancellation",
+      "sha256": "8661e2f81db1061c1ceb45e5aa58fc8ab4941f29ab61199453568c28bc2fc51a"
+    },
+    {
+      "path": "src/domain/interview/contextDetail.test.ts",
+      "name": "renders exact honest source-level context detail",
+      "sha256": "3db6be25c06944ec57bd5ee459eb4c58880ec0d439b6eabce9249c3e3e929f92"
+    },
+    {
+      "path": "electron/orchestrator/sharedConversation.test.ts",
+      "name": "routes curated and chat turns through one conversation",
+      "sha256": "a4b5bd1d97cda13cda8101ed2b3b6cb234fac3a282ce0efaadd095ab238c632a"
+    },
+    {
+      "path": "electron/orchestrator/responseRouting.test.ts",
+      "name": "separates structured updates from compact clarification",
+      "sha256": "dc00ffeeb49cae9c0824a359f33fa4adb9dd497f4d16bc2a56ac90dbf0d06cb8"
+    },
+    {
+      "path": "electron/orchestrator/bestEffortClarification.test.ts",
+      "name": "answers without confidence gates and suggests material clarifications",
+      "sha256": "54ba9486d60a3e826f7b5daeb50b52d705a84081903d299b4907cbd20087dfa6"
+    },
+    {
+      "path": "electron/orchestrator/bestEffortClarification.test.ts",
+      "name": "derives material suggestions and ignores immaterial omissions",
+      "sha256": "54ba9486d60a3e826f7b5daeb50b52d705a84081903d299b4907cbd20087dfa6"
+    },
+    {
+      "path": "electron/orchestrator/bestEffortClarification.test.ts",
+      "name": "places only material mode omissions in real provider prompts",
+      "sha256": "54ba9486d60a3e826f7b5daeb50b52d705a84081903d299b4907cbd20087dfa6"
+    },
+    {
+      "path": "electron/orchestrator/correctionRevision.test.ts",
+      "name": "applies correction-scoped revision without collateral changes",
+      "sha256": "815984aa681408252263a61fa48e096d707978aa0ac13e9a7ebb316949ba5897"
     }
   ]
 }

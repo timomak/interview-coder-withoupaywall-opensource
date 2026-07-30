@@ -75,7 +75,7 @@ describe("window-open capture lifecycle policy", () => {
     expect(handler({ url: "https://docs.google.com/document/1" })).toEqual({
       action: "deny"
     })
-    expect(handler({ url: "https://project.supabase.co/dashboard" })).toEqual({
+    expect(handler({ url: "https://calendar.google.com/calendar" })).toEqual({
       action: "deny"
     })
     expect(openExternal).toHaveBeenNthCalledWith(
@@ -84,7 +84,7 @@ describe("window-open capture lifecycle policy", () => {
     )
     expect(openExternal).toHaveBeenNthCalledWith(
       2,
-      "https://project.supabase.co/dashboard"
+      "https://calendar.google.com/calendar"
     )
 
     const mainSource = fs.readFileSync(
@@ -102,5 +102,32 @@ describe("window-open capture lifecycle policy", () => {
       "deny handler must be the first executable statement after protected construction"
     )
     expect(mainSource).not.toContain('action: "allow"')
+
+    const shortcutsSource = fs.readFileSync(
+      path.join(process.cwd(), "electron/shortcuts.ts"),
+      "utf8"
+    )
+    const screenshotSource = fs.readFileSync(
+      path.join(process.cwd(), "electron/ScreenshotHelper.ts"),
+      "utf8"
+    )
+    const ipcSource = fs.readFileSync(
+      path.join(process.cwd(), "electron/ipcHandlers.ts"),
+      "utf8"
+    )
+    expect(mainSource).toMatch(
+      /new EncryptedBlobRepository\([\s\S]*"screenshots"[\s\S]*new InterviewCaptureController\([\s\S]*new ShortcutsHelper\([\s\S]*registerGlobalShortcuts\(\)/
+    )
+    expect(mainSource).toContain("resetInterview: () => capture.reset()")
+    expect(ipcSource).toMatch(
+      /parsed\.type === "reset"[\s\S]*dependencies\.resetInterview\(\)/
+    )
+    expect(shortcutsSource).not.toMatch(
+      /setView|reset-view|screenshot-taken|processingHelper/
+    )
+    expect(screenshotSource.match(/screenshotQueue/g)).not.toHaveLength(0)
+    expect(screenshotSource).not.toMatch(
+      /extraScreenshotQueue|setView|writeFile|filename|app\.getPath/
+    )
   })
 })

@@ -1,6 +1,6 @@
 import type { HandlerDetails } from "electron"
 
-const EXTERNAL_LINK_HOSTS = ["google.com", "supabase.co"] as const
+const EXTERNAL_LINK_HOSTS = ["google.com"] as const
 
 export type WindowOpenDecision = { action: "deny" }
 

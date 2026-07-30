@@ -5,6 +5,10 @@ export function validateIdentity(
 export function scanDependencyNames(
   packageJson: Record<string, unknown>
 ): string[]
+export function scanMilestoneIntegration(
+  packageJson: Record<string, unknown>,
+  sources: Record<string, string>
+): string[]
 export function scanSourceText(relativePath: string, source: string): string[]
 export function isShippedSource(relativePath: string): boolean
 export function scanProductPolicy(root?: string): string[]
