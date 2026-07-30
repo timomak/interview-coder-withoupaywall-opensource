@@ -1,0 +1,589 @@
+{
+  "schemaVersion": 3,
+  "kind": "long-horizon-milestone-map",
+  "projectKey": "InterviewCopilot",
+  "sourcePlanSha256": "da307d1d8bab4d4114a5c93eef3a43f8674d4814ef485108e40e05a5ff8e3671",
+  "supersedesMilestoneMapSha256": "f19223b0f4562578ee0f5e2a283c14b69d7e98023ff3f0dd96df050d9952ffc1",
+  "throughputPolicy": {
+    "developmentAdmissionUnlocksProductWork": true,
+    "developmentAdmissionDoesNotSatisfyP01": true,
+    "releaseAssuranceRequiredBeforeP01Integration": true,
+    "releaseAssuranceMayRunInParallelWithDependencyIndependentProductWork": true,
+    "lastBespokePrivilegedVerifier": "P00-V2-CAP-A04",
+    "fallbackIfA04CannotClose": "Use a clean ephemeral macOS runner, VM, or protected CI with ordinary non-privileged setup; do not create A05, retry a stale handoff, or scan historical run trees.",
+    "orchestrationBudgetPercent": 25,
+    "verificationInfrastructureBudgetPercent": 15
+  },
+  "activeEvidencePolicy": {
+    "historicalRunTrees": "IMMUTABLE_EVIDENCE_ONLY_OUTSIDE_ACTIVE_ADMISSION",
+    "admissionScope": "Validate only the fresh current run root and its pinned manifest.",
+    "prohibitedHistoricalOperations": [
+      "scan as live state",
+      "mutate",
+      "normalize",
+      "relink",
+      "import into active admission"
+    ]
+  },
+  "validationDisposition": {
+    "errors": 0,
+    "warnings": 10,
+    "warningChecklist": [
+      "IC-M01 through IC-M05 remain unfrozen; inventory each milestone's repository-native gates before freezing it.",
+      "IC-M01 through IC-M05 inherit AUTO continuation until their own frozen packets declare it explicitly."
+    ],
+    "acceptedReason": "The throughput replan freezes only IC-M00 gate ownership and the IC-M01 entry dependency. It does not freeze downstream milestone verification packets."
+  },
+  "requirements": [
+    {
+      "id": "P01",
+      "status": "PARTIAL",
+      "milestoneId": "IC-M00",
+      "evidence": [
+        "PR 155 candidate 2e5045116db6e3c5f6e6cc18b70df6d7fa021baf",
+        "A02 artifact 0feae7e04dc65e40894a9664e3358e57c39e0843 is independently approved with 25/25 exact-revision tests.",
+        "Reviewed one-shot admin handoff SHA-256 642af58b43219ca542efd7ad621df033a950d78c02d6735e76b07f30d795e83b completed.",
+        "Installed A02 full 2408-member root-owned manifest passed against SHA-256 945ffda713b5e9a02d2472d6f4e9e91340111384a6cdeab40890a5f3b572768b.",
+        "Quarantined v1 full 2401-member root-owned observed manifest passed against SHA-256 54997fb321b9b83e4237e23ad6914e10777f130df35ff9de8b9aae692ee7d97e; v1 authorization is absent.",
+        "A02 and legacy v1 payloads remain quarantined and unauthorized.",
+        "P00-V2-CAP-A04-RECOVERY-01 exact revision 774595fdf33d1024f06a980521f64cdb95095996 passed 16/16 disposable tests, 3/3 reproducibility, and independent G1-B02 closure review without activation."
+      ],
+      "remainingDelta": "Pass the non-privileged development-admission gate to unlock IC-M01 without satisfying P01; later complete exact A04 or clean-runner release assurance, protected PR 155 integration, focused post-merge verification, and only then mark P01 SATISFIED.",
+      "blocker": null
+    },
+    {
+      "id": "P02",
+      "status": "UNSTARTED",
+      "milestoneId": "IC-M01",
+      "evidence": [],
+      "remainingDelta": null,
+      "blocker": null
+    },
+    {
+      "id": "P03",
+      "status": "UNSTARTED",
+      "milestoneId": "IC-M01",
+      "evidence": [],
+      "remainingDelta": null,
+      "blocker": null
+    },
+    {
+      "id": "P04",
+      "status": "UNSTARTED",
+      "milestoneId": "IC-M01",
+      "evidence": [],
+      "remainingDelta": null,
+      "blocker": null
+    },
+    {
+      "id": "P05",
+      "status": "UNSTARTED",
+      "milestoneId": "IC-M02",
+      "evidence": [],
+      "remainingDelta": null,
+      "blocker": null
+    },
+    {
+      "id": "P06",
+      "status": "UNSTARTED",
+      "milestoneId": "IC-M02",
+      "evidence": [],
+      "remainingDelta": null,
+      "blocker": null
+    },
+    {
+      "id": "P07",
+      "status": "UNSTARTED",
+      "milestoneId": "IC-M02",
+      "evidence": [],
+      "remainingDelta": null,
+      "blocker": null
+    },
+    {
+      "id": "P08",
+      "status": "UNSTARTED",
+      "milestoneId": "IC-M02",
+      "evidence": [],
+      "remainingDelta": null,
+      "blocker": null
+    },
+    {
+      "id": "P09",
+      "status": "UNSTARTED",
+      "milestoneId": "IC-M03",
+      "evidence": [],
+      "remainingDelta": null,
+      "blocker": null
+    },
+    {
+      "id": "P10",
+      "status": "UNSTARTED",
+      "milestoneId": "IC-M04",
+      "evidence": [],
+      "remainingDelta": null,
+      "blocker": null
+    },
+    {
+      "id": "P11",
+      "status": "UNSTARTED",
+      "milestoneId": "IC-M04",
+      "evidence": [],
+      "remainingDelta": null,
+      "blocker": null
+    },
+    {
+      "id": "P12",
+      "status": "UNSTARTED",
+      "milestoneId": "IC-M05",
+      "evidence": [],
+      "remainingDelta": null,
+      "blocker": null
+    },
+    {
+      "id": "D-036",
+      "status": "DEFERRED",
+      "milestoneId": null,
+      "evidence": [
+        "P00-R9 source packet explicitly defers Practice feedback."
+      ],
+      "remainingDelta": null,
+      "blocker": null
+    },
+    {
+      "id": "D-039b",
+      "status": "DEFERRED",
+      "milestoneId": null,
+      "evidence": [
+        "P00-R9 source packet explicitly defers custom modes."
+      ],
+      "remainingDelta": null,
+      "blocker": null
+    },
+    {
+      "id": "D-010",
+      "status": "DEFERRED",
+      "milestoneId": null,
+      "evidence": [
+        "P00-R9 source packet explicitly defers Practice."
+      ],
+      "remainingDelta": null,
+      "blocker": null
+    }
+  ],
+  "riskBoundaries": [
+    {
+      "id": "IC-RISK-PRIVILEGE",
+      "milestoneId": "IC-M00",
+      "kind": "privilege",
+      "behavior": "Only reviewed immutable release-assurance verification operations receive exact bounded authorization; ordinary product implementation never depends on this privilege.",
+      "approval": "Independent high-risk review plus bounded administrator checkpoint.",
+      "verification": "Installed-byte identity, allowlist, rollback, revocation, candidate isolation, and exact release evidence before P01 integration."
+    },
+    {
+      "id": "IC-RISK-ENCRYPTED-STATE",
+      "milestoneId": "IC-M01",
+      "kind": "provider authority, secrets, process protocol, encryption, and durable migration",
+      "behavior": "Provider authentication and secrets remain bounded, child-process protocols fail closed, local interview state remains confidential and recoverable, and single-session authority prevents cross-session access.",
+      "approval": "Independent HIGH review at the exact candidate against the P02, P03, and P04 contracts.",
+      "verification": "Provider authentication, secret isolation, process lifecycle/protocol, key custody, migration, rollback, corruption, wrong-user rejection, single-session authority, and cross-session denial."
+    },
+    {
+      "id": "IC-RISK-VISUAL-CONTEXT-PRIVACY",
+      "milestoneId": "IC-M02",
+      "kind": "screen-capture and personal-context privacy",
+      "behavior": "The live shell remains excluded from display capture, capture is explicit and lifecycle-bounded, and personal dossier/opportunity context is excluded or routed only as authorized.",
+      "approval": "Independent HIGH privacy review at the exact candidate against the P05 and P08 contracts.",
+      "verification": "Full-display capture protection, explicit capture lifecycle, denial and teardown, dossier/opportunity exclusion, and authorized routing."
+    },
+    {
+      "id": "IC-RISK-AUDIO-PRIVACY",
+      "milestoneId": "IC-M03",
+      "kind": "OS privacy and capture",
+      "behavior": "Audio capture occurs only with accepted OS authorization and bounded lifecycle.",
+      "approval": "Independent privacy review and user-controlled OS checkpoint.",
+      "verification": "Permission, denial, interruption, child reaping, retention, and cross-session isolation."
+    },
+    {
+      "id": "IC-RISK-DATA-LIFECYCLE",
+      "milestoneId": "IC-M04",
+      "kind": "protected prompt authorization and destructive data lifecycle",
+      "behavior": "Prompt Studio variants remain authorization-bound and resist adversarial instruction bypass, while history export and deletion preserve integrity and explicit destructive intent.",
+      "approval": "Independent HIGH review at the exact candidate against the P10 and P11 contracts.",
+      "verification": "Prompt authorization, adversarial-instruction behavior, recovery, export integrity, deletion confirmation, tombstones, and restart behavior."
+    },
+    {
+      "id": "IC-RISK-RELEASE",
+      "milestoneId": "IC-M05",
+      "kind": "signing and public artifact",
+      "behavior": "The qualified macOS artifact is exact, signed, and reproducible.",
+      "approval": "Independent release review plus normal signing authority.",
+      "verification": "Signature, notarization, clean install, rollback, and Meet matrix."
+    }
+  ],
+  "milestones": [
+    {
+      "id": "IC-M00",
+      "title": "Trusted local policy rails",
+      "outcome": "Admit the exact P01 candidate for continued development through non-privileged repository evidence, while retaining separately gated release assurance before P01 integration.",
+      "status": "IMPLEMENTING",
+      "dependencies": [],
+      "parallelGroup": "runtime-and-release-assurance",
+      "mutableTargets": [
+        "release-verification-capability",
+        "P01-development-admission",
+        "PR-155"
+      ],
+      "requirementIds": [
+        "P01"
+      ],
+      "riskBoundaryIds": [
+        "IC-RISK-PRIVILEGE"
+      ],
+      "workPackages": [
+        {
+          "id": "IC-M00-W1-DEV",
+          "title": "Non-privileged P01 development admission",
+          "mutableTargets": [
+            "P01-development-admission"
+          ],
+          "dependencies": []
+        },
+        {
+          "id": "IC-M00-W2-RELEASE",
+          "title": "Deferred P01 release assurance and protected integration",
+          "mutableTargets": [
+            "release-verification-capability",
+            "PR-155"
+          ],
+          "dependencies": [
+            "IC-M00-W1-DEV"
+          ]
+        }
+      ],
+      "admissionGates": [
+        {
+          "id": "IC-M00-G-DEV",
+          "kind": "non_privileged_repository_native",
+          "status": "READY",
+          "candidateRevision": "2e5045116db6e3c5f6e6cc18b70df6d7fa021baf",
+          "requirements": [
+            "exact candidate and clean worktree identity",
+            "one complete finding batch over P01 behavior and full candidate diff",
+            "targeted P01 policy, lint, typecheck, unit, named-test-manifest, and build checks",
+            "existing protected CI and mechanical exact-SHA guards"
+          ],
+          "unlocks": [
+            "IC-M01"
+          ],
+          "doesNotAuthorize": [
+            "P01 SATISFIED",
+            "PR 155 integration",
+            "release",
+            "privileged helper invocation"
+          ]
+        },
+        {
+          "id": "IC-M00-G-RELEASE",
+          "kind": "release_assurance",
+          "status": "ARTIFACT_APPROVED_WAITING_FINAL_ACTIVATION",
+          "artifactRevision": "774595fdf33d1024f06a980521f64cdb95095996",
+          "dependsOn": [
+            "IC-M00-G-DEV"
+          ],
+          "requiredFor": [
+            "PR 155 protected integration",
+            "P01 SATISFIED",
+            "release"
+          ],
+          "mayRunInParallelWith": [
+            "IC-M01"
+          ]
+        }
+      ],
+      "reviewGates": [
+        {
+          "id": "IC-M00-G-DEV-REVIEW",
+          "kind": "repository-native",
+          "role": "complete_finding_batch",
+          "timing": "before_authoritative_complete",
+          "exactShaReusable": true,
+          "scope": "One non-privileged complete finding batch over exact P01 candidate 2e5045116db6e3c5f6e6cc18b70df6d7fa021baf, its full diff, and frozen P01 acceptance. No privileged evidence is required for development admission."
+        },
+        {
+          "id": "IC-M00-G-RELEASE-PRIVILEGE",
+          "kind": "independent-privilege",
+          "role": "complementary_high_risk",
+          "timing": "before_authoritative_complete",
+          "exactShaReusable": true,
+          "scope": "Reuse approved A04-RECOVERY-01 privilege review at exact revision 774595fdf33d1024f06a980521f64cdb95095996; no new general finding batch."
+        },
+        {
+          "id": "IC-M00-G-INTEGRATION",
+          "kind": "protected-repository",
+          "role": "mechanical_integration_guard",
+          "timing": "integration",
+          "exactShaReusable": true,
+          "scope": "Require exact candidate, accepted release-assurance evidence, live protected checks, and approval identity before PR 155 integration."
+        }
+      ],
+      "verification": {
+        "targeted": [
+          "Non-privileged P01 policy, lint, strict typecheck, unit, named-test-manifest, and build checks at the exact candidate.",
+          "Mechanical PR 155 head/base/CodeQL identity reconciliation."
+        ],
+        "authoritativeComplete": "Before P01 integration, run exactly one accepted release-assurance route: approved A04 at the immutable candidate or a clean ephemeral macOS runner/VM/protected CI using ordinary non-privileged setup.",
+        "postMergeSmoke": [
+          "Verify protected integration identity and focused P01 policy/gate behavior.",
+          "Record release-assurance retention or cleanup and unchanged legacy quarantine."
+        ]
+      },
+      "continuation": "AUTO",
+      "rollback": "Development admission is evidence-only and revokes by withdrawing its exact-SHA attestation. Release-assurance rollback removes authorization first, retains immutable evidence, and preserves the unchanged P01 candidate."
+    },
+    {
+      "id": "IC-M01",
+      "title": "Trusted runtime, encrypted persistence, and session domain",
+      "outcome": "Deliver the subscription-only agent runtime, encrypted local state, and interview session orchestrator together.",
+      "status": "DISCOVERY",
+      "dependencies": [],
+      "entryGateIds": [
+        "IC-M00-G-DEV"
+      ],
+      "parallelGroup": "runtime-and-release-assurance",
+      "mutableTargets": [
+        "agent-runtime",
+        "encrypted-storage",
+        "session-domain"
+      ],
+      "requirementIds": [
+        "P02",
+        "P03",
+        "P04"
+      ],
+      "riskBoundaryIds": [
+        "IC-RISK-ENCRYPTED-STATE"
+      ],
+      "workPackages": [
+        {
+          "id": "IC-M01-W1",
+          "title": "Runtime and subscription boundary",
+          "mutableTargets": [
+            "agent-runtime"
+          ],
+          "dependencies": []
+        },
+        {
+          "id": "IC-M01-W2",
+          "title": "Encrypted persistence",
+          "mutableTargets": [
+            "encrypted-storage"
+          ],
+          "dependencies": []
+        },
+        {
+          "id": "IC-M01-W3",
+          "title": "Session orchestrator",
+          "mutableTargets": [
+            "session-domain"
+          ],
+          "dependencies": [
+            "IC-M01-W1",
+            "IC-M01-W2"
+          ]
+        }
+      ],
+      "verification": {
+        "targeted": [],
+        "authoritativeComplete": "Run P02/P03/P04 targeted contracts and one complete exact-candidate integration suite.",
+        "postMergeSmoke": []
+      },
+      "rollback": "Return to the previous readable state version and retain encrypted migration rollback material."
+    },
+    {
+      "id": "IC-M02",
+      "title": "Live interview shell and answer modes",
+      "outcome": "Ship Quiet Signal controls plus Coding, System Design, and Behavioral experiences as one usable interview surface.",
+      "status": "DISCOVERY",
+      "dependencies": [
+        "IC-M01"
+      ],
+      "mutableTargets": [
+        "macos/live-shell",
+        "modes/coding",
+        "modes/system-design",
+        "modes/behavioral"
+      ],
+      "requirementIds": [
+        "P05",
+        "P06",
+        "P07",
+        "P08"
+      ],
+      "riskBoundaryIds": [
+        "IC-RISK-VISUAL-CONTEXT-PRIVACY"
+      ],
+      "workPackages": [
+        {
+          "id": "IC-M02-W1",
+          "title": "Quiet Signal shell and controls",
+          "mutableTargets": [
+            "macos/live-shell"
+          ],
+          "dependencies": []
+        },
+        {
+          "id": "IC-M02-W2",
+          "title": "Coding and System Design modes",
+          "mutableTargets": [
+            "modes/coding",
+            "modes/system-design"
+          ],
+          "dependencies": [
+            "IC-M02-W1"
+          ]
+        },
+        {
+          "id": "IC-M02-W3",
+          "title": "Profile context and Behavioral mode",
+          "mutableTargets": [
+            "modes/behavioral"
+          ],
+          "dependencies": [
+            "IC-M02-W1"
+          ]
+        }
+      ],
+      "verification": {
+        "targeted": [],
+        "authoritativeComplete": "Run P05-P08 acceptance and one complete UI/runtime integration suite at the exact candidate.",
+        "postMergeSmoke": []
+      },
+      "rollback": "Disable the new mode composition while preserving sessions, profiles, and stored context."
+    },
+    {
+      "id": "IC-M03",
+      "title": "Audio intelligence",
+      "outcome": "Capture authorized macOS audio, transcribe it, and detect interview questions without privacy leakage.",
+      "status": "DISCOVERY",
+      "dependencies": [
+        "IC-M02"
+      ],
+      "mutableTargets": [
+        "macos/audio-capture",
+        "transcription",
+        "question-detection"
+      ],
+      "requirementIds": [
+        "P09"
+      ],
+      "riskBoundaryIds": [
+        "IC-RISK-AUDIO-PRIVACY"
+      ],
+      "workPackages": [
+        {
+          "id": "IC-M03-W1",
+          "title": "Audio capture, transcription, and detection",
+          "mutableTargets": [
+            "macos/audio-capture",
+            "transcription",
+            "question-detection"
+          ]
+        }
+      ],
+      "verification": {
+        "targeted": [],
+        "authoritativeComplete": "Run P09 privacy, lifecycle, interruption, and accuracy contracts once at the exact candidate.",
+        "postMergeSmoke": []
+      },
+      "rollback": "Revoke capture capability, stop child processes, and retain no unauthorized audio."
+    },
+    {
+      "id": "IC-M04",
+      "title": "Prompt Studio and durable lifecycle",
+      "outcome": "Deliver protected prompt variants plus crash recovery, searchable history, export, and deletion.",
+      "status": "DISCOVERY",
+      "dependencies": [
+        "IC-M02",
+        "IC-M03"
+      ],
+      "mutableTargets": [
+        "prompt-studio",
+        "history",
+        "export",
+        "deletion"
+      ],
+      "requirementIds": [
+        "P10",
+        "P11"
+      ],
+      "riskBoundaryIds": [
+        "IC-RISK-DATA-LIFECYCLE"
+      ],
+      "workPackages": [
+        {
+          "id": "IC-M04-W1",
+          "title": "Prompt Studio",
+          "mutableTargets": [
+            "prompt-studio"
+          ],
+          "dependencies": []
+        },
+        {
+          "id": "IC-M04-W2",
+          "title": "Recovery, history, export, and deletion",
+          "mutableTargets": [
+            "history",
+            "export",
+            "deletion"
+          ],
+          "dependencies": [
+            "IC-M04-W1"
+          ]
+        }
+      ],
+      "verification": {
+        "targeted": [],
+        "authoritativeComplete": "Run P10/P11 authorization, recovery, export, deletion, and integration contracts once at the exact candidate.",
+        "postMergeSmoke": []
+      },
+      "rollback": "Return to the prior readable schema and preserve explicitly retained exports."
+    },
+    {
+      "id": "IC-M05",
+      "title": "macOS release and Google Meet qualification",
+      "outcome": "Harden, sign, and qualify the final macOS product against the accepted Google Meet matrix.",
+      "status": "DISCOVERY",
+      "dependencies": [
+        "IC-M04"
+      ],
+      "mutableTargets": [
+        "macos/release",
+        "signing",
+        "meet-qualification"
+      ],
+      "requirementIds": [
+        "P12"
+      ],
+      "riskBoundaryIds": [
+        "IC-RISK-RELEASE"
+      ],
+      "workPackages": [
+        {
+          "id": "IC-M05-W1",
+          "title": "Release hardening and qualification",
+          "mutableTargets": [
+            "macos/release",
+            "signing",
+            "meet-qualification"
+          ]
+        }
+      ],
+      "verification": {
+        "targeted": [],
+        "authoritativeComplete": "Run the P12 release matrix and complete final integration verification at the exact signed revision.",
+        "postMergeSmoke": []
+      },
+      "rollback": "Retain the last accepted signed build and revoke temporary signing or test resources."
+    }
+  ]
+}

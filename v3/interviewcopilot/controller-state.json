@@ -23,6 +23,23 @@
       "additionalPlanningReviewAllowed": false
     }
   },
+  "activeMilestoneMap": {
+    "path": "v3/interviewcopilot/milestone-map-throughput-replan-1.json",
+    "sha256": "938e7ea8174cc051cca8405da85c7c768cde70310a2e69d9380b11673253e946",
+    "supersedesSha256": "f19223b0f4562578ee0f5e2a283c14b69d7e98023ff3f0dd96df050d9952ffc1",
+    "reason": "Remove privileged release assurance as a serial prerequisite for dependency-independent product implementation without weakening P01 integration or release acceptance.",
+    "validatorResult": "VALID_0_ERRORS_10_ACKNOWLEDGED_UNFROZEN_DOWNSTREAM_WARNINGS",
+    "status": "FROZEN_APPROVED",
+    "planningReview": {
+      "reviewedMapSha256": "938e7ea8174cc051cca8405da85c7c768cde70310a2e69d9380b11673253e946",
+      "reviewer": "/root/a04_recovery01_closure_review",
+      "initialDisposition": "REQUEST_CHANGES_ONE_CONTROLLER_STATE_COHERENCE_BATCH",
+      "correction": "Obsolete A04 active pointers and next action were preserved as historical/completed state; IC-M00-G-DEV became the sole active next action.",
+      "deltaDisposition": "APPROVE",
+      "mapChangedByCorrection": false,
+      "additionalCorrectionAllowed": false
+    }
+  },
   "legacyState": {
     "ledgerPath": "/Users/thirdfacedev/.codex/orchestration/TimoCodes-ledger/ledger.json",
     "ledgerSha256": "66c411a5a45ad0e4e303c20b9240ad999e9ef28ab5e8520be909d0b68d4e5f8c",
@@ -185,30 +202,21 @@
         "id": "IC-M00",
         "title": "Trusted local policy rails",
         "status": "IMPLEMENTING",
-        "activeReplan": {
+        "historicalReplan": {
             "id": "IC-M00-RP01",
             "path": "v3/interviewcopilot/milestone-IC-M00-replan-1.json",
             "packetSha256": "1d40a2503d223864b94ad1d4b544ab956aa399da20837a12a479b76de04d56e1",
-            "status": "BLOCKED_G1_DELTA_REJECTED_DO_NOT_ACTIVATE",
+            "status": "SUPERSEDED_BY_APPROVED_A04_RECOVERY_AND_THROUGHPUT_REPLAN",
             "artifactId": "P00-V2-CAP-A04",
             "candidateRevision": "2e5045116db6e3c5f6e6cc18b70df6d7fa021baf",
             "privilegedBoundaryCrossed": false,
             "candidateInvoked": false,
             "reviewedArtifactRevision": "c56f78ae050331a2cd3a999260aa7c887e0f2f1e",
-            "openFinding": "IC-M00-RP01-G1-B02",
+            "openFinding": null,
             "correctionBudgetRemaining": 0
         },
-        "blocker": {
-            "kind": "PREACTIVATION_HIGH_RISK_REVIEW_REJECTED",
-            "findingId": "IC-M00-RP01-G1-B02",
-            "reviewedRevision": "c56f78ae050331a2cd3a999260aa7c887e0f2f1e",
-            "cause": "The terminal receipt and durable journal member validators do not enforce their frozen root:wheel group contract, and wrong-group replay is untested.",
-            "privilegedBoundaryCrossed": false,
-            "candidateInvoked": false,
-            "administratorInteractionRequired": false,
-            "retryProhibitedWithinReplan": true
-        },
-        "activeRecovery": {
+        "blocker": null,
+        "completedRecovery": {
             "id": "IC-M00-A04-RECOVERY-01",
             "path": "v3/interviewcopilot/bounded-recovery-IC-M00-5.json",
             "packetSha256": "55fd4406f2d8c77556e0e829b2598b5503435e4ccdd929eedbca1242b4073da1",
@@ -220,6 +228,34 @@
             "reviewedRevision": "774595fdf33d1024f06a980521f64cdb95095996",
             "reviewDisposition": "APPROVE_G1_B02_CLOSED"
         },
+        "gateSplit": {
+            "developmentAdmission": {
+                "id": "IC-M00-G-DEV",
+                "status": "READY_FOR_COMPLETE_FINDING_BATCH",
+                "privileged": false,
+                "candidateRevision": "2e5045116db6e3c5f6e6cc18b70df6d7fa021baf",
+                "completeFindingBatch": "PENDING",
+                "targetedRepositoryChecks": "PENDING",
+                "protectedCiMechanicalGuard": "CODEQL_SUCCESS_PR_HEAD_EXACT",
+                "unlocks": [
+                    "IC-M01"
+                ],
+                "doesNotSatisfyP01": true,
+                "doesNotAuthorizeIntegrationOrRelease": true
+            },
+            "releaseAssurance": {
+                "id": "IC-M00-G-RELEASE",
+                "status": "ARTIFACT_APPROVED_WAITING_FINAL_ACTIVATION",
+                "artifactRevision": "774595fdf33d1024f06a980521f64cdb95095996",
+                "requiredBefore": [
+                    "PR 155 protected integration",
+                    "P01 SATISFIED",
+                    "release"
+                ],
+                "serialPrerequisiteForICM01": false,
+                "fallback": "Clean ephemeral macOS runner, VM, or protected CI with ordinary non-privileged setup; no A05 or stale handoff retry."
+            }
+        },
         "frozenAt": "2026-07-29T09:10:11+02:00",
     "ownedRequirementIds": [
       "P01"
@@ -230,59 +266,68 @@
     "baseRevision": "9dcb4b2d39607273a8528a24657cdb4f5bfc3412",
     "candidateRevision": "2e5045116db6e3c5f6e6cc18b70df6d7fa021baf",
     "mutableTargets": [
-      "verification-capability",
-      "policy-rails",
+      "release-verification-capability",
+      "P01-development-admission",
       "PR-155"
     ],
     "workPackages": [
       {
-        "id": "IC-M00-W1",
-        "title": "Close P01 capability and candidate verification",
+        "id": "IC-M00-W1-DEV",
+        "title": "Non-privileged P01 development admission",
         "mutableTargets": [
-          "verification-capability",
-          "policy-rails",
-          "PR-155"
+          "P01-development-admission"
         ],
         "dependencies": []
+      },
+      {
+        "id": "IC-M00-W2-RELEASE",
+        "title": "Deferred P01 release assurance and protected integration",
+        "mutableTargets": [
+          "release-verification-capability",
+          "PR-155"
+        ],
+        "dependencies": [
+          "IC-M00-W1-DEV"
+        ]
       }
     ],
     "behaviorExpectations": [
-      "A03 validates exact A02 predecessor identity plus its own staged and installed bytes before admitting only P01.",
-      "P01 verification executes only the exact immutable candidate and approved P01 plan.",
-      "All package gates continue after an individual failure and aggregate exactly.",
-      "Candidate mutation, process survival, PR-head drift, or evidence-integrity drift fails closed.",
+      "The non-privileged development-admission gate binds exact candidate identity, one complete finding batch, targeted repository checks, and protected CI before unlocking IC-M01.",
+      "Development admission does not satisfy P01 and cannot authorize PR integration, release, or privileged helper invocation.",
+      "A04 release assurance remains required before protected P01 integration and may run later in parallel with dependency-independent product work.",
+      "Active admission validates only a fresh current run root and pinned manifest; historical run trees remain immutable evidence and are never scanned, normalized, relinked, or mutated as live state.",
       "Legacy v1 remains present only as quarantined evidence and is never authorized or invoked."
     ],
     "compatibilityExpectations": [
       "PR 155 remains based on 9dcb4b2d39607273a8528a24657cdb4f5bfc3412.",
       "The canonical user worktree and all uncommitted user changes remain untouched.",
-      "All accepted P00-R9 P01 evidence remains reusable when bound to immutable revisions."
+      "All accepted P00-R9 P01 evidence remains reusable when bound to immutable revisions.",
+      "Every accepted P02 through P12 requirement and explicit source deferral remains unchanged."
     ],
     "failureExpectations": [
-      "Any installed-byte, metadata, request, candidate, plan, process, or final-reopen disagreement returns nonzero and produces no accepted success.",
-      "No failed verification is integrated.",
-      "No new administrator transaction or broader privileged authorization is created."
+      "Development admission failure does not unlock IC-M01.",
+      "Release-assurance failure blocks P01 integration and SATISFIED status but does not revoke valid development admission for dependency-independent product work.",
+      "No failed verification is integrated and no password, privileged helper, merge, or deploy is implied by this replan.",
+      "A04 is the final bespoke privileged verifier; failure falls back to a clean ephemeral non-privileged macOS runner, VM, or protected CI."
     ],
-    "rollback": "A03 activation removes A02 authorization first; failure restores exact A02 payload without authorization. A03 revocation removes authorization first, retains evidence and metadata, and keeps v1 quarantined.",
+    "rollback": "Withdraw the exact-SHA development-admission attestation to relock IC-M01. For release assurance, remove authorization first, retain exact evidence, and preserve the candidate and legacy quarantine.",
     "acceptance": [
-      "Fresh single-use arm and verify requests bind P01, P00-R9, PR 155, and exact candidate 2e5045116db6e3c5f6e6cc18b70df6d7fa021baf.",
-      "Exact A03 arm succeeds and thereby validates protected A03 metadata plus installed bytes.",
-      "One authoritative P01 complete suite succeeds with aggregate exit zero and exact immutable evidence.",
-      "One independent complete P01 review batch approves the same exact candidate and evidence, or one bounded remediation plus delta review resolves its complete finding batch.",
-      "PR 155 integrates through the protected workflow at the approved revision.",
-      "Focused post-merge verification passes and A02 retention is recorded explicitly."
+      "The exact P01 candidate receives one non-privileged complete finding batch, targeted repository checks, and exact protected-CI reconciliation before IC-M01 unlocks.",
+      "IC-M01 unlock does not change P01 from PARTIAL or integrate PR 155.",
+      "Before P01 integration, exactly one accepted release-assurance route produces complete immutable evidence at the exact candidate.",
+      "PR 155 integrates only after release assurance and mechanical identity guards accept the same revision.",
+      "Focused post-merge verification passes and capability retention or cleanup is recorded explicitly."
     ],
     "verification": {
       "reusedEvidence": [
-        "A02 artifact independent approval: 25/25 at 0feae7e04dc65e40894a9664e3358e57c39e0843",
-        "Installed A02 manifest: 2408/2408 exact",
-        "Quarantined v1 observed manifest: 2401/2401 exact",
-        "PR 155 CodeQL success at 1ff0881b9bd59f243146c93b6709be57d58ee17a"
+        "A04-RECOVERY-01 exact approval at 774595fdf33d1024f06a980521f64cdb95095996",
+        "A04 recovery validation: 16/16 and 3/3 reproducible",
+        "Installed A02 and quarantined v1 exact manifests remain reusable historical evidence",
+        "PR 155 CodeQL success at exact head 2e5045116db6e3c5f6e6cc18b70df6d7fa021baf"
       ],
-      "targetedPreflight": "After independently approved one-shot A02-to-A03 activation, refresh the UID-501 arm and verify nonces and run the exact empty-argument A03 arm operation once.",
-      "authoritativeComplete": "Run the exact empty-argument A03 verify operation once at the armed immutable P01 candidate and reconcile the complete root-owned read-only run evidence.",
-      "independentReview": "One read-only complete finding batch against exact candidate, full diff, P01 requirements, and authoritative evidence.",
-      "postMergeSmoke": "Verify protected integration identity, focused P01 policy/gate smoke, and unchanged capability authorization/quarantine state."
+      "developmentAdmission": "Run one non-privileged complete finding batch and the targeted P01 repository-native checks at the exact candidate, then mechanically reconcile PR head/base and protected CI.",
+      "releaseAssurance": "At the later final boundary, run approved A04 once or use one clean ephemeral non-privileged macOS route; do not duplicate authoritative runs.",
+      "postMergeSmoke": "Verify protected integration identity, focused P01 policy/gate behavior, and unchanged capability authorization/quarantine state."
     },
     "authoritativeAttempt": {
       "armRequestSha256": "d4f8d21f4ab4aaff48676ff2bf2d89c1ee2f3a64231090b6506e03847e4d7488",
@@ -427,12 +472,13 @@
     "acceptedBlockerCount": 4,
     "postIntegrationDefects": 0,
     "ownershipConflicts": 1,
-    "result": "BLOCKED_TERMINAL_RECOVERY_03_NEW_LIVE_STATE_INCOMPATIBILITY_REPLAN_REQUIRED"
+    "historicalResult": "BLOCKED_TERMINAL_RECOVERY_03_NEW_LIVE_STATE_INCOMPATIBILITY_REPLAN_REQUIRED",
+    "result": "THROUGHPUT_REPLAN_IC_M00_G_DEV_PENDING"
   },
-  "activeReplan": {
+  "historicalReplan": {
     "id": "IC-M00-RP01",
     "packet": "v3/interviewcopilot/milestone-IC-M00-replan-1.json",
-    "status": "READY_FOR_G1_FREEZE",
+    "status": "SUPERSEDED_BY_APPROVED_A04_RECOVERY_AND_THROUGHPUT_REPLAN",
     "baseRevision": "dd48cb269582e257d5972e466c20bcca44749544",
     "outcome": "Fresh P01-only capability namespace with no legacy evidence migration or active-admission dependency.",
     "planningReviewGate": "IC-M00-RP01-G0_APPROVED_CORRECTED_PACKET_295F2F6",
@@ -443,5 +489,5 @@
     "privilegedBoundaryCrossed": false,
     "candidateInvoked": false
   },
-  "nextSafeAction": "Build and test the fresh-namespace P00-V2-CAP-A04 artifact without sudo, installed helper invocation, candidate invocation, or legacy-state mutation; freeze its exact immutable revision for G1."
+  "nextSafeAction": "Freeze and execute only non-privileged development-admission gate IC-M00-G-DEV at exact candidate 2e5045116db6e3c5f6e6cc18b70df6d7fa021baf. After it passes, mark IC-M01 READY and start its dependency-ready product work automatically. Do not activate A04, invoke privilege, integrate PR 155, or mark P01 SATISFIED."
 }
