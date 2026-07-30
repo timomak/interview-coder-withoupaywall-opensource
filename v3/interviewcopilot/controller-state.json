@@ -231,10 +231,12 @@
         "gateSplit": {
             "developmentAdmission": {
                 "id": "IC-M00-G-DEV",
-                "status": "READY_FOR_COMPLETE_FINDING_BATCH",
+                "status": "CHECKING",
                 "privileged": false,
                 "candidateRevision": "2e5045116db6e3c5f6e6cc18b70df6d7fa021baf",
-                "completeFindingBatch": "PENDING",
+                "packet": "v3/interviewcopilot/development-admission-IC-M00-1.json",
+                "packetSha256": "fcd1814febc75de6b86fcd2d457735a515817108f326a6f42ac1cfe8f89330b9",
+                "completeFindingBatch": "REUSED_APPROVE_EXACT_2E504511_NO_DUPLICATE_GENERAL_REVIEW",
                 "targetedRepositoryChecks": "PENDING",
                 "protectedCiMechanicalGuard": "CODEQL_SUCCESS_PR_HEAD_EXACT",
                 "unlocks": [

@@ -1,0 +1,125 @@
+{
+  "schemaVersion": 1,
+  "kind": "development-admission-packet",
+  "projectKey": "InterviewCopilot",
+  "milestoneId": "IC-M00",
+  "gateId": "IC-M00-G-DEV",
+  "createdAt": "2026-07-30T14:44:59+02:00",
+  "controllerThreadId": "019f9ff6-e24b-7053-a2b3-fe01f8538ab4",
+  "status": "FROZEN_CHECKING",
+  "candidate": {
+    "repository": "/Users/thirdfacedev/.codex/worktrees/ic-m00-remediation/TimoCodes",
+    "revision": "2e5045116db6e3c5f6e6cc18b70df6d7fa021baf",
+    "baseRevision": "9dcb4b2d39607273a8528a24657cdb4f5bfc3412",
+    "worktreeState": "CLEAN_EXACT",
+    "pullRequest": 155,
+    "pullRequestState": "OPEN_DRAFT_HEAD_EXACT_MERGEABLE_CODEQL_SUCCESS"
+  },
+  "ownedOutcome": "Admit the exact P01 candidate for dependency-independent product development without satisfying P01, integrating PR 155, releasing, or invoking privilege.",
+  "completeFindingBatch": {
+    "mode": "REUSE_EXACT_SHA_APPROVAL_NO_DUPLICATE_GENERAL_REVIEW",
+    "sourcePacket": "v3/interviewcopilot/bounded-recovery-IC-M00-1.json",
+    "sourcePacketSha256": "c64de9060efee63b261f5f1035aa66922862197816e9dd788476eac7def82098",
+    "sourceField": "preparedTransaction.candidateReview",
+    "disposition": "APPROVE_2e5045116db6e3c5f6e6cc18b70df6d7fa021baf",
+    "reusableBecause": "Candidate, full diff, base, and frozen P01 requirements are unchanged; release-assurance capability and evidence are deliberately excluded from development admission.",
+    "newGeneralReviewProhibited": true
+  },
+  "targetedChecks": [
+    {
+      "id": "policy",
+      "argv": [
+        "npm",
+        "run",
+        "verify:policy"
+      ],
+      "expectedExit": 0
+    },
+    {
+      "id": "lint",
+      "argv": [
+        "npm",
+        "run",
+        "lint"
+      ],
+      "expectedExit": 0
+    },
+    {
+      "id": "typecheck",
+      "argv": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "expectedExit": 0
+    },
+    {
+      "id": "unit",
+      "argv": [
+        "npm",
+        "run",
+        "test:unit",
+        "--",
+        "--reporter=verbose"
+      ],
+      "expectedExit": 0
+    },
+    {
+      "id": "p01",
+      "argv": [
+        "npm",
+        "run",
+        "test:p01",
+        "--",
+        "--reporter=verbose"
+      ],
+      "expectedExit": 0
+    },
+    {
+      "id": "manifest",
+      "argv": [
+        "npm",
+        "run",
+        "verify:test-manifest"
+      ],
+      "expectedExit": 0
+    },
+    {
+      "id": "build",
+      "argv": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "expectedExit": 0
+    }
+  ],
+  "mechanicalGuards": [
+    "candidate worktree remains clean and exact before and after checks",
+    "PR 155 remains open draft with exact head and base",
+    "CodeQL remains SUCCESS at the exact head",
+    "no privileged helper, sudo, password prompt, integration, release, or deployment occurs"
+  ],
+  "historicalEvidencePolicy": {
+    "historicalRunTrees": "IMMUTABLE_EVIDENCE_ONLY",
+    "activeAdmissionDependency": "NONE",
+    "activeRunValidation": "FRESH_CURRENT_RUN_ROOT_AND_PINNED_MANIFEST_ONLY",
+    "prohibited": [
+      "scan historical trees as live state",
+      "mutate",
+      "normalize",
+      "relink",
+      "import into active admission"
+    ]
+  },
+  "passEffect": {
+    "developmentAdmission": "SATISFIED_AT_EXACT_SHA",
+    "unlockMilestone": "IC-M01",
+    "p01Status": "PARTIAL_UNCHANGED",
+    "prIntegrationAuthorized": false,
+    "releaseAuthorized": false,
+    "privilegedInvocationAuthorized": false
+  },
+  "failureEffect": "IC-M01 remains locked; preserve exact diagnostics and do not weaken checks or substitute release assurance.",
+  "continuation": "AUTO_TO_IC_M01_ON_PASS"
+}
