@@ -1,0 +1,97 @@
+{
+  "schemaVersion": 1,
+  "kind": "bounded-recovery-packet",
+  "projectKey": "InterviewCopilot",
+  "milestoneId": "IC-M00",
+  "attempt": 4,
+  "createdAt": "2026-07-30T07:47:29+02:00",
+  "controllerThreadId": "019f9ff6-e24b-7053-a2b3-fe01f8538ab4",
+  "status": "DESIGNING_NON_PRIVILEGED",
+  "authority": {
+    "source": "standing checker authorization for one new bounded RECOVERY-03 design cycle",
+    "safePreparationAuthorized": true,
+    "privilegedActivationAuthorizedNow": false,
+    "passwordPromptAuthorizedNow": false
+  },
+  "checkpoint": {
+    "ledgerRevision": "bcf8e6258070ff72b614908e3b1ecc302b620d47",
+    "sourcePacketRevision": "P00-R9",
+    "sourcePacketCommit": "02ee6ddec78d6e4ea9e2de3c0303ffd6bc9f45bf",
+    "candidateRevision": "2e5045116db6e3c5f6e6cc18b70df6d7fa021baf",
+    "pullRequest": "155_OPEN_DRAFT_MERGEABLE_CODEQL_SUCCESS",
+    "installedA02ControllerSha256": "73eda1532baa3044cf4feb989d2ec58d15304c86c31a298ed3d73a1a75c7494d",
+    "installedA02ManifestSha256": "945ffda713b5e9a02d2472d6f4e9e91340111384a6cdeab40890a5f3b572768b",
+    "installedA02ManifestResult": "PASS_ROOT_OWNED_EXACT",
+    "installedA02Authorization": "ABSENT",
+    "a03Installed": false,
+    "legacyV1Status": "PAYLOAD_RETAINED_QUARANTINED_DO_NOT_INVOKE",
+    "recovery02LiveState": "ABSENT"
+  },
+  "failedRevision": "7dd0c4d012b95372293be54c0195139afd7d02b0",
+  "findings": [
+    {
+      "id": "IC-M00-A03R3-B01",
+      "sourceFinding": "IC-M00-A03R2-B01",
+      "severity": "HIGH",
+      "classification": "CHILD_PID_JOURNALING",
+      "requiredOutcome": "A child cannot mutate A03 before a durable, replay-visible lifecycle claim exists; replay deterministically refuses a live child and safely recovers an interrupted pre-mutation launch."
+    },
+    {
+      "id": "IC-M00-A03R3-B02",
+      "sourceFinding": "IC-M00-A03R2-B02",
+      "severity": "HIGH",
+      "classification": "ATOMIC_ROLLBACK_AND_COMMIT_RECOGNITION",
+      "requiredOutcome": "A02 rollback is published only after an exact atomic snapshot, partial snapshots are replay-safe, and committed A03 recognition validates the closed metadata member set plus installed self-test evidence."
+    }
+  ],
+  "invalidatedEvidence": [
+    "RECOVERY-02 exact delta approval",
+    "RECOVERY-02 administrator handoff"
+  ],
+  "reusableEvidence": [
+    "P00-R9 source packet at 02ee6ddec78d6e4ea9e2de3c0303ffd6bc9f45bf",
+    "Exact A02 installed manifest and controller identity",
+    "Exact A03 target artifact and its approved tests and review",
+    "Candidate 2e5045116db6e3c5f6e6cc18b70df6d7fa021baf approval and PR 155 CodeQL success",
+    "RECOVERY-02 relocation facts and B03 closure",
+    "RECOVERY-02 passing principal, argument, v1 quarantine, envelope, revocation, rollback, and receipt checks"
+  ],
+  "mutableTargets": [
+    "capabilities/P00-V2-CAP-A03-RECOVERY-03",
+    "v3/interviewcopilot/bounded-recovery-IC-M00-4.json",
+    "v3/interviewcopilot/controller-state.json"
+  ],
+  "targetedChecks": [
+    "Hard interruption after child fork but before PID journal publication proves the child cannot enter A03 and replay is deterministic",
+    "Live-child lock and durable PID replay refuse concurrent recovery",
+    "Partial A02 rollback staging is never recognized as a complete rollback and is replay-cleaned",
+    "A02 rollback publication is atomic and exact before any child mutation",
+    "Incomplete, extra-member, or invalid-self-test A03 metadata never qualifies as committed",
+    "Exact A03 metadata, payload, retained rollback, relocation, receipt, and authorization finalization remain idempotent",
+    "Disposable rollback and A03 revocation remain exact",
+    "Two clean builds produce identical envelopes and administrator handoffs"
+  ],
+  "reviewGate": {
+    "id": "IC-M00-A03R3-G1",
+    "role": "complete_finding_batch",
+    "risk": "HIGH",
+    "reviewer": "/root/p00_v2_cap_a01_high_review",
+    "scope": "Only IC-M00-A03R3-B01 and IC-M00-A03R3-B02 plus regression safety of the immutable sealed transaction.",
+    "timing": "before_authoritative_complete",
+    "exactShaReusable": true,
+    "status": "PENDING_IMMUTABLE_REVISION"
+  },
+  "correctionBudget": 0,
+  "terminalCondition": "Either identical material B01 or B02 defect survives the exact closure review unchanged.",
+  "prohibitedTargets": [
+    "RECOVERY-01 and RECOVERY-02 handoffs",
+    "sudo or password prompt",
+    "installed A02 or any installed privileged path",
+    "A03 activation",
+    "legacy v1 capability",
+    "candidate 2e5045116db6e3c5f6e6cc18b70df6d7fa021baf",
+    "PR 155",
+    "P02 or later milestones"
+  ],
+  "nextSafeAction": "Build and test one sealed RECOVERY-03 artifact addressing only B01 and B02 without invoking privilege."
+}

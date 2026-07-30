@@ -97,6 +97,14 @@
       "independentReview": "REQUEST_CHANGES_EXACT_DELTA_B01_B02_UNRESOLVED_B03_RESOLVED",
       "status": "BLOCKED_DO_NOT_INVOKE"
     },
+    "a03Recovery03": {
+      "artifactId": "P00-V2-CAP-A03-RECOVERY-03",
+      "packet": "v3/interviewcopilot/bounded-recovery-IC-M00-4.json",
+      "authority": "ONE_COHERENT_NON_PRIVILEGED_DESIGN_BUILD_AND_EXACT_CLOSURE_REVIEW",
+      "status": "DESIGNING_NON_PRIVILEGED",
+      "privilegedBoundaryCrossed": false,
+      "candidateInvoked": false
+    },
     "v1": {
       "installedRoot": "/Users/Shared/InterviewCopilot/verification-controller/v1",
       "observedManifestSha256": "54997fb321b9b83e4237e23ad6914e10777f130df35ff9de8b9aae692ee7d97e",
@@ -111,7 +119,7 @@
   "currentMilestone": {
     "id": "IC-M00",
     "title": "Trusted local policy rails",
-    "status": "BLOCKED_USER_DECISION_REQUIRED",
+    "status": "IMPLEMENTING",
     "frozenAt": "2026-07-29T09:10:11+02:00",
     "ownedRequirementIds": [
       "P01"
@@ -267,6 +275,15 @@
       },
       "privilegedBoundaryCrossed": false,
       "candidateInvoked": false
+    },
+    "checkerAuthorizedRecovery": {
+      "packet": "v3/interviewcopilot/bounded-recovery-IC-M00-4.json",
+      "artifactId": "P00-V2-CAP-A03-RECOVERY-03",
+      "scope": "IC-M00-A03R3-B01_CHILD_PID_JOURNALING_AND_IC-M00-A03R3-B02_ATOMIC_ROLLBACK_A03_COMMIT_RECOGNITION_ONLY",
+      "reviewer": "/root/p00_v2_cap_a01_high_review",
+      "reviewStatus": "PENDING_IMMUTABLE_REVISION",
+      "privilegedBoundaryCrossed": false,
+      "candidateInvoked": false
     }
   },
   "metrics": {
@@ -294,7 +311,7 @@
     "acceptedBlockerCount": 3,
     "postIntegrationDefects": 0,
     "ownershipConflicts": 1,
-    "result": "BLOCKED_SECOND_MATERIAL_RECOVERY_FAILURE"
+    "result": "IN_PROGRESS_CHECKER_AUTHORIZED_RECOVERY_03"
   },
-  "nextSafeAction": "Require a genuinely new user decision authorizing a new bounded recovery design cycle. Do not invoke RECOVERY-02, any expired handoff, sudo, A02, A03, v1, or the candidate."
+  "nextSafeAction": "Build and test one sealed P00-V2-CAP-A03-RECOVERY-03 artifact addressing only the two surviving crash and replay findings. Do not invoke privilege or any installed capability."
 }
