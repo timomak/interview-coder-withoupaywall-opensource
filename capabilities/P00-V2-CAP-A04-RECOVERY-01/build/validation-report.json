@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "artifactId": "P00-V2-CAP-A04-RECOVERY-01",
+  "targetCapabilityArtifactId": "P00-V2-CAP-A04",
+  "validatedAt": "2026-07-30T12:25:18Z",
+  "failedReviewedRevision": "c56f78ae050331a2cd3a999260aa7c887e0f2f1e",
+  "candidateRevision": "2e5045116db6e3c5f6e6cc18b70df6d7fa021baf",
+  "candidateInvoked": false,
+  "privilegedPathInvoked": false,
+  "controllerSha256": "2e0b997105fbfbca644d2e63aae002a733130930754c8eb7a1edfdd3d8b0b56b",
+  "manifestSha256": "14ee47901899c60be9b573ff632a07718e77fad7b98f71c9273da48771c75dad",
+  "envelopeSha256": "70c7c7985bbb9520fd1eb0e1dae2168551fc6e938a7ced0f63ccba250126fc66",
+  "handoffSha256": "94a235a2be1c78300fb4aa69e2fa8eab5d2a9f365226e1ec18a4bf735ef0e374",
+  "payloadArchiveSha256": "9d58d271e82c2973da3ed0152a7e14253b79ec6aea339c1551977bb09e343901",
+  "nativeSelfTestSha256": "47ada296ed385c366b51364ca8d80242a25fdd56422f790d934f60bedd76411a",
+  "cleanBuilds": 3,
+  "reproducibleIdentities": [
+    "controller",
+    "expected-install-manifest.json",
+    "release-envelope.json",
+    "admin-handoff.txt",
+    "payload.tar.gz",
+    "native-self-test.json"
+  ],
+  "disposableTestSuite": {
+    "tests": 16,
+    "failures": 0,
+    "elapsedSeconds": 761.124
+  },
+  "boundedFinding": {
+    "id": "IC-M00-RP01-G1-B02",
+    "status": "IMPLEMENTED_PENDING_EXACT_CLOSURE_REVIEW",
+    "provedContracts": [
+      "receipt publication explicitly establishes requested UID and GID",
+      "journal publication explicitly establishes requested UID and GID",
+      "receipt path and reopened descriptor require the exact requested GID",
+      "journal path and reopened descriptor require the exact requested GID",
+      "wrong-group terminal receipt replay fails closed",
+      "wrong-group journal replay fails before namespace or authorization mutation"
+    ]
+  },
+  "preservedContracts": [
+    "UID501 exact empty-argument authorization",
+    "P01-only fresh A04 namespace",
+    "exact source, staged, payload, installed, metadata, and installed-state verification",
+    "durable journal and terminal receipt publication ordering",
+    "authorization-first revocation",
+    "legacy namespace and historical evidence nonmutation"
+  ]
+}

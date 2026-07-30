@@ -8,7 +8,7 @@
   "targetCapabilityArtifactId": "P00-V2-CAP-A04",
   "createdAt": "2026-07-30T13:49:47+02:00",
   "controllerThreadId": "019f9ff6-e24b-7053-a2b3-fe01f8538ab4",
-  "status": "AUTHORIZED_IMPLEMENTING",
+  "status": "READY_FOR_EXACT_CLOSURE_REVIEW",
   "authority": {
     "source": "Standing checker authorization for one additional narrowly bounded IC-M00/A04 technical recovery limited to unresolved G1-B02.",
     "safeNonPrivilegedDesignBuildTestReviewAuthorized": true,
@@ -69,6 +69,28 @@
     "journalMember": "Enforce exact requested st_uid and st_gid, mode 0400, regular file, link count 1, no ACL, no extended attributes, canonical bytes, descriptor/reopen equality, and durable publication/removal.",
     "creation": "Explicitly establish both requested owner and group before terminal reopen validation in live and disposable roots.",
     "tests": "Add explicit wrong-group terminal receipt replay rejection and wrong-group journal replay rejection without changing unrelated acceptance."
+  },
+  "implementationEvidence": {
+    "status": "READY_FOR_EXACT_CLOSURE_REVIEW",
+    "controllerSha256": "2e0b997105fbfbca644d2e63aae002a733130930754c8eb7a1edfdd3d8b0b56b",
+    "manifestSha256": "14ee47901899c60be9b573ff632a07718e77fad7b98f71c9273da48771c75dad",
+    "envelopeSha256": "70c7c7985bbb9520fd1eb0e1dae2168551fc6e938a7ced0f63ccba250126fc66",
+    "handoffSha256": "94a235a2be1c78300fb4aa69e2fa8eab5d2a9f365226e1ec18a4bf735ef0e374",
+    "payloadArchiveSha256": "9d58d271e82c2973da3ed0152a7e14253b79ec6aea339c1551977bb09e343901",
+    "nativeSelfTestSha256": "47ada296ed385c366b51364ca8d80242a25fdd56422f790d934f60bedd76411a",
+    "disposableSuite": "16_TESTS_0_FAILURES_761.124_SECONDS",
+    "reproducibleBuilds": "3_OF_3_IDENTICAL",
+    "candidateInvoked": false,
+    "privilegedBoundaryCrossed": false,
+    "failedArtifactMutated": false,
+    "provedGroupClosure": [
+      "receipt publish fchown establishes exact owner and group",
+      "receipt path and reopened descriptor validate exact group",
+      "journal create fchown establishes exact owner and group",
+      "journal path and reopened descriptor validate exact group",
+      "wrong-group receipt replay is rejected",
+      "wrong-group journal replay is rejected before live-state mutation"
+    ]
   },
   "reviewGates": [
     {
