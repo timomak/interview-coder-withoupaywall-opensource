@@ -509,7 +509,7 @@
     {
       "path": "src/features/shell/HotKeysPanel.test.tsx",
       "name": "recovers the active map when Reset all cannot persist defaults",
-      "sha256": "21965b42a89e22aa7b243534a742f01661ab88e19d3d995d17b5d84689977b5b"
+      "sha256": "7832af6e5925aaf2cf276c24b36c0601d62d9d806b80c7da764d9abd4d1a4163"
     }
   ]
 }

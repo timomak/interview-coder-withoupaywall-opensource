@@ -6,9 +6,14 @@ import { HotKeysPanel } from "./HotKeysPanel"
 
 describe("HotKeysPanel", () => {
   it("recovers the active map when Reset all cannot persist defaults", async () => {
+    const activeBindings = {
+      ...DEFAULT_SHORTCUT_BINDINGS,
+      record: "Control+Shift+8"
+    }
     const getShortcutBindings = vi
       .fn()
-      .mockResolvedValue(DEFAULT_SHORTCUT_BINDINGS)
+      .mockResolvedValueOnce(DEFAULT_SHORTCUT_BINDINGS)
+      .mockResolvedValueOnce(activeBindings)
     window.electronAPI = {
       ...window.electronAPI,
       getShortcutBindings,
@@ -21,6 +26,12 @@ describe("HotKeysPanel", () => {
       />
     )
 
+    const recordBinding = await screen.findByRole("textbox", {
+      name: "Record"
+    })
+    fireEvent.change(recordBinding, {
+      target: { value: "Control+Shift+9" }
+    })
     fireEvent.click(screen.getByRole("button", { name: "Reset all" }))
 
     await waitFor(() =>
@@ -30,6 +41,7 @@ describe("HotKeysPanel", () => {
         )
       ).toBeTruthy()
     )
-    expect(getShortcutBindings).toHaveBeenCalled()
+    expect(getShortcutBindings).toHaveBeenCalledTimes(2)
+    expect(recordBinding).toHaveValue("Control+Shift+8")
   })
 })
