@@ -453,10 +453,13 @@
   "readyMilestones": [
     {
       "id": "IC-M01",
-      "status": "READY_FOR_FREEZE",
+      "status": "FROZEN_APPROVED_READY_TO_IMPLEMENT",
       "entryGate": "IC-M00-G-DEV",
       "entryGateEvidence": "v3/interviewcopilot/development-admission-IC-M00-1.json",
       "entryGateEvidenceSha256": "d11b7297df1f9cfacb233428fc1b0f83e05c711b54a6a946a1b6c0e852ab2efb",
+      "freezePacket": "v3/interviewcopilot/milestone-IC-M01-freeze-1.json",
+      "freezePacketSha256": "ce40840212f4b1f5f114f5746acec721c430fc17a372522df1b52a153d09d05b",
+      "planningReview": "ONE_CORRECTION_BATCH_THEN_APPROVE_F459DE5",
       "requirementIds": [
         "P02",
         "P03",
@@ -507,5 +510,5 @@
     "privilegedBoundaryCrossed": false,
     "candidateInvoked": false
   },
-  "nextSafeAction": "Freeze IC-M01 against exact P00-R9 P02/P03/P04 requirements, dependency and mutable-target safety, targeted checks, one complete exact-candidate suite, one HIGH-risk review batch, and rollback; then start its dependency-ready non-privileged product work automatically. Keep A04 release assurance pending and do not invoke privilege, integrate PR 155, deploy, or mark P01 SATISFIED."
+  "nextSafeAction": "Create isolated exact-base IC-M01 worktrees and start only disjoint IC-M01-W1 provider/config/onboarding and IC-M01-W2 encrypted-storage work. W3 waits for both exact handoffs. Keep A04 release assurance pending and do not invoke privilege, integrate PR 155, deploy, or mark P01 SATISFIED."
 }

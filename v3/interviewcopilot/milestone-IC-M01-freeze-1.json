@@ -1,0 +1,360 @@
+{
+  "schemaVersion": 1,
+  "kind": "milestone-freeze-packet",
+  "projectKey": "InterviewCopilot",
+  "milestoneId": "IC-M01",
+  "title": "Trusted runtime, encrypted persistence, and session domain",
+  "createdAt": "2026-07-30T15:00:34+02:00",
+  "controllerThreadId": "019f9ff6-e24b-7053-a2b3-fe01f8538ab4",
+  "status": "FROZEN_APPROVED",
+  "source": {
+    "sourcePacketRevision": "P00-R9",
+    "sourcePacketCommit": "02ee6ddec78d6e4ea9e2de3c0303ffd6bc9f45bf",
+    "designSha256": "31819873972e1bc02650a1d6bfab1c7f8c687647a19731aa3881e0d71f7fe64a",
+    "phaseExecutionPacketSha256": "da307d1d8bab4d4114a5c93eef3a43f8674d4814ef485108e40e05a5ff8e3671",
+    "activeMilestoneMap": "v3/interviewcopilot/milestone-map-throughput-replan-1.json",
+    "activeMilestoneMapSha256": "938e7ea8174cc051cca8405da85c7c768cde70310a2e69d9380b11673253e946"
+  },
+  "entry": {
+    "gateId": "IC-M00-G-DEV",
+    "status": "SATISFIED",
+    "evidence": "v3/interviewcopilot/development-admission-IC-M00-1.json",
+    "evidenceSha256": "d11b7297df1f9cfacb233428fc1b0f83e05c711b54a6a946a1b6c0e852ab2efb",
+    "baseRevision": "a8cdcbdeb49a897946dd520981d59d9a1a3813b6",
+    "baseParent": "2e5045116db6e3c5f6e6cc18b70df6d7fa021baf",
+    "pullRequest155": "OPEN_DRAFT_UNMERGED_CODEQL_SUCCESS",
+    "p01Status": "PARTIAL_UNCHANGED",
+    "releaseAssurance": "IC-M00-G-RELEASE_PENDING_NOT_SERIAL_FOR_THIS_MILESTONE",
+    "preMergeDevelopmentWaiver": {
+      "authority": "The user-authorized throughput correction explicitly makes satisfied non-privileged IC-M00-G-DEV sufficient for IC-M01 product implementation while retaining P01 integration and SATISFIED status behind release assurance.",
+      "scope": "Development and review only on top of exact admitted P01 tree a8cdcbdeb49a897946dd520981d59d9a1a3813b6; it does not waive P01 release assurance, protected integration, post-merge evidence, or any P02/P03/P04 acceptance criterion.",
+      "integrationReconciliation": "Before any IC-M01 protected integration, fetch the actual integrated P01 revision and mechanically compare its P01 tree to admitted base a8cdcbdeb49a897946dd520981d59d9a1a3813b6. Rebase or replay IC-M01 onto that exact integrated base and refreeze the candidate identity. Any semantic P01 difference invalidates cumulative integration evidence and requires a dependency reconciliation before one authoritative IC-M01 route; unchanged product commits and package evidence remain reusable.",
+      "failureEffect": "A differing integrated P01 base blocks IC-M01 integration but does not discard isolated product work or authorize a merge."
+    }
+  },
+  "outcome": "Deliver the Claude Code and Codex subscription runtime, encrypted local persistence, and one durable InterviewSession authority together on top of the development-admitted P01 candidate.",
+  "requirements": [
+    {
+      "id": "P02",
+      "title": "Subscription-only persistent agent runtime",
+      "ownedBehavior": [
+        "accept only claude-code and codex subscription providers and remove legacy API-key, credit, entitlement, quota, and paywall answer surfaces",
+        "pin and validate supported Claude Code and Codex CLI protocol versions and fail explicitly on unsupported capabilities",
+        "resume caller-owned Claude sessions and Codex threads across driver or child-process restart while persisting no opaque provider conversation identifier",
+        "never fall back to an unselected provider and snapshot provider, model, effort, and response mode without silent substitution",
+        "normalize streaming, typed payload, usage, compaction, stop, completion, and sanitized error events",
+        "use absolute executables, shell false, scrubbed provider-secret environment, bounded output and time, and graceful then forced cancellation",
+        "migrate legacy config through atomic idempotent owner-only M-01 without rewriting secrets or adding a conversation field",
+        "complete provider-only onboarding without capture or audio permission"
+      ],
+      "acceptanceIds": [
+        "P02-AC1",
+        "P02-AC2",
+        "P02-AC3",
+        "P02-AC4",
+        "P02-AC5",
+        "P02-AC6",
+        "P02-AC7",
+        "P02-AC8",
+        "P02-AC9"
+      ],
+      "namedTestCountMinimum": 9
+    },
+    {
+      "id": "P03",
+      "title": "Encrypted local persistence foundation",
+      "ownedBehavior": [
+        "protect one random installation key through Electron safeStorage and macOS Keychain and reopen records after restart",
+        "store versioned AES-256-GCM record and blob envelopes with unique nonces and authenticated type, version, and ID metadata",
+        "persist no plaintext sensitive records, blobs, indexes, thumbnails, caches, temp data, or keys",
+        "provide atomic prior-or-new writes under interruption or disk exhaustion with isolated non-destructive corruption handling",
+        "enforce owner-only canonical paths and reject symlink or out-of-root access",
+        "journal, verify, resume, and safely roll back M-02 and M-03 without deleting the only readable copy",
+        "reject raw-audio persistence and surface typed Keychain or record recovery"
+      ],
+      "acceptanceIds": [
+        "P03-AC1",
+        "P03-AC2",
+        "P03-AC3",
+        "P03-AC4",
+        "P03-AC5",
+        "P03-AC6",
+        "P03-AC7",
+        "P03-AC8"
+      ],
+      "namedTestCountMinimum": 8
+    },
+    {
+      "id": "P04",
+      "title": "Interview session domain and orchestrator",
+      "ownedBehavior": [
+        "make one deterministic exhaustively typed InterviewSession reducer the sole session authority and reject stale, duplicate, cross-session, invalid, and out-of-order events",
+        "snapshot mode, provider, model, response mode, language, and applicable context from Start until Reset",
+        "seed applicable context once, send ordered deltas, and exclude dossier and opportunity bytes from Coding",
+        "stage, exclude, submit, and deduplicate transcript and screenshot evidence with screenshot authority on conflict",
+        "stream stable typed response sections and preserve complete or partial output through cancel and Continue unfinished",
+        "route curated mode actions, typed chat, and compact clarification through one provider conversation",
+        "answer best effort without confidence gates and apply correction deltas only to affected sections",
+        "seal Reset and crash recovery through P03 encrypted M-04 snapshots, keeping the opaque provider identifier encrypted and requiring explicit Resume with capture off"
+      ],
+      "acceptanceIds": [
+        "P04-AC1",
+        "P04-AC2",
+        "P04-AC3",
+        "P04-AC4",
+        "P04-AC5",
+        "P04-AC6",
+        "P04-AC7",
+        "P04-AC8",
+        "P04-AC9",
+        "P04-AC10",
+        "P04-AC11",
+        "P04-AC12",
+        "P04-AC13",
+        "P04-AC14",
+        "P04-AC15"
+      ],
+      "namedTestCountMinimum": 15
+    }
+  ],
+  "riskBoundary": {
+    "id": "IC-RISK-ENCRYPTED-STATE",
+    "classification": "HIGH",
+    "behavior": "Provider authority, provider-secret isolation, child-process protocol, cryptographic key custody, destructive migration, encrypted recovery, and single-session authority must fail closed.",
+    "review": "One independent HIGH complete finding batch over the cumulative exact milestone candidate before the single authoritative complete suite.",
+    "verification": [
+      "fake-provider authentication, protocol-version, restart, failure, cancellation, output-bound, and no-fallback traces",
+      "key lifecycle, nonce uniqueness, authenticated metadata, plaintext byte scans, atomicity, path safety, corruption, wrong-user or locked-Keychain recovery, and migration rollback",
+      "session property corpus, cross-session denial, context exclusion, evidence deduplication, response routing, cancellation, Reset race, and encrypted opaque-ID recovery"
+    ]
+  },
+  "ownership": {
+    "soleController": "019f9ff6-e24b-7053-a2b3-fe01f8538ab4",
+    "maximumConcurrentWriters": 2,
+    "singleWriterPerMutableTarget": true,
+    "candidateBranch": "codex/ic-m01-runtime-storage-session",
+    "candidateBaseRevision": "a8cdcbdeb49a897946dd520981d59d9a1a3813b6",
+    "candidateWorktree": "/Users/thirdfacedev/.codex/worktrees/ic-m01/TimoCodes",
+    "userWorktree": "/Users/thirdfacedev/Development/TimoCodes",
+    "userWorktreePolicy": "PRESERVE_ALL_TRACKED_UNTRACKED_AND_IGNORED_USER_STATE_UNCHANGED",
+    "pullRequest155Policy": "DO_NOT_ADD_IC_M01_COMMITS_DO_NOT_MERGE"
+  },
+  "workPackages": [
+    {
+      "id": "IC-M01-W1",
+      "title": "Runtime and subscription boundary",
+      "requirementIds": [
+        "P02"
+      ],
+      "mutableTargets": [
+        "electron/providers/**",
+        "electron/config/**",
+        "src/shared/provider/**",
+        "src/features/onboarding/**",
+        "electron/ConfigHelper.ts",
+        "src/components/Settings/SettingsDialog.tsx",
+        "src/components/WelcomeScreen.tsx",
+        "src/_pages/SubscribePage.tsx",
+        "src/lib/supabase.ts",
+        "docs/provider-runtime-and-config.md"
+      ],
+      "dependencies": [],
+      "targetedChecks": [
+        "all nine P02 named tests with fake executables and no live subscription",
+        "filesystem scan for the opaque conversation-ID fixture",
+        "legacy provider, API key, credit, entitlement, quota, paywall, dependency, and IPC removal scan"
+      ],
+      "handoff": "Provider interfaces, migration contract, fake protocol fixtures, provider-only settings/onboarding, and a mechanically enumerated legacy-removal set. Shared Electron IPC/preload, package dependency removal, global session surfaces, and verification integration remain exclusively W3-owned."
+    },
+    {
+      "id": "IC-M01-W2",
+      "title": "Encrypted persistence",
+      "requirementIds": [
+        "P03"
+      ],
+      "mutableTargets": [
+        "electron/storage/**",
+        "docs/encrypted-storage-threat-model.md"
+      ],
+      "dependencies": [],
+      "targetedChecks": [
+        "all eight P03 named tests with deterministic fake key storage and production safeStorage adapter boundaries",
+        "plaintext and key byte scans, nonce and tamper probes, interruption and disk-full atomicity",
+        "wrong-user, locked-Keychain, corruption, path, permission, symlink, migration replay, rollback, and raw-audio rejection"
+      ],
+      "handoff": "IPC-free repository interfaces, M-02 and M-03 contracts, threat model, and evidence only; shared package integration remains W3-owned."
+    },
+    {
+      "id": "IC-M01-W3",
+      "title": "Session orchestrator and milestone integration",
+      "requirementIds": [
+        "P04"
+      ],
+      "mutableTargets": [
+        "src/domain/interview/**",
+        "electron/orchestrator/**",
+        "src/shared/interview/**",
+        "src/components/ContextDetail/**",
+        "src/App.tsx",
+        "src/_pages/Debug.tsx",
+        "src/_pages/Queue.tsx",
+        "src/_pages/Solutions.tsx",
+        "src/_pages/SubscribedApp.tsx",
+        "src/components/Header/Header.tsx",
+        "src/components/Queue/QueueCommands.tsx",
+        "src/components/Solutions/SolutionCommands.tsx",
+        "electron/ProcessingHelper.ts",
+        "electron/ipcHandlers.ts",
+        "electron/main.ts",
+        "electron/preload.ts",
+        "src/env.d.ts",
+        "src/types/electron.d.ts",
+        "package.json",
+        "package-lock.json",
+        "scripts/verification/**",
+        "tests/policy/**",
+        "docs/session-domain-and-orchestrator.md"
+      ],
+      "dependencies": [
+        "IC-M01-W1",
+        "IC-M01-W2"
+      ],
+      "targetedChecks": [
+        "all fifteen P04 named tests and deterministic session property corpus",
+        "first-turn and delta traces, Coding personal-context exclusion scan, pending evidence and screenshot-authority traces",
+        "progressive section, cancel and continue, Reset, encrypted restart, context-detail, shared-conversation, routing, best-effort clarification, and correction-impact evidence",
+        "repository-wide inventory, immutable manifest, policy, lint, strict typecheck, regression, and build integration"
+      ],
+      "handoff": "One cumulative exact milestone candidate. W3 owns removal of legacy package dependencies and IPC/provider/credit/entitlement surfaces identified by W1, replacement of global view/problemInfo/hasDebugged authorities, the AC11 context-detail renderer, and all cumulative verification wiring; no second session authority, provider conversation, state store, or plaintext recovery path."
+    }
+  ],
+  "mutableTargetAudit": {
+    "workPackageOverlap": "NONE",
+    "integrationRule": "W1 and W2 do not edit shared Electron IPC/preload, package, lockfile, verification manifest, policy, old global session pages, or context-detail targets. W3 exclusively owns those cumulative integration and removal targets after both handoffs. W1's src/shared/provider namespace and W3's src/shared/interview namespace are disjoint.",
+    "parallelSafety": "W1 and W2 may run concurrently in isolated worktrees; W3 begins only after their exact revisions are reconciled into the milestone candidate.",
+    "externalMutableTargets": []
+  },
+  "mandatoryRepositoryGates": [
+    "clean detached checkout at the exact candidate on a case-insensitive macOS filesystem",
+    "PATH=/opt/homebrew/opt/node@20/bin:$PATH with Node major exactly 20",
+    "npm ci",
+    "npm run verify:policy",
+    "npm run lint",
+    "npm run typecheck",
+    "npm run test:unit -- --reporter=verbose",
+    "npm run test:p02 -- --reporter=verbose",
+    "npm run test:p03 -- --reporter=verbose",
+    "npm run test:p04 -- --reporter=verbose",
+    "authenticated immutable named-test-manifest verification",
+    "npm run build"
+  ],
+  "reviewGates": [
+    {
+      "id": "IC-M01-G0",
+      "kind": "read-only-planning",
+      "role": "freeze_cohesion_and_safety",
+      "timing": "before_implementation",
+      "scope": "Requirement coverage, milestone cohesion, dependency and mutable-target safety, true HIGH-risk boundary, mandatory repository gates, evidence reuse, and rollback.",
+      "correctionBudget": 1
+    },
+    {
+      "id": "IC-M01-G1",
+      "kind": "independent-high",
+      "role": "complete_finding_batch",
+      "timing": "before_authoritative_complete",
+      "exactShaReusable": true,
+      "scope": "Complete cumulative IC-M01 candidate diff and every P02, P03, and P04 acceptance criterion, with complementary provider, cryptographic migration, recovery, and single-session threat analysis.",
+      "identityRule": "The verdict applies only to its exact reviewed candidate SHA. If the one remediation is used, the initial verdict becomes historical and the one exact delta re-review is the authoritative verdict for the new SHA; only demonstrably unchanged proof may be reused."
+    },
+    {
+      "id": "IC-M01-G2",
+      "kind": "protected-repository",
+      "role": "mechanical_integration_guard",
+      "timing": "integration",
+      "scope": "Consume the final exact candidate SHA, the authoritative G1 or post-remediation delta verdict for that same SHA, the single accepted authoritative-route evidence, live checks, reconciled integrated-P01 base, and rollback identity only; no second general finding batch."
+    }
+  ],
+  "planningReview": {
+    "reviewer": "/root/ic_m01_planning_review",
+    "initialReviewedSha256": "ced2960ad88e18e45056a2ca852acfd0ee2beb202b435d513db93cb3f1c9a88e",
+    "initialDisposition": "REQUEST_CORRECTIONS_ONE_COHERENT_BATCH",
+    "correctionScope": [
+      "authorized pre-merge development waiver and integrated-P01 base reconciliation",
+      "complete disjoint mutable-target ownership",
+      "single reporter-equivalent Node 20 authoritative route and omitted completion evidence",
+      "encrypted M-04 opaque-ID exception",
+      "exact-SHA review remediation integration and rollback binding"
+    ],
+    "correctedReviewedSha256": "f459de5c785125adfb5d357cde2331820d611804ca7578d4e42480d8c40ca628",
+    "deltaDisposition": "APPROVE",
+    "additionalCorrectionAllowed": false,
+    "survivingBlocker": null
+  },
+  "verification": {
+    "targeted": "Each package runs its owned named contracts and negative tests while isolated; failures are corrected before cumulative integration.",
+    "authoritativeRoute": {
+      "id": "IC-M01-AUTH-01",
+      "kind": "CONTROLLER_OWNED_NON_PRIVILEGED_AGGREGATE",
+      "authority": "The accepted throughput correction removes privileged release assurance from ordinary product admission and requires the canonical gate order once per product milestone. Because legacy v1 is quarantined and A04 is P01-only release assurance, IC-M01-AUTH-01 is the explicit reporter-equivalent aggregate for P02/P03/P04.",
+      "equivalence": "From one clean detached exact-candidate checkout on case-insensitive macOS, force Homebrew Node 20, run npm ci, preserve the inherited P01 trusted reporter and authenticated result protocol, run P02/P03/P04 trusted reporter-equivalent plans with raw exit and exact pass/fail/skip evidence, authenticate the immutable named-test manifest, and build. No individual rerun may substitute for or duplicate this route.",
+      "failureEffect": "Any nonzero child, failed or skipped named test, unauthenticated result, manifest drift, wrong Node, dirty checkout, case-sensitive-only storage evidence, or build failure rejects the route."
+    },
+    "authoritativeComplete": "Exactly one IC-M01-AUTH-01 route after IC-M01-G1 or its authoritative post-remediation delta verdict: clean Node 20 checkout, npm ci, inherited complete P01 gates, P02 at least 9 pass/0 fail/0 skip, P03 at least 8 pass/0 fail/0 skip, P04 at least 15 pass/0 fail/0 skip, authenticated immutable manifest, P03 case-insensitive macOS filesystem contracts, and production build.",
+    "authoritativeFullSuiteBudget": 1,
+    "reviewAttemptBudget": 1,
+    "remediationBudget": 1,
+    "deltaReviewBudget": 1,
+    "postIntegrationSmoke": [
+      "exact integrated revision and protected-check identity",
+      "fake Claude and Codex provider start and cancellation",
+      "encrypted fixture reopen and plaintext absence",
+      "Start, one delta, cancel, Resume choice, and Reset with capture inactive"
+    ],
+    "requiredCompletionEvidence": {
+      "P02": [
+        "exact candidate and base identities",
+        "fake Claude and Codex two-turn restart transcripts with pinned supported protocol fixture versions",
+        "no-fallback process trace and sanitized failure evidence",
+        "M-01 redacted before and after evidence, owner-only mode, atomicity, and idempotence",
+        "legacy dependency and IPC removal scan",
+        "provider-only onboarding keyboard and accessibility test output",
+        "full test-filesystem, config, backup, log, and provider-directory byte scan proving no plaintext opaque-ID persistence"
+      ],
+      "P03": [
+        "encrypted fixture hex and string scans and exact file-mode listing",
+        "unique nonce and authenticated-metadata tamper results",
+        "interrupted and disk-full prior-or-new atomicity evidence",
+        "M-02 and M-03 journal replay, decrypt-before-delete, quarantine, and rollback evidence",
+        "locked or unavailable Keychain, wrong-user, isolated corruption, path, permission, and symlink rejection evidence",
+        "raw-audio rejection and temporary fixture absence",
+        "case-insensitive macOS filesystem test result"
+      ],
+      "P04": [
+        "deterministic reducer property seed and corpus",
+        "first-turn and delta traces for every mode plus Coding dossier and opportunity byte exclusion",
+        "pending evidence, authority, progressive section, cancel, Continue, and Reset traces",
+        "encrypted M-04 schema and crash or relaunch Resume-or-Reset transcript with capture inactive",
+        "plaintext config, index, log, and provider-directory opaque-ID scan",
+        "context-detail snapshot and one-conversation curated, chat, and clarification process trace",
+        "structured-versus-compact routing, best-effort clarification, and correction before or after section hashes"
+      ]
+    }
+  },
+  "rollback": {
+    "identityBinding": "All code, configuration, storage, session, migration, and rollback evidence is bound to the final reviewed exact candidate SHA and its reconciled integrated-P01 base. A remediation creates a new candidate identity and requires the one exact delta verdict before authoritative verification.",
+    "code": "Return the IC-M01 branch from its final exact candidate to reconciled admitted base revision a8cdcbdeb49a897946dd520981d59d9a1a3813b6 or the mechanically equivalent eventual integrated P01 revision; PR 155 and the user worktree remain unchanged.",
+    "configuration": "M-01 restores the owner-only redacted legacy backup only after explicit user choice and never restores removed secrets automatically.",
+    "storage": "M-02 and M-03 retain the prior readable source in explicit rollback quarantine until decrypt-before-delete and replay acceptance; no new plaintext is written.",
+    "session": "M-04 retains the encrypted v1 record and rejects forward versions without lossy conversion.",
+    "external": "No deployment, signing, live provider, administrator, Keychain mutation, or public release action is part of milestone implementation."
+  },
+  "prohibitions": [
+    "no sudo, password prompt, privileged helper, A04 activation, A05, stale recovery handoff, or legacy v1 invocation",
+    "no PR 155 integration, P01 SATISFIED status, release, deploy, signing, or public artifact",
+    "no live provider credential requirement, no provider-secret persistence, and no plaintext opaque-ID persistence outside the authenticated encrypted P04 M-04 snapshot",
+    "no user-worktree mutation and no adoption of its uncommitted P02-like work without a separate immutable reconciliation",
+    "no P05-P12 scope, final shell, capture implementation, audio, History UI, export, dossier, templates, or mode renderers"
+  ],
+  "continuation": "AUTO",
+  "nextSafeAction": "Complete IC-M01-G0 once, apply at most one coherent correction, freeze the exact packet, create the isolated candidate worktree, and begin IC-M01-W1 and IC-M01-W2."
+}
