@@ -6,7 +6,7 @@
   "attempt": 4,
   "createdAt": "2026-07-30T07:47:29+02:00",
   "controllerThreadId": "019f9ff6-e24b-7053-a2b3-fe01f8538ab4",
-  "status": "APPROVED_WAITING_ADMIN_ACTIVATION",
+  "status": "ACTIVATION_FAILED_TERMINAL_NEW_LIVE_STATE_EVIDENCE",
   "authority": {
     "source": "standing checker authorization for one new bounded RECOVERY-03 design cycle",
     "safePreparationAuthorized": true,
@@ -62,7 +62,7 @@
     "recoverySuite": "18_PASS_0_FAIL_IN_2814.911_SECONDS",
     "targetA03Revocation": "1_PASS_0_FAIL_IN_115.588_SECONDS",
     "reproducibleBuilds": 3,
-    "privilegedBoundaryCrossed": false,
+    "privilegedBoundaryCrossed": true,
     "candidateInvoked": false
   },
   "reusableEvidence": [
@@ -117,10 +117,35 @@
     "privilegedBoundaryCrossed": false,
     "candidateInvoked": false
   },
+  "activationOutcome": {
+    "capturedAt": "2026-07-30T10:53:01+02:00",
+    "evidencePath": "v3/interviewcopilot/a03-recovery03-activation-failure-2026-07-30.json",
+    "receiptPath": "/Users/Shared/InterviewCopilot/verification-controller/recovery-receipts/P00-V2-CAP-A03-RECOVERY-03.json",
+    "receiptSha256": "5da6d108e0fde1583bc09ecef806d591847c2c26c69bef461c5813390d36f5b8",
+    "receiptStatus": "FAILURE",
+    "exitCode": 1,
+    "checkpoint": "remaining_run_state_audit",
+    "relocation": "RESTORED",
+    "installedA02": "PASS_ROOT_OWNED_EXACT_UNAUTHORIZED",
+    "a03": "ABSENT",
+    "candidateInvoked": false,
+    "classification": "NEW_LIVE_STATE_INCOMPATIBILITY_NOT_IDENTICAL_TO_B01_OR_B02",
+    "exactRejectedPath": "/Users/Shared/InterviewCopilot/verification-controller/runs/1ff0881b9bd59f243146c93b6709be57d58ee17a/P01/70acd85a0202cc85f65e176a995a248f/install-repo/node_modules/vitest/node_modules/esbuild/bin/esbuild",
+    "exactFailure": "run state regular member has multiple links",
+    "retryProhibited": true
+  },
   "correctionBudget": 0,
   "terminalCondition": "Either identical material B01 or B02 defect survives the exact closure review unchanged.",
+  "terminalDisposition": {
+    "reviewedTerminalConditionTriggered": false,
+    "reason": "B01 and B02 remain closed; activation exposed a different preserved-run incompatibility outside the reviewed relocation scope.",
+    "boundedRecoveryTerminal": true,
+    "reasonNoRetry": "The immutable transaction has a terminal FAILURE receipt and no correction budget. A new technical retry would bypass the bounded-recovery policy.",
+    "staleHandoffProhibited": true
+  },
   "prohibitedTargets": [
     "RECOVERY-01 and RECOVERY-02 handoffs",
+    "RECOVERY-03 handoff and terminal receipt replay",
     "sudo or password prompt",
     "installed A02 or any installed privileged path",
     "A03 activation",
@@ -129,5 +154,5 @@
     "PR 155",
     "P02 or later milestones"
   ],
-  "nextSafeAction": "When the user is present, run exactly: /bin/zsh /Users/thirdfacedev/.codex/orchestration/TimoCodes-ledger/capabilities/P00-V2-CAP-A03-RECOVERY-03/build/admin-handoff.txt. Enter the macOS administrator password once. Do not run any other recovery handoff."
+  "nextSafeAction": "Close RECOVERY-03 as terminal and perform an IC-M00 milestone-level orchestration replan, not another recovery retry. Preserve the historical run as immutable legacy evidence but remove it from active capability admission through a newly planned, reviewed evidence boundary. Do not invoke any recovery handoff, sudo, A02, A03, v1, or the candidate."
 }

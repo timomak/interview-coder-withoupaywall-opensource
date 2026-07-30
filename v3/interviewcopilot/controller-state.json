@@ -106,9 +106,21 @@
       "adminHandoffSha256": "dfb835f8b7a10906eabd9b0ab3bc5b9f98bf923a0a20e4c8206774b4289f9902",
       "validation": "RECOVERY_18_PASS_A03_REVOCATION_1_PASS_REPRODUCIBLE_3",
       "independentReview": "APPROVE_EXACT_CLOSURE_5EA141C_B01_B02_CLOSED",
-      "status": "REVIEWED_SEALED_WAITING_ADMIN_ACTIVATION",
-      "privilegedBoundaryCrossed": false,
-      "candidateInvoked": false
+      "status": "ACTIVATION_FAILED_TERMINAL_DO_NOT_RETRY",
+      "privilegedBoundaryCrossed": true,
+      "candidateInvoked": false,
+      "activationFailure": {
+        "capturedAt": "2026-07-30T10:53:01+02:00",
+        "evidencePath": "v3/interviewcopilot/a03-recovery03-activation-failure-2026-07-30.json",
+        "receiptSha256": "5da6d108e0fde1583bc09ecef806d591847c2c26c69bef461c5813390d36f5b8",
+        "checkpoint": "remaining_run_state_audit",
+        "classification": "NEW_LIVE_STATE_INCOMPATIBILITY_NOT_IDENTICAL_B01_B02_TERMINAL_WITHIN_BOUNDED_RECOVERY",
+        "installedA02": "PASS_ROOT_OWNED_EXACT_UNAUTHORIZED",
+        "a03": "ABSENT",
+        "relocation": "RESTORED",
+        "candidateMutated": false,
+        "retryProhibited": true
+      }
     },
     "v1": {
       "installedRoot": "/Users/Shared/InterviewCopilot/verification-controller/v1",
@@ -118,13 +130,13 @@
       "authorization": "ABSENT",
       "status": "PAYLOAD_RETAINED_QUARANTINED_DO_NOT_INVOKE"
     },
-    "bootstrapStage": "ABSENT",
-    "retentionContract": "Retain exact A02 payload bytes as unauthorized rollback evidence; do not invoke A02, A03, or v1; retain failed activation evidence; require a newly reviewed sealed transition before any future authorization."
+    "bootstrapStage": "SEALED_CLEANUP_REQUIRED_AFTER_RECEIPT_NOT_UID501_ENUMERABLE",
+    "retentionContract": "Retain exact A02 payload bytes as unauthorized rollback evidence; retain the restored historical P01 run and terminal RECOVERY-03 receipt; do not invoke A02, A03, v1, or any RECOVERY-01/02/03 handoff. Any future capability work begins only after a milestone-level replan and independent HIGH-risk review."
   },
   "currentMilestone": {
     "id": "IC-M00",
     "title": "Trusted local policy rails",
-    "status": "WAITING_USER",
+    "status": "BLOCKED_TERMINAL_RECOVERY_REPLAN_REQUIRED",
     "frozenAt": "2026-07-29T09:10:11+02:00",
     "ownedRequirementIds": [
       "P01"
@@ -292,8 +304,19 @@
       "reviewStatus": "APPROVE_EXACT_CLOSURE_5EA141C_B01_B02_CLOSED",
       "reviewedAt": "2026-07-30T09:37:04+02:00",
       "focusedAdversarialReproduction": "3_PASS_0_FAIL_IN_698.174_SECONDS",
-      "privilegedBoundaryCrossed": false,
-      "candidateInvoked": false
+      "privilegedBoundaryCrossed": true,
+      "candidateInvoked": false,
+      "activationFailure": {
+        "capturedAt": "2026-07-30T10:53:01+02:00",
+        "evidencePath": "v3/interviewcopilot/a03-recovery03-activation-failure-2026-07-30.json",
+        "receiptStatus": "FAILURE",
+        "checkpoint": "remaining_run_state_audit",
+        "relocation": "RESTORED",
+        "classification": "NEW_LIVE_STATE_INCOMPATIBILITY_TERMINAL_WITHIN_CHECKER_AUTHORIZED_RECOVERY",
+        "exactFailure": "run state regular member has multiple links",
+        "exactRejectedPath": "/Users/Shared/InterviewCopilot/verification-controller/runs/1ff0881b9bd59f243146c93b6709be57d58ee17a/P01/70acd85a0202cc85f65e176a995a248f/install-repo/node_modules/vitest/node_modules/esbuild/bin/esbuild",
+        "retryProhibited": true
+      }
     }
   },
   "metrics": {
@@ -318,10 +341,10 @@
     "candidateRevisionCount": 2,
     "authoritativeFullSuiteCount": 1,
     "reviewAttemptCount": 4,
-    "acceptedBlockerCount": 3,
+    "acceptedBlockerCount": 4,
     "postIntegrationDefects": 0,
     "ownershipConflicts": 1,
-    "result": "WAITING_USER_APPROVED_RECOVERY_03_ACTIVATION"
+    "result": "BLOCKED_TERMINAL_RECOVERY_03_NEW_LIVE_STATE_INCOMPATIBILITY_REPLAN_REQUIRED"
   },
-  "nextSafeAction": "When the user is present, run exactly: /bin/zsh /Users/thirdfacedev/.codex/orchestration/TimoCodes-ledger/capabilities/P00-V2-CAP-A03-RECOVERY-03/build/admin-handoff.txt. Enter the macOS administrator password once. Do not run any other recovery handoff."
+  "nextSafeAction": "Perform an IC-M00 milestone-level orchestration replan that preserves the historical failed run as immutable legacy evidence while removing it from active capability admission. This is not another bounded recovery retry. No privileged action or candidate invocation is authorized before the new plan and its HIGH-risk gate are frozen."
 }

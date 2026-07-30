@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "kind": "privileged-capability-activation-failure",
+  "projectKey": "InterviewCopilot",
+  "milestoneId": "IC-M00",
+  "capturedAt": "2026-07-30T10:53:01+02:00",
+  "controllerThreadId": "019f9ff6-e24b-7053-a2b3-fe01f8538ab4",
+  "transaction": {
+    "artifactId": "P00-V2-CAP-A03-RECOVERY-03",
+    "artifactRevision": "5ea141c1fd5ca42f8e99036ce91911a2f06277a8",
+    "envelopeSha256": "c745aaae855cf6a9fc5c9c2673e6f67eb1af2de3ca862180d2c0847f94c324a9",
+    "handoffSha256": "dfb835f8b7a10906eabd9b0ab3bc5b9f98bf923a0a20e4c8206774b4289f9902",
+    "independentReview": "APPROVE_EXACT_CLOSURE_B01_B02",
+    "processExited": true
+  },
+  "receipt": {
+    "path": "/Users/Shared/InterviewCopilot/verification-controller/recovery-receipts/P00-V2-CAP-A03-RECOVERY-03.json",
+    "sha256": "5da6d108e0fde1583bc09ecef806d591847c2c26c69bef461c5813390d36f5b8",
+    "status": "FAILURE",
+    "exitCode": 1,
+    "checkpoint": "remaining_run_state_audit",
+    "relocation": "RESTORED",
+    "authorizationPresent": false,
+    "stagePresentAtReceipt": true,
+    "candidateRevision": "2e5045116db6e3c5f6e6cc18b70df6d7fa021baf",
+    "installedControllerSha256": "73eda1532baa3044cf4feb989d2ec58d15304c86c31a298ed3d73a1a75c7494d"
+  },
+  "terminalEvidence": {
+    "failure": "run state regular member has multiple links",
+    "exactRejectedPath": "/Users/Shared/InterviewCopilot/verification-controller/runs/1ff0881b9bd59f243146c93b6709be57d58ee17a/P01/70acd85a0202cc85f65e176a995a248f/install-repo/node_modules/vitest/node_modules/esbuild/bin/esbuild",
+    "rejectedMember": {
+      "inode": 139029747,
+      "linkCount": 2,
+      "owner": "root:wheel",
+      "mode": "0444",
+      "bytes": 9859426,
+      "sha256": "b81b084018b48549fced4d72ac6a9d820aec907aff4ec546aef4a8703fee8dcc"
+    },
+    "secondLink": "/Users/Shared/InterviewCopilot/verification-controller/runs/1ff0881b9bd59f243146c93b6709be57d58ee17a/P01/70acd85a0202cc85f65e176a995a248f/install-repo/node_modules/vitest/node_modules/@esbuild/darwin-arm64/bin/esbuild",
+    "reviewedRelocationScope": "/Users/Shared/InterviewCopilot/verification-controller/runs/1ff0881b9bd59f243146c93b6709be57d58ee17a/P01/70acd85a0202cc85f65e176a995a248f/repo/node_modules",
+    "scopeMismatch": "The reviewed transaction relocated repo/node_modules, but the rejected two-link inode is wholly inside the separate install-repo/node_modules tree. Moving the reviewed subtree therefore cannot satisfy the exact remaining-run validator."
+  },
+  "observedStateAfterExit": {
+    "activeTransactionProcesses": 0,
+    "installedA02Manifest": "PASS_ROOT_OWNED_EXACT",
+    "installedControllerSha256": "73eda1532baa3044cf4feb989d2ec58d15304c86c31a298ed3d73a1a75c7494d",
+    "installedCapabilityIdentity": "P00-V2-CAP-A02_PAYLOAD_EXACT",
+    "authorization": "ABSENT",
+    "a03": "ABSENT",
+    "relocation": "RESTORED",
+    "bootstrapStage": "SEALED_CLEANUP_REQUIRED_AFTER_RECEIPT_NOT_UID501_ENUMERABLE",
+    "candidateRevision": "2e5045116db6e3c5f6e6cc18b70df6d7fa021baf",
+    "candidateWorktree": "CLEAN",
+    "pullRequest": "155_OPEN_DRAFT_HEAD_EXACT_CODEQL_SUCCESS"
+  },
+  "diagnosis": {
+    "classification": "NEW_LIVE_STATE_INCOMPATIBILITY_TERMINAL_WITHIN_CHECKER_AUTHORIZED_RECOVERY",
+    "identicalToReviewedB01OrB02": false,
+    "reviewedB01B02Disposition": "REMAIN_CLOSED",
+    "technicalCause": "The exact A03 remaining-run audit forbids regular evidence members with link count other than one. The preserved failed P01 install-repo contains two directory entries for the same esbuild inode, so admission fails before rollback snapshot, A03 installation, candidate invocation, or authorization publication.",
+    "policyDisposition": "RECOVERY-03 has an immutable FAILURE receipt and zero correction budget. RECOVERY-01, RECOVERY-02, RECOVERY-03, and all stale handoffs are prohibited. New evidence does not permit another technical retry inside the exhausted bounded-recovery cycle.",
+    "candidateImpact": "None. The exact candidate and PR remain unchanged and no candidate command was invoked."
+  },
+  "nextSafeAction": "Close the bounded recovery as terminal and perform an IC-M00 milestone-level orchestration replan, not another recovery retry. The replan must preserve the historical run as immutable legacy evidence while removing it from active capability admission, for example through a new clean evidence namespace with an explicit reviewed import boundary. Any future capability artifact requires a new frozen plan and independent HIGH-risk review before a separate administrator checkpoint."
+}
