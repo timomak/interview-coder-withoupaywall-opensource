@@ -470,22 +470,13 @@
   ],
   "activeProductMilestone": {
     "id": "IC-M01",
-    "status": "IMPLEMENTING",
+    "status": "REVIEWING",
     "freezePacket": "v3/interviewcopilot/milestone-IC-M01-freeze-1.json",
     "freezePacketSha256": "ce40840212f4b1f5f114f5746acec721c430fc17a372522df1b52a153d09d05b",
     "baseRevision": "a8cdcbdeb49a897946dd520981d59d9a1a3813b6",
     "candidateBranch": "codex/ic-m01-runtime-storage-session",
     "candidateWorktree": "/Users/thirdfacedev/.codex/worktrees/ic-m01/TimoCodes",
-    "activeWriters": [
-      {
-        "task": "/root/ic_m01_w3_session_integration",
-        "workPackage": "IC-M01-W3",
-        "branch": "codex/ic-m01-runtime-storage-session",
-        "worktree": "/Users/thirdfacedev/.codex/worktrees/ic-m01/TimoCodes",
-        "parentRevision": "a81665e09420bce21a964474a920675d78112a2c",
-        "mutableTargets": "P04_SESSION_AND_FROZEN_CUMULATIVE_INTEGRATION_PLUS_TWO_PATH_ADDENDUM"
-      }
-    ],
+    "activeWriters": [],
     "completedHandoffs": [
       {
         "task": "/root/ic_m01_w1_runtime",
@@ -504,12 +495,23 @@
         "scope": "18_FILES_ELECTRON_STORAGE_AND_THREAT_MODEL_ONLY",
         "verification": "NODE20_TYPESCRIPT_PASS_ESLINT_PASS_P03_8_PASS_0_FAIL_0_SKIP_CASE_INSENSITIVE_MACOS_PASS",
         "pushed": false
+      },
+      {
+        "task": "/root/ic_m01_w3_session_integration",
+        "workPackage": "IC-M01-W3",
+        "revision": "32c24ab275e2d3b6d8cb00c1e6a8ba6d48377cd0",
+        "parent": "a81665e09420bce21a964474a920675d78112a2c",
+        "scope": "63_FILES_P04_CUMULATIVE_INTEGRATION_AND_TWO_FROZEN_TARGET_ADDENDA",
+        "verification": "NODE20_POLICY_LINT_152_EXECUTABLE_49_TEST_TYPECHECK_UNIT_68_P01_27_P02_9_P03_8_P04_15_BUILD_PASS_0_FAIL_0_SKIP_ASAR_67293775",
+        "authoritativeRouteInvoked": false,
+        "pushed": false
       }
     ],
     "integratedCandidate": {
-      "revision": "a81665e09420bce21a964474a920675d78112a2c",
+      "revision": "32c24ab275e2d3b6d8cb00c1e6a8ba6d48377cd0",
       "w1IntegratedRevision": "0f07e87a7d969812c1e347e394eeaffbcb55a1cf",
       "w2IntegratedRevision": "a81665e09420bce21a964474a920675d78112a2c",
+      "w3IntegratedRevision": "32c24ab275e2d3b6d8cb00c1e6a8ba6d48377cd0",
       "worktreeClean": true
     },
     "targetAddenda": [
@@ -526,10 +528,15 @@
         "owner": "IC-M01-W3"
       }
     ],
-    "activeWorkPackage": {
-      "id": "IC-M01-W3",
-      "reason": "EXACT_W1_AND_W2_HANDOFFS_INTEGRATED",
-      "status": "IMPLEMENTING"
+    "activeReview": {
+      "id": "IC-M01-G1",
+      "task": "/root/ic_m01_g1_high_review",
+      "role": "COMPLETE_FINDING_BATCH",
+      "risk": "HIGH",
+      "reviewedCandidate": "32c24ab275e2d3b6d8cb00c1e6a8ba6d48377cd0",
+      "reviewedBase": "a8cdcbdeb49a897946dd520981d59d9a1a3813b6",
+      "authoritativeRouteInvoked": false,
+      "status": "RESERVED_BEFORE_DISPATCH"
     },
     "releaseAssuranceParallelState": "IC-M00-G-RELEASE_PENDING_NOT_INVOKED"
   },
@@ -575,5 +582,5 @@
     "privilegedBoundaryCrossed": false,
     "candidateInvoked": false
   },
-  "nextSafeAction": "Reconcile the single IC-M01-W3 handoff after its P04 and cumulative targeted checks converge, then freeze the cumulative exact candidate for the one IC-M01-G1 HIGH complete finding batch. Keep A04 release assurance pending and do not invoke privilege, integrate PR 155, deploy, or mark P01 SATISFIED."
+  "nextSafeAction": "Dispatch and reconcile exactly one independent IC-M01-G1 HIGH complete finding batch at candidate 32c24ab275e2d3b6d8cb00c1e6a8ba6d48377cd0. If approved, run IC-M01-AUTH-01 exactly once; if changes are requested, use the one consolidated remediation and exact delta review before the single route. Keep A04 release assurance pending and do not invoke privilege, integrate PR 155, deploy, or mark P01 SATISFIED."
 }
