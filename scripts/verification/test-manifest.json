@@ -435,6 +435,51 @@
       "path": "electron/shortcuts/shortcutRegistry.test.ts",
       "name": "registers the final safe capture submit reset visibility and movement map",
       "sha256": "36297af0012e8e49751bcc9127d10eab37f38fddbf278d0115e305932d5cbf1b"
+    },
+    {
+      "path": "src/features/shell/CommandRail.test.tsx",
+      "name": "renders exact pre-session and active controls",
+      "sha256": "053c5cba59dbdd4795a8d5e8a3a4e1f1d59ac8321b495f25d55a662f4ecb6038"
+    },
+    {
+      "path": "src/features/shell/CommandRail.test.tsx",
+      "name": "supports arrow-key mode selection without hiding any mode",
+      "sha256": "053c5cba59dbdd4795a8d5e8a3a4e1f1d59ac8321b495f25d55a662f4ecb6038"
+    },
+    {
+      "path": "src/features/shell/CompactComposer.test.tsx",
+      "name": "implements universal submit and focus return",
+      "sha256": "c460d79f9a2d8eeed5f002a7531df57febc1cd1dd18c5aef264978c17aa5bd6f"
+    },
+    {
+      "path": "src/features/shell/CompactComposer.test.tsx",
+      "name": "does not call the provider route without a message or evidence",
+      "sha256": "c460d79f9a2d8eeed5f002a7531df57febc1cd1dd18c5aef264978c17aa5bd6f"
+    },
+    {
+      "path": "src/features/shell/pointerRegions.test.tsx",
+      "name": "separates passthrough drag and controls",
+      "sha256": "2a8eab2f472ec4046955313e9fff80be8e8144aea7cf4bc2f0e449660cbdbb86"
+    },
+    {
+      "path": "src/features/shell/accessibility.test.tsx",
+      "name": "enforces Quiet Signal accessibility and silence invariants",
+      "sha256": "8ab34492054177c96f38fcf3df609a2310685546edd9dc83c2a034ac69c2082b"
+    },
+    {
+      "path": "electron/window/displayGeometry.test.ts",
+      "name": "restores snaps and clamps each window state",
+      "sha256": "344db5fe4c1778fcfef7bf55c9237869fa7eef9f34fa0b3cba3c1fac2b8b8052"
+    },
+    {
+      "path": "electron/window/displayGeometry.test.ts",
+      "name": "falls back to the nearest available display after disconnect",
+      "sha256": "344db5fe4c1778fcfef7bf55c9237869fa7eef9f34fa0b3cba3c1fac2b8b8052"
+    },
+    {
+      "path": "electron/capture/primaryDisplayCapture.test.ts",
+      "name": "captures primary display and preserves visibility",
+      "sha256": "2817417f972d45ff26d920c2e0cf9f3a4cb943e099b15cb7e5bdf24634b33846"
     }
   ]
 }

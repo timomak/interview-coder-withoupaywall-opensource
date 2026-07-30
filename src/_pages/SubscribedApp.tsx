@@ -3,13 +3,18 @@ import type { SubscriptionConfig } from "../../electron/config"
 import {
   createIdleInterviewSession
 } from "../domain/interview"
+import { contextStatusLabel } from "../domain/interview/contextStatus"
 import type {
   InterviewMode,
   InterviewSession,
   RecoveryChoice
 } from "../shared/interview"
 import { ContextDetail } from "../components/ContextDetail/ContextDetail"
-import { Header } from "../components/Header/Header"
+import {
+  CommandRail,
+  CompactComposer,
+  PointerRegions
+} from "../features/shell"
 
 interface SubscribedAppProps {
   readonly config: SubscriptionConfig
@@ -30,6 +35,9 @@ export default function SubscribedApp({ config }: SubscribedAppProps) {
   })
   const [mode, setMode] = useState<InterviewMode>("coding")
   const [input, setInput] = useState("")
+  const [composerOpen, setComposerOpen] = useState(false)
+  const [hotKeysOpen, setHotKeysOpen] = useState(false)
+  const [shellStatus, setShellStatus] = useState("")
 
   useEffect(() => {
     void window.electronAPI.getInterviewState().then(setSession)
@@ -52,22 +60,73 @@ export default function SubscribedApp({ config }: SubscribedAppProps) {
     setSession(result.state)
   }
 
-  const submit = async () => {
+  const submit = async (message = input) => {
     const result = await window.electronAPI.dispatchInterviewCommand({
       type: "submit",
       route: "chat",
-      input
+      input: message
     })
     setSession(result.state)
     if (result.ok) setInput("")
+    return result.ok
   }
 
   return (
-    <section className="mx-auto max-w-3xl p-4">
-      <Header
+    <section className="quiet-shell">
+      <PointerRegions />
+      <CommandRail
         session={session}
-        onOpenSettings={() => void window.electronAPI.openSettings()}
+        mode={mode}
+        onModeChange={setMode}
+        onStart={() => void start()}
+        onRecord={() =>
+          setShellStatus("Recording controls are ready for the audio source.")
+        }
+        onScreenshot={() =>
+          void window.electronAPI.captureScreenshot().then(() => {
+            setShellStatus("Screenshot staged.")
+          })
+        }
+        onChat={() => setComposerOpen(true)}
+        onSubmit={() => void submit()}
+        onHotKeys={() => setHotKeysOpen((open) => !open)}
+        onReset={() =>
+          void window.electronAPI
+            .dispatchInterviewCommand({ type: "reset" })
+            .then((result) => setSession(result.state))
+        }
+        contextLabel={
+          session.lifecycle === "active"
+            ? contextStatusLabel(session)
+            : "New context"
+        }
+        canSubmit={
+          session.lifecycle === "active" &&
+          (input.trim().length > 0 ||
+            session.artifacts.some(
+              (artifact) => artifact.selected && !artifact.submitted
+            ))
+        }
       />
+      {hotKeysOpen ? (
+        <aside className="quiet-popover" data-interactive aria-label="HotKeys">
+          <p>Show/hide: Control Shift H</p>
+          <p>Screenshot: Control Shift S</p>
+          <p>Submit: Control Shift Return</p>
+          <p>Reset: Control Shift Backspace</p>
+        </aside>
+      ) : null}
+      {composerOpen && session.lifecycle === "active" ? (
+        <CompactComposer
+          initialValue={input}
+          hasSelectedEvidence={session.artifacts.some(
+            (artifact) => artifact.selected && !artifact.submitted
+          )}
+          onSubmit={(message) => submit(message)}
+          onClose={() => setComposerOpen(false)}
+        />
+      ) : null}
+      <p className="quiet-status" role="status">{shellStatus}</p>
       {recovery.available && session.lifecycle === "idle" ? (
         <div className="my-4 rounded border border-amber-400/30 p-3">
           <p>Previous interview found. Capture remains off.</p>
@@ -99,23 +158,7 @@ export default function SubscribedApp({ config }: SubscribedAppProps) {
           </div>
         </div>
       ) : null}
-      {session.lifecycle === "idle" ? (
-        <div className="mt-6 space-y-3">
-          <label className="block text-sm">
-            Mode
-            <select
-              className="ml-2 bg-neutral-900"
-              value={mode}
-              onChange={(event) => setMode(event.target.value as InterviewMode)}
-            >
-              <option value="coding">Coding</option>
-              <option value="system-design">System design</option>
-              <option value="behavioral">Behavioral</option>
-            </select>
-          </label>
-          <button onClick={() => void start()}>Start interview</button>
-        </div>
-      ) : (
+      {session.lifecycle === "active" ? (
         <>
           <ContextDetail session={session} />
           <div className="mt-6 space-y-2">
@@ -132,17 +175,8 @@ export default function SubscribedApp({ config }: SubscribedAppProps) {
               </article>
             ))}
           </div>
-          <div className="mt-4 flex gap-2">
-            <input
-              aria-label="Interview chat"
-              className="flex-1 bg-neutral-900 p-2"
-              value={input}
-              onChange={(event) => setInput(event.target.value)}
-            />
-            <button onClick={() => void submit()}>Send</button>
-          </div>
         </>
-      )}
+      ) : null}
     </section>
   )
 }

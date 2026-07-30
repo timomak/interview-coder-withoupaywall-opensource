@@ -36,6 +36,7 @@ import { INTERVIEW_STATE_EVENT } from "../src/shared/interview"
 import { createWindowOpenHandler } from "./windowOpenPolicy"
 import { ScreenshotHelper } from "./ScreenshotHelper"
 import { ShortcutsHelper } from "./shortcuts"
+import { clampWindowBounds } from "./window/displayGeometry"
 import type {
   ProviderDiagnostics,
   ProviderId,
@@ -164,25 +165,29 @@ function showMainWindow(): void {
 function moveWindowHorizontal(delta: number): void {
   const mainWindow = state.mainWindow
   if (!mainWindow) return
-  const minimum = -state.windowWidth / 2
-  const maximum = state.screenWidth - state.windowWidth / 2
-  state.currentX = Math.max(
-    minimum,
-    Math.min(maximum, state.currentX + delta)
+  const bounds = mainWindow.getBounds()
+  const workArea = screen.getDisplayMatching(bounds).workArea
+  const next = clampWindowBounds(
+    { ...bounds, x: bounds.x + delta },
+    workArea
   )
-  mainWindow.setPosition(Math.round(state.currentX), Math.round(state.currentY))
+  state.currentX = next.x
+  state.currentY = next.y
+  mainWindow.setBounds(next)
 }
 
 function moveWindowVertical(delta: number): void {
   const mainWindow = state.mainWindow
   if (!mainWindow) return
-  const minimum = -(state.windowHeight * 2) / 3
-  const maximum = state.screenHeight - state.windowHeight / 3
-  state.currentY = Math.max(
-    minimum,
-    Math.min(maximum, state.currentY + delta)
+  const bounds = mainWindow.getBounds()
+  const workArea = screen.getDisplayMatching(bounds).workArea
+  const next = clampWindowBounds(
+    { ...bounds, y: bounds.y + delta },
+    workArea
   )
-  mainWindow.setPosition(Math.round(state.currentX), Math.round(state.currentY))
+  state.currentX = next.x
+  state.currentY = next.y
+  mainWindow.setBounds(next)
 }
 
 function setWindowDimensions(width: number, height: number): void {
@@ -196,10 +201,14 @@ function setWindowDimensions(width: number, height: number): void {
   ) {
     return
   }
-  mainWindow.setBounds({
-    width: Math.min(Math.ceil(width), state.screenWidth),
-    height: Math.min(Math.ceil(height), state.screenHeight)
-  })
+  const bounds = mainWindow.getBounds()
+  const workArea = screen.getDisplayMatching(bounds).workArea
+  mainWindow.setBounds(
+    clampWindowBounds(
+      { ...bounds, width: Math.ceil(width), height: Math.ceil(height) },
+      workArea
+    )
+  )
 }
 
 function executableFromEnvironment(
@@ -313,7 +322,10 @@ async function initializeApplication(): Promise<void> {
       keyService,
       undefined,
       "screenshots"
-    )
+    ),
+    {
+      primaryDisplayId: () => screen.getPrimaryDisplay().id
+    }
   )
   const capture = new InterviewCaptureController(
     orchestrator,
@@ -343,6 +355,9 @@ async function initializeApplication(): Promise<void> {
     orchestrator,
     setWindowDimensions,
     toggleMainWindow,
+    captureScreenshot: () => capture.capture(),
+    setWindowPointerEvents: (ignore, forward) =>
+      state.mainWindow?.setIgnoreMouseEvents(ignore, { forward }),
     diagnoseProviders: () => providerDiagnostics(executables),
     resetInterview: () => capture.reset(),
     configureProvider: async (

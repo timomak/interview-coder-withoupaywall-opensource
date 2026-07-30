@@ -60,6 +60,9 @@ const electronAPI = {
   },
   updateContentDimensions: (dimensions: { width: number; height: number }) =>
     ipcRenderer.invoke("window:update-content-dimensions", dimensions),
+  setWindowPointerEvents: (ignore: boolean, forward: boolean) =>
+    ipcRenderer.invoke("window:set-pointer-events", { ignore, forward }),
+  captureScreenshot: () => ipcRenderer.invoke("capture:screenshot"),
   toggleMainWindow: () => ipcRenderer.invoke("window:toggle"),
   getPlatform: () => process.platform,
   startUpdate: () => ipcRenderer.invoke("start-update"),

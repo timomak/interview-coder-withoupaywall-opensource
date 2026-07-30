@@ -43,6 +43,11 @@ export interface ElectronAPI {
     width: number
     height: number
   }) => Promise<void>
+  setWindowPointerEvents: (
+    ignore: boolean,
+    forward: boolean
+  ) => Promise<{ success: boolean }>
+  captureScreenshot: () => Promise<{ success: boolean }>
   toggleMainWindow: () => Promise<{ success: boolean }>
   getPlatform: () => NodeJS.Platform
   startUpdate: () => Promise<{ success: boolean; error?: string }>

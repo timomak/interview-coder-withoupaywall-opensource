@@ -31,6 +31,11 @@ export interface IpcHandlerDependencies {
     responseMode: ResponseMode
   ) => Promise<SubscriptionConfig>
   readonly resetInterview: () => Promise<CommandResult>
+  readonly captureScreenshot: () => Promise<void>
+  readonly setWindowPointerEvents: (
+    ignore: boolean,
+    forward: boolean
+  ) => void
 }
 
 export function initializeIpcHandlers(
@@ -110,6 +115,23 @@ export function initializeIpcHandlers(
   )
   ipcMain.handle("window:toggle", () => {
     dependencies.toggleMainWindow()
+    return { success: true }
+  })
+  ipcMain.handle("window:set-pointer-events", (_event, value: unknown) => {
+    if (
+      typeof value !== "object" ||
+      value === null ||
+      typeof (value as { ignore?: unknown }).ignore !== "boolean" ||
+      typeof (value as { forward?: unknown }).forward !== "boolean"
+    ) {
+      throw new Error("Pointer-event routing is malformed")
+    }
+    const { ignore, forward } = value as { ignore: boolean; forward: boolean }
+    dependencies.setWindowPointerEvents(ignore, forward)
+    return { success: true }
+  })
+  ipcMain.handle("capture:screenshot", async () => {
+    await dependencies.captureScreenshot()
     return { success: true }
   })
   ipcMain.handle("settings:show", () => {
