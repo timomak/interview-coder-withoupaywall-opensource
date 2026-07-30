@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "kind": "milestone-mutable-target-addendum",
+  "projectKey": "InterviewCopilot",
+  "milestoneId": "IC-M01",
+  "sourceFreezePacket": "v3/interviewcopilot/milestone-IC-M01-freeze-1.json",
+  "sourceFreezePacketSha256": "ce40840212f4b1f5f114f5746acec721c430fc17a372522df1b52a153d09d05b",
+  "discoveredBy": "IC-M01-W1 exact handoff 411a3c36e20d3078726ae56b16fa9a9b03df72a4",
+  "classification": "SOURCE_REQUIRED_P02_AC1_TARGET_OWNERSHIP_COMPLETION",
+  "finding": "The inherited P01 external-link allowlist still admits project.supabase.co and its test names that legacy cloud-account host. P02 removes Supabase and every legacy provider, account, credit, entitlement, and paywall surface, but neither exact file was owned by the frozen work packages.",
+  "addedMutableTargets": [
+    "electron/windowOpenPolicy.ts",
+    "electron/windowOpenPolicy.test.ts"
+  ],
+  "owner": "IC-M01-W3",
+  "requiredChange": "Remove the Supabase host from the runtime external-link allowlist and replace the legacy-host test fixture with a neutral explicitly accepted external-host fixture while preserving P01 child-window denial and external-link routing behavior.",
+  "scopeGuard": [
+    "no weakening of P01 window-open or capture policy",
+    "no other allowlist expansion",
+    "no P02 or P03 work-package rewrite",
+    "no P05 or later product scope"
+  ],
+  "ownershipAudit": {
+    "overlapWithW1": false,
+    "overlapWithW2": false,
+    "overlapWithExistingW3": false,
+    "singleWriter": "IC-M01-W3",
+    "integrationTiming": "BEFORE_CUMULATIVE_P02_ACCEPTANCE"
+  },
+  "review": "Included in the already-frozen one complete cumulative IC-M01-G1 finding batch; this addendum creates no additional general review or authoritative-suite attempt.",
+  "rollback": "Restore the exact admitted P01 versions of both files if IC-M01 is withdrawn; the P01 candidate and PR 155 remain unchanged.",
+  "privileged": false,
+  "status": "FROZEN"
+}

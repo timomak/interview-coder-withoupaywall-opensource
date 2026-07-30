@@ -476,16 +476,17 @@
     "baseRevision": "a8cdcbdeb49a897946dd520981d59d9a1a3813b6",
     "candidateBranch": "codex/ic-m01-runtime-storage-session",
     "candidateWorktree": "/Users/thirdfacedev/.codex/worktrees/ic-m01/TimoCodes",
-    "activeWriters": [
+    "activeWriters": [],
+    "completedHandoffs": [
       {
         "task": "/root/ic_m01_w1_runtime",
         "workPackage": "IC-M01-W1",
-        "branch": "codex/ic-m01-w1-runtime",
-        "worktree": "/Users/thirdfacedev/.codex/worktrees/ic-m01-w1/TimoCodes",
-        "mutableTargets": "P02_RUNTIME_CONFIG_ONBOARDING_ONLY"
-      }
-    ],
-    "completedHandoffs": [
+        "revision": "411a3c36e20d3078726ae56b16fa9a9b03df72a4",
+        "parent": "a8cdcbdeb49a897946dd520981d59d9a1a3813b6",
+        "scope": "31_FILES_P02_RUNTIME_CONFIG_ONBOARDING_ONLY",
+        "verification": "NODE20_NPM_CI_PASS_TYPESCRIPT_PASS_ESLINT_PASS_P02_9_PASS_0_FAIL_0_SKIP",
+        "pushed": false
+      },
       {
         "task": "/root/ic_m01_w2_storage",
         "workPackage": "IC-M01-W2",
@@ -496,9 +497,21 @@
         "pushed": false
       }
     ],
-    "blockedWorkPackage": {
+    "integratedCandidate": {
+      "revision": "a81665e09420bce21a964474a920675d78112a2c",
+      "w1IntegratedRevision": "0f07e87a7d969812c1e347e394eeaffbcb55a1cf",
+      "w2IntegratedRevision": "a81665e09420bce21a964474a920675d78112a2c",
+      "worktreeClean": true
+    },
+    "targetAddendum": {
+      "path": "v3/interviewcopilot/milestone-IC-M01-target-addendum-1.json",
+      "sha256": "f4ae3109c9a3e337a235791d434bc64134bff28d00b78d580570389f652a81ac",
+      "scope": "P02_AC1_SUPABASE_WINDOW_OPEN_FIXTURE_TWO_PATHS_ONLY",
+      "owner": "IC-M01-W3"
+    },
+    "readyWorkPackage": {
       "id": "IC-M01-W3",
-      "reason": "WAITING_FOR_EXACT_W1_AND_W2_HANDOFFS"
+      "reason": "EXACT_W1_AND_W2_HANDOFFS_INTEGRATED"
     },
     "releaseAssuranceParallelState": "IC-M00-G-RELEASE_PENDING_NOT_INVOKED"
   },
@@ -544,5 +557,5 @@
     "privilegedBoundaryCrossed": false,
     "candidateInvoked": false
   },
-  "nextSafeAction": "Reconcile the exact IC-M01-W1 and IC-M01-W2 handoffs when both targeted packages pass, integrate them into codex/ic-m01-runtime-storage-session without altering their owned evidence, then start IC-M01-W3. Keep A04 release assurance pending and do not invoke privilege, integrate PR 155, deploy, or mark P01 SATISFIED."
+  "nextSafeAction": "Start the single IC-M01-W3 writer on integrated candidate a81665e09420bce21a964474a920675d78112a2c, including only its frozen integration/session targets and the two-path target addendum. After targeted W3 convergence, freeze the cumulative exact candidate for IC-M01-G1. Keep A04 release assurance pending and do not invoke privilege, integrate PR 155, deploy, or mark P01 SATISFIED."
 }
