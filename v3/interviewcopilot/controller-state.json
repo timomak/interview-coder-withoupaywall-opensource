@@ -453,7 +453,7 @@
   "readyMilestones": [
     {
       "id": "IC-M01",
-      "status": "REMEDIATING",
+      "status": "REVIEWING_EXACT_CLOSURE",
       "entryGate": "IC-M00-G-DEV",
       "entryGateEvidence": "v3/interviewcopilot/development-admission-IC-M00-1.json",
       "entryGateEvidenceSha256": "d11b7297df1f9cfacb233428fc1b0f83e05c711b54a6a946a1b6c0e852ab2efb",
@@ -470,25 +470,13 @@
   ],
   "activeProductMilestone": {
     "id": "IC-M01",
-    "status": "REMEDIATING",
+    "status": "REVIEWING_EXACT_CLOSURE",
     "freezePacket": "v3/interviewcopilot/milestone-IC-M01-freeze-1.json",
     "freezePacketSha256": "ce40840212f4b1f5f114f5746acec721c430fc17a372522df1b52a153d09d05b",
     "baseRevision": "a8cdcbdeb49a897946dd520981d59d9a1a3813b6",
     "candidateBranch": "codex/ic-m01-runtime-storage-session",
     "candidateWorktree": "/Users/thirdfacedev/.codex/worktrees/ic-m01/TimoCodes",
-    "activeWriters": [
-      {
-        "task": "/root/ic_m01_w3_session_integration",
-        "workPackage": "IC-M01-REC-01",
-        "parentRevision": "d630f68628462ac925d9257c2f73d799d2db5d02",
-        "scope": "ONE_COHERENT_B03_B04_B06_B07_B08_RECOVERY",
-        "packet": "v3/interviewcopilot/bounded-recovery-IC-M01-1.json",
-        "packetSha256": "dc0444bde9a7e71a4565486afbc292e6b567b5de5eb35dca682ef4f547599bd9",
-        "duplicateWriterProhibited": true,
-        "authoritativeRouteInvoked": false,
-        "status": "RUNNING"
-      }
-    ],
+    "activeWriters": [],
     "completedHandoffs": [
       {
         "task": "/root/ic_m01_w1_runtime",
@@ -529,14 +517,27 @@
         "verification": "NODE20_LINT_TYPECHECK_153_MANIFEST_79_P01_27_P02_11_P03_11_P04_21_UNIT_79_POLICY_BUILD_9081_ASAR_107_OUTER_DIFF_TARGET_AUDIT_PASS",
         "authoritativeRouteInvoked": false,
         "pushed": false
+      },
+      {
+        "task": "/root/ic_m01_w3_session_integration",
+        "workPackage": "IC-M01-REC-01",
+        "revision": "0c67f9cfbd1cf5d3d59a693860072f46b1d4e808",
+        "parent": "d630f68628462ac925d9257c2f73d799d2db5d02",
+        "result": "v3/interviewcopilot/bounded-recovery-IC-M01-result-1.json",
+        "resultSha256": "c47fdefdfd1b5efa4a142b274543a6d7537327335adf5d69151bec1166ccaa9b",
+        "scope": "16_FILES_ONE_COHERENT_B03_B04_B06_B07_B08_RECOVERY",
+        "verification": "NODE20_FOCUSED_18_LINT_INVENTORY_154_50_TYPECHECK_MANIFEST_84_P01_27_P02_11_P03_11_P04_24_UNIT_84_POLICY_BUILD_PACKAGE_9081_ASAR_107_OUTER_DIFF_TARGET_AUDIT_PASS",
+        "authoritativeRouteInvoked": false,
+        "pushed": false
       }
     ],
     "integratedCandidate": {
-      "revision": "d630f68628462ac925d9257c2f73d799d2db5d02",
+      "revision": "0c67f9cfbd1cf5d3d59a693860072f46b1d4e808",
       "w1IntegratedRevision": "0f07e87a7d969812c1e347e394eeaffbcb55a1cf",
       "w2IntegratedRevision": "a81665e09420bce21a964474a920675d78112a2c",
       "w3IntegratedRevision": "32c24ab275e2d3b6d8cb00c1e6a8ba6d48377cd0",
       "remediationRevision": "d630f68628462ac925d9257c2f73d799d2db5d02",
+      "recoveryRevision": "0c67f9cfbd1cf5d3d59a693860072f46b1d4e808",
       "worktreeClean": true
     },
     "targetAddenda": [
@@ -560,40 +561,33 @@
       }
     ],
     "activeReview": {
-      "id": "IC-M01-G1-DELTA",
+      "id": "IC-M01-REC-01-G1",
       "task": "/root/ic_m01_g1_high_review",
-      "role": "EXACT_DELTA_CLOSURE",
+      "role": "EXACT_FIVE_FINDING_CLOSURE",
       "risk": "HIGH",
-      "reviewedCandidate": "d630f68628462ac925d9257c2f73d799d2db5d02",
-      "failedCandidate": "32c24ab275e2d3b6d8cb00c1e6a8ba6d48377cd0",
+      "reviewedCandidate": "0c67f9cfbd1cf5d3d59a693860072f46b1d4e808",
+      "failedCandidate": "d630f68628462ac925d9257c2f73d799d2db5d02",
       "reviewedBase": "a8cdcbdeb49a897946dd520981d59d9a1a3813b6",
       "authoritativeRouteInvoked": false,
-      "status": "REQUEST_CHANGES_TERMINAL",
+      "status": "RESERVED_BEFORE_DISPATCH",
       "findingIds": [
-        "IC-M01-G1-B01",
-        "IC-M01-G1-B02",
         "IC-M01-G1-B03",
         "IC-M01-G1-B04",
-        "IC-M01-G1-B05",
         "IC-M01-G1-B06",
         "IC-M01-G1-B07",
         "IC-M01-G1-B08"
       ],
       "additionalGeneralReviewProhibited": true,
-      "result": "v3/interviewcopilot/milestone-IC-M01-delta-review-result-1.json",
-      "resultSha256": "8acec4d385bc4a19414ee81f5afcee38df44303a51c166fae64c1ec456a81c0f",
-      "closedFindingIds": [
+      "additionalCorrectionAfterReviewProhibited": true,
+      "sourceReview": "v3/interviewcopilot/milestone-IC-M01-delta-review-result-1.json",
+      "sourceReviewSha256": "8acec4d385bc4a19414ee81f5afcee38df44303a51c166fae64c1ec456a81c0f",
+      "preservedClosedFindingIds": [
         "IC-M01-G1-B01",
         "IC-M01-G1-B02",
         "IC-M01-G1-B05"
       ],
-      "openFindingIds": [
-        "IC-M01-G1-B03",
-        "IC-M01-G1-B04",
-        "IC-M01-G1-B06",
-        "IC-M01-G1-B07",
-        "IC-M01-G1-B08"
-      ]
+      "recoveryResult": "v3/interviewcopilot/bounded-recovery-IC-M01-result-1.json",
+      "recoveryResultSha256": "c47fdefdfd1b5efa4a142b274543a6d7537327335adf5d69151bec1166ccaa9b"
     },
     "activeRemediation": {
       "id": "IC-M01-REM-01",
@@ -661,7 +655,10 @@
       "closureReviewBudget": 1,
       "correctionBudgetAfterClosureReview": 0,
       "authoritativeRouteInvoked": false,
-      "status": "RUNNING"
+      "result": "v3/interviewcopilot/bounded-recovery-IC-M01-result-1.json",
+      "resultSha256": "c47fdefdfd1b5efa4a142b274543a6d7537327335adf5d69151bec1166ccaa9b",
+      "candidateRevision": "0c67f9cfbd1cf5d3d59a693860072f46b1d4e808",
+      "status": "COMMITTED_AWAITING_EXACT_CLOSURE_REVIEW"
     }
   },
   "metrics": {
@@ -706,5 +703,5 @@
     "privilegedBoundaryCrossed": false,
     "candidateInvoked": false
   },
-  "nextSafeAction": "Dispatch the reserved existing writer /root/ic_m01_w3_session_integration for exactly one IC-M01-REC-01 correction at parent d630f68628462ac925d9257c2f73d799d2db5d02, limited to B03, B04, B06, B07, and B08. Then run one exact closure review by /root/ic_m01_g1_high_review. Invoke IC-M01-AUTH-01 exactly once only after approval; keep A04, PR 155 integration, privilege, merge, and deployment untouched."
+  "nextSafeAction": "Dispatch the reserved existing reviewer /root/ic_m01_g1_high_review for the single IC-M01-REC-01-G1 exact closure review at immutable candidate 0c67f9cfbd1cf5d3d59a693860072f46b1d4e808. Limit review to B03, B04, B06, B07, B08 and preservation of B01, B02, B05. Invoke IC-M01-AUTH-01 exactly once only after approval; keep A04, PR 155 integration, privilege, merge, and deployment untouched."
 }

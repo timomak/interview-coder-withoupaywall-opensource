@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "kind": "bounded-milestone-recovery-result",
+  "projectKey": "InterviewCopilot",
+  "milestoneId": "IC-M01",
+  "recoveryId": "IC-M01-REC-01",
+  "sourcePacket": "v3/interviewcopilot/bounded-recovery-IC-M01-1.json",
+  "sourcePacketSha256": "dc0444bde9a7e71a4565486afbc292e6b567b5de5eb35dca682ef4f547599bd9",
+  "writer": "/root/ic_m01_w3_session_integration",
+  "parentRevision": "d630f68628462ac925d9257c2f73d799d2db5d02",
+  "candidateRevision": "0c67f9cfbd1cf5d3d59a693860072f46b1d4e808",
+  "commitSubject": "fix: close IC-M01 recovery findings",
+  "worktree": "/Users/thirdfacedev/.codex/worktrees/ic-m01/TimoCodes",
+  "worktreeClean": true,
+  "changedPathCount": 16,
+  "changedPathsAudit": "PASS_EXACT_PACKET_MUTABLE_TARGET_SUBSET",
+  "closureClaims": [
+    {
+      "id": "IC-M01-G1-B03",
+      "claim": "Occurrence IDs enumerate and interrupt every individual M-02 and M-03 forward and rollback journal save and filesystem mutation, prove a readable copy, and replay."
+    },
+    {
+      "id": "IC-M01-G1-B04",
+      "claim": "A real orchestrator with EncryptedRecordRepository preserves the byte-exact pending packet and unadvanced cursor across cancellation and restart, then commits once."
+    },
+    {
+      "id": "IC-M01-G1-B06",
+      "claim": "Hostile delayed persistence and concurrent submissions prove serialized saves; Reset during compact clarification awaits abort and rejects stale events and snapshots."
+    },
+    {
+      "id": "IC-M01-G1-B07",
+      "claim": "Actual orchestrator provider prompts include frozen assumptions and clarification suggestions only for material omissions."
+    },
+    {
+      "id": "IC-M01-G1-B08",
+      "claim": "Production capture remains typed and reachable while acquisition is in-memory, queued persistence is authenticated encrypted blobs under the installation key, and retention/reset/exclusion remove the encrypted blobs."
+    }
+  ],
+  "preservedClosedFindingIds": [
+    "IC-M01-G1-B01",
+    "IC-M01-G1-B02",
+    "IC-M01-G1-B05"
+  ],
+  "nonAuthoritativeVerification": {
+    "runtime": "NODE_20_20_2",
+    "focusedRecovery": "18_PASS_0_FAIL_0_SKIP_7_FILES",
+    "lintAndInventory": "PASS_154_EXECUTABLE_50_TEST_FILES",
+    "strictTypecheck": "PASS",
+    "immutableTestManifest": "PASS_84_NAMES_AND_HASHES",
+    "p01": "27_PASS_0_FAIL_0_SKIP",
+    "p02": "11_PASS_0_FAIL_0_SKIP",
+    "p03": "11_PASS_0_FAIL_0_SKIP",
+    "p04": "24_PASS_0_FAIL_0_SKIP",
+    "unit": "84_PASS_0_FAIL_0_SKIP_50_FILES",
+    "policy": "PASS",
+    "build": "PASS",
+    "packageInventory": "PASS_9081_ASAR_107_OUTER_SHA256_E1F5074B878840516FC9386632211BB1C41CEFFB5D4B8AADAB8D54DD2B5A1D83",
+    "diffCheck": "PASS",
+    "standaloneTestManifest": "EXPECTED_REJECTION_WITHOUT_TRUSTED_LEDGER_ENV_STATIC_AND_TRUSTED_EXECUTION_EVIDENCE_PASS"
+  },
+  "documentedResidualLimits": [
+    "Decrypted base64 exists briefly in immutable JavaScript memory.",
+    "PowerShell fallback transfers PNG bytes through in-memory stdout.",
+    "Deletion remains best effort under APFS copy-on-write, snapshots, and SSD behavior.",
+    "Windows fallback selection is injection-tested on macOS and statically gated in production source and package."
+  ],
+  "authoritativeRouteInvoked": false,
+  "privilegedBoundaryCrossed": false,
+  "pushed": false,
+  "pullRequestMutated": false,
+  "merged": false,
+  "deployed": false,
+  "nextGate": {
+    "id": "IC-M01-REC-01-G1",
+    "reviewer": "/root/ic_m01_g1_high_review",
+    "scope": "Exact B03, B04, B06, B07, and B08 closure plus B01, B02, and B05 regression preservation.",
+    "additionalCorrectionAfterReviewProhibited": true
+  },
+  "status": "COMMITTED_AWAITING_EXACT_CLOSURE_REVIEW"
+}
