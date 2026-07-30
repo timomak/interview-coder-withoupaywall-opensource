@@ -317,6 +317,28 @@
     "Success publishes and reopens one exact external SUCCESS receipt; failure to publish it removes authorization and the fresh namespace before terminal FAILURE publication.",
     "The exact candidate targeted P01 hostile-probe, policy, lint, typecheck, build, unit, and reporter contracts remain green without invoking the installed capability."
   ],
+  "implementationEvidence": {
+    "status": "READY_FOR_G1",
+    "artifactId": "P00-V2-CAP-A04",
+    "candidateRevision": "2e5045116db6e3c5f6e6cc18b70df6d7fa021baf",
+    "candidateInvoked": false,
+    "privilegedBoundaryCrossed": false,
+    "controllerSha256": "96646ac2bd8057934754bd79d89b176361b912d7649683c698ddbd215dd7b4ba",
+    "manifestSha256": "48648f67c61e60b567cd16407e4b856d068abc3a7b41e56a7889c3995358788f",
+    "envelopeSha256": "9f8f5deab7ba68b8e475ea94bf98d15310d90d1ddfa90d5e31e820408df59bd7",
+    "handoffSha256": "c29447602c701d258c77dedbe528637da63ac1e6dad5fc636c05a8b2d0a0f942",
+    "payloadArchiveSha256": "ba2e8295c29a10fc9e525f8d218b697e10b5cd3eed6151f311ba28679ecb6b28",
+    "nativeSelfTestSha256": "47ada296ed385c366b51364ca8d80242a25fdd56422f790d934f60bedd76411a",
+    "reproducibleBuilds": "3_OF_3_IDENTICAL",
+    "disposableSuite": "9_TESTS_0_FAILURES",
+    "provedRollback": [
+      "POST_AUTHORIZATION_FAILURE",
+      "HARD_INTERRUPTION_REPLAY",
+      "TERMINAL_FAILURE_REUSE_REJECTION",
+      "DRIFT_AUTHORIZATION_REMOVED_STATE_PRESERVED"
+    ],
+    "provedLegacyDisposition": "EXACT_KNOWN_PATH_IDENTITIES_AND_HISTORICAL_SYMLINK_HARDLINK_FIXTURE_UNCHANGED"
+  },
   "reviewGates": [
     {
       "id": "IC-M00-RP01-G0",

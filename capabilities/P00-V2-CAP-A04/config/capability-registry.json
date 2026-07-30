@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "projectKey": "InterviewCopilot",
+  "controllerVersion": "P00-V2-CAP-A04",
+  "approvedPacket": {
+    "revision": "P00-R9",
+    "sha": "02ee6ddec78d6e4ea9e2de3c0303ffd6bc9f45bf"
+  },
+  "canonicalRemote": "https://github.com/j4wg/interview-coder-withoupaywall-opensource",
+  "principal": {
+    "user": "thirdfacedev",
+    "uid": 501
+  },
+  "executionIdentity": {
+    "user": "_interviewcopilotverify",
+    "uid": 499,
+    "gid": 499,
+    "shell": "/usr/bin/false",
+    "home": "/var/empty"
+  },
+  "operations": [
+    "arm",
+    "verify"
+  ],
+  "roles": [
+    "local"
+  ],
+  "phases": [
+    {
+      "id": "P01",
+      "dependencies": [],
+      "plan": "scripts/verification/plans/P01.json"
+    }
+  ],
+  "fixedPaths": {
+    "installRoot": "/Users/Shared/InterviewCopilot/verification-controller-a04/payload",
+    "controllerRoot": "/Users/Shared/InterviewCopilot/verification-controller-a04",
+    "requestRoot": "/Users/Shared/InterviewCopilot/verification-controller-a04/requests/501",
+    "evidenceRoot": "/Users/thirdfacedev/.codex/orchestration/TimoCodes-evidence",
+    "sudoers": "/etc/sudoers.d/interviewcopilot-verification-controller-a04"
+  },
+  "requestLimits": {
+    "maximumBytes": 8192,
+    "requiredMode": "0400",
+    "requiredOwnerUid": 501,
+    "requiredLinkCount": 1,
+    "extendedAclAllowed": false
+  }
+}

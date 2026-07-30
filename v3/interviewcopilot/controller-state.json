@@ -349,11 +349,14 @@
   "activeReplan": {
     "id": "IC-M00-RP01",
     "packet": "v3/interviewcopilot/milestone-IC-M00-replan-1.json",
-    "status": "FROZEN_IMPLEMENTING",
+    "status": "READY_FOR_G1_FREEZE",
     "baseRevision": "dd48cb269582e257d5972e466c20bcca44749544",
     "outcome": "Fresh P01-only capability namespace with no legacy evidence migration or active-admission dependency.",
     "planningReviewGate": "IC-M00-RP01-G0_APPROVED_CORRECTED_PACKET_295F2F6",
-    "frozenPacketSha256": "36afe40406d1609072875af29b30e2f1c7b0538633ff22e6f0baa3e27cb596c7",
+    "frozenPacketSha256": "fb5aa8daf053be2c8daef7972228b9d0706d8ed15518e4884096702e2dd99f92",
+    "artifactId": "P00-V2-CAP-A04",
+    "artifactEnvelopeSha256": "9f8f5deab7ba68b8e475ea94bf98d15310d90d1ddfa90d5e31e820408df59bd7",
+    "artifactHandoffSha256": "c29447602c701d258c77dedbe528637da63ac1e6dad5fc636c05a8b2d0a0f942",
     "privilegedBoundaryCrossed": false,
     "candidateInvoked": false
   },

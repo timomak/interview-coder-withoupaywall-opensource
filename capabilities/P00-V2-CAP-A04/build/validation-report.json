@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "artifactId": "P00-V2-CAP-A04",
+  "validatedAt": "2026-07-30T09:59:22Z",
+  "candidateRevision": "2e5045116db6e3c5f6e6cc18b70df6d7fa021baf",
+  "candidateInvoked": false,
+  "privilegedPathInvoked": false,
+  "controllerSha256": "96646ac2bd8057934754bd79d89b176361b912d7649683c698ddbd215dd7b4ba",
+  "manifestSha256": "48648f67c61e60b567cd16407e4b856d068abc3a7b41e56a7889c3995358788f",
+  "envelopeSha256": "9f8f5deab7ba68b8e475ea94bf98d15310d90d1ddfa90d5e31e820408df59bd7",
+  "handoffSha256": "c29447602c701d258c77dedbe528637da63ac1e6dad5fc636c05a8b2d0a0f942",
+  "payloadArchiveSha256": "ba2e8295c29a10fc9e525f8d218b697e10b5cd3eed6151f311ba28679ecb6b28",
+  "nativeSelfTestSha256": "47ada296ed385c366b51364ca8d80242a25fdd56422f790d934f60bedd76411a",
+  "cleanBuilds": 3,
+  "reproducibleIdentities": [
+    "controller",
+    "expected-install-manifest.json",
+    "release-envelope.json",
+    "admin-handoff.txt"
+  ],
+  "disposableTestSuite": {
+    "tests": 9,
+    "failures": 0,
+    "elapsedSeconds": 212.406
+  },
+  "provedContracts": [
+    "P01-only principal-bound empty-argument authorization",
+    "fresh A04 namespace with no legacy run enumeration or mutation",
+    "exact staged and installed byte verification",
+    "terminal SUCCESS and FAILURE activation receipts",
+    "post-authorization rollback",
+    "hard-interruption replay rollback",
+    "idempotent exact SUCCESS replay",
+    "revocation with evidence retention",
+    "drift removes authorization first and preserves forensic state",
+    "historical symlink and two-link fixture unchanged across transactions"
+  ]
+}
