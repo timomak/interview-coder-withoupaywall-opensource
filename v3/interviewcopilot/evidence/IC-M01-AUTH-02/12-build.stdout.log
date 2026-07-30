@@ -1,0 +1,45 @@
+
+> interview-copilot@1.0.19 build
+> npm run build:runtime && npm run verify:package-inventory
+
+
+> interview-copilot@1.0.19 build:runtime
+> cross-env NODE_ENV=production npm run clean && vite build && tsc -p tsconfig.electron.json
+
+
+> interview-copilot@1.0.19 clean
+> node scripts/verification/clean-outputs.mjs
+
+vite v6.2.5 building for production...
+transforming...
+✓ 1659 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.54 kB │ gzip:   0.36 kB
+dist/assets/index-CY6rK4EQ.css   17.10 kB │ gzip:   4.13 kB
+dist/assets/index-BM-XLRzc.js   449.34 kB │ gzip: 134.70 kB │ map: 2,165.66 kB
+✓ built in 1.23s
+vite v6.2.5 building for production...
+transforming...
+✓ 364 modules transformed.
+rendering chunks...
+computing gzip size...
+dist-electron/main.js  842.89 kB │ gzip: 174.27 kB │ map: 1,537.96 kB
+✓ built in 609ms
+vite v6.2.5 building for production...
+transforming...
+✓ 7 modules transformed.
+rendering chunks...
+computing gzip size...
+dist-electron/preload.js  1.50 kB │ gzip: 0.52 kB │ map: 13.91 kB
+✓ built in 9ms
+
+> interview-copilot@1.0.19 verify:package-inventory
+> node scripts/verification/build-package-inventory.mjs
+
+  • electron-builder  version=24.13.3 os=25.5.0
+  • artifacts will be published if draft release exists  reason=CI detected
+  • loaded configuration  file=package.json ("build" field)
+  • packaging       platform=darwin arch=arm64 electron=29.4.6 appOutDir=/var/folders/_s/yy3z9vgd149_n825srlr5t_w0000gn/T/interviewcopilot-package-qcNQU3/mac-arm64
+  • skipped macOS code signing  reason=identity explicitly is set to null
+Fresh package inventory accepted: 9081 asar entries, 107 outer entries, asar sha256=83ff1423f99407b4064f5997b75082182a2249cee3eddd91ee1e313d870a51ac, inventory=/var/folders/_s/yy3z9vgd149_n825srlr5t_w0000gn/T/interviewcopilot-package-qcNQU3/package-inventory.json

@@ -1,0 +1,5 @@
+
+> interview-copilot@1.0.19 typecheck
+> node scripts/verification/typecheck-inventory.mjs && tsc -p tsconfig.electron.json --noEmit
+
+Strict TS+JS inventory accepted: 154 executable files.

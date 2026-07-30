@@ -453,7 +453,7 @@
   "readyMilestones": [
     {
       "id": "IC-M01",
-      "status": "VERIFYING_AUTHORITATIVE",
+      "status": "APPROVED_AWAITING_PROTECTED_INTEGRATION",
       "entryGate": "IC-M00-G-DEV",
       "entryGateEvidence": "v3/interviewcopilot/development-admission-IC-M00-1.json",
       "entryGateEvidenceSha256": "d11b7297df1f9cfacb233428fc1b0f83e05c711b54a6a946a1b6c0e852ab2efb",
@@ -470,7 +470,7 @@
   ],
   "activeProductMilestone": {
     "id": "IC-M01",
-    "status": "VERIFYING_AUTHORITATIVE",
+    "status": "APPROVED_AWAITING_PROTECTED_INTEGRATION",
     "freezePacket": "v3/interviewcopilot/milestone-IC-M01-freeze-1.json",
     "freezePacketSha256": "ce40840212f4b1f5f114f5746acec721c430fc17a372522df1b52a153d09d05b",
     "baseRevision": "a8cdcbdeb49a897946dd520981d59d9a1a3813b6",
@@ -529,16 +529,39 @@
         "verification": "NODE20_FOCUSED_18_LINT_INVENTORY_154_50_TYPECHECK_MANIFEST_84_P01_27_P02_11_P03_11_P04_24_UNIT_84_POLICY_BUILD_PACKAGE_9081_ASAR_107_OUTER_DIFF_TARGET_AUDIT_PASS",
         "authoritativeRouteInvoked": false,
         "pushed": false
+      },
+      {
+        "task": "/root",
+        "workPackage": "IC-M01-USER-OVERRIDE-B08",
+        "revision": "dc0f3dd927a00eba7423ab9877dcf89f891cfd30",
+        "parent": "0c67f9cfbd1cf5d3d59a693860072f46b1d4e808",
+        "result": "v3/interviewcopilot/user-override-fix-IC-M01-1.json",
+        "resultSha256": "d3c9ee5151dc311a98552f3efb70bf9187c715b01782cf2ae0d55b2f1f54057f",
+        "scope": "DEDICATED_ENCRYPTED_SCREENSHOT_REPOSITORY_AND_ALL_RESET_PATH_CLEANUP",
+        "verification": "NODE20_P01_27_P03_14_P04_24_UNIT_85_POLICY_LINT_TYPECHECK_BUILD_PACKAGE_PASS",
+        "authoritativeRouteInvoked": true,
+        "pushed": false
+      },
+      {
+        "task": "/root",
+        "workPackage": "IC-M01-PLAN-THRESHOLD-CORRECTION",
+        "revision": "703a37e47b4a398ed90e1c5cf4be9c5859dc0849",
+        "parent": "dc0f3dd927a00eba7423ab9877dcf89f891cfd30",
+        "scope": "P04_CUMULATIVE_P02_AND_P03_MINIMUM_COUNTS_ONLY",
+        "verification": "POLICY_AND_P01_27_PASS_THEN_IC_M01_AUTH_02_FULL_PASS",
+        "authoritativeRouteInvoked": true,
+        "pushed": false
       }
     ],
     "integratedCandidate": {
-      "revision": "dc0f3dd927a00eba7423ab9877dcf89f891cfd30",
+      "revision": "703a37e47b4a398ed90e1c5cf4be9c5859dc0849",
       "w1IntegratedRevision": "0f07e87a7d969812c1e347e394eeaffbcb55a1cf",
       "w2IntegratedRevision": "a81665e09420bce21a964474a920675d78112a2c",
       "w3IntegratedRevision": "32c24ab275e2d3b6d8cb00c1e6a8ba6d48377cd0",
       "remediationRevision": "d630f68628462ac925d9257c2f73d799d2db5d02",
       "recoveryRevision": "0c67f9cfbd1cf5d3d59a693860072f46b1d4e808",
       "userOverrideFixRevision": "dc0f3dd927a00eba7423ab9877dcf89f891cfd30",
+      "planThresholdCorrectionRevision": "703a37e47b4a398ed90e1c5cf4be9c5859dc0849",
       "worktreeClean": true
     },
     "targetAddenda": [
@@ -708,13 +731,28 @@
       "candidateRevision": "dc0f3dd927a00eba7423ab9877dcf89f891cfd30",
       "resolution": "ALL_RESET_PATHS_ROUTE_THROUGH_CAPTURE_CONTROLLER_AND_CLEAR_DEDICATED_ENCRYPTED_SCREENSHOT_REPOSITORY_AFTER_RESTART",
       "targetedVerification": "P01_27_P03_14_P04_24_UNIT_85_LINT_TYPECHECK_POLICY_BUILD_PACKAGE_PASS",
-      "authoritativeRouteInvoked": false,
-      "status": "COMMITTED_AWAITING_IC-M01-AUTH-01"
+      "authoritativeRouteInvoked": true,
+      "status": "SUPERSEDED_BY_FINAL_CORRECTED_CANDIDATE_703A37E"
+    },
+    "authoritativeResult": {
+      "path": "v3/interviewcopilot/milestone-IC-M01-authoritative-result-1.json",
+      "sha256": "7c78a7bc081fab4f25c81c21546bdbdf4c5470618b6602b35844dca18c635f88",
+      "candidateRevision": "703a37e47b4a398ed90e1c5cf4be9c5859dc0849",
+      "candidateTree": "98805994718bb1b1fd35d71496d1bbaa255c828f",
+      "invalidatedAttempt": "IC-M01-AUTH-01",
+      "acceptedAttempt": "IC-M01-AUTH-02",
+      "acceptedEvidenceSha256": "de4e52f92d3769e623f986b0830d09a3d24edafed0675a0150014a10ae6ebd9e",
+      "status": "PASS_AWAITING_PROTECTED_INTEGRATION",
+      "requirements": [
+        "P02",
+        "P03",
+        "P04"
+      ]
     }
   },
   "metrics": {
     "projectKey": "InterviewCopilot",
-    "milestoneId": "IC-M00",
+    "milestoneId": "IC-M01",
     "startedAt": "2026-07-29T09:10:11+02:00",
     "completedAt": null,
     "activeMinutes": {
@@ -728,7 +766,11 @@
       "external": 0,
       "capacity": 0
     },
-    "requirementsCompleted": [],
+    "requirementsCompleted": [
+      "P02",
+      "P03",
+      "P04"
+    ],
     "workPackageCount": 1,
     "maximumConcurrentWriters": 0,
     "candidateRevisionCount": 3,
@@ -738,7 +780,7 @@
     "postIntegrationDefects": 0,
     "ownershipConflicts": 1,
     "historicalResult": "BLOCKED_TERMINAL_RECOVERY_03_NEW_LIVE_STATE_INCOMPATIBILITY_REPLAN_REQUIRED",
-    "result": "IC_M00_G_DEV_SATISFIED_IC_M01_READY_P01_PARTIAL_RELEASE_ASSURANCE_PENDING"
+    "result": "IC_M01_AUTHORITATIVE_PASS_AWAITING_PROTECTED_INTEGRATION_P01_PARTIAL_RELEASE_ASSURANCE_PENDING"
   },
   "historicalReplan": {
     "id": "IC-M00-RP01",
@@ -754,5 +796,5 @@
     "privilegedBoundaryCrossed": false,
     "candidateInvoked": false
   },
-  "nextSafeAction": "Run IC-M01-AUTH-01 exactly once in a clean detached Node 20 environment at immutable candidate dc0f3dd927a00eba7423ab9877dcf89f891cfd30. On success, record approval and proceed through the safe protected workflow without A04, privilege, PR 155 mutation, merge, or deployment unless separately authorized."
+  "nextSafeAction": "Publish exact IC-M01 candidate 703a37e47b4a398ed90e1c5cf4be9c5859dc0849 as a separate draft pull request, reconcile hosted checks, and begin dependency-safe IC-M02 discovery without A04, privilege, PR 155 mutation, merge, or deployment."
 }

@@ -1,0 +1,5 @@
+
+> interview-copilot@1.0.19 verify:test-manifest
+> node scripts/verification/test-manifest.mjs
+
+Test manifest accepted: 85 named tests, all executed and passed.

@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "protocol": "interviewcopilot-local-authoritative-result-v1",
+  "attemptId": "IC-M01-AUTH-01",
+  "status": "INVALIDATED_BY_PLAN_THRESHOLD_DEFECT",
+  "candidate": "dc0f3dd927a00eba7423ab9877dcf89f891cfd30",
+  "completedAt": "2026-07-30T20:12:54Z",
+  "candidateResults": {
+    "install": "PASS",
+    "policy": "PASS",
+    "lint": "PASS",
+    "typecheck": "PASS",
+    "legacy": {
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "authentication": "validated in coordinator process"
+    },
+    "unit": {
+      "passed": 85,
+      "failed": 0,
+      "skipped": 0,
+      "authentication": "validated in coordinator process"
+    },
+    "p01": {
+      "passed": 27,
+      "failed": 0,
+      "skipped": 0,
+      "authentication": "validated in coordinator process"
+    },
+    "p02": {
+      "passed": 11,
+      "failed": 0,
+      "skipped": 0,
+      "authentication": "validated in coordinator process"
+    }
+  },
+  "failure": {
+    "classification": "CONTROLLER_AND_PLAN_EXPECTATION_DEFECT",
+    "detail": "The coordinator required 14 P02 tests, copied from the incorrect P04 cumulative threshold. The exact P02 plan and trusted P02 suite contain 11 tests, all of which passed. P03 had grown to 14 tests but the P04 cumulative plan still assigned it a minimum of 11.",
+    "candidateCorrection": "Set P04 P02 minimumPassed to 11, P03 minimumPassed to 14, and refresh the pinned P04 plan hash.",
+    "rawP02StdoutSha256": "e3a59b5c41ef4d1a4f65b4d8e4a52904d98b18b6e7a70ad1f1794ab79edaad5a"
+  },
+  "remainingCommandsNotRun": [
+    "p03",
+    "p04",
+    "manifest",
+    "build"
+  ],
+  "supersededByCandidate": "703a37e47b4a398ed90e1c5cf4be9c5859dc0849"
+}

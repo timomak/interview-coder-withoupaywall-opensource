@@ -1,0 +1,111 @@
+{
+  "schemaVersion": 1,
+  "projectKey": "InterviewCopilot",
+  "milestoneId": "IC-M01",
+  "gateId": "IC-M01-AUTH-FINAL",
+  "status": "PASS_AWAITING_PROTECTED_INTEGRATION",
+  "recordedAt": "2026-07-30T20:16:08.500Z",
+  "candidate": {
+    "branch": "codex/ic-m01-runtime-storage-session",
+    "revision": "703a37e47b4a398ed90e1c5cf4be9c5859dc0849",
+    "tree": "98805994718bb1b1fd35d71496d1bbaa255c828f",
+    "finalCorrectionParent": "dc0f3dd927a00eba7423ab9877dcf89f891cfd30",
+    "worktreeClean": true
+  },
+  "authority": {
+    "source": "USER_EXPLICITLY_ORDERED_FIX_IT_AND_KEEP_WORKING",
+    "effect": "The user overrode the exhausted bounded-recovery stop, authorized the direct B08 correction, and instructed the controller to continue. This does not authorize deployment or mutation of P01 PR 155."
+  },
+  "requirements": {
+    "P02": "PASS",
+    "P03": "PASS",
+    "P04": "PASS"
+  },
+  "finalCorrection": {
+    "description": "Correct the cumulative P04 plan so P02 requires its actual 11 tests and P03 requires its expanded 14 tests.",
+    "planP04Sha256": "960dcee1e205ed62db38fd215b6b287245a4a53c670e58436f9ef140eece25ae"
+  },
+  "attempts": [
+    {
+      "id": "IC-M01-AUTH-01",
+      "candidateRevision": "dc0f3dd927a00eba7423ab9877dcf89f891cfd30",
+      "status": "INVALIDATED_BY_PLAN_THRESHOLD_DEFECT",
+      "resultPath": "v3/interviewcopilot/evidence/IC-M01-AUTH-01/authoritative-result.json",
+      "resultSha256": "1177e08a0cc443c089251f3b0a8455c14bcced87e3dcbcdcf20490adbe08cf5f",
+      "candidateFailure": false
+    },
+    {
+      "id": "IC-M01-AUTH-02",
+      "candidateRevision": "703a37e47b4a398ed90e1c5cf4be9c5859dc0849",
+      "status": "PASS",
+      "resultPath": "v3/interviewcopilot/evidence/IC-M01-AUTH-02/authoritative-result.json",
+      "resultSha256": "de4e52f92d3769e623f986b0830d09a3d24edafed0675a0150014a10ae6ebd9e",
+      "validatedTestResultsPath": "v3/interviewcopilot/evidence/IC-M01-AUTH-02/validated-test-results.json",
+      "validatedTestResultsSha256": "e60f32d7e78ee925319821d285a7ddd4e363fe8e0431c3f6ce4999a34d8bed16"
+    }
+  ],
+  "authoritativeChecks": {
+    "install": "PASS",
+    "policy": "PASS",
+    "lint": "PASS",
+    "typecheck": "PASS",
+    "legacy": {
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0
+    },
+    "unit": {
+      "passed": 85,
+      "failed": 0,
+      "skipped": 0
+    },
+    "P01Regression": {
+      "passed": 27,
+      "failed": 0,
+      "skipped": 0
+    },
+    "P02": {
+      "passed": 11,
+      "failed": 0,
+      "skipped": 0
+    },
+    "P03": {
+      "passed": 14,
+      "failed": 0,
+      "skipped": 0
+    },
+    "P04": {
+      "passed": 24,
+      "failed": 0,
+      "skipped": 0
+    },
+    "namedTestManifest": "85_NAMED_TESTS_ALL_EXECUTED_AND_PASSED",
+    "productionBuildAndPackageInventory": "PASS",
+    "candidateIdentityAfterRun": "UNCHANGED_AND_CLEAN"
+  },
+  "reviewReconciliation": {
+    "preservedClosedFindings": [
+      "IC-M01-G1-B01",
+      "IC-M01-G1-B02",
+      "IC-M01-G1-B03",
+      "IC-M01-G1-B04",
+      "IC-M01-G1-B05",
+      "IC-M01-G1-B06",
+      "IC-M01-G1-B07"
+    ],
+    "directlyResolvedFinding": "IC-M01-G1-B08",
+    "resolution": "Every production Reset path now awaits the capture controller, whose dedicated encrypted screenshot repository deletes all retained members even after restart."
+  },
+  "rollback": {
+    "beforeProtectedIntegration": "Reset branch codex/ic-m01-runtime-storage-session to admitted base only by an explicit future rollback decision; retain all immutable evidence.",
+    "afterProtectedIntegration": "Use a normal revert of the IC-M01 integration commit. Do not delete encrypted migration or rollback evidence."
+  },
+  "boundaries": {
+    "P01Pr155Mutated": false,
+    "privilegedCapabilityInvoked": false,
+    "legacyV1Invoked": false,
+    "mergePerformed": false,
+    "deploymentPerformed": false
+  },
+  "nextSafeAction": "Publish the exact IC-M01 branch as a separate draft pull request, reconcile hosted checks, and stop before protected integration unless merge authority is explicit. IC-M02 discovery may proceed from this accepted implementation candidate without altering PR 155."
+}
