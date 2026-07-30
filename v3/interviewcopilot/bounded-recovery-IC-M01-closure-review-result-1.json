@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "kind": "bounded-milestone-recovery-closure-review-result",
+  "projectKey": "InterviewCopilot",
+  "milestoneId": "IC-M01",
+  "recoveryId": "IC-M01-REC-01",
+  "gateId": "IC-M01-REC-01-G1",
+  "reviewer": "/root/ic_m01_g1_high_review",
+  "candidateRevision": "0c67f9cfbd1cf5d3d59a693860072f46b1d4e808",
+  "parentRevision": "d630f68628462ac925d9257c2f73d799d2db5d02",
+  "admittedBase": "a8cdcbdeb49a897946dd520981d59d9a1a3813b6",
+  "sourcePacket": "v3/interviewcopilot/bounded-recovery-IC-M01-1.json",
+  "sourcePacketSha256": "dc0444bde9a7e71a4565486afbc292e6b567b5de5eb35dca682ef4f547599bd9",
+  "recoveryResult": "v3/interviewcopilot/bounded-recovery-IC-M01-result-1.json",
+  "recoveryResultSha256": "c47fdefdfd1b5efa4a142b274543a6d7537327335adf5d69151bec1166ccaa9b",
+  "sourceReview": "v3/interviewcopilot/milestone-IC-M01-delta-review-result-1.json",
+  "sourceReviewSha256": "8acec4d385bc4a19414ee81f5afcee38df44303a51c166fae64c1ec456a81c0f",
+  "disposition": "REQUEST_CHANGES_TERMINAL",
+  "worktreeClean": true,
+  "changedPathCount": 16,
+  "changedPathsAudit": "PASS_EXACT_PACKET_MUTABLE_TARGET_SUBSET",
+  "findingDispositions": [
+    {
+      "id": "IC-M01-G1-B03",
+      "status": "CLOSED",
+      "basis": "Occurrence-identified interruption covers every M-02 and M-03 forward and rollback journal save and filesystem mutation with readable-copy and replay assertions."
+    },
+    {
+      "id": "IC-M01-G1-B04",
+      "status": "CLOSED",
+      "basis": "A real orchestrator plus EncryptedRecordRepository proves cancellation retains the exact pending packet and unadvanced cursor, then restart replays and commits it."
+    },
+    {
+      "id": "IC-M01-G1-B06",
+      "status": "CLOSED",
+      "basis": "Concurrent submissions, hostile delayed persistence, compact-turn Reset, and stale-event rejection prove serialization and generation safety."
+    },
+    {
+      "id": "IC-M01-G1-B07",
+      "status": "CLOSED",
+      "basis": "Material and immaterial requests traverse InterviewOrchestrator and the actual provider prompts contain the expected frozen assumptions and suggestions."
+    },
+    {
+      "id": "IC-M01-G1-B08",
+      "status": "NOT_CLOSED_IDENTICAL_MATERIAL_FINDING",
+      "basis": "Renderer and recovery-prompt Reset dispatch directly through IPC to InterviewOrchestrator and bypass ScreenshotHelper.clearQueues. After restart ScreenshotHelper creates an empty in-memory queue without rehydrating retained encrypted blob IDs, so ordinary and recovery Reset can leave encrypted screenshot blobs indefinitely."
+    }
+  ],
+  "preservedClosedFindingIds": [
+    "IC-M01-G1-B01",
+    "IC-M01-G1-B02",
+    "IC-M01-G1-B05"
+  ],
+  "verificationObserved": {
+    "runtime": "NODE_20_20_2",
+    "p02": "11_PASS_0_FAIL",
+    "p03": "11_PASS_0_FAIL",
+    "p04": "24_PASS_0_FAIL",
+    "screenshotHelperFocused": "2_PASS_0_FAIL",
+    "lint": "PASS",
+    "strictTypecheck": "PASS",
+    "policy": "PASS",
+    "diffCheck": "PASS"
+  },
+  "acceptedResidualLimits": [
+    "Temporary plaintext exists briefly in JavaScript memory.",
+    "The Windows PowerShell fallback transfers bytes through in-memory stdout.",
+    "Deletion is best effort under APFS copy-on-write, snapshots, and SSD behavior."
+  ],
+  "authoritativeRouteInvoked": false,
+  "closureReviewBudgetRemaining": 0,
+  "correctionBudgetRemaining": 0,
+  "terminalReason": "The identical material B08 Reset-deletion requirement survives the exact closure review after the single user-authorized bounded recovery.",
+  "prohibitions": [
+    "do not invoke IC-M01-AUTH-01",
+    "do not create another writer, reviewer, correction, or recovery loop",
+    "do not push, mutate PR 155, merge, deploy, invoke privilege, or activate A04"
+  ],
+  "status": "FAILED_TERMINAL_SECOND_MATERIAL_FAILURE"
+}
