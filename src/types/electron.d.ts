@@ -10,6 +10,12 @@ import type {
   ProviderId,
   ResponseMode
 } from "../shared/provider"
+import type {
+  ShortcutAction,
+  ShortcutBindings,
+  HudState
+} from "../shared/shell"
+import type { ShortcutRegistrationResult } from "../../electron/shortcuts"
 
 export interface UpdateInfo {
   version?: string
@@ -47,7 +53,16 @@ export interface ElectronAPI {
     ignore: boolean,
     forward: boolean
   ) => Promise<{ success: boolean }>
+  setHudState: (state: HudState) => Promise<{ success: boolean }>
   captureScreenshot: () => Promise<{ success: boolean }>
+  getShortcutBindings: () => Promise<ShortcutBindings>
+  updateShortcutBindings: (
+    bindings: ShortcutBindings
+  ) => Promise<ShortcutRegistrationResult>
+  resetShortcutBindings: () => Promise<ShortcutRegistrationResult>
+  onShellShortcut: (
+    callback: (action: ShortcutAction) => void
+  ) => () => void
   toggleMainWindow: () => Promise<{ success: boolean }>
   getPlatform: () => NodeJS.Platform
   startUpdate: () => Promise<{ success: boolean; error?: string }>

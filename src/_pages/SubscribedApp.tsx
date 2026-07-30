@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import type { SubscriptionConfig } from "../../electron/config"
 import {
   createIdleInterviewSession
@@ -13,8 +13,12 @@ import { ContextDetail } from "../components/ContextDetail/ContextDetail"
 import {
   CommandRail,
   CompactComposer,
-  PointerRegions
+  PointerRegions,
+  HotKeysPanel,
+  InputTray,
+  AnswerSections
 } from "../features/shell"
+import type { HudState } from "../shared/shell"
 
 interface SubscribedAppProps {
   readonly config: SubscriptionConfig
@@ -38,12 +42,30 @@ export default function SubscribedApp({ config }: SubscribedAppProps) {
   const [composerOpen, setComposerOpen] = useState(false)
   const [hotKeysOpen, setHotKeysOpen] = useState(false)
   const [shellStatus, setShellStatus] = useState("")
+  const [hudState, setHudState] = useState<HudState>("compact-bar")
+  const hotKeysButton = useRef<HTMLButtonElement>(null)
+  const sectionCount =
+    session.lifecycle === "active" ? session.sections.length : 0
 
   useEffect(() => {
     void window.electronAPI.getInterviewState().then(setSession)
     void window.electronAPI.getInterviewRecovery().then(setRecovery)
     return window.electronAPI.onInterviewState(setSession)
   }, [])
+
+  useEffect(() => {
+    if (hudState !== "expanded") {
+      setHudState(
+        session.lifecycle === "active" && sectionCount > 0
+          ? "compact-answer"
+          : "compact-bar"
+      )
+    }
+  }, [hudState, session.lifecycle, sectionCount])
+
+  useEffect(() => {
+    void window.electronAPI.setHudState(hudState)
+  }, [hudState])
 
   const start = async () => {
     const result = await window.electronAPI.dispatchInterviewCommand({
@@ -71,8 +93,28 @@ export default function SubscribedApp({ config }: SubscribedAppProps) {
     return result.ok
   }
 
+  useEffect(
+    () =>
+      window.electronAPI.onShellShortcut((action) => {
+        if (action === "composer") {
+          setComposerOpen(true)
+        } else if (action === "record") {
+          setShellStatus("Recording controls are ready for the audio source.")
+        } else if (action === "debug") {
+          setShellStatus("Debug capture becomes available in Coding mode.")
+        } else if (action === "submit" && session.lifecycle === "active") {
+          void submit()
+        }
+      }),
+    [input, session]
+  )
+
   return (
-    <section className="quiet-shell">
+    <section
+      className={`quiet-shell quiet-shell-${hudState}`}
+      data-density={config.shell?.density ?? "compact"}
+      data-text-size={config.shell?.textSize ?? "standard"}
+    >
       <PointerRegions />
       <CommandRail
         session={session}
@@ -90,6 +132,12 @@ export default function SubscribedApp({ config }: SubscribedAppProps) {
         onChat={() => setComposerOpen(true)}
         onSubmit={() => void submit()}
         onHotKeys={() => setHotKeysOpen((open) => !open)}
+        hotKeysButtonRef={hotKeysButton}
+        onWorkspace={() =>
+          setHudState((current) =>
+            current === "expanded" ? "compact-answer" : "expanded"
+          )
+        }
         onReset={() =>
           void window.electronAPI
             .dispatchInterviewCommand({ type: "reset" })
@@ -109,12 +157,10 @@ export default function SubscribedApp({ config }: SubscribedAppProps) {
         }
       />
       {hotKeysOpen ? (
-        <aside className="quiet-popover" data-interactive aria-label="HotKeys">
-          <p>Show/hide: Control Shift H</p>
-          <p>Screenshot: Control Shift S</p>
-          <p>Submit: Control Shift Return</p>
-          <p>Reset: Control Shift Backspace</p>
-        </aside>
+        <HotKeysPanel
+          returnFocusTo={hotKeysButton}
+          onClose={() => setHotKeysOpen(false)}
+        />
       ) : null}
       {composerOpen && session.lifecycle === "active" ? (
         <CompactComposer
@@ -160,14 +206,21 @@ export default function SubscribedApp({ config }: SubscribedAppProps) {
       ) : null}
       {session.lifecycle === "active" ? (
         <>
+          <InputTray
+            artifacts={session.artifacts}
+            onSelectionChange={(artifactId, selected) =>
+              void window.electronAPI
+                .dispatchInterviewCommand({
+                  type: "select-artifact",
+                  artifactId,
+                  selected
+                })
+                .then((result) => setSession(result.state))
+            }
+          />
           <ContextDetail session={session} />
-          <div className="mt-6 space-y-2">
-            {session.sections.map((section) => (
-              <article key={section.id} className="rounded border border-white/10 p-3">
-                <h2>{section.id}</h2>
-                <pre className="whitespace-pre-wrap">{section.body}</pre>
-              </article>
-            ))}
+          <div className="quiet-answer-region">
+            <AnswerSections sections={session.sections} />
             {session.compactExchanges.map((exchange) => (
               <article key={exchange.id} className="rounded bg-white/5 p-3">
                 <p>{exchange.prompt}</p>

@@ -10,7 +10,7 @@ export interface DisplayGeometry {
   readonly workArea: WindowBounds
 }
 
-export type HudState = "compact-bar" | "compact-answer" | "expanded"
+import type { HudState } from "../../src/shared/shell"
 
 export function clampWindowBounds(
   bounds: WindowBounds,
@@ -56,6 +56,18 @@ export function nearestDisplay(
 export class DisplayGeometryStore {
   private readonly remembered = new Map<string, WindowBounds>()
 
+  constructor(
+    initial: Readonly<
+      Record<string, Partial<Record<HudState, WindowBounds>>>
+    > = {}
+  ) {
+    for (const [displayId, states] of Object.entries(initial)) {
+      for (const [state, bounds] of Object.entries(states)) {
+        if (bounds) this.remember(displayId, state as HudState, bounds)
+      }
+    }
+  }
+
   remember(displayId: string, state: HudState, bounds: WindowBounds): void {
     this.remembered.set(`${displayId}:${state}`, { ...bounds })
   }
@@ -72,5 +84,21 @@ export class DisplayGeometryStore {
     const remembered =
       this.remembered.get(`${preferred.id}:${state}`) ?? fallback
     return clampWindowBounds(remembered, preferred.workArea)
+  }
+
+  snapshot(): Readonly<
+    Record<string, Partial<Record<HudState, WindowBounds>>>
+  > {
+    const result: Record<
+      string,
+      Partial<Record<HudState, WindowBounds>>
+    > = {}
+    for (const [key, bounds] of this.remembered) {
+      const separator = key.lastIndexOf(":")
+      const displayId = key.slice(0, separator)
+      const state = key.slice(separator + 1) as HudState
+      result[displayId] = { ...result[displayId], [state]: { ...bounds } }
+    }
+    return result
   }
 }

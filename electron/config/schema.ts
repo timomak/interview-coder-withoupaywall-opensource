@@ -4,6 +4,15 @@ import {
   createSelection,
   isProviderId
 } from "../../src/shared/provider"
+import {
+  DEFAULT_LIVE_SHELL_PREFERENCES,
+  SHORTCUT_ACTIONS,
+  shortcutConflicts,
+  type HudState,
+  type LiveShellPreferences,
+  type PersistedWindowBounds,
+  type ShortcutBindings
+} from "../../src/shared/shell"
 
 export const CONFIG_SCHEMA_VERSION = 1 as const
 
@@ -14,6 +23,12 @@ export interface SubscriptionConfig {
   responseMode: ResponseMode
   language: string
   opacity: number
+  shell?: LiveShellPreferences
+  migrations?: {
+    readonly m05a?: {
+      readonly completedAt: string
+    }
+  }
   migration: {
     id: "M-01"
     completedAt: string
@@ -26,6 +41,12 @@ export const DEFAULT_SUBSCRIPTION_CONFIG: SubscriptionConfig = {
   responseMode: "fast",
   language: "python",
   opacity: 1,
+  shell: DEFAULT_LIVE_SHELL_PREFERENCES,
+  migrations: {
+    m05a: {
+      completedAt: "fresh-install"
+    }
+  },
   migration: {
     id: "M-01",
     completedAt: "fresh-install"
@@ -44,6 +65,8 @@ export function validateSubscriptionConfig(value: unknown): SubscriptionConfig {
     "responseMode",
     "language",
     "opacity",
+    "shell",
+    "migrations",
     "migration"
   ])
   const unknownField = Object.keys(candidate).find(
@@ -125,5 +148,137 @@ export function validateSubscriptionConfig(value: unknown): SubscriptionConfig {
     )
   }
 
+  if (candidate.shell !== undefined) {
+    validateLiveShellPreferences(candidate.shell)
+  }
+  if (candidate.migrations !== undefined) {
+    if (
+      typeof candidate.migrations !== "object" ||
+      candidate.migrations === null
+    ) {
+      throw new Error("Configuration migrations are malformed")
+    }
+    const migrations = candidate.migrations as Record<string, unknown>
+    if (Object.keys(migrations).some((key) => key !== "m05a")) {
+      throw new Error("Configuration migration is unsupported")
+    }
+    if (migrations.m05a !== undefined) {
+      if (
+        typeof migrations.m05a !== "object" ||
+        migrations.m05a === null ||
+        Object.keys(migrations.m05a).some((key) => key !== "completedAt") ||
+        typeof (migrations.m05a as Record<string, unknown>).completedAt !==
+          "string"
+      ) {
+        throw new Error("M-05a migration marker is malformed")
+      }
+    }
+  }
+
   return candidate as unknown as SubscriptionConfig
+}
+
+function isWindowBounds(value: unknown): value is PersistedWindowBounds {
+  if (typeof value !== "object" || value === null) return false
+  const candidate = value as Record<string, unknown>
+  return (
+    Object.keys(candidate).every((key) =>
+      ["x", "y", "width", "height"].includes(key)
+    ) &&
+    ["x", "y", "width", "height"].every(
+      (key) =>
+        typeof candidate[key] === "number" &&
+        Number.isFinite(candidate[key]) &&
+        (key === "x" || key === "y" || Number(candidate[key]) > 0)
+    )
+  )
+}
+
+function validateLiveShellPreferences(value: unknown): LiveShellPreferences {
+  if (typeof value !== "object" || value === null) {
+    throw new Error("Live-shell preferences are malformed")
+  }
+  const candidate = value as Record<string, unknown>
+  if (
+    Object.keys(candidate).some(
+      (key) => !["density", "textSize", "shortcuts", "geometry"].includes(key)
+    ) ||
+    (candidate.density !== "compact" &&
+      candidate.density !== "comfortable") ||
+    (candidate.textSize !== "standard" && candidate.textSize !== "large") ||
+    typeof candidate.shortcuts !== "object" ||
+    candidate.shortcuts === null ||
+    typeof candidate.geometry !== "object" ||
+    candidate.geometry === null
+  ) {
+    throw new Error("Live-shell preferences are malformed")
+  }
+  const shortcuts = candidate.shortcuts as Record<string, unknown>
+  if (
+    Object.keys(shortcuts).length !== SHORTCUT_ACTIONS.length ||
+    SHORTCUT_ACTIONS.some(
+      (action) =>
+        typeof shortcuts[action] !== "string" ||
+        String(shortcuts[action]).trim().length === 0
+    )
+  ) {
+    throw new Error("Live-shell shortcut preferences are malformed")
+  }
+  if (
+    Object.keys(shortcutConflicts(shortcuts as unknown as ShortcutBindings))
+      .length > 0
+  ) {
+    throw new Error("Live-shell shortcut preferences conflict")
+  }
+
+  const states: readonly HudState[] = [
+    "compact-bar",
+    "compact-answer",
+    "expanded"
+  ]
+  for (const display of Object.values(
+    candidate.geometry as Record<string, unknown>
+  )) {
+    if (typeof display !== "object" || display === null) {
+      throw new Error("Live-shell display geometry is malformed")
+    }
+    const geometry = display as Record<string, unknown>
+    if (
+      Object.keys(geometry).some(
+        (state) => !states.includes(state as HudState)
+      ) ||
+      Object.values(geometry).some((bounds) => !isWindowBounds(bounds))
+    ) {
+      throw new Error("Live-shell display geometry is malformed")
+    }
+  }
+  return candidate as unknown as LiveShellPreferences
+}
+
+export function withM05aDefaults(
+  config: SubscriptionConfig,
+  completedAt: string
+): SubscriptionConfig {
+  try {
+    if (config.shell) validateLiveShellPreferences(config.shell)
+  } catch {
+    // Invalid pre-M-05a values deliberately fall back to safe defaults.
+  }
+  const shell = (() => {
+    try {
+      return config.shell
+        ? validateLiveShellPreferences(config.shell)
+        : DEFAULT_LIVE_SHELL_PREFERENCES
+    } catch {
+      return DEFAULT_LIVE_SHELL_PREFERENCES
+    }
+  })()
+  return {
+    ...config,
+    shell,
+    migrations: {
+      ...config.migrations,
+      m05a: config.migrations?.m05a ?? { completedAt }
+    }
+  }
 }

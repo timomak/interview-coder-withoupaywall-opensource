@@ -10,6 +10,7 @@ import fs from "node:fs"
 import path from "node:path"
 import { initAutoUpdater } from "./autoUpdater"
 import {
+  applyCaptureProtection,
   createCaptureProtectedWindow,
   revealCaptureProtectedWindow
 } from "./captureProtection"
@@ -37,11 +38,19 @@ import { createWindowOpenHandler } from "./windowOpenPolicy"
 import { ScreenshotHelper } from "./ScreenshotHelper"
 import { ShortcutsHelper } from "./shortcuts"
 import { clampWindowBounds } from "./window/displayGeometry"
+import { DisplayGeometryStore } from "./window/displayGeometry"
 import type {
   ProviderDiagnostics,
   ProviderId,
   ResponseMode
 } from "../src/shared/provider"
+import {
+  DEFAULT_SHORTCUT_BINDINGS,
+  DEFAULT_LIVE_SHELL_PREFERENCES,
+  type HudState,
+  type ShortcutAction,
+  type ShortcutBindings
+} from "../src/shared/shell"
 
 const isDevelopment = process.env.NODE_ENV === "development"
 
@@ -55,6 +64,68 @@ const state = {
   windowWidth: 800,
   windowHeight: 600,
   step: 60
+}
+
+let currentHudState: HudState = "compact-bar"
+let geometryStore = new DisplayGeometryStore()
+
+function availableDisplayGeometry() {
+  return screen.getAllDisplays().map((display) => ({
+    id: String(display.id),
+    workArea: display.workArea
+  }))
+}
+
+function defaultBoundsFor(stateName: HudState) {
+  const config = configHelper.loadConfig()
+  const comfortable = config.shell?.density === "comfortable"
+  const height = comfortable ? 52 : 44
+  if (stateName === "compact-bar") {
+    return { x: state.currentX, y: state.currentY, width: 520, height }
+  }
+  if (stateName === "compact-answer") {
+    return { x: state.currentX, y: state.currentY, width: 520, height: 480 }
+  }
+  return { x: state.currentX, y: state.currentY, width: 760, height: 600 }
+}
+
+function rememberCurrentGeometry(): void {
+  const mainWindow = state.mainWindow
+  if (!mainWindow || mainWindow.isDestroyed()) return
+  const bounds = mainWindow.getBounds()
+  const displayId = String(screen.getDisplayMatching(bounds).id)
+  geometryStore.remember(displayId, currentHudState, bounds)
+}
+
+function persistGeometry(): void {
+  rememberCurrentGeometry()
+  const config = configHelper.loadConfig()
+  configHelper.updateConfig({
+    shell: {
+      ...(config.shell ?? DEFAULT_LIVE_SHELL_PREFERENCES),
+      geometry: geometryStore.snapshot()
+    }
+  })
+}
+
+function setHudState(nextState: HudState): void {
+  const mainWindow = state.mainWindow
+  if (!mainWindow || mainWindow.isDestroyed()) return
+  rememberCurrentGeometry()
+  currentHudState = nextState
+  const currentBounds = mainWindow.getBounds()
+  const currentDisplay = screen.getDisplayMatching(currentBounds)
+  const restored = geometryStore.restore(
+    String(currentDisplay.id),
+    nextState,
+    defaultBoundsFor(nextState),
+    availableDisplayGeometry()
+  )
+  applyCaptureProtection(mainWindow)
+  mainWindow.setResizable(nextState === "expanded")
+  mainWindow.setMinimumSize(320, nextState === "compact-bar" ? 44 : 80)
+  mainWindow.setBounds(restored)
+  persistGeometry()
 }
 
 function focusMainWindow(mainWindow: BrowserWindow): void {
@@ -79,10 +150,10 @@ function createWindow(): void {
   state.screenWidth = workArea.width
   state.screenHeight = workArea.height
   const options: BrowserWindowConstructorOptions = {
-    width: 800,
-    height: 600,
-    minWidth: 750,
-    minHeight: 550,
+    width: 520,
+    height: 44,
+    minWidth: 320,
+    minHeight: 44,
     x: 0,
     y: 50,
     alwaysOnTop: true,
@@ -90,6 +161,7 @@ function createWindow(): void {
     frame: false,
     transparent: true,
     fullscreenable: false,
+    resizable: false,
     hasShadow: false,
     skipTaskbar: true,
     type: "panel",
@@ -124,6 +196,7 @@ function createWindow(): void {
     const [width, height] = mainWindow.getSize()
     state.windowWidth = width
     state.windowHeight = height
+    rememberCurrentGeometry()
   })
   if (isDevelopment) {
     void mainWindow.loadURL("http://localhost:54321")
@@ -201,11 +274,19 @@ function setWindowDimensions(width: number, height: number): void {
   ) {
     return
   }
+  if (currentHudState === "expanded") return
   const bounds = mainWindow.getBounds()
   const workArea = screen.getDisplayMatching(bounds).workArea
   mainWindow.setBounds(
     clampWindowBounds(
-      { ...bounds, width: Math.ceil(width), height: Math.ceil(height) },
+      {
+        ...bounds,
+        width: Math.ceil(width),
+        height: Math.min(
+          Math.ceil(height),
+          currentHudState === "compact-bar" ? 52 : workArea.height * 0.75
+        )
+      },
       workArea
     )
   )
@@ -303,6 +384,10 @@ async function initializeApplication(): Promise<void> {
   const userData = path.join(app.getPath("appData"), "InterviewCopilot")
   app.setPath("userData", userData)
   const executables = providerExecutables()
+  const initialConfig = configHelper.loadConfig()
+  geometryStore = new DisplayGeometryStore(
+    initialConfig.shell?.geometry ?? {}
+  )
   const storagePaths = new StoragePaths(path.join(userData, "encrypted"))
   const keyService = new InstallationKeyService(
     storagePaths,
@@ -336,21 +421,60 @@ async function initializeApplication(): Promise<void> {
     () => state.visible
   )
   const shortcuts = new ShortcutsHelper({
-    getMainWindow: () => state.mainWindow,
-    captureScreenshot: () => capture.capture(),
-    submitSelectedEvidence: () => capture.submitSelectedEvidence(),
-    resetInterview: async () => {
-      await capture.reset()
-    },
-    excludeLastScreenshot: () => capture.excludeLastScreenshot(),
-    isVisible: () => state.visible,
-    toggleMainWindow,
-    moveWindowLeft: () => moveWindowHorizontal(-state.step),
-    moveWindowRight: () => moveWindowHorizontal(state.step),
-    moveWindowUp: () => moveWindowVertical(-state.step),
-    moveWindowDown: () => moveWindowVertical(state.step)
+    invoke: (action: ShortcutAction) => {
+      switch (action) {
+        case "visibility":
+          toggleMainWindow()
+          return
+        case "screenshot":
+          void capture.capture()
+          return
+        case "submit":
+          state.mainWindow?.webContents.send("shell:shortcut", action)
+          return
+        case "reset":
+          void capture.reset()
+          return
+        case "move-left":
+          moveWindowHorizontal(-state.step)
+          return
+        case "move-right":
+          moveWindowHorizontal(state.step)
+          return
+        case "move-up":
+          moveWindowVertical(-state.step)
+          return
+        case "move-down":
+          moveWindowVertical(state.step)
+          return
+        default:
+          if (action === "composer" && !state.visible) {
+            showMainWindow()
+          }
+          state.mainWindow?.webContents.send("shell:shortcut", action)
+      }
+    }
   })
-  shortcuts.registerGlobalShortcuts()
+  const configuredShortcuts =
+    configHelper.loadConfig().shell?.shortcuts ?? DEFAULT_SHORTCUT_BINDINGS
+  shortcuts.registerGlobalShortcuts(configuredShortcuts)
+  const applyShortcutBindings = (bindings: ShortcutBindings) => {
+    const result = shortcuts.applyBindings(bindings)
+    if (result.ok) {
+      const config = configHelper.loadConfig()
+      configHelper.updateConfig({
+        shell: {
+          ...(config.shell ?? {
+            density: "compact",
+            textSize: "standard",
+            geometry: {}
+          }),
+          shortcuts: result.bindings
+        }
+      })
+    }
+    return result
+  }
   initializeIpcHandlers({
     orchestrator,
     setWindowDimensions,
@@ -358,6 +482,11 @@ async function initializeApplication(): Promise<void> {
     captureScreenshot: () => capture.capture(),
     setWindowPointerEvents: (ignore, forward) =>
       state.mainWindow?.setIgnoreMouseEvents(ignore, { forward }),
+    setHudState,
+    getShortcutBindings: () => shortcuts.currentBindings(),
+    updateShortcutBindings: applyShortcutBindings,
+    resetShortcutBindings: () =>
+      applyShortcutBindings(DEFAULT_SHORTCUT_BINDINGS),
     diagnoseProviders: () => providerDiagnostics(executables),
     resetInterview: () => capture.reset(),
     configureProvider: async (
@@ -382,6 +511,9 @@ async function initializeApplication(): Promise<void> {
       state.mainWindow?.webContents.send("settings:show")
   })
   await orchestrator.inspectRecovery()
+  screen.on("display-removed", () => setHudState(currentHudState))
+  screen.on("display-metrics-changed", () => setHudState(currentHudState))
+  app.on("before-quit", persistGeometry)
   initAutoUpdater()
   configHelper.loadConfig()
 }

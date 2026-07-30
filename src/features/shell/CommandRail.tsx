@@ -1,4 +1,4 @@
-import { useRef } from "react"
+import { useRef, type RefObject } from "react"
 import type { InterviewMode, InterviewSession } from "../../shared/interview"
 
 const MODES: readonly { value: InterviewMode; label: string }[] = [
@@ -18,6 +18,8 @@ export interface CommandRailProps {
   readonly onSubmit: () => void
   readonly onHotKeys: () => void
   readonly onReset: () => void
+  readonly onWorkspace: () => void
+  readonly hotKeysButtonRef?: RefObject<HTMLButtonElement>
   readonly contextLabel: string
   readonly canSubmit: boolean
 }
@@ -33,6 +35,8 @@ export function CommandRail({
   onSubmit,
   onHotKeys,
   onReset,
+  onWorkspace,
+  hotKeysButtonRef,
   contextLabel,
   canSubmit
 }: CommandRailProps) {
@@ -80,6 +84,14 @@ export function CommandRail({
               </button>
             ))}
           </div>
+          <button
+            ref={hotKeysButtonRef}
+            type="button"
+            data-interactive
+            onClick={onHotKeys}
+          >
+            HotKeys
+          </button>
           <button className="quiet-primary" type="button" data-interactive onClick={onStart}>
             Start interview
           </button>
@@ -107,11 +119,19 @@ export function CommandRail({
           <span className="quiet-context" aria-label={`Context: ${contextLabel}`}>
             <span aria-hidden="true">●</span> {contextLabel}
           </span>
-          <button type="button" data-interactive onClick={onHotKeys}>
+          <button
+            ref={hotKeysButtonRef}
+            type="button"
+            data-interactive
+            onClick={onHotKeys}
+          >
             HotKeys
           </button>
           <details data-interactive>
             <summary>More</summary>
+            <button type="button" data-interactive onClick={onWorkspace}>
+              Workspace
+            </button>
             <button className="quiet-danger" type="button" data-interactive onClick={onReset}>
               Reset
             </button>

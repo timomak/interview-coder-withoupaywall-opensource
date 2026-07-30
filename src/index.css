@@ -22,6 +22,7 @@
 
 button,
 textarea,
+input,
 summary {
   font: inherit;
 }
@@ -30,6 +31,19 @@ summary {
   min-height: 100vh;
   color: #f4f7fb;
   background: transparent;
+}
+
+.quiet-shell[data-density="comfortable"] .quiet-rail {
+  min-height: 52px;
+  padding: 8px 12px;
+}
+
+.quiet-shell[data-text-size="large"] {
+  font-size: 1.125rem;
+}
+
+.quiet-shell-expanded {
+  min-width: min(760px, 100vw);
 }
 
 .quiet-rail,
@@ -151,6 +165,125 @@ summary {
   margin-top: 8px;
   font-size: 13px;
   line-height: 18px;
+}
+
+.quiet-popover button,
+.quiet-popover input,
+.quiet-input-tray button,
+.quiet-input-tray input,
+.quiet-answer-section button {
+  min-height: 32px;
+}
+
+.quiet-popover-heading {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.quiet-hotkeys {
+  width: min(520px, 100vw);
+  max-height: min(620px, 80vh);
+  overflow: auto;
+}
+
+.quiet-hotkeys label {
+  display: grid;
+  grid-template-columns: minmax(160px, 1fr) minmax(180px, 1fr);
+  gap: 8px;
+  align-items: center;
+  width: 100%;
+}
+
+.quiet-hotkeys input {
+  padding: 6px 8px;
+  color: #f4f7fb;
+  border: 1px solid var(--quiet-border);
+  border-radius: 8px;
+  background: var(--quiet-surface);
+}
+
+.quiet-hotkeys input[aria-invalid="true"] {
+  border-color: var(--quiet-danger);
+}
+
+.quiet-error {
+  color: var(--quiet-danger);
+}
+
+.quiet-input-tray {
+  width: min(520px, 100vw);
+  margin-top: 8px;
+  padding: 8px;
+  border: 1px solid var(--quiet-border);
+  border-radius: 12px;
+  background: var(--quiet-surface);
+}
+
+.quiet-input-tray summary {
+  display: flex;
+  gap: 8px;
+  min-height: 32px;
+  cursor: pointer;
+}
+
+.quiet-input-tray summary span {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--quiet-text-secondary);
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.quiet-artifacts {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-top: 8px;
+}
+
+.quiet-artifact {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 6px;
+  align-items: center;
+  max-width: 280px;
+  padding: 6px 8px;
+  border: 1px solid var(--quiet-border);
+  border-radius: 8px;
+}
+
+.quiet-answer-region {
+  width: min(760px, 100vw);
+  max-height: 70vh;
+  margin-top: 8px;
+  overflow: hidden;
+  border: 1px solid var(--quiet-border);
+  border-radius: 12px;
+  background: var(--quiet-surface-strong);
+}
+
+.quiet-answer-section > button {
+  width: 100%;
+  padding: 8px 12px;
+  color: #f4f7fb;
+  text-align: left;
+  border: 0;
+  border-bottom: 1px solid var(--quiet-border);
+  background: transparent;
+}
+
+.quiet-answer-body {
+  max-height: 52vh;
+  padding: 12px;
+  overflow: auto;
+}
+
+.quiet-answer-body pre {
+  margin: 0;
+  white-space: pre-wrap;
 }
 
 @media (prefers-reduced-motion: reduce) {

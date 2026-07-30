@@ -3,7 +3,8 @@ import path from "node:path"
 import {
   CONFIG_SCHEMA_VERSION,
   SubscriptionConfig,
-  validateSubscriptionConfig
+  validateSubscriptionConfig,
+  withM05aDefaults
 } from "./schema"
 
 export interface MigrationResult {
@@ -88,13 +89,13 @@ export function migrateLegacyConfig(
     throw new Error("Configuration path must be absolute")
   }
   if (!fs.existsSync(configPath)) {
-    const config: SubscriptionConfig = {
+    const config = withM05aDefaults({
       schemaVersion: CONFIG_SCHEMA_VERSION,
       responseMode: "fast",
       language: "python",
       opacity: 1,
       migration: { id: "M-01", completedAt: "fresh-install" }
-    }
+    }, "fresh-install")
     atomicOwnerOnlyWrite(configPath, `${JSON.stringify(config, null, 2)}\n`)
     return { config, migrated: false }
   }
@@ -112,9 +113,31 @@ export function migrateLegacyConfig(
   const raw = fs.readFileSync(configPath, "utf8")
   const parsed = JSON.parse(raw) as Record<string, unknown>
   if (parsed.schemaVersion === CONFIG_SCHEMA_VERSION) {
-    const config = validateSubscriptionConfig(parsed)
+    let current: SubscriptionConfig
+    try {
+      current = validateSubscriptionConfig(parsed)
+    } catch (error) {
+      const message = error instanceof Error ? error.message : ""
+      if (
+        !message.startsWith("Live-shell") &&
+        !message.startsWith("M-05a") &&
+        !message.startsWith("Configuration migration")
+      ) {
+        throw error
+      }
+      current = validateSubscriptionConfig({
+        ...parsed,
+        shell: undefined,
+        migrations: undefined
+      })
+    }
+    const config = withM05aDefaults(current, now().toISOString())
+    const changed = JSON.stringify(config) !== JSON.stringify(current)
+    if (changed) {
+      atomicOwnerOnlyWrite(configPath, `${JSON.stringify(config, null, 2)}\n`)
+    }
     fs.chmodSync(configPath, 0o600)
-    return { config, migrated: false }
+    return { config, migrated: changed }
   }
 
   const backupPath = `${configPath}.m01-redacted-backup`
@@ -146,7 +169,7 @@ export function migrateLegacyConfig(
     fs.chmodSync(backupPath, 0o600)
   }
 
-  const config: SubscriptionConfig = {
+  const config = withM05aDefaults({
     schemaVersion: CONFIG_SCHEMA_VERSION,
     responseMode: "fast",
     language: safeLanguage(parsed.language),
@@ -156,7 +179,7 @@ export function migrateLegacyConfig(
       completedAt: now().toISOString(),
       legacyBackup: path.basename(backupPath)
     }
-  }
+  }, now().toISOString())
   atomicOwnerOnlyWrite(configPath, `${JSON.stringify(config, null, 2)}\n`)
   return { config, migrated: true, backupPath }
 }

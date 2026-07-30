@@ -1,3 +1,6 @@
 export * from "./CommandRail"
 export * from "./CompactComposer"
 export * from "./PointerRegions"
+export * from "./HotKeysPanel"
+export * from "./InputTray"
+export * from "./AnswerSections"

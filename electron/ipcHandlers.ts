@@ -18,6 +18,12 @@ import {
   type ResponseMode
 } from "../src/shared/provider"
 import type { SubscriptionConfig } from "./config"
+import {
+  isShortcutBindings,
+  type ShortcutBindings
+} from "../src/shared/shell"
+import type { ShortcutRegistrationResult } from "./shortcuts"
+import type { HudState } from "../src/shared/shell"
 
 export interface IpcHandlerDependencies {
   readonly orchestrator: InterviewOrchestrator
@@ -36,6 +42,12 @@ export interface IpcHandlerDependencies {
     ignore: boolean,
     forward: boolean
   ) => void
+  readonly getShortcutBindings: () => ShortcutBindings
+  readonly updateShortcutBindings: (
+    bindings: ShortcutBindings
+  ) => ShortcutRegistrationResult
+  readonly resetShortcutBindings: () => ShortcutRegistrationResult
+  readonly setHudState: (state: HudState) => void
 }
 
 export function initializeIpcHandlers(
@@ -130,10 +142,31 @@ export function initializeIpcHandlers(
     dependencies.setWindowPointerEvents(ignore, forward)
     return { success: true }
   })
+  ipcMain.handle("window:set-hud-state", (_event, value: unknown) => {
+    if (
+      value !== "compact-bar" &&
+      value !== "compact-answer" &&
+      value !== "expanded"
+    ) {
+      throw new Error("HUD state is malformed")
+    }
+    dependencies.setHudState(value)
+    return { success: true }
+  })
   ipcMain.handle("capture:screenshot", async () => {
     await dependencies.captureScreenshot()
     return { success: true }
   })
+  ipcMain.handle("shortcuts:get", () => dependencies.getShortcutBindings())
+  ipcMain.handle("shortcuts:update", (_event, value: unknown) => {
+    if (!isShortcutBindings(value)) {
+      throw new Error("Shortcut bindings are malformed")
+    }
+    return dependencies.updateShortcutBindings(value)
+  })
+  ipcMain.handle("shortcuts:reset", () =>
+    dependencies.resetShortcutBindings()
+  )
   ipcMain.handle("settings:show", () => {
     dependencies.showSettings()
     return { success: true }

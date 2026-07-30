@@ -38,6 +38,7 @@ function props(overrides: Partial<CommandRailProps> = {}): CommandRailProps {
     onSubmit: vi.fn(),
     onHotKeys: vi.fn(),
     onReset: vi.fn(),
+    onWorkspace: vi.fn(),
     contextLabel: "Full context",
     canSubmit: true,
     ...overrides
@@ -49,6 +50,7 @@ describe("CommandRail", () => {
     const { rerender } = render(<CommandRail {...props()} />)
     expect(screen.getAllByRole("radio")).toHaveLength(3)
     expect(screen.getByRole("button", { name: "Start interview" })).toBeVisible()
+    expect(screen.getByRole("button", { name: "HotKeys" })).toBeVisible()
 
     rerender(<CommandRail {...props({ session: activeSession() })} />)
     for (const name of [
@@ -61,6 +63,7 @@ describe("CommandRail", () => {
       expect(screen.getByRole("button", { name })).toBeVisible()
     }
     fireEvent.click(screen.getByText("More"))
+    expect(screen.getByRole("button", { name: "Workspace" })).toBeVisible()
     expect(screen.getByRole("button", { name: "Reset" })).toBeVisible()
     expect(screen.getByLabelText("Context: Full context")).toBeVisible()
   })

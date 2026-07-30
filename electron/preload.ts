@@ -20,6 +20,12 @@ import {
   PROVIDER_DIAGNOSTICS_CHANNEL
 } from "../src/shared/provider"
 import type {
+  ShortcutAction,
+  ShortcutBindings,
+  HudState
+} from "../src/shared/shell"
+import type { ShortcutRegistrationResult } from "./shortcuts"
+import type {
   ProviderDiagnostics,
   ProviderId,
   ResponseMode
@@ -62,7 +68,23 @@ const electronAPI = {
     ipcRenderer.invoke("window:update-content-dimensions", dimensions),
   setWindowPointerEvents: (ignore: boolean, forward: boolean) =>
     ipcRenderer.invoke("window:set-pointer-events", { ignore, forward }),
+  setHudState: (state: HudState) =>
+    ipcRenderer.invoke("window:set-hud-state", state),
   captureScreenshot: () => ipcRenderer.invoke("capture:screenshot"),
+  getShortcutBindings: (): Promise<ShortcutBindings> =>
+    ipcRenderer.invoke("shortcuts:get"),
+  updateShortcutBindings: (
+    bindings: ShortcutBindings
+  ): Promise<ShortcutRegistrationResult> =>
+    ipcRenderer.invoke("shortcuts:update", bindings),
+  resetShortcutBindings: (): Promise<ShortcutRegistrationResult> =>
+    ipcRenderer.invoke("shortcuts:reset"),
+  onShellShortcut: (callback: (action: ShortcutAction) => void) => {
+    const listener = (_event: IpcRendererEvent, action: ShortcutAction) =>
+      callback(action)
+    ipcRenderer.on("shell:shortcut", listener)
+    return () => ipcRenderer.removeListener("shell:shortcut", listener)
+  },
   toggleMainWindow: () => ipcRenderer.invoke("window:toggle"),
   getPlatform: () => process.platform,
   startUpdate: () => ipcRenderer.invoke("start-update"),

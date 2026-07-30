@@ -55,16 +55,20 @@ const SUITES = {
   ],
   p05: [
     "electron/window/windowVisibility.test.ts",
+    "electron/window/captureProtection.integration.test.ts",
     "electron/window/displayGeometry.test.ts",
+    "electron/config/shellPreferencesMigration.test.ts",
     "electron/shortcuts/shortcutRegistry.test.ts",
     "electron/capture/primaryDisplayCapture.test.ts",
     "src/features/shell/CommandRail.test.tsx",
     "src/features/shell/CompactComposer.test.tsx",
     "src/features/shell/pointerRegions.test.tsx",
-    "src/features/shell/accessibility.test.tsx"
+    "src/features/shell/accessibility.test.tsx",
+    "src/features/shell/navigationShortcuts.test.tsx"
   ],
   "electron-shell": [
     "electron/window/windowVisibility.test.ts",
+    "electron/window/captureProtection.integration.test.ts",
     "electron/window/displayGeometry.test.ts",
     "electron/shortcuts/shortcutRegistry.test.ts",
     "electron/capture/primaryDisplayCapture.test.ts"
