@@ -6,10 +6,11 @@
   "gateId": "IC-M00-G-DEV",
   "createdAt": "2026-07-30T14:44:59+02:00",
   "controllerThreadId": "019f9ff6-e24b-7053-a2b3-fe01f8538ab4",
-  "status": "FROZEN_CHECKING",
+  "status": "SATISFIED",
   "candidate": {
     "repository": "/Users/thirdfacedev/.codex/worktrees/ic-m00-remediation/TimoCodes",
-    "revision": "2e5045116db6e3c5f6e6cc18b70df6d7fa021baf",
+    "revision": "a8cdcbdeb49a897946dd520981d59d9a1a3813b6",
+    "reviewedParentRevision": "2e5045116db6e3c5f6e6cc18b70df6d7fa021baf",
     "baseRevision": "9dcb4b2d39607273a8528a24657cdb4f5bfc3412",
     "worktreeState": "CLEAN_EXACT",
     "pullRequest": 155,
@@ -23,7 +24,18 @@
     "sourceField": "preparedTransaction.candidateReview",
     "disposition": "APPROVE_2e5045116db6e3c5f6e6cc18b70df6d7fa021baf",
     "reusableBecause": "Candidate, full diff, base, and frozen P01 requirements are unchanged; release-assurance capability and evidence are deliberately excluded from development admission.",
-    "newGeneralReviewProhibited": true
+    "newGeneralReviewProhibited": true,
+    "deltaClosureReview": {
+      "reviewedRevision": "a8cdcbdeb49a897946dd520981d59d9a1a3813b6",
+      "reviewedParentRevision": "2e5045116db6e3c5f6e6cc18b70df6d7fa021baf",
+      "reviewer": "/root/a04_recovery01_closure_review",
+      "disposition": "APPROVE",
+      "findingSet": [
+        "authenticated count comparison is exact and independent of JSON object key insertion order",
+        "manifest hashes match only the two affected test files"
+      ],
+      "scopeResult": "THREE_FILES_ONLY_NO_ACCEPTANCE_WEAKENING_OR_SCOPE_EXPANSION"
+    }
   },
   "targetedChecks": [
     {
@@ -100,6 +112,49 @@
     "CodeQL remains SUCCESS at the exact head",
     "no privileged helper, sudo, password prompt, integration, release, or deployment occurs"
   ],
+  "admissionRemediation": {
+    "initialRevision": "2e5045116db6e3c5f6e6cc18b70df6d7fa021baf",
+    "finalRevision": "a8cdcbdeb49a897946dd520981d59d9a1a3813b6",
+    "scope": [
+      "replace insertion-order-sensitive count serialization comparison with an exact required-key and strict-value comparison",
+      "add reordered authenticated-count regression coverage",
+      "refresh only affected immutable test-manifest hashes"
+    ],
+    "changedFiles": [
+      "scripts/verification/test-manifest.mjs",
+      "scripts/verification/test-manifest.json",
+      "tests/policy/testManifest.test.ts"
+    ]
+  },
+  "executionEvidence": {
+    "revision": "a8cdcbdeb49a897946dd520981d59d9a1a3813b6",
+    "repositoryChecks": {
+      "policy": "PASS_EXIT_0",
+      "lint": "PASS_EXIT_0_80_EXECUTABLE_17_TEST_FILES",
+      "typecheck": "PASS_EXIT_0_80_EXECUTABLE",
+      "unit": "PASS_EXIT_0_17_FILES_35_PASS_0_FAIL_0_SKIP",
+      "p01": "PASS_EXIT_0_8_FILES_26_PASS_0_FAIL_0_SKIP",
+      "manifest": "PASS_35_NAMED_TESTS_ALL_EXECUTED_AND_PASSED",
+      "build": "PASS_EXIT_0_FRESH_PACKAGE_INVENTORY_10178_ASAR_107_OUTER"
+    },
+    "authenticatedManifest": {
+      "protocol": "vitest-controller-challenge-v1_AND_vitest-coordinator-result-v4",
+      "validatedLedgerSha256": "bebc5c702550f344ca73cb9cd49df6bc2fed2b664ba5ad0e03fcf24510627871",
+      "counts": {
+        "passed": 35,
+        "failed": 0,
+        "skipped": 0
+      }
+    },
+    "pullRequest": {
+      "number": 155,
+      "headRevision": "a8cdcbdeb49a897946dd520981d59d9a1a3813b6",
+      "state": "OPEN_DRAFT",
+      "mergeable": true,
+      "codeql": "SUCCESS"
+    },
+    "prohibitedActionsObserved": "NONE"
+  },
   "historicalEvidencePolicy": {
     "historicalRunTrees": "IMMUTABLE_EVIDENCE_ONLY",
     "activeAdmissionDependency": "NONE",
@@ -121,5 +176,6 @@
     "privilegedInvocationAuthorized": false
   },
   "failureEffect": "IC-M01 remains locked; preserve exact diagnostics and do not weaken checks or substitute release assurance.",
-  "continuation": "AUTO_TO_IC_M01_ON_PASS"
+  "satisfiedAt": "2026-07-30T15:00:34+02:00",
+  "continuation": "AUTO_TO_IC_M01"
 }

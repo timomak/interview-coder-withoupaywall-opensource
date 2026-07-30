@@ -55,18 +55,18 @@
     "baseBranch": "main",
     "baseRevision": "9dcb4b2d39607273a8528a24657cdb4f5bfc3412",
     "candidateWorktree": "ABSENT",
-    "candidateRevision": "2e5045116db6e3c5f6e6cc18b70df6d7fa021baf",
-    "candidateParent": "1ff0881b9bd59f243146c93b6709be57d58ee17a",
+    "candidateRevision": "a8cdcbdeb49a897946dd520981d59d9a1a3813b6",
+    "candidateParent": "2e5045116db6e3c5f6e6cc18b70df6d7fa021baf",
     "candidateWorktreeClean": null,
     "remediationWorktree": "/Users/thirdfacedev/.codex/worktrees/ic-m00-remediation/TimoCodes",
-    "remediationWorktreeRevision": "2e5045116db6e3c5f6e6cc18b70df6d7fa021baf",
+    "remediationWorktreeRevision": "a8cdcbdeb49a897946dd520981d59d9a1a3813b6",
     "remediationWorktreeClean": true,
     "pullRequest": {
       "number": 155,
       "url": "https://github.com/j4wg/interview-coder-withoupaywall-opensource/pull/155",
       "state": "OPEN",
       "draft": true,
-      "headRevision": "2e5045116db6e3c5f6e6cc18b70df6d7fa021baf",
+      "headRevision": "a8cdcbdeb49a897946dd520981d59d9a1a3813b6",
       "baseRevision": "9dcb4b2d39607273a8528a24657cdb4f5bfc3412",
       "mergeable": true,
       "codeql": "SUCCESS"
@@ -201,7 +201,7 @@
     "currentMilestone": {
         "id": "IC-M00",
         "title": "Trusted local policy rails",
-        "status": "IMPLEMENTING",
+        "status": "DEVELOPMENT_ADMITTED_RELEASE_ASSURANCE_PENDING",
         "historicalReplan": {
             "id": "IC-M00-RP01",
             "path": "v3/interviewcopilot/milestone-IC-M00-replan-1.json",
@@ -231,13 +231,13 @@
         "gateSplit": {
             "developmentAdmission": {
                 "id": "IC-M00-G-DEV",
-                "status": "CHECKING",
+                "status": "SATISFIED",
                 "privileged": false,
-                "candidateRevision": "2e5045116db6e3c5f6e6cc18b70df6d7fa021baf",
+                "candidateRevision": "a8cdcbdeb49a897946dd520981d59d9a1a3813b6",
                 "packet": "v3/interviewcopilot/development-admission-IC-M00-1.json",
-                "packetSha256": "fcd1814febc75de6b86fcd2d457735a515817108f326a6f42ac1cfe8f89330b9",
-                "completeFindingBatch": "REUSED_APPROVE_EXACT_2E504511_NO_DUPLICATE_GENERAL_REVIEW",
-                "targetedRepositoryChecks": "PENDING",
+                "packetSha256": "d11b7297df1f9cfacb233428fc1b0f83e05c711b54a6a946a1b6c0e852ab2efb",
+                "completeFindingBatch": "REUSED_APPROVE_EXACT_2E504511_PLUS_APPROVED_EXACT_THREE_FILE_DELTA_A8CDC",
+                "targetedRepositoryChecks": "PASS_POLICY_LINT_TYPECHECK_UNIT_35_P01_26_AUTHENTICATED_MANIFEST_35_BUILD",
                 "protectedCiMechanicalGuard": "CODEQL_SUCCESS_PR_HEAD_EXACT",
                 "unlocks": [
                     "IC-M01"
@@ -266,7 +266,7 @@
       "IC-RISK-PRIVILEGE"
     ],
     "baseRevision": "9dcb4b2d39607273a8528a24657cdb4f5bfc3412",
-    "candidateRevision": "2e5045116db6e3c5f6e6cc18b70df6d7fa021baf",
+    "candidateRevision": "a8cdcbdeb49a897946dd520981d59d9a1a3813b6",
     "mutableTargets": [
       "release-verification-capability",
       "P01-development-admission",
@@ -325,7 +325,8 @@
         "A04-RECOVERY-01 exact approval at 774595fdf33d1024f06a980521f64cdb95095996",
         "A04 recovery validation: 16/16 and 3/3 reproducible",
         "Installed A02 and quarantined v1 exact manifests remain reusable historical evidence",
-        "PR 155 CodeQL success at exact head 2e5045116db6e3c5f6e6cc18b70df6d7fa021baf"
+        "PR 155 CodeQL success at exact head a8cdcbdeb49a897946dd520981d59d9a1a3813b6",
+        "IC-M00-G-DEV authenticated manifest ledger bebc5c702550f344ca73cb9cd49df6bc2fed2b664ba5ad0e03fcf24510627871"
       ],
       "developmentAdmission": "Run one non-privileged complete finding batch and the targeted P01 repository-native checks at the exact candidate, then mechanically reconcile PR head/base and protected CI.",
       "releaseAssurance": "At the later final boundary, run approved A04 once or use one clean ephemeral non-privileged macOS route; do not duplicate authoritative runs.",
@@ -449,6 +450,21 @@
       }
     }
   },
+  "readyMilestones": [
+    {
+      "id": "IC-M01",
+      "status": "READY_FOR_FREEZE",
+      "entryGate": "IC-M00-G-DEV",
+      "entryGateEvidence": "v3/interviewcopilot/development-admission-IC-M00-1.json",
+      "entryGateEvidenceSha256": "d11b7297df1f9cfacb233428fc1b0f83e05c711b54a6a946a1b6c0e852ab2efb",
+      "requirementIds": [
+        "P02",
+        "P03",
+        "P04"
+      ],
+      "privileged": false
+    }
+  ],
   "metrics": {
     "projectKey": "InterviewCopilot",
     "milestoneId": "IC-M00",
@@ -468,14 +484,14 @@
     "requirementsCompleted": [],
     "workPackageCount": 1,
     "maximumConcurrentWriters": 0,
-    "candidateRevisionCount": 2,
+    "candidateRevisionCount": 3,
     "authoritativeFullSuiteCount": 1,
-    "reviewAttemptCount": 4,
+    "reviewAttemptCount": 5,
     "acceptedBlockerCount": 4,
     "postIntegrationDefects": 0,
     "ownershipConflicts": 1,
     "historicalResult": "BLOCKED_TERMINAL_RECOVERY_03_NEW_LIVE_STATE_INCOMPATIBILITY_REPLAN_REQUIRED",
-    "result": "THROUGHPUT_REPLAN_IC_M00_G_DEV_PENDING"
+    "result": "IC_M00_G_DEV_SATISFIED_IC_M01_READY_P01_PARTIAL_RELEASE_ASSURANCE_PENDING"
   },
   "historicalReplan": {
     "id": "IC-M00-RP01",
@@ -491,5 +507,5 @@
     "privilegedBoundaryCrossed": false,
     "candidateInvoked": false
   },
-  "nextSafeAction": "Freeze and execute only non-privileged development-admission gate IC-M00-G-DEV at exact candidate 2e5045116db6e3c5f6e6cc18b70df6d7fa021baf. After it passes, mark IC-M01 READY and start its dependency-ready product work automatically. Do not activate A04, invoke privilege, integrate PR 155, or mark P01 SATISFIED."
+  "nextSafeAction": "Freeze IC-M01 against exact P00-R9 P02/P03/P04 requirements, dependency and mutable-target safety, targeted checks, one complete exact-candidate suite, one HIGH-risk review batch, and rollback; then start its dependency-ready non-privileged product work automatically. Keep A04 release assurance pending and do not invoke privilege, integrate PR 155, deploy, or mark P01 SATISFIED."
 }
