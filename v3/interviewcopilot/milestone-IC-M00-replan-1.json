@@ -6,7 +6,7 @@
   "replanId": "IC-M00-RP01",
   "createdAt": "2026-07-30T11:10:00+02:00",
   "controllerThreadId": "019f9ff6-e24b-7053-a2b3-fe01f8538ab4",
-  "status": "READY_FOR_G1_DELTA_FREEZE",
+  "status": "BLOCKED_G1_DELTA_REJECTED_DO_NOT_ACTIVATE",
   "authority": {
     "source": "Continue the existing v3 controller at durable revision dd48cb269582e257d5972e466c20bcca44749544 and perform the next safe IC-M00 milestone-level replan.",
     "safeNonPrivilegedDesignBuildTestReviewAuthorized": true,
@@ -321,7 +321,7 @@
     "The exact candidate targeted P01 hostile-probe, policy, lint, typecheck, build, unit, and reporter contracts remain green without invoking the installed capability."
   ],
   "implementationEvidence": {
-    "status": "READY_FOR_G1_DELTA",
+    "status": "PREACTIVATION_REVIEW_REJECTED_DO_NOT_INVOKE",
     "artifactId": "P00-V2-CAP-A04",
     "candidateRevision": "2e5045116db6e3c5f6e6cc18b70df6d7fa021baf",
     "candidateInvoked": false,
@@ -365,8 +365,27 @@
     ],
     "correctionCount": 1,
     "correctionBudgetRemaining": 0,
-    "deltaReviewRequired": true,
-    "deltaReviewScope": "Closure of G1-B01 through G1-B03 and regressions only against one immutable remediation revision."
+    "deltaReviewRequired": false,
+    "deltaReviewScope": "Closure of G1-B01 through G1-B03 and regressions only against one immutable remediation revision.",
+    "deltaReview": {
+      "reviewedArtifactRevision": "c56f78ae050331a2cd3a999260aa7c887e0f2f1e",
+      "reviewer": "/root/p00_v2_cap_a01_high_review",
+      "disposition": "REQUEST_CHANGES",
+      "findingDispositions": {
+        "IC-M00-RP01-G1-B01": "CLOSED",
+        "IC-M00-RP01-G1-B02": "MATERIAL_UNCHANGED_OPEN",
+        "IC-M00-RP01-G1-B03": "CLOSED"
+      },
+      "exactBlocker": "tools/receipt.py and tools/journal.py verify member UID, mode, link count, ACL, and extended attributes but omit the frozen root:wheel member group check. Their creation paths do not explicitly establish and reopen-verify the requested member group. The negative suite has no wrong-group receipt or journal replay case.",
+      "requiredTechnicalClosure": [
+        "enforce st_gid equality for terminal receipt and journal members",
+        "explicitly establish the requested group during publication",
+        "reopen and validate the published member group",
+        "add wrong-group negative receipt replay and journal replay cases"
+      ],
+      "regression": "No regression found in UID501 exact empty-argument authorization, P01-only fresh namespace, source/stage/payload/installed byte validation, authorization-first revocation, or legacy namespace nonmutation."
+    },
+    "terminalDisposition": "CORRECTION_BUDGET_EXHAUSTED_PREACTIVATION_HANDOFF_QUARANTINED"
   },
   "reviewGates": [
     {
@@ -452,5 +471,5 @@
     }
   },
   "continuation": "AUTO",
-  "nextSafeAction": "Freeze and push the exact remediated P00-V2-CAP-A04 revision, then obtain one bounded IC-M00-RP01-G1 delta review over G1-B01 through G1-B03 closure and regressions only. Do not cross privilege or invoke the candidate."
+  "nextSafeAction": "Do not activate or invoke P00-V2-CAP-A04. The canonical one-correction G1 budget is exhausted with G1-B02 materially unchanged. Preserve c56f78ae050331a2cd3a999260aa7c887e0f2f1e as rejected immutable evidence; any further capability outcome requires a new explicitly governed milestone admission decision rather than another hidden remediation or administrator retry."
 }

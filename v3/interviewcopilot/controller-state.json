@@ -133,11 +133,20 @@
             "payloadArchiveSha256": "072cbd210f83fcfe66a42ebd44d88059bb14d18b7140da3a493e9a21f4d2dcd9",
             "validation": "14_PASS_0_FAIL_REPRODUCIBLE_3_OF_3",
             "initialIndependentReview": "REQUEST_CHANGES_COMPLETE_BATCH_G1_B01_B02_B03",
-            "remediation": "ONE_CONSOLIDATED_CORRECTION_READY_FOR_EXACT_DELTA_REVIEW",
+            "remediation": "ONE_CONSOLIDATED_CORRECTION_AND_EXACT_DELTA_REVIEW_COMPLETED",
+            "deltaReview": {
+                "reviewedRevision": "c56f78ae050331a2cd3a999260aa7c887e0f2f1e",
+                "disposition": "REQUEST_CHANGES",
+                "g1B01": "CLOSED",
+                "g1B02": "MATERIAL_UNCHANGED_OPEN_RECEIPT_AND_JOURNAL_MEMBER_GROUP_NOT_ENFORCED",
+                "g1B03": "CLOSED",
+                "correctionBudgetRemaining": 0
+            },
             "installed": false,
             "authorization": "ABSENT",
             "candidateInvoked": false,
-            "status": "READY_FOR_G1_DELTA_FREEZE"
+            "handoff": "QUARANTINED_DO_NOT_INVOKE",
+            "status": "PREACTIVATION_REVIEW_REJECTED_TERMINAL_IN_REPLAN"
         },
         "v1": {
       "installedRoot": "/Users/Shared/InterviewCopilot/verification-controller/v1",
@@ -153,16 +162,29 @@
     "currentMilestone": {
         "id": "IC-M00",
         "title": "Trusted local policy rails",
-        "status": "REVIEWING",
+        "status": "BLOCKED",
         "activeReplan": {
             "id": "IC-M00-RP01",
             "path": "v3/interviewcopilot/milestone-IC-M00-replan-1.json",
-            "packetSha256": "bc5a25025faab8d2c5adbd2ad582378a6adb51318294397dc0614c42dbcc919b",
-            "status": "READY_FOR_G1_DELTA_FREEZE",
+            "packetSha256": "1d40a2503d223864b94ad1d4b544ab956aa399da20837a12a479b76de04d56e1",
+            "status": "BLOCKED_G1_DELTA_REJECTED_DO_NOT_ACTIVATE",
             "artifactId": "P00-V2-CAP-A04",
             "candidateRevision": "2e5045116db6e3c5f6e6cc18b70df6d7fa021baf",
             "privilegedBoundaryCrossed": false,
-            "candidateInvoked": false
+            "candidateInvoked": false,
+            "reviewedArtifactRevision": "c56f78ae050331a2cd3a999260aa7c887e0f2f1e",
+            "openFinding": "IC-M00-RP01-G1-B02",
+            "correctionBudgetRemaining": 0
+        },
+        "blocker": {
+            "kind": "PREACTIVATION_HIGH_RISK_REVIEW_REJECTED",
+            "findingId": "IC-M00-RP01-G1-B02",
+            "reviewedRevision": "c56f78ae050331a2cd3a999260aa7c887e0f2f1e",
+            "cause": "The terminal receipt and durable journal member validators do not enforce their frozen root:wheel group contract, and wrong-group replay is untested.",
+            "privilegedBoundaryCrossed": false,
+            "candidateInvoked": false,
+            "administratorInteractionRequired": false,
+            "retryProhibitedWithinReplan": true
         },
         "frozenAt": "2026-07-29T09:10:11+02:00",
     "ownedRequirementIds": [
