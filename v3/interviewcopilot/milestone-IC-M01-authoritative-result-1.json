@@ -107,5 +107,15 @@
     "mergePerformed": false,
     "deploymentPerformed": false
   },
-  "nextSafeAction": "Publish the exact IC-M01 branch as a separate draft pull request, reconcile hosted checks, and stop before protected integration unless merge authority is explicit. IC-M02 discovery may proceed from this accepted implementation candidate without altering PR 155."
+  "pullRequest": {
+    "repository": "timomak/interview-coder-withoupaywall-opensource",
+    "number": 1,
+    "url": "https://github.com/timomak/interview-coder-withoupaywall-opensource/pull/1",
+    "state": "OPEN_DRAFT",
+    "base": "phase/P01-local-gates",
+    "head": "codex/ic-m01-runtime-storage-session",
+    "headRevision": "703a37e47b4a398ed90e1c5cf4be9c5859dc0849",
+    "stackedOnUpstreamPr": 155
+  },
+  "nextSafeAction": "Reconcile hosted checks for draft PR 1 and begin dependency-safe IC-M02 discovery without altering PR 155. Stop before protected integration unless merge authority is explicit."
 }

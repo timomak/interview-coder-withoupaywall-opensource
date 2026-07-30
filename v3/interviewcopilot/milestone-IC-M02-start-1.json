@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 1,
+  "projectKey": "InterviewCopilot",
+  "milestoneId": "IC-M02",
+  "status": "IMPLEMENTING",
+  "startedAt": "2026-07-30T20:22:00Z",
+  "source": {
+    "p00Revision": "02ee6ddec78d6e4ea9e2de3c0303ffd6bc9f45bf",
+    "designSha256": "31819873972e1bc02650a1d6bfab1c7f8c687647a19731aa3881e0d71f7fe64a",
+    "phaseExecutionPacketSha256": "da307d1d8bab4d4114a5c93eef3a43f8674d4814ef485108e40e05a5ff8e3671"
+  },
+  "dependency": {
+    "milestone": "IC-M01",
+    "candidateRevision": "703a37e47b4a398ed90e1c5cf4be9c5859dc0849",
+    "authoritativeStatus": "PASS_AWAITING_PROTECTED_INTEGRATION",
+    "stacking": "IC-M02 remains stacked on the exact accepted IC-M01 candidate and cannot integrate before IC-M01."
+  },
+  "requirements": [
+    "P05",
+    "P06",
+    "P07",
+    "P08"
+  ],
+  "branch": {
+    "name": "codex/ic-m02-live-modes",
+    "worktree": "/Users/thirdfacedev/.codex/worktrees/ic-m02/TimoCodes",
+    "baseRevision": "703a37e47b4a398ed90e1c5cf4be9c5859dc0849",
+    "currentRevision": "14b395ad6e6235f9e9a081ded9964ff8b6fb80af",
+    "remote": "fork/codex/ic-m02-live-modes"
+  },
+  "pullRequest": {
+    "repository": "timomak/interview-coder-withoupaywall-opensource",
+    "number": 2,
+    "url": "https://github.com/timomak/interview-coder-withoupaywall-opensource/pull/2",
+    "state": "OPEN_DRAFT",
+    "base": "codex/ic-m01-runtime-storage-session",
+    "head": "codex/ic-m02-live-modes"
+  },
+  "firstProductIncrement": {
+    "revision": "14b395ad6e6235f9e9a081ded9964ff8b6fb80af",
+    "outcome": "Normal launch is fully hidden, screenshot capture restores the exact prior visibility state, and implemented global actions use the final deliberate Control+Shift shortcut map.",
+    "verification": {
+      "focused": "8_PASS_0_FAIL_0_SKIP",
+      "typecheck": "PASS_156_EXECUTABLE_FILES",
+      "lint": "PASS_156_EXECUTABLE_52_TEST_FILES",
+      "unit": "86_PASS_1_FAIL_0_SKIP_PROVIDER_PROCESS_TIMING_ASSERTION",
+      "isolatedProviderProcessRetry": "1_PASS_0_FAIL_0_SKIP",
+      "classification": "UNRELATED_EXISTING_TIMING_FLAKE_NOT_ACCEPTED_AS_MILESTONE_EVIDENCE"
+    }
+  },
+  "nextProductActions": [
+    "Complete the P05 command rail and compact composer.",
+    "Implement explicit pointer/drag regions and display geometry.",
+    "Constrain primary-display capture and complete P05 acceptance tests.",
+    "Then add the P06-P08 mode surfaces against the same accepted session/storage boundaries."
+  ],
+  "boundaries": {
+    "P01Pr155Mutated": false,
+    "privilegedCapabilityInvoked": false,
+    "mergePerformed": false,
+    "deploymentPerformed": false
+  }
+}

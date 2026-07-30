@@ -476,6 +476,16 @@
     "baseRevision": "a8cdcbdeb49a897946dd520981d59d9a1a3813b6",
     "candidateBranch": "codex/ic-m01-runtime-storage-session",
     "candidateWorktree": "/Users/thirdfacedev/.codex/worktrees/ic-m01/TimoCodes",
+    "pullRequest": {
+      "repository": "timomak/interview-coder-withoupaywall-opensource",
+      "number": 1,
+      "url": "https://github.com/timomak/interview-coder-withoupaywall-opensource/pull/1",
+      "state": "OPEN_DRAFT",
+      "base": "phase/P01-local-gates",
+      "head": "codex/ic-m01-runtime-storage-session",
+      "headRevision": "703a37e47b4a398ed90e1c5cf4be9c5859dc0849",
+      "stackedOnUpstreamPr": 155
+    },
     "activeWriters": [],
     "completedHandoffs": [
       {
@@ -736,7 +746,7 @@
     },
     "authoritativeResult": {
       "path": "v3/interviewcopilot/milestone-IC-M01-authoritative-result-1.json",
-      "sha256": "7c78a7bc081fab4f25c81c21546bdbdf4c5470618b6602b35844dca18c635f88",
+      "sha256": "3fcb80537aad568b84eb55233c5a73f6adce7fab9a0fe2c8837e795e05d4d507",
       "candidateRevision": "703a37e47b4a398ed90e1c5cf4be9c5859dc0849",
       "candidateTree": "98805994718bb1b1fd35d71496d1bbaa255c828f",
       "invalidatedAttempt": "IC-M01-AUTH-01",
@@ -749,6 +759,31 @@
         "P04"
       ]
     }
+  },
+  "downstreamProductMilestone": {
+    "id": "IC-M02",
+    "status": "IMPLEMENTING_STACKED_ON_ACCEPTED_IC_M01",
+    "startPacket": "v3/interviewcopilot/milestone-IC-M02-start-1.json",
+    "startPacketSha256": "488d2e280d33ae9431531a0fc4f8235d24c4e206bff45f06139d83e3a5678f96",
+    "branch": "codex/ic-m02-live-modes",
+    "worktree": "/Users/thirdfacedev/.codex/worktrees/ic-m02/TimoCodes",
+    "baseRevision": "703a37e47b4a398ed90e1c5cf4be9c5859dc0849",
+    "currentRevision": "14b395ad6e6235f9e9a081ded9964ff8b6fb80af",
+    "pullRequest": {
+      "repository": "timomak/interview-coder-withoupaywall-opensource",
+      "number": 2,
+      "url": "https://github.com/timomak/interview-coder-withoupaywall-opensource/pull/2",
+      "state": "OPEN_DRAFT",
+      "base": "codex/ic-m01-runtime-storage-session",
+      "head": "codex/ic-m02-live-modes"
+    },
+    "requirementIds": [
+      "P05",
+      "P06",
+      "P07",
+      "P08"
+    ],
+    "firstIncrement": "HIDDEN_LAUNCH_EXACT_CAPTURE_VISIBILITY_RESTORE_AND_FINAL_SAFE_SHORTCUT_CHORDS"
   },
   "metrics": {
     "projectKey": "InterviewCopilot",
@@ -796,5 +831,5 @@
     "privilegedBoundaryCrossed": false,
     "candidateInvoked": false
   },
-  "nextSafeAction": "Publish exact IC-M01 candidate 703a37e47b4a398ed90e1c5cf4be9c5859dc0849 as a separate draft pull request, reconcile hosted checks, and begin dependency-safe IC-M02 discovery without A04, privilege, PR 155 mutation, merge, or deployment."
+  "nextSafeAction": "Continue IC-M02 P05 product implementation on draft PR 2: command rail, compact composer, explicit pointer regions, display geometry, and primary-display capture. Keep IC-M01 draft PR 1 and upstream PR 155 unmerged and unchanged."
 }
