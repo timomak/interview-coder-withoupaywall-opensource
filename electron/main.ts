@@ -108,8 +108,7 @@ function createWindow(): void {
   )
   state.mainWindow = mainWindow
   mainWindow.once("ready-to-show", () => {
-    showMainWindowInactive(mainWindow)
-    state.visible = true
+    state.visible = false
   })
   mainWindow.on("closed", () => {
     state.mainWindow = null
@@ -320,7 +319,9 @@ async function initializeApplication(): Promise<void> {
     orchestrator,
     screenshots,
     hideMainWindow,
-    showMainWindow
+    showMainWindow,
+    undefined,
+    () => state.visible
   )
   const shortcuts = new ShortcutsHelper({
     getMainWindow: () => state.mainWindow,

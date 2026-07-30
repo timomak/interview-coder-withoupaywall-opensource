@@ -33,20 +33,35 @@ export class ShortcutsHelper {
   }
 
   registerGlobalShortcuts(): void {
-    globalShortcut.register("CommandOrControl+H", () => {
+    globalShortcut.register("CommandOrControl+Shift+S", () => {
       void this.deps.captureScreenshot()
     })
-    globalShortcut.register("CommandOrControl+Enter", () => {
+    globalShortcut.register("CommandOrControl+Shift+Enter", () => {
       void this.deps.submitSelectedEvidence()
     })
-    globalShortcut.register("CommandOrControl+R", () => {
+    globalShortcut.register("CommandOrControl+Shift+Backspace", () => {
       void this.deps.resetInterview()
     })
-    globalShortcut.register("CommandOrControl+Left", this.deps.moveWindowLeft)
-    globalShortcut.register("CommandOrControl+Right", this.deps.moveWindowRight)
-    globalShortcut.register("CommandOrControl+Down", this.deps.moveWindowDown)
-    globalShortcut.register("CommandOrControl+Up", this.deps.moveWindowUp)
-    globalShortcut.register("CommandOrControl+B", this.deps.toggleMainWindow)
+    globalShortcut.register(
+      "CommandOrControl+Shift+Left",
+      this.deps.moveWindowLeft
+    )
+    globalShortcut.register(
+      "CommandOrControl+Shift+Right",
+      this.deps.moveWindowRight
+    )
+    globalShortcut.register(
+      "CommandOrControl+Shift+Down",
+      this.deps.moveWindowDown
+    )
+    globalShortcut.register(
+      "CommandOrControl+Shift+Up",
+      this.deps.moveWindowUp
+    )
+    globalShortcut.register(
+      "CommandOrControl+Shift+H",
+      this.deps.toggleMainWindow
+    )
     globalShortcut.register("CommandOrControl+Q", () => app.quit())
     globalShortcut.register("CommandOrControl+[", () =>
       this.adjustOpacity(-0.1)

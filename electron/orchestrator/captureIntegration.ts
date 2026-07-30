@@ -19,13 +19,15 @@ export class InterviewCaptureController {
     private readonly screenshots: ScreenshotQueue,
     private readonly hideMainWindow: () => void,
     private readonly showMainWindow: () => void,
-    private readonly now: () => string = () => new Date().toISOString()
+    private readonly now: () => string = () => new Date().toISOString(),
+    private readonly isMainWindowVisible: () => boolean = () => true
   ) {}
 
   async capture(): Promise<void> {
+    const restoreVisibility = this.isMainWindowVisible()
     const screenshotId = await this.screenshots.takeScreenshot(
       this.hideMainWindow,
-      this.showMainWindow
+      restoreVisibility ? this.showMainWindow : () => undefined
     )
     const content = await this.screenshots.getImagePreview(screenshotId)
     if (content.length === 0) {

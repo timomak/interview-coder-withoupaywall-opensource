@@ -425,6 +425,16 @@
       "path": "electron/orchestrator/correctionRevision.test.ts",
       "name": "applies correction-scoped revision without collateral changes",
       "sha256": "815984aa681408252263a61fa48e096d707978aa0ac13e9a7ebb316949ba5897"
+    },
+    {
+      "path": "electron/window/windowVisibility.test.ts",
+      "name": "launches hidden and restores exact HUD state",
+      "sha256": "e4309d5389fff141fff796d8d689dbab6b61d0f1d8d79b2ffa36bf9825e57829"
+    },
+    {
+      "path": "electron/shortcuts/shortcutRegistry.test.ts",
+      "name": "registers the final safe capture submit reset visibility and movement map",
+      "sha256": "36297af0012e8e49751bcc9127d10eab37f38fddbf278d0115e305932d5cbf1b"
     }
   ]
 }
