@@ -6,7 +6,7 @@
   "attempt": 4,
   "createdAt": "2026-07-30T07:47:29+02:00",
   "controllerThreadId": "019f9ff6-e24b-7053-a2b3-fe01f8538ab4",
-  "status": "DESIGNING_NON_PRIVILEGED",
+  "status": "EXACT_CLOSURE_REVIEW_RESERVED",
   "authority": {
     "source": "standing checker authorization for one new bounded RECOVERY-03 design cycle",
     "safePreparationAuthorized": true,
@@ -48,6 +48,23 @@
     "RECOVERY-02 exact delta approval",
     "RECOVERY-02 administrator handoff"
   ],
+  "preparedTransaction": {
+    "artifactId": "P00-V2-CAP-A03-RECOVERY-03",
+    "artifactRevision": "5ea141c1fd5ca42f8e99036ce91911a2f06277a8",
+    "artifactPath": "capabilities/P00-V2-CAP-A03-RECOVERY-03",
+    "envelopeSha256": "c745aaae855cf6a9fc5c9c2673e6f67eb1af2de3ca862180d2c0847f94c324a9",
+    "handoffSha256": "dfb835f8b7a10906eabd9b0ab3bc5b9f98bf923a0a20e4c8206774b4289f9902",
+    "recoverSha256": "e9490a7582fd37a67565cc44f6507a734182066ffaceaebfe5c8afb79ab8ac9e",
+    "journalSha256": "9011a744a1562cf8b345b2c3ffefc129282d79949085239a8248d24e380bc288",
+    "childRunnerSha256": "b3c477ea1140501e0b2fc3b4601670e9630bf42e151c97fa6624e5809091eb24",
+    "a03StateSha256": "be9c38f4be034c6fba3e2bc395ea64b927c8e9f4f8b71eaa65b4f7333c7b71f1",
+    "validationReport": "capabilities/P00-V2-CAP-A03-RECOVERY-03/build/validation-report.json",
+    "recoverySuite": "18_PASS_0_FAIL_IN_2814.911_SECONDS",
+    "targetA03Revocation": "1_PASS_0_FAIL_IN_115.588_SECONDS",
+    "reproducibleBuilds": 3,
+    "privilegedBoundaryCrossed": false,
+    "candidateInvoked": false
+  },
   "reusableEvidence": [
     "P00-R9 source packet at 02ee6ddec78d6e4ea9e2de3c0303ffd6bc9f45bf",
     "Exact A02 installed manifest and controller identity",
@@ -79,7 +96,8 @@
     "scope": "Only IC-M00-A03R3-B01 and IC-M00-A03R3-B02 plus regression safety of the immutable sealed transaction.",
     "timing": "before_authoritative_complete",
     "exactShaReusable": true,
-    "status": "PENDING_IMMUTABLE_REVISION"
+    "reviewedRevision": "5ea141c1fd5ca42f8e99036ce91911a2f06277a8",
+    "status": "EXACT_CLOSURE_REVIEW_RESERVED"
   },
   "correctionBudget": 0,
   "terminalCondition": "Either identical material B01 or B02 defect survives the exact closure review unchanged.",
@@ -93,5 +111,5 @@
     "PR 155",
     "P02 or later milestones"
   ],
-  "nextSafeAction": "Build and test one sealed RECOVERY-03 artifact addressing only B01 and B02 without invoking privilege."
+  "nextSafeAction": "Obtain one exact independent closure review of immutable RECOVERY-03 revision 5ea141c1fd5ca42f8e99036ce91911a2f06277a8 against B01 and B02. Do not invoke the handoff."
 }
