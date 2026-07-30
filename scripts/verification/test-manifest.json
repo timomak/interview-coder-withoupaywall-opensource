@@ -29,7 +29,7 @@
     {
       "path": "tests/policy/testManifest.test.ts",
       "name": "rejects missing renamed skipped and unexecuted tests",
-      "sha256": "3a165b166b7b55bba857c036d84f356dc0c29a30434acc6c60be18e09ac53eb2"
+      "sha256": "fa0a27da57bab7e6b51d187a9c0764ba8eea3c425f2c8475ca245fb08936e56c"
     },
     {
       "path": "tests/policy/productPolicy.test.ts",
@@ -104,7 +104,7 @@
     {
       "path": "tests/policy/testManifest.test.ts",
       "name": "P01-R1-B02 discovers every future root and supported extension",
-      "sha256": "3a165b166b7b55bba857c036d84f356dc0c29a30434acc6c60be18e09ac53eb2"
+      "sha256": "fa0a27da57bab7e6b51d187a9c0764ba8eea3c425f2c8475ca245fb08936e56c"
     },
     {
       "path": "tests/policy/packageInventory.test.ts",
@@ -114,67 +114,67 @@
     {
       "path": "tests/policy/verificationReporter.test.ts",
       "name": "rejects archived preverify self-removal and gate mutation before reporter start",
-      "sha256": "c5ac72a548811593cd2a1b10b772009f029193b45c4c2c2af04d292907f071d5"
+      "sha256": "397c77550017e77c0f004a9827dccdcdb68d5f868122642c0fc303efce99f758"
     },
     {
       "path": "tests/policy/verificationReporter.test.ts",
       "name": "rejects committed preverify and postverify companions during anchor admission",
-      "sha256": "c5ac72a548811593cd2a1b10b772009f029193b45c4c2c2af04d292907f071d5"
+      "sha256": "397c77550017e77c0f004a9827dccdcdb68d5f868122642c0fc303efce99f758"
     },
     {
       "path": "tests/policy/verificationReporter.test.ts",
       "name": "suppresses companion hooks while preserving the requested npm target argv",
-      "sha256": "c5ac72a548811593cd2a1b10b772009f029193b45c4c2c2af04d292907f071d5"
+      "sha256": "397c77550017e77c0f004a9827dccdcdb68d5f868122642c0fc303efce99f758"
     },
     {
       "path": "tests/policy/verificationReporter.test.ts",
       "name": "rejects joint package bootstrap plan manifest and gate mutation",
-      "sha256": "c5ac72a548811593cd2a1b10b772009f029193b45c4c2c2af04d292907f071d5"
+      "sha256": "397c77550017e77c0f004a9827dccdcdb68d5f868122642c0fc303efce99f758"
     },
     {
       "path": "tests/policy/verificationReporter.test.ts",
       "name": "rejects runner plus colocated current-hash forgery",
-      "sha256": "c5ac72a548811593cd2a1b10b772009f029193b45c4c2c2af04d292907f071d5"
+      "sha256": "397c77550017e77c0f004a9827dccdcdb68d5f868122642c0fc303efce99f758"
     },
     {
       "path": "tests/policy/verificationReporter.test.ts",
       "name": "rejects PATH node npm npmrc NODE_OPTIONS and script-shell substitution",
-      "sha256": "c5ac72a548811593cd2a1b10b772009f029193b45c4c2c2af04d292907f071d5"
+      "sha256": "397c77550017e77c0f004a9827dccdcdb68d5f868122642c0fc303efce99f758"
     },
     {
       "path": "tests/policy/verificationReporter.test.ts",
       "name": "rejects detached-restorer and lifecycle-time mutate-restore",
-      "sha256": "c5ac72a548811593cd2a1b10b772009f029193b45c4c2c2af04d292907f071d5"
+      "sha256": "397c77550017e77c0f004a9827dccdcdb68d5f868122642c0fc303efce99f758"
     },
     {
       "path": "tests/policy/verificationReporter.test.ts",
       "name": "rejects same-size overwrite rename symlink hardlink and case-collision TOCTOU",
-      "sha256": "c5ac72a548811593cd2a1b10b772009f029193b45c4c2c2af04d292907f071d5"
+      "sha256": "397c77550017e77c0f004a9827dccdcdb68d5f868122642c0fc303efce99f758"
     },
     {
       "path": "tests/policy/verificationReporter.test.ts",
       "name": "rejects result-path environment stdout duplicate replay and structured-record forgery",
-      "sha256": "c5ac72a548811593cd2a1b10b772009f029193b45c4c2c2af04d292907f071d5"
+      "sha256": "397c77550017e77c0f004a9827dccdcdb68d5f868122642c0fc303efce99f758"
     },
     {
       "path": "tests/policy/verificationReporter.test.ts",
       "name": "records planned argv resolved executable actual argv raw exit and signal exactly",
-      "sha256": "c5ac72a548811593cd2a1b10b772009f029193b45c4c2c2af04d292907f071d5"
+      "sha256": "397c77550017e77c0f004a9827dccdcdb68d5f868122642c0fc303efce99f758"
     },
     {
       "path": "tests/policy/verificationReporter.test.ts",
       "name": "continues exact injected exits seven then zero and aggregates one",
-      "sha256": "c5ac72a548811593cd2a1b10b772009f029193b45c4c2c2af04d292907f071d5"
+      "sha256": "397c77550017e77c0f004a9827dccdcdb68d5f868122642c0fc303efce99f758"
     },
     {
       "path": "tests/policy/verificationReporter.test.ts",
       "name": "preserves every P01-R1-B01 through P01-R1-B06 hostile probe",
-      "sha256": "c5ac72a548811593cd2a1b10b772009f029193b45c4c2c2af04d292907f071d5"
+      "sha256": "397c77550017e77c0f004a9827dccdcdb68d5f868122642c0fc303efce99f758"
     },
     {
       "path": "tests/policy/verificationReporter.test.ts",
       "name": "rejects any surviving child or detached descendant before zero",
-      "sha256": "c5ac72a548811593cd2a1b10b772009f029193b45c4c2c2af04d292907f071d5"
+      "sha256": "397c77550017e77c0f004a9827dccdcdb68d5f868122642c0fc303efce99f758"
     }
   ]
 }

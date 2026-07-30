@@ -159,6 +159,16 @@ describe("immutable test manifest", () => {
     expect(validateTestManifest(executedExtra)).toContain(
       "executed unmanifested test: tests/extra.test.ts — extra test"
     )
+
+    const reorderedCounts = fixture()
+    reorderedCounts.executions[0].counts = {
+      skipped: 0,
+      failed: 0,
+      passed: 1
+    }
+    expect(validateTestManifest(reorderedCounts)).not.toContain(
+      "test count evidence mismatch: p01"
+    )
   })
 
   it("P01-R1-B02 discovers every future root and supported extension", () => {

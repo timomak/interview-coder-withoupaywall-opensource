@@ -117,8 +117,16 @@ export function validateTestManifest({ root, manifest, executions }) {
       failed: tests.filter((test) => test.state === "fail").length,
       skipped: tests.filter((test) => test.state === "skip").length
     }
+    const observedCounts = execution?.counts
     if (
-      JSON.stringify(calculatedCounts) !== JSON.stringify(execution?.counts)
+      !observedCounts ||
+      typeof observedCounts !== "object" ||
+      Array.isArray(observedCounts) ||
+      JSON.stringify(Object.keys(observedCounts).sort()) !==
+        JSON.stringify(["failed", "passed", "skipped"]) ||
+      observedCounts.passed !== calculatedCounts.passed ||
+      observedCounts.failed !== calculatedCounts.failed ||
+      observedCounts.skipped !== calculatedCounts.skipped
     ) {
       errors.push(
         `test count evidence mismatch: ${String(execution?.entryLabel)}`
