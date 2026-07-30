@@ -6,7 +6,7 @@
   "replanId": "IC-M00-RP01",
   "createdAt": "2026-07-30T11:10:00+02:00",
   "controllerThreadId": "019f9ff6-e24b-7053-a2b3-fe01f8538ab4",
-  "status": "FROZEN_IMPLEMENTING",
+  "status": "READY_FOR_G1_DELTA_FREEZE",
   "authority": {
     "source": "Continue the existing v3 controller at durable revision dd48cb269582e257d5972e466c20bcca44749544 and perform the next safe IC-M00 milestone-level replan.",
     "safeNonPrivilegedDesignBuildTestReviewAuthorized": true,
@@ -63,6 +63,8 @@
     "newAuthorization": "/etc/sudoers.d/interviewcopilot-verification-controller-a04",
     "externalReceiptRoot": "/Users/Shared/InterviewCopilot/verification-controller-a04-receipts",
     "activationReceipt": "/Users/Shared/InterviewCopilot/verification-controller-a04-receipts/P00-V2-CAP-A04-activation.json",
+    "activationJournal": "/Users/Shared/InterviewCopilot/verification-controller-a04-receipts/P00-V2-CAP-A04-activation.in-progress",
+    "installedStateManifest": "/Users/Shared/InterviewCopilot/verification-controller-a04-receipts/P00-V2-CAP-A04-installed-state.json",
     "legacyControllerRoot": "/Users/Shared/InterviewCopilot/verification-controller",
     "legacyDisposition": "READ_ONLY_IDENTITY_PREFLIGHT_ONLY_NO_ENUMERATION_NO_MIGRATION_NO_MUTATION",
     "historicalEvidenceImport": "NONE",
@@ -94,6 +96,7 @@
         "checkpoint",
         "candidateRevision",
         "installedControllerSha256",
+        "installedStateSha256",
         "authorizationPresent",
         "namespacePresent",
         "legacyA02ControllerSha256",
@@ -108,7 +111,7 @@
       "legacyA02ControllerSha256": "73eda1532baa3044cf4feb989d2ec58d15304c86c31a298ed3d73a1a75c7494d",
       "legacyRecovery03ReceiptSha256": "5da6d108e0fde1583bc09ecef806d591847c2c26c69bef461c5813390d36f5b8"
     },
-    "publication": "Write a root-only temporary regular file in the receipt root, fsync it, atomically publish without replacement, fsync the directory, then reopen and validate exact bytes and filesystem facts. A SUCCESS receipt is published only after authorization; any receipt-publication failure removes authorization and the fresh namespace before publishing FAILURE.",
+    "publication": "Write a root-only temporary regular file in the receipt root, fsync it, atomically publish without replacement, fsync the directory, then reopen and validate exact bytes and filesystem facts. A SUCCESS receipt is published only after authorization and the exact external installed-state manifest; both privileged cores remain blocked while the durable journal exists and revalidate the complete installed-state manifest plus receipt before work. Any receipt-publication failure removes authorization and the fresh namespace before publishing FAILURE; if terminal publication itself fails, the durable journal is retained for exact replay.",
     "collisionAndReplay": "A pre-existing exact terminal receipt is validated and returned idempotently; any byte, schema, mode, owner, link, ACL, xattr, candidate, envelope, legacy-identity, or state disagreement fails closed. A FAILURE receipt permanently forbids reuse of the same artifact and handoff.",
     "readContract": "UID 501 and the independent reviewer may read only the known exact receipt path through traverse-only ancestors; directory enumeration and writes remain forbidden.",
     "retention": "Failure rollback and successful revocation retain the exact receipt. Revocation records its SHA-256 in the retained A04 evidence index and never modifies or deletes it."
@@ -318,26 +321,52 @@
     "The exact candidate targeted P01 hostile-probe, policy, lint, typecheck, build, unit, and reporter contracts remain green without invoking the installed capability."
   ],
   "implementationEvidence": {
-    "status": "READY_FOR_G1",
+    "status": "READY_FOR_G1_DELTA",
     "artifactId": "P00-V2-CAP-A04",
     "candidateRevision": "2e5045116db6e3c5f6e6cc18b70df6d7fa021baf",
     "candidateInvoked": false,
     "privilegedBoundaryCrossed": false,
-    "controllerSha256": "96646ac2bd8057934754bd79d89b176361b912d7649683c698ddbd215dd7b4ba",
-    "manifestSha256": "48648f67c61e60b567cd16407e4b856d068abc3a7b41e56a7889c3995358788f",
-    "envelopeSha256": "9f8f5deab7ba68b8e475ea94bf98d15310d90d1ddfa90d5e31e820408df59bd7",
-    "handoffSha256": "c29447602c701d258c77dedbe528637da63ac1e6dad5fc636c05a8b2d0a0f942",
-    "payloadArchiveSha256": "ba2e8295c29a10fc9e525f8d218b697e10b5cd3eed6151f311ba28679ecb6b28",
+    "controllerSha256": "2e0b997105fbfbca644d2e63aae002a733130930754c8eb7a1edfdd3d8b0b56b",
+    "manifestSha256": "0508cdd7ccf843f2d6a3faa5184ff211444ade75e0efb087d1df06eb5876aa24",
+    "envelopeSha256": "3edf1bbebc0714dff9329ba12dce662e4676faded4dee33646b4995190362917",
+    "handoffSha256": "0b7772247d43b108a9185ac9fec212716813da57a32d8ec09b639be6a5d89fb0",
+    "payloadArchiveSha256": "072cbd210f83fcfe66a42ebd44d88059bb14d18b7140da3a493e9a21f4d2dcd9",
     "nativeSelfTestSha256": "47ada296ed385c366b51364ca8d80242a25fdd56422f790d934f60bedd76411a",
     "reproducibleBuilds": "3_OF_3_IDENTICAL",
-    "disposableSuite": "9_TESTS_0_FAILURES",
+    "disposableSuite": "14_TESTS_0_FAILURES_771.548_SECONDS",
     "provedRollback": [
       "POST_AUTHORIZATION_FAILURE",
-      "HARD_INTERRUPTION_REPLAY",
+      "PRE_AUTHORIZATION_HARD_INTERRUPTION_REPLAY",
+      "POST_AUTHORIZATION_HARD_INTERRUPTION_REPLAY",
+      "SUCCESS_RECEIPT_CRASH_COMMIT_REPLAY_CORE_BLOCKED",
+      "SUCCESS_PUBLICATION_ERROR_TERMINAL_ROLLBACK",
+      "FAILURE_PUBLICATION_ERROR_JOURNAL_RETAINED_FOR_REPLAY",
       "TERMINAL_FAILURE_REUSE_REJECTION",
       "DRIFT_AUTHORIZATION_REMOVED_STATE_PRESERVED"
     ],
     "provedLegacyDisposition": "EXACT_KNOWN_PATH_IDENTITIES_AND_HISTORICAL_SYMLINK_HARDLINK_FIXTURE_UNCHANGED"
+  },
+  "preActivationReview": {
+    "gateId": "IC-M00-RP01-G1",
+    "initialReviewedArtifactRevision": "aa18e7e7932d96c10114a24973611d32bc8cbe10",
+    "reviewer": "/root/p00_v2_cap_a01_high_review",
+    "disposition": "REQUEST_CHANGES_COMPLETE_BATCH",
+    "findingDispositions": {
+      "IC-M00-RP01-G1-B01": "ACCEPTED_REMEDIATED_CLOSED_INSTALLED_METADATA_AND_IDEMPOTENT_SUCCESS_ADMISSION",
+      "IC-M00-RP01-G1-B02": "ACCEPTED_REMEDIATED_CLOSED_RECEIPT_ROOT_SCHEMA_STATE_AND_REPLAY_VALIDATION",
+      "IC-M00-RP01-G1-B03": "ACCEPTED_REMEDIATED_DURABLE_JOURNAL_PUBLICATION_AND_CORE_ADMISSION_ORDER"
+    },
+    "passingScopePreserved": [
+      "UID501 principal and exact empty-argument authorization",
+      "P01-only fresh namespace",
+      "exact source, stage, payload, and installed byte validation",
+      "authorization-first revocation",
+      "legacy namespace nonmutation"
+    ],
+    "correctionCount": 1,
+    "correctionBudgetRemaining": 0,
+    "deltaReviewRequired": true,
+    "deltaReviewScope": "Closure of G1-B01 through G1-B03 and regressions only against one immutable remediation revision."
   },
   "reviewGates": [
     {
@@ -423,5 +452,5 @@
     }
   },
   "continuation": "AUTO",
-  "nextSafeAction": "Build and test only P00-V2-CAP-A04 without sudo, installed helper invocation, candidate invocation, or legacy-state mutation. Then freeze the exact artifact revision for IC-M00-RP01-G1."
+  "nextSafeAction": "Freeze and push the exact remediated P00-V2-CAP-A04 revision, then obtain one bounded IC-M00-RP01-G1 delta review over G1-B01 through G1-B03 closure and regressions only. Do not cross privilege or invoke the candidate."
 }

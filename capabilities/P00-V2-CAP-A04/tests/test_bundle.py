@@ -126,6 +126,53 @@ class CapabilityBundleTests(unittest.TestCase):
             sha256(BUILD / "release-envelope.json"), env=env, check=False,
         )
 
+    def admission(
+        self,
+        root: pathlib.Path,
+        operation: str,
+        sudoers: pathlib.Path | None = None,
+        check: bool = False,
+    ):
+        controller_root = (
+            root / "Users/Shared/InterviewCopilot/verification-controller-a04"
+        )
+        receipt_root = (
+            root / "Users/Shared/InterviewCopilot/"
+            "verification-controller-a04-receipts"
+        )
+        target = sudoers or (
+            root / "etc/sudoers.d/interviewcopilot-verification-controller-a04"
+        )
+        return run(
+            "/usr/bin/python3",
+            BUNDLE / "tools/admission.py",
+            operation,
+            "--controller-root", controller_root,
+            "--receipt-root", receipt_root,
+            "--sudoers", target,
+            "--envelope", sha256(BUILD / "release-envelope.json"),
+            "--controller-sha", sha256(BUILD / "controller"),
+            "--root-owner", str(os.geteuid()),
+            "--root-group", str(os.getegid()),
+            "--request-owner", str(os.geteuid()),
+            "--request-group", str(os.getegid()),
+            "--allow-provenance",
+            check=check,
+        )
+
+    def receipt_verify(self, root: pathlib.Path, check: bool = False):
+        receipt = (
+            root / "Users/Shared/InterviewCopilot/"
+            "verification-controller-a04-receipts/P00-V2-CAP-A04-activation.json"
+        )
+        return run(
+            "/usr/bin/python3", BUNDLE / "tools/receipt.py", "verify",
+            receipt, sha256(BUILD / "release-envelope.json"),
+            "--expected-controller-sha", sha256(BUILD / "controller"),
+            "--owner", str(os.geteuid()), "--group", str(os.getegid()),
+            "--allow-provenance", check=check,
+        )
+
     def test_identity_registry_sudoers_and_controller_are_narrow(self) -> None:
         registry = json.loads((BUNDLE / "config/capability-registry.json").read_text())
         self.assertEqual(registry["controllerVersion"], "P00-V2-CAP-A04")
@@ -161,9 +208,11 @@ class CapabilityBundleTests(unittest.TestCase):
         self.assertEqual(
             set(envelope["members"]),
             {
-                "activationReceiptTool", "controllerBinary", "envelopeVerifier",
+                "activationJournalTool", "activationReceiptTool",
+                "controllerBinary", "envelopeVerifier",
                 "expectedInstallManifest", "installer", "manifestVerifier",
-                "nativeSelfTest", "payloadArchive", "quiescenceVerifier",
+                "installedStateAdmissionTool", "nativeSelfTest",
+                "payloadArchive", "quiescenceVerifier",
                 "registry", "renderedController", "requestSchema",
                 "requestWriter", "revokerSource", "sudoers",
             },
@@ -205,6 +254,12 @@ class CapabilityBundleTests(unittest.TestCase):
             document = json.loads(receipt.read_text())
             self.assertEqual(document["status"], "SUCCESS")
             self.assertEqual(document["candidateRevision"], CANDIDATE)
+            state = (
+                root / "Users/Shared/InterviewCopilot/"
+                "verification-controller-a04-receipts/"
+                "P00-V2-CAP-A04-installed-state.json"
+            )
+            self.assertEqual(document["installedStateSha256"], sha256(state))
             self.assertEqual(stat.S_IMODE(receipt.stat().st_mode), 0o444)
             self.assertEqual(receipt.stat().st_nlink, 1)
             self.assert_fixture_unchanged(root, facts, hashes)
@@ -225,6 +280,7 @@ class CapabilityBundleTests(unittest.TestCase):
                 "retention-index.tsv"
             )
             self.assertIn(f"activationReceipt\t{sha256(receipt)}", retained.read_text())
+            self.assertIn(f"installedState\t{sha256(state)}", retained.read_text())
             self.assert_fixture_unchanged(root, facts, hashes)
 
     def test_post_authorization_failure_rolls_back_and_is_terminal(self) -> None:
@@ -234,7 +290,9 @@ class CapabilityBundleTests(unittest.TestCase):
             failed = self.invoke_install(root, {"P00_V2_TEST_FAIL_AFTER_AUTH": "1"})
             self.assertEqual(failed.returncode, 91, failed.stderr)
             base = root / "Users/Shared/InterviewCopilot"
-            self.assertFalse((base / "verification-controller-a04").exists())
+            self.assertFalse(
+                (base / "verification-controller-a04").exists(), failed.stderr
+            )
             self.assertFalse(
                 (root / "etc/sudoers.d/interviewcopilot-verification-controller-a04").exists()
             )
@@ -260,10 +318,133 @@ class CapabilityBundleTests(unittest.TestCase):
                  "verification-controller-a04-receipts/"
                  "P00-V2-CAP-A04-activation.in-progress").exists()
             )
+            self.assertTrue(
+                (root / "etc/sudoers.d/interviewcopilot-verification-controller-a04").exists()
+            )
+            self.assertNotEqual(
+                self.admission(root, "verify-success").returncode, 0,
+                "authorization must be unusable while the journal exists",
+            )
             replay = self.invoke_install(root)
             self.assertEqual(replay.returncode, 92, replay.stderr)
             base = root / "Users/Shared/InterviewCopilot"
-            self.assertFalse((base / "verification-controller-a04").exists())
+            self.assertFalse(
+                (base / "verification-controller-a04").exists(), replay.stderr
+            )
+            self.assertFalse(
+                (root / "etc/sudoers.d/interviewcopilot-verification-controller-a04").exists()
+            )
+            receipt = (
+                base / "verification-controller-a04-receipts/"
+                "P00-V2-CAP-A04-activation.json"
+            )
+            self.assertEqual(json.loads(receipt.read_text())["status"], "FAILURE")
+            self.assert_fixture_unchanged(root, facts, hashes)
+
+    def test_hard_interruption_before_authorization_replays_to_failure(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = pathlib.Path(temporary)
+            facts, hashes = self.fixture(root)
+            stopped = self.invoke_install(
+                root, {"P00_V2_TEST_HARD_STOP_BEFORE_AUTH": "1"}
+            )
+            self.assertEqual(stopped.returncode, 90, stopped.stderr)
+            self.assertFalse(
+                (root / "etc/sudoers.d/interviewcopilot-verification-controller-a04").exists()
+            )
+            self.assertNotEqual(self.admission(root, "verify-success").returncode, 0)
+            replay = self.invoke_install(root)
+            self.assertEqual(replay.returncode, 92, replay.stderr)
+            receipt = (
+                root / "Users/Shared/InterviewCopilot/"
+                "verification-controller-a04-receipts/P00-V2-CAP-A04-activation.json"
+            )
+            self.assertEqual(json.loads(receipt.read_text())["status"], "FAILURE")
+            self.assert_fixture_unchanged(root, facts, hashes)
+
+    def test_success_receipt_crash_replays_commit_and_keeps_core_blocked(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = pathlib.Path(temporary)
+            facts, hashes = self.fixture(root)
+            stopped = self.invoke_install(
+                root, {"P00_V2_TEST_HARD_STOP_AFTER_SUCCESS_RECEIPT": "1"}
+            )
+            self.assertEqual(stopped.returncode, 93, stopped.stderr)
+            receipt_root = (
+                root / "Users/Shared/InterviewCopilot/"
+                "verification-controller-a04-receipts"
+            )
+            self.assertTrue(
+                (receipt_root / "P00-V2-CAP-A04-activation.in-progress").exists()
+            )
+            self.assertEqual(
+                json.loads(
+                    (receipt_root / "P00-V2-CAP-A04-activation.json").read_text()
+                )["status"],
+                "SUCCESS",
+            )
+            self.assertNotEqual(self.admission(root, "verify-success").returncode, 0)
+            self.assertEqual(
+                self.admission(root, "verify-committing").returncode, 0
+            )
+            replay = self.invoke_install(root)
+            self.assertEqual(replay.returncode, 0, replay.stderr)
+            self.assertFalse(
+                (receipt_root / "P00-V2-CAP-A04-activation.in-progress").exists()
+            )
+            self.assertEqual(self.admission(root, "verify-success").returncode, 0)
+            self.assert_fixture_unchanged(root, facts, hashes)
+
+    def test_failure_publication_error_retains_durable_journal(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = pathlib.Path(temporary)
+            facts, hashes = self.fixture(root)
+            failed = self.invoke_install(
+                root,
+                {
+                    "P00_V2_TEST_FAIL_AFTER_AUTH": "1",
+                    "P00_V2_TEST_FAIL_FAILURE_PUBLICATION": "1",
+                },
+            )
+            self.assertEqual(failed.returncode, 91, failed.stderr)
+            receipt_root = (
+                root / "Users/Shared/InterviewCopilot/"
+                "verification-controller-a04-receipts"
+            )
+            self.assertTrue(
+                (receipt_root / "P00-V2-CAP-A04-activation.in-progress").exists()
+            )
+            self.assertFalse(
+                (receipt_root / "P00-V2-CAP-A04-activation.json").exists()
+            )
+            self.assertFalse(
+                (root / "etc/sudoers.d/interviewcopilot-verification-controller-a04").exists()
+            )
+            replay = self.invoke_install(root)
+            self.assertEqual(replay.returncode, 92, replay.stderr)
+            self.assertFalse(
+                (receipt_root / "P00-V2-CAP-A04-activation.in-progress").exists()
+            )
+            self.assertEqual(
+                json.loads(
+                    (receipt_root / "P00-V2-CAP-A04-activation.json").read_text()
+                )["status"],
+                "FAILURE",
+            )
+            self.assert_fixture_unchanged(root, facts, hashes)
+
+    def test_success_publication_error_rolls_back_to_terminal_failure(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = pathlib.Path(temporary)
+            facts, hashes = self.fixture(root)
+            failed = self.invoke_install(
+                root, {"P00_V2_TEST_FAIL_SUCCESS_PUBLICATION": "1"}
+            )
+            self.assertEqual(failed.returncode, 93, failed.stderr)
+            base = root / "Users/Shared/InterviewCopilot"
+            self.assertFalse(
+                (base / "verification-controller-a04").exists(), failed.stderr
+            )
             self.assertFalse(
                 (root / "etc/sudoers.d/interviewcopilot-verification-controller-a04").exists()
             )
@@ -301,6 +482,149 @@ class CapabilityBundleTests(unittest.TestCase):
         self.assertNotIn("verification-controller-bootstrap/", handoff)
         self.assertNotIn("RECOVERY-0", handoff)
         self.assertNotIn("verification-controller/v1", handoff)
+        source = (BUILD / "Controller.swift").read_text()
+        self.assertEqual(source.count("_ = try installedPreflight()"), 2)
+        self.assertIn("let admission = try installedAdmission()", source)
+        self.assertIn("A04 activation remains in progress", source)
+        self.assertIn('"installedStateSha256"', source)
+
+    def test_metadata_receipt_root_schema_and_state_drift_fail_closed(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = pathlib.Path(temporary)
+            self.fixture(root)
+            installed = self.invoke_install(root)
+            self.assertEqual(installed.returncode, 0, installed.stderr)
+            controller_root = (
+                root / "Users/Shared/InterviewCopilot/verification-controller-a04"
+            )
+            metadata = controller_root / "metadata/P00-V2-CAP-A04"
+            receipt_root = (
+                root / "Users/Shared/InterviewCopilot/"
+                "verification-controller-a04-receipts"
+            )
+            receipt = receipt_root / "P00-V2-CAP-A04-activation.json"
+
+            for name in [
+                "expected-install-manifest.json",
+                "release-envelope.json",
+                "approved-envelope.sha256",
+                "installed-self-test.json",
+            ]:
+                path = metadata / name
+                original = path.read_bytes()
+                path.chmod(0o644)
+                path.write_bytes(original + b" ")
+                path.chmod(0o444)
+                self.assertNotEqual(
+                    self.admission(root, "verify-success").returncode, 0, name
+                )
+                path.chmod(0o644)
+                path.write_bytes(original)
+                path.chmod(0o444)
+
+            for path, mode in [
+                (controller_root, 0o755),
+                (controller_root / "metadata", 0o555),
+                (metadata, 0o555),
+                (controller_root / "requests/501", 0o700),
+            ]:
+                path.chmod(mode | 0o020)
+                self.assertNotEqual(
+                    self.admission(root, "verify-success").returncode, 0,
+                    str(path),
+                )
+                path.chmod(mode)
+
+            metadata.chmod(0o755)
+            subprocess.run(
+                ["/usr/bin/xattr", "-w", "test.a04-drift", "1", str(metadata)],
+                check=True,
+            )
+            metadata.chmod(0o555)
+            self.assertNotEqual(self.admission(root, "verify-success").returncode, 0)
+            metadata.chmod(0o755)
+            subprocess.run(
+                ["/usr/bin/xattr", "-d", "test.a04-drift", str(metadata)],
+                check=True,
+            )
+            metadata.chmod(0o555)
+            subprocess.run(
+                ["/bin/chmod", "+a", "everyone deny write", str(metadata)],
+                check=True,
+            )
+            self.assertNotEqual(self.admission(root, "verify-success").returncode, 0)
+            subprocess.run(["/bin/chmod", "-N", str(metadata)], check=True)
+
+            original_receipt = json.loads(receipt.read_text())
+            cases: list[tuple[str, dict[str, object]]] = []
+            boolean_drift = dict(original_receipt)
+            boolean_drift["authorizationPresent"] = 1
+            cases.append(("boolean", boolean_drift))
+            checkpoint_drift = dict(original_receipt)
+            checkpoint_drift["checkpoint"] = "other"
+            cases.append(("checkpoint", checkpoint_drift))
+            controller_drift = dict(original_receipt)
+            controller_drift["installedControllerSha256"] = "0" * 64
+            cases.append(("controller", controller_drift))
+            state_drift = dict(original_receipt)
+            state_drift["installedStateSha256"] = "0" * 64
+            cases.append(("state-binding", state_drift))
+            extra = dict(original_receipt)
+            extra["unexpected"] = True
+            cases.append(("extra-field", extra))
+            for label, document in cases:
+                receipt.chmod(0o644)
+                receipt.write_text(
+                    json.dumps(document, sort_keys=True, separators=(",", ":")) + "\n"
+                )
+                receipt.chmod(0o444)
+                if label == "state-binding":
+                    self.assertEqual(self.receipt_verify(root).returncode, 0)
+                    self.assertNotEqual(
+                        self.admission(root, "verify-success").returncode, 0
+                    )
+                else:
+                    self.assertNotEqual(self.receipt_verify(root).returncode, 0)
+            receipt.chmod(0o644)
+            receipt.write_text(
+                json.dumps(
+                    original_receipt, sort_keys=True, separators=(",", ":")
+                ) + "\n"
+            )
+            receipt.chmod(0o444)
+            self.assertEqual(self.receipt_verify(root).returncode, 0)
+
+            receipt_root.chmod(0o721)
+            self.assertNotEqual(self.receipt_verify(root).returncode, 0)
+            receipt_root.chmod(0o711)
+            receipt_root.chmod(0o731)
+            subprocess.run(
+                ["/usr/bin/xattr", "-w", "test.a04-root-drift", "1", str(receipt_root)],
+                check=True,
+            )
+            receipt_root.chmod(0o711)
+            self.assertNotEqual(self.receipt_verify(root).returncode, 0)
+            receipt_root.chmod(0o731)
+            subprocess.run(
+                ["/usr/bin/xattr", "-d", "test.a04-root-drift", str(receipt_root)],
+                check=True,
+            )
+            receipt_root.chmod(0o711)
+            outside_link = root / "receipt-hardlink"
+            os.link(receipt, outside_link)
+            self.assertNotEqual(self.receipt_verify(root).returncode, 0)
+            outside_link.unlink()
+            self.assertNotEqual(
+                run(
+                    "/usr/bin/python3", BUNDLE / "tools/receipt.py", "verify",
+                    receipt, sha256(BUILD / "release-envelope.json"),
+                    "--expected-controller-sha", sha256(BUILD / "controller"),
+                    "--owner", "0", "--group", str(os.getegid()),
+                    "--allow-provenance", check=False,
+                ).returncode,
+                0,
+            )
+            self.assertEqual(self.admission(root, "verify-success").returncode, 0)
 
     def test_revocation_drift_removes_authorization_and_preserves_state(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

@@ -1,7 +1,7 @@
 /usr/bin/sudo /bin/zsh -c 'set -euo pipefail
 umask 077
 source_root=/Users/thirdfacedev/.codex/orchestration/TimoCodes-ledger/capabilities/P00-V2-CAP-A04
-stage=/Users/Shared/InterviewCopilot/verification-controller-a04-bootstrap/9f8f5deab7ba68b8e475ea94bf98d15310d90d1ddfa90d5e31e820408df59bd7
+stage=/Users/Shared/InterviewCopilot/verification-controller-a04-bootstrap/3edf1bbebc0714dff9329ba12dce662e4676faded4dee33646b4995190362917
 [[ ! -e "$stage" ]]
 /bin/mkdir -p "$stage"
 /bin/mkdir -p "$stage/build"
@@ -25,7 +25,11 @@ stage=/Users/Shared/InterviewCopilot/verification-controller-a04-bootstrap/9f8f5
 /bin/mkdir -p "$stage/source"
 /usr/bin/install -m 0444 "$source_root/source/revoke.sh" "$stage/source/revoke.sh"
 /bin/mkdir -p "$stage/tools"
+/usr/bin/install -m 0444 "$source_root/tools/admission.py" "$stage/tools/admission.py"
+/bin/mkdir -p "$stage/tools"
 /usr/bin/install -m 0444 "$source_root/tools/envelope.py" "$stage/tools/envelope.py"
+/bin/mkdir -p "$stage/tools"
+/usr/bin/install -m 0444 "$source_root/tools/journal.py" "$stage/tools/journal.py"
 /bin/mkdir -p "$stage/tools"
 /usr/bin/install -m 0444 "$source_root/tools/manifest.py" "$stage/tools/manifest.py"
 /bin/mkdir -p "$stage/tools"
@@ -39,11 +43,11 @@ stage=/Users/Shared/InterviewCopilot/verification-controller-a04-bootstrap/9f8f5
 /bin/chmod 0555 "$stage/source/install.sh"
 /usr/sbin/chown -R root:wheel "$stage"
 /usr/bin/xattr -cr "$stage"
-[[ "$(/usr/bin/shasum -a 256 "$stage/source/install.sh" | /usr/bin/awk '"'"'{print $1}'"'"')" == "5320c84c308f867f2032543bc210ebaa761c2d034db5a0ade442156ae73e7b4a" ]]
-[[ "$(/usr/bin/shasum -a 256 "$stage/tools/envelope.py" | /usr/bin/awk '"'"'{print $1}'"'"')" == "35bea4c393fe8a2fa88b0f4d9a97b3f56fa0c02766b2ed210c876fb016152fc9" ]]
+[[ "$(/usr/bin/shasum -a 256 "$stage/source/install.sh" | /usr/bin/awk '"'"'{print $1}'"'"')" == "1d46f30cc5d7f16a9d2838143a54a65675021df461557696a95bce3402b26857" ]]
+[[ "$(/usr/bin/shasum -a 256 "$stage/tools/envelope.py" | /usr/bin/awk '"'"'{print $1}'"'"')" == "92bb4f6dfcd6fa74c92a264905e0ce48fed787be4b54a8f34e5702b9e486f29b" ]]
 [[ "$(/usr/bin/shasum -a 256 "$stage/tools/manifest.py" | /usr/bin/awk '"'"'{print $1}'"'"')" == "f2c3c8b02793f4f432baa1b12bff2abcaca17fdf2aaa65b1339c0c2dd6fb1abd" ]]
-[[ "$(/usr/bin/shasum -a 256 "$stage/tools/receipt.py" | /usr/bin/awk '"'"'{print $1}'"'"')" == "199d8df097074fbb99b89098c2bac237dccdfcdeaddf1f0b84a566f593a4da32" ]]
-[[ "$(/usr/bin/shasum -a 256 "$stage/build/release-envelope.json" | /usr/bin/awk '"'"'{print $1}'"'"')" == "9f8f5deab7ba68b8e475ea94bf98d15310d90d1ddfa90d5e31e820408df59bd7" ]]
-[[ "$(/usr/bin/shasum -a 256 "$stage/build/payload.tar.gz" | /usr/bin/awk '"'"'{print $1}'"'"')" == "ba2e8295c29a10fc9e525f8d218b697e10b5cd3eed6151f311ba28679ecb6b28" ]]
+[[ "$(/usr/bin/shasum -a 256 "$stage/tools/receipt.py" | /usr/bin/awk '"'"'{print $1}'"'"')" == "c4f13c417de59ba824f24aab2779b2e24b43b2b06388d44a71f95e9a66dd2e2b" ]]
+[[ "$(/usr/bin/shasum -a 256 "$stage/build/release-envelope.json" | /usr/bin/awk '"'"'{print $1}'"'"')" == "3edf1bbebc0714dff9329ba12dce662e4676faded4dee33646b4995190362917" ]]
+[[ "$(/usr/bin/shasum -a 256 "$stage/build/payload.tar.gz" | /usr/bin/awk '"'"'{print $1}'"'"')" == "072cbd210f83fcfe66a42ebd44d88059bb14d18b7140da3a493e9a21f4d2dcd9" ]]
 /usr/bin/python3 "$stage/tools/envelope.py" verify "$stage" "$stage/build/release-envelope.json"
-exec "$stage/source/install.sh" "$stage" "9f8f5deab7ba68b8e475ea94bf98d15310d90d1ddfa90d5e31e820408df59bd7"'
+exec "$stage/source/install.sh" "$stage" "3edf1bbebc0714dff9329ba12dce662e4676faded4dee33646b4995190362917"'

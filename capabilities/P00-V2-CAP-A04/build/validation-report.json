@@ -1,37 +1,41 @@
 {
   "schemaVersion": 1,
   "artifactId": "P00-V2-CAP-A04",
-  "validatedAt": "2026-07-30T09:59:22Z",
+  "validatedAt": "2026-07-30T11:24:40Z",
   "candidateRevision": "2e5045116db6e3c5f6e6cc18b70df6d7fa021baf",
   "candidateInvoked": false,
   "privilegedPathInvoked": false,
-  "controllerSha256": "96646ac2bd8057934754bd79d89b176361b912d7649683c698ddbd215dd7b4ba",
-  "manifestSha256": "48648f67c61e60b567cd16407e4b856d068abc3a7b41e56a7889c3995358788f",
-  "envelopeSha256": "9f8f5deab7ba68b8e475ea94bf98d15310d90d1ddfa90d5e31e820408df59bd7",
-  "handoffSha256": "c29447602c701d258c77dedbe528637da63ac1e6dad5fc636c05a8b2d0a0f942",
-  "payloadArchiveSha256": "ba2e8295c29a10fc9e525f8d218b697e10b5cd3eed6151f311ba28679ecb6b28",
+  "controllerSha256": "2e0b997105fbfbca644d2e63aae002a733130930754c8eb7a1edfdd3d8b0b56b",
+  "manifestSha256": "0508cdd7ccf843f2d6a3faa5184ff211444ade75e0efb087d1df06eb5876aa24",
+  "envelopeSha256": "3edf1bbebc0714dff9329ba12dce662e4676faded4dee33646b4995190362917",
+  "handoffSha256": "0b7772247d43b108a9185ac9fec212716813da57a32d8ec09b639be6a5d89fb0",
+  "payloadArchiveSha256": "072cbd210f83fcfe66a42ebd44d88059bb14d18b7140da3a493e9a21f4d2dcd9",
   "nativeSelfTestSha256": "47ada296ed385c366b51364ca8d80242a25fdd56422f790d934f60bedd76411a",
   "cleanBuilds": 3,
   "reproducibleIdentities": [
     "controller",
     "expected-install-manifest.json",
     "release-envelope.json",
-    "admin-handoff.txt"
+    "admin-handoff.txt",
+    "payload.tar.gz",
+    "native-self-test.json"
   ],
   "disposableTestSuite": {
-    "tests": 9,
+    "tests": 14,
     "failures": 0,
-    "elapsedSeconds": 212.406
+    "elapsedSeconds": 771.548
   },
   "provedContracts": [
     "P01-only principal-bound empty-argument authorization",
     "fresh A04 namespace with no legacy run enumeration or mutation",
-    "exact staged and installed byte verification",
-    "terminal SUCCESS and FAILURE activation receipts",
-    "post-authorization rollback",
-    "hard-interruption replay rollback",
+    "exact staged, installed, metadata, and installed-state byte verification",
+    "terminal SUCCESS and FAILURE activation receipts with closed schema",
+    "pre-authorization and post-authorization hard-interruption replay",
+    "SUCCESS-publication crash commit replay with core admission blocked",
+    "SUCCESS-publication error rollback to terminal FAILURE",
+    "FAILURE-publication error retains durable journal for replay",
     "idempotent exact SUCCESS replay",
-    "revocation with evidence retention",
+    "revocation with evidence and installed-state retention",
     "drift removes authorization first and preserves forensic state",
     "historical symlink and two-link fixture unchanged across transactions"
   ]

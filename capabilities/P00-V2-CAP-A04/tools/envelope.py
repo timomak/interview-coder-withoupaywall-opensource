@@ -37,6 +37,8 @@ def create(bundle: pathlib.Path, output: pathlib.Path) -> None:
         "envelopeVerifier": bundle / "tools/envelope.py",
         "manifestVerifier": bundle / "tools/manifest.py",
         "activationReceiptTool": bundle / "tools/receipt.py",
+        "activationJournalTool": bundle / "tools/journal.py",
+        "installedStateAdmissionTool": bundle / "tools/admission.py",
         "quiescenceVerifier": bundle / "tools/quiesce.py",
         "renderedController": bundle / "build/Controller.swift",
         "controllerBinary": bundle / "build/controller",

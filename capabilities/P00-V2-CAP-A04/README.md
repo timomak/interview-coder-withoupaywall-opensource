@@ -20,12 +20,19 @@ evidence byte as unauthorized read-only state.
 ## Transaction and recovery
 
 The installer verifies source, staged, installed, metadata, and authorization
-bytes. Authorization is published last. A root-owned external journal closes
-the hard-crash gap; replay removes A04 authorization first, deletes only the
-fresh namespace, proves the two exact legacy identities unchanged, and
-publishes a terminal FAILURE receipt. SUCCESS and FAILURE receipts live
-outside the rollback namespace, are canonical single-link `0444` files, and
-make the artifact terminal and replay-safe.
+bytes. A closed external installed-state manifest binds every installed
+payload and metadata member, exact filesystem facts, the exact sudoers bytes,
+and the terminal receipt. Authorization remains unusable until that manifest
+and a SUCCESS receipt are durably published and the transaction journal is
+removed. Both privileged cores repeat that admission check before doing work.
+
+A root-owned external journal closes every hard-crash gap. Replay removes A04
+authorization first unless an exact durable SUCCESS state can be completed;
+otherwise it deletes only the fresh namespace, proves the two exact legacy
+identities unchanged, and publishes a terminal FAILURE receipt. SUCCESS and
+FAILURE receipts live outside the rollback namespace, use a closed canonical
+schema, and are single-link `0444` files. Receipt or journal publication
+failure retains the journal so the next exact replay can finish safely.
 
 The revoker removes A04 authorization before trusting installed bytes,
 quiesces only A04, retains A04 evidence and metadata plus the activation

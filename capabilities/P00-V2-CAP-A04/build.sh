@@ -46,6 +46,8 @@ done
 /usr/bin/install -m 0555 "$bundle_root/tools/manifest.py" "$payload/libexec/manifest.py"
 /usr/bin/install -m 0555 "$bundle_root/tools/quiesce.py" "$payload/libexec/quiesce.py"
 /usr/bin/install -m 0555 "$bundle_root/tools/receipt.py" "$payload/libexec/receipt.py"
+/usr/bin/install -m 0555 "$bundle_root/tools/journal.py" "$payload/libexec/journal.py"
+/usr/bin/install -m 0555 "$bundle_root/tools/admission.py" "$payload/libexec/admission.py"
 
 /bin/chmod -R u+w "$payload"
 /usr/bin/find "$payload" -type d -exec /bin/chmod 0555 {} +

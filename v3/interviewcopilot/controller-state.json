@@ -97,7 +97,7 @@
       "independentReview": "REQUEST_CHANGES_EXACT_DELTA_B01_B02_UNRESOLVED_B03_RESOLVED",
       "status": "BLOCKED_DO_NOT_INVOKE"
     },
-    "a03Recovery03": {
+        "a03Recovery03": {
       "artifactId": "P00-V2-CAP-A03-RECOVERY-03",
       "packet": "v3/interviewcopilot/bounded-recovery-IC-M00-4.json",
       "authority": "ONE_COHERENT_NON_PRIVILEGED_DESIGN_BUILD_AND_EXACT_CLOSURE_REVIEW",
@@ -119,10 +119,27 @@
         "a03": "ABSENT",
         "relocation": "RESTORED",
         "candidateMutated": false,
-        "retryProhibited": true
-      }
-    },
-    "v1": {
+                "retryProhibited": true
+            }
+        },
+        "a04": {
+            "artifactId": "P00-V2-CAP-A04",
+            "replan": "v3/interviewcopilot/milestone-IC-M00-replan-1.json",
+            "candidateRevision": "2e5045116db6e3c5f6e6cc18b70df6d7fa021baf",
+            "controllerSha256": "2e0b997105fbfbca644d2e63aae002a733130930754c8eb7a1edfdd3d8b0b56b",
+            "expectedInstallManifestSha256": "0508cdd7ccf843f2d6a3faa5184ff211444ade75e0efb087d1df06eb5876aa24",
+            "releaseEnvelopeSha256": "3edf1bbebc0714dff9329ba12dce662e4676faded4dee33646b4995190362917",
+            "adminHandoffSha256": "0b7772247d43b108a9185ac9fec212716813da57a32d8ec09b639be6a5d89fb0",
+            "payloadArchiveSha256": "072cbd210f83fcfe66a42ebd44d88059bb14d18b7140da3a493e9a21f4d2dcd9",
+            "validation": "14_PASS_0_FAIL_REPRODUCIBLE_3_OF_3",
+            "initialIndependentReview": "REQUEST_CHANGES_COMPLETE_BATCH_G1_B01_B02_B03",
+            "remediation": "ONE_CONSOLIDATED_CORRECTION_READY_FOR_EXACT_DELTA_REVIEW",
+            "installed": false,
+            "authorization": "ABSENT",
+            "candidateInvoked": false,
+            "status": "READY_FOR_G1_DELTA_FREEZE"
+        },
+        "v1": {
       "installedRoot": "/Users/Shared/InterviewCopilot/verification-controller/v1",
       "observedManifestSha256": "54997fb321b9b83e4237e23ad6914e10777f130df35ff9de8b9aae692ee7d97e",
       "memberCount": 2401,
@@ -133,11 +150,21 @@
     "bootstrapStage": "SEALED_CLEANUP_REQUIRED_AFTER_RECEIPT_NOT_UID501_ENUMERABLE",
     "retentionContract": "Retain exact A02 payload bytes as unauthorized rollback evidence; retain the restored historical P01 run and terminal RECOVERY-03 receipt; do not invoke A02, A03, v1, or any RECOVERY-01/02/03 handoff. Any future capability work begins only after a milestone-level replan and independent HIGH-risk review."
   },
-  "currentMilestone": {
-    "id": "IC-M00",
-    "title": "Trusted local policy rails",
-    "status": "REVIEWING",
-    "frozenAt": "2026-07-29T09:10:11+02:00",
+    "currentMilestone": {
+        "id": "IC-M00",
+        "title": "Trusted local policy rails",
+        "status": "REVIEWING",
+        "activeReplan": {
+            "id": "IC-M00-RP01",
+            "path": "v3/interviewcopilot/milestone-IC-M00-replan-1.json",
+            "packetSha256": "bc5a25025faab8d2c5adbd2ad582378a6adb51318294397dc0614c42dbcc919b",
+            "status": "READY_FOR_G1_DELTA_FREEZE",
+            "artifactId": "P00-V2-CAP-A04",
+            "candidateRevision": "2e5045116db6e3c5f6e6cc18b70df6d7fa021baf",
+            "privilegedBoundaryCrossed": false,
+            "candidateInvoked": false
+        },
+        "frozenAt": "2026-07-29T09:10:11+02:00",
     "ownedRequirementIds": [
       "P01"
     ],
