@@ -1,0 +1,151 @@
+{
+  "schemaVersion": 1,
+  "kind": "bounded-milestone-remediation",
+  "projectKey": "InterviewCopilot",
+  "milestoneId": "IC-M01",
+  "remediationId": "IC-M01-REM-01",
+  "failedRevision": "32c24ab275e2d3b6d8cb00c1e6a8ba6d48377cd0",
+  "baseRevision": "a8cdcbdeb49a897946dd520981d59d9a1a3813b6",
+  "reviewTask": "/root/ic_m01_g1_high_review",
+  "reviewDisposition": "REQUEST_CHANGES_COMPLETE_BATCH",
+  "authoritativeRouteInvoked": false,
+  "findings": [
+    {
+      "id": "IC-M01-G1-B01",
+      "severity": "BLOCKER",
+      "impact": [
+        "P02-AC2",
+        "P04-AC10",
+        "P04-AC12"
+      ],
+      "summary": "Provider runtime always resumes invented IDs, so a new Claude or Codex conversation cannot be created.",
+      "requiredClosure": "Model create versus resume explicitly; Claude uses pinned creation then resume, Codex uses thread/start then returned ID for resume, and fakes reject nonexistent resume."
+    },
+    {
+      "id": "IC-M01-G1-B02",
+      "severity": "HIGH",
+      "impact": [
+        "P02-AC1",
+        "P02-AC8"
+      ],
+      "summary": "Subscription authentication diagnostics accept any zero exit and are not wired through IPC or the real first-run flow.",
+      "requiredClosure": "Validate sanitized subscription-only authentication method, expose narrow diagnostics IPC, render ProviderSetup in production, and block config completion or Start until exactly one supported provider passes."
+    },
+    {
+      "id": "IC-M01-G1-B03",
+      "severity": "BLOCKER",
+      "impact": [
+        "P03-AC6",
+        "M-02",
+        "M-03"
+      ],
+      "summary": "Filesystem mutations precede durable migration journal transitions and rollback can delete the last usable migrated copy.",
+      "requiredClosure": "Use write-ahead intent stages and presence reconciliation, restore and verify prior copy before removing new target, and inject crashes before and after every rename, delete, and journal write for replay and rollback."
+    },
+    {
+      "id": "IC-M01-G1-B04",
+      "severity": "HIGH",
+      "impact": [
+        "P04-AC3",
+        "P04-AC4",
+        "P04-AC10",
+        "P04-AC12"
+      ],
+      "summary": "Context and evidence delivery state advances before provider success and Resume reconstructs the cursor incorrectly.",
+      "requiredClosure": "Persist encrypted delivery cursor and pending attempt state in M-04, separate prepare from commit, advance only after accepted completion, and resume seed or delta exactly across failure, cancel, and crash."
+    },
+    {
+      "id": "IC-M01-G1-B05",
+      "severity": "HIGH",
+      "impact": [
+        "P02-AC5",
+        "P04-AC7",
+        "P04-AC8"
+      ],
+      "summary": "The provider boundary buffers until child close, preventing progressive sections and preserving no partial output on cancellation.",
+      "requiredClosure": "Expose normalized event streaming, dispatch and persist validated sections as they arrive, finalize independently, and test a blocking fake that emits partial sections before cancellation."
+    },
+    {
+      "id": "IC-M01-G1-B06",
+      "severity": "HIGH",
+      "impact": [
+        "P04-AC2",
+        "P04-AC8",
+        "P04-AC9",
+        "P04-AC10",
+        "P04-AC12"
+      ],
+      "summary": "Session commands, provider turns, and snapshot writes are not serialized, and Reset cannot cancel compact turns.",
+      "requiredClosure": "Serialize all session commands and writes, attach cancellation and generation token to every provider turn, make Reset await cancellation, and test concurrent submission, save order, and Reset during compact work."
+    },
+    {
+      "id": "IC-M01-G1-B07",
+      "severity": "HIGH",
+      "impact": [
+        "P04-AC14"
+      ],
+      "summary": "Material clarification exists only as an isolated helper and the runtime always passes empty fixtures.",
+      "requiredClosure": "Bind each locked mode to frozen missing-field and material-impact fixtures, derive real assumptions and suggestions, and test material and immaterial cases end to end."
+    },
+    {
+      "id": "IC-M01-G1-B08",
+      "severity": "HIGH",
+      "impact": [
+        "P01_CAPTURE_REGRESSION",
+        "P04_SOLE_AUTHORITY"
+      ],
+      "summary": "Cumulative integration removes production screenshot and shortcut reachability while leaving legacy view authority stranded.",
+      "requiredClosure": "Restore composition-root capture, queue, reset, movement, and shortcut behavior through typed session commands; remove legacy helper view authority and add production regression coverage."
+    }
+  ],
+  "invalidatedEvidence": [
+    "P02 targeted approval for create/resume, authentication, onboarding, and streaming behavior",
+    "P03 targeted approval for M-02 and M-03 interruption and rollback",
+    "P04 targeted approval for context delivery, progressive output, cancellation, serialization, Reset, material clarification, and capture integration",
+    "candidate 32c24ab275e2d3b6d8cb00c1e6a8ba6d48377cd0 as an approvable cumulative revision"
+  ],
+  "reusableEvidence": [
+    "immutable P00-R9 source and accepted P01 development-admission evidence",
+    "unchanged negative tests and documentation only where byte-identical after remediation",
+    "IC-M01-G1 complete finding batch as the sole general review"
+  ],
+  "mutableTargets": [
+    "all IC-M01-W1, IC-M01-W2, and IC-M01-W3 frozen mutable targets",
+    "milestone-IC-M01-target-addendum-1.json exact targets",
+    "milestone-IC-M01-target-addendum-2.json exact targets",
+    "milestone-IC-M01-target-addendum-3.json exact targets"
+  ],
+  "writer": {
+    "task": "/root/ic_m01_w3_session_integration",
+    "singleWriter": true,
+    "duplicateWriterProhibited": true
+  },
+  "targetedChecks": [
+    "new and strengthened regression tests for every B01 through B08 boundary",
+    "P02 9 or more pass with zero fail or skip",
+    "P03 8 or more pass with zero fail or skip",
+    "P04 15 or more pass with zero fail or skip",
+    "inherited P01 regression, policy, lint, strict typecheck, authenticated-manifest preparation, and build",
+    "diff and frozen-target audits"
+  ],
+  "reviewGates": [
+    {
+      "id": "IC-M01-G1-DELTA",
+      "role": "EXACT_DELTA_CLOSURE",
+      "reviewer": "/root/ic_m01_g1_high_review",
+      "scope": "Close B01 through B08 at the new exact candidate and reject regressions in unchanged HIGH boundaries.",
+      "newGeneralFindingBatchProhibited": true
+    }
+  ],
+  "authoritativeComplete": "IC-M01-AUTH-01 remains unspent and runs exactly once only after the exact delta review approves.",
+  "correctionBudget": 1,
+  "remainingCorrectionBudgetAfterDispatch": 0,
+  "terminalCondition": "Any material B01 through B08 acceptance failure remains after this consolidated correction or exact delta review.",
+  "prohibitions": [
+    "no authoritative IC-M01-AUTH-01 invocation during remediation",
+    "no privilege, A04 activation, PR 155 integration, merge, deploy, or release",
+    "no P05 or later scope",
+    "no second writer, general review, or remediation cycle"
+  ],
+  "status": "AUTHORIZED_BEFORE_DISPATCH"
+}

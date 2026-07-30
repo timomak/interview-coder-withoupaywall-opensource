@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "kind": "milestone-mutable-target-addendum",
+  "projectKey": "InterviewCopilot",
+  "milestoneId": "IC-M01",
+  "sourceFreezePacket": "v3/interviewcopilot/milestone-IC-M01-freeze-1.json",
+  "sourceFreezePacketSha256": "ce40840212f4b1f5f114f5746acec721c430fc17a372522df1b52a153d09d05b",
+  "discoveredBy": "IC-M01-G1 exact complete finding batch at candidate 32c24ab275e2d3b6d8cb00c1e6a8ba6d48377cd0",
+  "classification": "INHERITED_P01_CAPTURE_REGRESSION_AND_P04_SOLE_AUTHORITY_REMEDIATION",
+  "finding": "The candidate composition root stopped constructing admitted ScreenshotHelper and ShortcutsHelper behavior while the retained helpers still owned legacy queue, solutions, and debug view transitions outside the typed InterviewSession authority.",
+  "addedMutableTargets": [
+    "electron/ScreenshotHelper.ts",
+    "electron/shortcuts.ts"
+  ],
+  "owner": "IC-M01-REM-01",
+  "requiredChange": "Preserve admitted screenshot capture, queue, reset, movement, and shortcut reachability; adapt outputs and reset into typed InterviewSession commands; remove queue, solutions, and debug legacy view authority and events from these two helpers.",
+  "scopeGuard": [
+    "no capture implementation redesign",
+    "no new screenshot or window behavior",
+    "no P05 shell or capture-control scope",
+    "production composition-root regression coverage is required"
+  ],
+  "ownershipAudit": {
+    "overlapWithActiveWriter": false,
+    "singleRemediationWriter": "IC-M01-REM-01",
+    "integrationTiming": "BEFORE_EXACT_DELTA_REVIEW"
+  },
+  "review": "Included only in the one exact IC-M01-G1 delta closure review after consolidated remediation; no new general review or authoritative-suite attempt.",
+  "rollback": "Restore the exact admitted P01 helper versions and the pre-remediation candidate composition root if the single remediation is rejected.",
+  "privileged": false,
+  "status": "FROZEN"
+}
