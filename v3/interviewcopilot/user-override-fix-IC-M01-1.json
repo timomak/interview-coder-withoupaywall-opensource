@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "kind": "user-authorized-terminal-procedure-override-fix",
+  "projectKey": "InterviewCopilot",
+  "milestoneId": "IC-M01",
+  "authority": "USER_EXPLICITLY_ORDERED_FIX_IT_AND_KEEP_WORKING",
+  "supersededTerminalEvidence": "v3/interviewcopilot/bounded-recovery-IC-M01-closure-review-result-1.json",
+  "supersededTerminalEvidenceSha256": "02f047acd582265a404b0a2389765e936094003a85acb0ea4087e3d651912568",
+  "parentRevision": "0c67f9cfbd1cf5d3d59a693860072f46b1d4e808",
+  "candidateRevision": "dc0f3dd927a00eba7423ab9877dcf89f891cfd30",
+  "commitSubject": "fix: clear encrypted screenshots on every reset",
+  "scope": [
+    "Route every renderer and recovery-prompt Reset through InterviewCaptureController.",
+    "Use a dedicated authenticated encrypted screenshot repository.",
+    "Clear the entire screenshot repository after successful typed Reset without depending on process-local queue IDs.",
+    "Prove retained encrypted screenshots are removed after restart with an empty helper queue.",
+    "Keep screenshot capture in the P03 targeted suite and update immutable manifests."
+  ],
+  "changedPathCount": 14,
+  "worktree": "/Users/thirdfacedev/.codex/worktrees/ic-m01/TimoCodes",
+  "worktreeClean": true,
+  "targetedVerification": {
+    "runtime": "NODE_20_20_2",
+    "p01": "27_PASS_0_FAIL_0_SKIP",
+    "p03": "14_PASS_0_FAIL_0_SKIP",
+    "p04": "24_PASS_0_FAIL_0_SKIP",
+    "unit": "85_PASS_0_FAIL_0_SKIP_50_FILES",
+    "lint": "PASS_154_EXECUTABLE_50_TEST_FILES",
+    "strictTypecheck": "PASS_154_EXECUTABLE_FILES",
+    "policy": "PASS",
+    "buildAndPackage": "PASS_9081_ASAR_107_OUTER_SHA256_6B9AF608E0947E6E0D21A2115F0038966840999F64C1C52501D5285DB43A8987",
+    "diffCheck": "PASS"
+  },
+  "authoritativeRoute": {
+    "id": "IC-M01-AUTH-01",
+    "status": "UNSPENT",
+    "next": "RUN_EXACTLY_ONCE_AT_CANDIDATE"
+  },
+  "privilegedBoundaryCrossed": false,
+  "pushed": false,
+  "pullRequestMutated": false,
+  "merged": false,
+  "deployed": false,
+  "status": "COMMITTED_AWAITING_AUTHORITATIVE_SUITE"
+}

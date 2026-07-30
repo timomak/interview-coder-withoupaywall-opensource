@@ -453,7 +453,7 @@
   "readyMilestones": [
     {
       "id": "IC-M01",
-      "status": "FAILED_TERMINAL",
+      "status": "VERIFYING_AUTHORITATIVE",
       "entryGate": "IC-M00-G-DEV",
       "entryGateEvidence": "v3/interviewcopilot/development-admission-IC-M00-1.json",
       "entryGateEvidenceSha256": "d11b7297df1f9cfacb233428fc1b0f83e05c711b54a6a946a1b6c0e852ab2efb",
@@ -470,7 +470,7 @@
   ],
   "activeProductMilestone": {
     "id": "IC-M01",
-    "status": "FAILED_TERMINAL",
+    "status": "VERIFYING_AUTHORITATIVE",
     "freezePacket": "v3/interviewcopilot/milestone-IC-M01-freeze-1.json",
     "freezePacketSha256": "ce40840212f4b1f5f114f5746acec721c430fc17a372522df1b52a153d09d05b",
     "baseRevision": "a8cdcbdeb49a897946dd520981d59d9a1a3813b6",
@@ -532,12 +532,13 @@
       }
     ],
     "integratedCandidate": {
-      "revision": "0c67f9cfbd1cf5d3d59a693860072f46b1d4e808",
+      "revision": "dc0f3dd927a00eba7423ab9877dcf89f891cfd30",
       "w1IntegratedRevision": "0f07e87a7d969812c1e347e394eeaffbcb55a1cf",
       "w2IntegratedRevision": "a81665e09420bce21a964474a920675d78112a2c",
       "w3IntegratedRevision": "32c24ab275e2d3b6d8cb00c1e6a8ba6d48377cd0",
       "remediationRevision": "d630f68628462ac925d9257c2f73d799d2db5d02",
       "recoveryRevision": "0c67f9cfbd1cf5d3d59a693860072f46b1d4e808",
+      "userOverrideFixRevision": "dc0f3dd927a00eba7423ab9877dcf89f891cfd30",
       "worktreeClean": true
     },
     "targetAddenda": [
@@ -696,7 +697,19 @@
       "authoritativeRouteInvoked": false,
       "additionalWriterReviewCorrectionOrRecoveryProhibited": true,
       "downstreamReadyMilestone": null,
-      "reasonNoDownstreamWork": "IC-M02 depends on IC-M01; IC-M03 through IC-M05 are transitively blocked."
+      "reasonNoDownstreamWork": "IC-M02 depends on IC-M01; IC-M03 through IC-M05 are transitively blocked.",
+      "supersededByExplicitUserOverrideCandidate": "dc0f3dd927a00eba7423ab9877dcf89f891cfd30"
+    },
+    "userOverrideFix": {
+      "path": "v3/interviewcopilot/user-override-fix-IC-M01-1.json",
+      "sha256": "d3c9ee5151dc311a98552f3efb70bf9187c715b01782cf2ae0d55b2f1f54057f",
+      "authority": "USER_EXPLICITLY_ORDERED_FIX_IT_AND_KEEP_WORKING",
+      "parentRevision": "0c67f9cfbd1cf5d3d59a693860072f46b1d4e808",
+      "candidateRevision": "dc0f3dd927a00eba7423ab9877dcf89f891cfd30",
+      "resolution": "ALL_RESET_PATHS_ROUTE_THROUGH_CAPTURE_CONTROLLER_AND_CLEAR_DEDICATED_ENCRYPTED_SCREENSHOT_REPOSITORY_AFTER_RESTART",
+      "targetedVerification": "P01_27_P03_14_P04_24_UNIT_85_LINT_TYPECHECK_POLICY_BUILD_PACKAGE_PASS",
+      "authoritativeRouteInvoked": false,
+      "status": "COMMITTED_AWAITING_IC-M01-AUTH-01"
     }
   },
   "metrics": {
@@ -741,5 +754,5 @@
     "privilegedBoundaryCrossed": false,
     "candidateInvoked": false
   },
-  "nextSafeAction": "No further action is authorized after the identical material B08 finding survived IC-M01-REC-01. Preserve candidate 0c67f9cfbd1cf5d3d59a693860072f46b1d4e808 and exact closure evidence; keep IC-M01-AUTH-01 unspent, A04 pending, PR 155 unchanged, and IC-M02 through IC-M05 locked. Do not create another recovery loop."
+  "nextSafeAction": "Run IC-M01-AUTH-01 exactly once in a clean detached Node 20 environment at immutable candidate dc0f3dd927a00eba7423ab9877dcf89f891cfd30. On success, record approval and proceed through the safe protected workflow without A04, privilege, PR 155 mutation, merge, or deployment unless separately authorized."
 }
