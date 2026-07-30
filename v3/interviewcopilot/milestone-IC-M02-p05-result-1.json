@@ -1,0 +1,99 @@
+{
+  "schemaVersion": 1,
+  "projectKey": "InterviewCopilot",
+  "milestoneId": "IC-M02",
+  "requirementId": "P05",
+  "recordedAt": "2026-07-30T21:52:00Z",
+  "status": "DEVELOPMENT_ADMISSION_PASS_RELEASE_MANIFEST_PENDING",
+  "candidate": {
+    "revision": "25268639bc16f3b6102f306addcc92cb88b8d2d2",
+    "baseRevision": "703a37e47b4a398ed90e1c5cf4be9c5859dc0849",
+    "branch": "codex/ic-m02-live-modes",
+    "remote": "fork/codex/ic-m02-live-modes",
+    "remoteRevision": "25268639bc16f3b6102f306addcc92cb88b8d2d2",
+    "worktreeClean": true
+  },
+  "pullRequest": {
+    "repository": "timomak/interview-coder-withoupaywall-opensource",
+    "number": 2,
+    "url": "https://github.com/timomak/interview-coder-withoupaywall-opensource/pull/2",
+    "state": "OPEN_DRAFT",
+    "base": "codex/ic-m01-runtime-storage-session",
+    "head": "codex/ic-m02-live-modes"
+  },
+  "outcome": {
+    "delivered": [
+      "Quiet Signal hidden, compact-bar, compact-answer, and expanded-workspace shell",
+      "three-mode pre-session selector and complete live command rail",
+      "compact composer, pending-evidence input tray, and section navigation",
+      "explicit interactive, drag, and click-through regions",
+      "transactional remappable shortcuts with conflict and persistence rollback",
+      "M-05a density, text-size, shortcut, and per-display geometry preferences",
+      "display-aware clamping and expanded-only manual resizing",
+      "primary-display screenshot capture with exact prior-visibility restoration",
+      "capture-protection ordering and qualified external-capture documentation"
+    ],
+    "outOfScopePreserved": [
+      "P06-P08 mode answer behavior",
+      "audio implementation",
+      "History",
+      "Prompt Studio",
+      "external Meet or ScreenCaptureKit qualification"
+    ]
+  },
+  "review": {
+    "exactRevision": "25268639bc16f3b6102f306addcc92cb88b8d2d2",
+    "verdict": "APPROVE",
+    "closedFindings": [
+      "P05-R1-B01",
+      "P05-R1-B02",
+      "P05-R1-B03",
+      "P05-R1-B04"
+    ],
+    "reviewInfrastructure": {
+      "nonReturningReadOnlyTurns": 3,
+      "mutationsByFailedReviewTurns": false,
+      "singleReturningReviewer": "ic_m01_w3_session_integration"
+    }
+  },
+  "verification": {
+    "toolchain": {
+      "node": "20.20.2",
+      "npm": "10.8.2"
+    },
+    "install": "PASS_926_PACKAGES",
+    "policy": "PASS",
+    "lint": "PASS_178_EXECUTABLE_64_TEST_FILES",
+    "typecheck": "PASS_178_EXECUTABLE_FILES",
+    "legacy": "1_PASS_0_FAIL_0_SKIP",
+    "unit": "102_PASS_0_FAIL_0_SKIP",
+    "p05": "17_PASS_0_FAIL_0_SKIP",
+    "electronShell": "7_PASS_0_FAIL_0_SKIP",
+    "build": "PASS",
+    "packageInventory": {
+      "status": "PASS",
+      "asarEntries": 9085,
+      "outerEntries": 107,
+      "asarSha256": "aac0bf10e5fde64f3afedbf6c4564f6f242ae1b811243b64509c41d7dc2e568b"
+    },
+    "manifest": {
+      "status": "PENDING_CONTROLLER_AUTHENTICATED_RESULTS",
+      "reason": "The standalone manifest gate correctly rejected execution without VERIFICATION_VALIDATED_TEST_RESULTS_PATH. This controller is explicitly prohibited from invoking A04 or any privileged helper and did not fabricate the authenticated ledger.",
+      "repositoryNativeContractEvidence": "tests/policy/testManifest.test.ts passed inside the complete 102-test unit execution"
+    },
+    "attemptNotes": [
+      "One Node 25 preflight stopped before install because package engines require Node 20.",
+      "One Node 20 attempt exposed and then closed two deterministic inherited source-shape guard failures.",
+      "The exact final candidate passed every non-privileged executable gate except the controller-authenticated manifest boundary."
+    ]
+  },
+  "boundaries": {
+    "privilegedHelperInvoked": false,
+    "a04Invoked": false,
+    "mergePerformed": false,
+    "deploymentPerformed": false,
+    "icM01Pr1Mutated": false,
+    "upstreamPr155Mutated": false
+  },
+  "nextSafeAction": "Continue dependency-ready IC-M02 P06-P08 product implementation on draft PR 2 while retaining the controller-authenticated P05 manifest gate as release evidence pending. Do not merge or deploy."
+}
