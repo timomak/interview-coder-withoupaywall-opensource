@@ -104,7 +104,7 @@
       ],
       "classification": "test",
       "expectedExit": 0,
-      "minimumPassed": 21
+      "minimumPassed": 24
     },
     {
       "label": "manifest",

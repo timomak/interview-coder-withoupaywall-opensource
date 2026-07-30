@@ -11,7 +11,7 @@ import {
   EnvelopeSchemaV1Migration,
   PlaintextArtifactMigration,
 } from "./migrations";
-import type { MigrationBoundary } from "./migrations";
+import type { MigrationBoundary, MigrationOccurrence } from "./migrations";
 import { StoragePaths } from "./paths";
 import {
   EncryptedBlobRepository,
@@ -153,288 +153,348 @@ it("journals verifies and resumes legacy artifact migration", async () => {
   });
 });
 
-it("reconciles every write-ahead filesystem boundary after a crash", async () => {
-  const boundaries: readonly MigrationBoundary[] = [
-    "before-journal-write",
-    "after-journal-write",
-    "before-target-write",
-    "after-target-write",
-    "before-quarantine-rename",
-    "after-quarantine-rename",
-    "before-quarantine-delete",
-    "after-quarantine-delete",
-  ];
+const CRASH_BOUNDARIES = new Set<MigrationBoundary>([
+  "before-journal-write",
+  "after-journal-write",
+  "before-target-write",
+  "after-target-write",
+  "before-quarantine-rename",
+  "after-quarantine-rename",
+  "before-quarantine-delete",
+  "after-quarantine-delete",
+  "before-restore-rename",
+  "after-restore-rename",
+  "before-target-delete",
+  "after-target-delete",
+]);
 
-  for (const crashBoundary of boundaries) {
-    await withTempDirectory(async (fixtureRoot) => {
-      const legacy = path.join(fixtureRoot, "legacy");
-      const storage = path.join(fixtureRoot, "storage");
-      await mkdir(legacy, { recursive: true });
-      const marker = `crash-replay::${crashBoundary}`;
-      await writeFile(path.join(legacy, "artifact.bin"), marker);
-      const paths = new StoragePaths(storage);
-      const keys = new InstallationKeyService(
-        paths,
-        new DeterministicFakeKeyProtector(),
-        undefined,
-        () => Buffer.from(DETERMINISTIC_INSTALLATION_KEY),
-      );
-      const blobs = new EncryptedBlobRepository(paths, keys);
-      const artifact = {
-        relativePath: "artifact.bin",
-        id: "crash-replay-artifact",
-        contentType: "application/octet-stream",
-      };
-      let crashed = false;
-      const interrupted = new PlaintextArtifactMigration(
-        legacy,
-        paths,
-        keys,
-        blobs,
-        undefined,
-        (_migration, _source, boundary) => {
-          if (!crashed && boundary === crashBoundary) {
-            crashed = true;
-            throw new Error(`crash at ${boundary}`);
-          }
-        },
-      );
+interface OccurrenceTarget {
+  readonly boundary: MigrationBoundary;
+  readonly occurrence: number;
+  readonly id: string;
+}
 
-      await expect(interrupted.run([artifact])).rejects.toBeDefined();
-      expect(crashed).toBe(true);
-      await new PlaintextArtifactMigration(legacy, paths, keys, blobs).run([
-        artifact,
-      ]);
-      expect((await blobs.get(artifact))?.toString("utf8")).toBe(marker);
-      await expect(stat(path.join(legacy, "artifact.bin"))).rejects.toMatchObject({
-        code: "ENOENT",
-      });
-    });
+function observe(
+  reached: OccurrenceTarget[],
+  boundary: MigrationBoundary,
+  occurrence: MigrationOccurrence,
+  target?: OccurrenceTarget,
+): void {
+  if (!CRASH_BOUNDARIES.has(boundary)) return;
+  reached.push(occurrence);
+  if (target?.id === occurrence.id) {
+    throw new Error(`simulated crash at ${occurrence.id}`);
   }
-});
+}
 
-it("restores and verifies the prior copy before rollback target deletion", async () => {
-  const boundaries: readonly MigrationBoundary[] = [
-    "before-restore-rename",
-    "after-restore-rename",
-    "before-target-delete",
-    "after-target-delete",
-  ];
-
-  for (const crashBoundary of boundaries) {
-    await withTempDirectory(async (fixtureRoot) => {
-      const legacy = path.join(fixtureRoot, "legacy");
-      const storage = path.join(fixtureRoot, "storage");
-      await mkdir(legacy, { recursive: true });
-      const marker = `rollback-replay::${crashBoundary}`;
-      await writeFile(path.join(legacy, "artifact.bin"), marker);
-      const paths = new StoragePaths(storage);
-      const keys = new InstallationKeyService(
-        paths,
-        new DeterministicFakeKeyProtector(),
-        undefined,
-        () => Buffer.from(DETERMINISTIC_INSTALLATION_KEY),
-      );
-      const blobs = new EncryptedBlobRepository(paths, keys);
-      const artifact = {
-        relativePath: "artifact.bin",
-        id: "rollback-replay-artifact",
-        contentType: "application/octet-stream",
-      };
-      const prepareRollback = new PlaintextArtifactMigration(
-        legacy,
-        paths,
-        keys,
-        blobs,
-        undefined,
-        (_migration, _source, boundary) => {
-          if (boundary === "quarantined") {
-            throw new Error("leave verified quarantine for rollback");
-          }
-        },
-      );
-      await expect(prepareRollback.run([artifact])).rejects.toBeDefined();
-
-      let crashed = false;
-      const interruptedRollback = new PlaintextArtifactMigration(
-        legacy,
-        paths,
-        keys,
-        blobs,
-        undefined,
-        (_migration, _source, boundary) => {
-          if (!crashed && boundary === crashBoundary) {
-            crashed = true;
-            throw new Error(`rollback crash at ${boundary}`);
-          }
-        },
-      );
-      await expect(interruptedRollback.rollback()).rejects.toBeDefined();
-      expect(crashed).toBe(true);
-
-      await new PlaintextArtifactMigration(
-        legacy,
-        paths,
-        keys,
-        blobs,
-      ).rollback();
-      expect(await readFile(path.join(legacy, "artifact.bin"), "utf8")).toBe(
-        marker,
-      );
-      expect(await blobs.get(artifact)).toBeUndefined();
-    });
+function assertOccurrenceMatrix(
+  reached: readonly OccurrenceTarget[],
+  journalSaves: number,
+  filesystemBoundaries: readonly MigrationBoundary[],
+): void {
+  expect(reached.length).toBeGreaterThan(0);
+  expect(new Set(reached.map((item) => item.id)).size).toBe(reached.length);
+  expect(
+    reached.filter((item) => item.boundary === "before-journal-write"),
+  ).toHaveLength(journalSaves);
+  expect(
+    reached.filter((item) => item.boundary === "after-journal-write"),
+  ).toHaveLength(journalSaves);
+  for (const boundary of filesystemBoundaries) {
+    expect(
+      reached.filter((item) => item.boundary === boundary),
+      boundary,
+    ).toHaveLength(1);
   }
-});
+  expect(new Set(reached.map((item) => item.boundary))).toEqual(
+    new Set([
+      "before-journal-write",
+      "after-journal-write",
+      ...filesystemBoundaries,
+    ]),
+  );
+}
 
-it("reconciles M-03 filesystem boundaries after a crash", async () => {
-  const boundaries: readonly MigrationBoundary[] = [
-    "before-journal-write",
-    "after-journal-write",
-    "before-target-write",
-    "after-target-write",
-    "before-quarantine-rename",
-    "after-quarantine-rename",
-    "before-quarantine-delete",
-    "after-quarantine-delete",
-  ];
+async function m02Forward(target?: OccurrenceTarget): Promise<OccurrenceTarget[]> {
+  const reached: OccurrenceTarget[] = [];
+  await withTempDirectory(async (fixtureRoot) => {
+    const legacy = path.join(fixtureRoot, "legacy");
+    const storage = path.join(fixtureRoot, "storage");
+    const marker = "M02::occurrence-forward-marker";
+    await mkdir(legacy, { recursive: true });
+    await writeFile(path.join(legacy, "artifact.bin"), marker);
+    const paths = new StoragePaths(storage);
+    const keys = new InstallationKeyService(
+      paths,
+      new DeterministicFakeKeyProtector(),
+      undefined,
+      () => Buffer.from(DETERMINISTIC_INSTALLATION_KEY),
+    );
+    const blobs = new EncryptedBlobRepository(paths, keys);
+    const artifact = {
+      relativePath: "artifact.bin",
+      id: "m02-occurrence-forward",
+      contentType: "application/octet-stream",
+    };
+    const migration = new PlaintextArtifactMigration(
+      legacy,
+      paths,
+      keys,
+      blobs,
+      undefined,
+      (_migration, _source, boundary, occurrence) =>
+        observe(reached, boundary, occurrence, target),
+    );
+    if (!target) {
+      await migration.run([artifact]);
+      return;
+    }
+    await expect(migration.run([artifact])).rejects.toBeDefined();
+    expect(reached.at(-1)?.id).toBe(target.id);
+    const sourceReadable = await readFile(
+      path.join(legacy, "artifact.bin"),
+    ).then(
+      (bytes) => bytes.toString("utf8") === marker,
+      () => false,
+    );
+    const targetReadable = await blobs.get(artifact).then((bytes) => {
+      const matches = bytes?.toString("utf8") === marker;
+      bytes?.fill(0);
+      return matches;
+    });
+    const quarantineReadable = [...(await readTree(storage)).values()].some(
+      (bytes) => bytes.includes(Buffer.from(marker)),
+    );
+    expect(sourceReadable || targetReadable || quarantineReadable).toBe(true);
+    await new PlaintextArtifactMigration(legacy, paths, keys, blobs).run([
+      artifact,
+    ]);
+    expect((await blobs.get(artifact))?.toString("utf8")).toBe(marker);
+  });
+  return reached;
+}
 
-  for (const crashBoundary of boundaries) {
-    await withTempDirectory(async (fixtureRoot) => {
-      const legacy = path.join(fixtureRoot, "legacy");
-      const storage = path.join(fixtureRoot, "storage");
-      await mkdir(legacy, { recursive: true });
-      const legacyBytes = Buffer.from(`authenticated-v0::${crashBoundary}`);
-      await writeFile(path.join(legacy, "record.v0"), legacyBytes);
-      const paths = new StoragePaths(storage);
-      const keys = new InstallationKeyService(
-        paths,
-        new DeterministicFakeKeyProtector(),
-        undefined,
-        () => Buffer.from(DETERMINISTIC_INSTALLATION_KEY),
-      );
-      const records = new EncryptedRecordRepository<{ migrated: string }>(
-        paths,
-        keys,
-        undefined,
-        "m03-crash-records",
-      );
-      const item = {
-        relativePath: "record.v0",
-        id: "m03-crash-record",
-        recordType: "application/x-session+json",
-        decrypt: async (bytes: Buffer) => {
-          expect(bytes).toEqual(legacyBytes);
-          return { migrated: crashBoundary };
-        },
-      };
-      let crashed = false;
-      const interrupted = new EnvelopeSchemaV1Migration(
+async function m02Rollback(target?: OccurrenceTarget): Promise<OccurrenceTarget[]> {
+  const reached: OccurrenceTarget[] = [];
+  await withTempDirectory(async (fixtureRoot) => {
+    const legacy = path.join(fixtureRoot, "legacy");
+    const storage = path.join(fixtureRoot, "storage");
+    const marker = "M02::occurrence-rollback-marker";
+    await mkdir(legacy, { recursive: true });
+    await writeFile(path.join(legacy, "artifact.bin"), marker);
+    const paths = new StoragePaths(storage);
+    const keys = new InstallationKeyService(
+      paths,
+      new DeterministicFakeKeyProtector(),
+      undefined,
+      () => Buffer.from(DETERMINISTIC_INSTALLATION_KEY),
+    );
+    const blobs = new EncryptedBlobRepository(paths, keys);
+    const artifact = {
+      relativePath: "artifact.bin",
+      id: "m02-occurrence-rollback",
+      contentType: "application/octet-stream",
+    };
+    const prepare = new PlaintextArtifactMigration(
+      legacy,
+      paths,
+      keys,
+      blobs,
+      undefined,
+      (_migration, _source, boundary) => {
+        if (boundary === "quarantined") throw new Error("prepare rollback");
+      },
+    );
+    await expect(prepare.run([artifact])).rejects.toBeDefined();
+    const rollback = new PlaintextArtifactMigration(
+      legacy,
+      paths,
+      keys,
+      blobs,
+      undefined,
+      (_migration, _source, boundary, occurrence) =>
+        observe(reached, boundary, occurrence, target),
+    );
+    if (!target) {
+      await rollback.rollback();
+      return;
+    }
+    await expect(rollback.rollback()).rejects.toBeDefined();
+    expect(reached.at(-1)?.id).toBe(target.id);
+    const sourceReadable = await readFile(
+      path.join(legacy, "artifact.bin"),
+    ).then(
+      (bytes) => bytes.toString("utf8") === marker,
+      () => false,
+    );
+    const targetReadable = await blobs.get(artifact).then((bytes) => {
+      const matches = bytes?.toString("utf8") === marker;
+      bytes?.fill(0);
+      return matches;
+    });
+    const quarantineReadable = [...(await readTree(storage)).values()].some(
+      (bytes) => bytes.includes(Buffer.from(marker)),
+    );
+    expect(sourceReadable || targetReadable || quarantineReadable).toBe(true);
+    await new PlaintextArtifactMigration(
+      legacy,
+      paths,
+      keys,
+      blobs,
+    ).rollback();
+    expect(await readFile(path.join(legacy, "artifact.bin"), "utf8")).toBe(
+      marker,
+    );
+    expect(await blobs.get(artifact)).toBeUndefined();
+  });
+  return reached;
+}
+
+async function m03Flow(
+  operation: "forward" | "rollback",
+  target?: OccurrenceTarget,
+): Promise<OccurrenceTarget[]> {
+  const reached: OccurrenceTarget[] = [];
+  await withTempDirectory(async (fixtureRoot) => {
+    const legacy = path.join(fixtureRoot, "legacy");
+    const storage = path.join(fixtureRoot, "storage");
+    const legacyBytes = Buffer.from(`M03::occurrence-${operation}-marker`);
+    await mkdir(legacy, { recursive: true });
+    await writeFile(path.join(legacy, "record.v0"), legacyBytes);
+    const paths = new StoragePaths(storage);
+    const keys = new InstallationKeyService(
+      paths,
+      new DeterministicFakeKeyProtector(),
+      undefined,
+      () => Buffer.from(DETERMINISTIC_INSTALLATION_KEY),
+    );
+    const records = new EncryptedRecordRepository<{ migrated: string }>(
+      paths,
+      keys,
+      undefined,
+      `m03-occurrence-${operation}`,
+    );
+    const item = {
+      relativePath: "record.v0",
+      id: `m03-occurrence-${operation}`,
+      recordType: "application/x-session+json",
+      decrypt: async (bytes: Buffer) => {
+        expect(bytes).toEqual(legacyBytes);
+        return { migrated: operation };
+      },
+    };
+    if (operation === "rollback") {
+      const prepare = new EnvelopeSchemaV1Migration(
         legacy,
         paths,
         keys,
         records,
         undefined,
         (_migration, _source, boundary) => {
-          if (!crashed && boundary === crashBoundary) {
-            crashed = true;
-            throw new Error(`M-03 crash at ${boundary}`);
-          }
+          if (boundary === "quarantined") throw new Error("prepare rollback");
         },
       );
-
-      await expect(interrupted.run([item])).rejects.toBeDefined();
-      expect(crashed).toBe(true);
-      await new EnvelopeSchemaV1Migration(
-        legacy,
-        paths,
-        keys,
-        records,
-      ).run([item]);
+      await expect(prepare.run([item])).rejects.toBeDefined();
+    }
+    const migration = new EnvelopeSchemaV1Migration(
+      legacy,
+      paths,
+      keys,
+      records,
+      undefined,
+      (_migration, _source, boundary, occurrence) =>
+        observe(reached, boundary, occurrence, target),
+    );
+    const execute = () =>
+      operation === "forward" ? migration.run([item]) : migration.rollback([item]);
+    if (!target) {
+      await execute();
+      return;
+    }
+    await expect(execute()).rejects.toBeDefined();
+    expect(reached.at(-1)?.id).toBe(target.id);
+    const sourceReadable = await readFile(
+      path.join(legacy, "record.v0"),
+    ).then(
+      (bytes) => bytes.equals(legacyBytes),
+      () => false,
+    );
+    const targetReadable =
+      (await records.get(item.id, item.recordType))?.migrated === operation;
+    const quarantineReadable = [...(await readTree(storage)).values()].some(
+      (bytes) => bytes.includes(legacyBytes),
+    );
+    expect(sourceReadable || targetReadable || quarantineReadable).toBe(true);
+    const replay = new EnvelopeSchemaV1Migration(
+      legacy,
+      paths,
+      keys,
+      records,
+    );
+    if (operation === "forward") {
+      await replay.run([item]);
       expect(await records.get(item.id, item.recordType)).toEqual({
-        migrated: crashBoundary,
+        migrated: operation,
       });
-      await expect(stat(path.join(legacy, "record.v0"))).rejects.toMatchObject({
-        code: "ENOENT",
-      });
-    });
-  }
-
-  const rollbackBoundaries: readonly MigrationBoundary[] = [
-    "before-restore-rename",
-    "after-restore-rename",
-    "before-target-delete",
-    "after-target-delete",
-  ];
-  for (const crashBoundary of rollbackBoundaries) {
-    await withTempDirectory(async (fixtureRoot) => {
-      const legacy = path.join(fixtureRoot, "legacy");
-      const storage = path.join(fixtureRoot, "storage");
-      await mkdir(legacy, { recursive: true });
-      const legacyBytes = Buffer.from(`authenticated-v0::${crashBoundary}`);
-      await writeFile(path.join(legacy, "record.v0"), legacyBytes);
-      const paths = new StoragePaths(storage);
-      const keys = new InstallationKeyService(
-        paths,
-        new DeterministicFakeKeyProtector(),
-        undefined,
-        () => Buffer.from(DETERMINISTIC_INSTALLATION_KEY),
-      );
-      const records = new EncryptedRecordRepository<{ migrated: string }>(
-        paths,
-        keys,
-        undefined,
-        "m03-rollback-crash-records",
-      );
-      const item = {
-        relativePath: "record.v0",
-        id: "m03-rollback-crash-record",
-        recordType: "application/x-session+json",
-        decrypt: async (bytes: Buffer) => {
-          expect(bytes).toEqual(legacyBytes);
-          return { migrated: crashBoundary };
-        },
-      };
-      const prepareRollback = new EnvelopeSchemaV1Migration(
-        legacy,
-        paths,
-        keys,
-        records,
-        undefined,
-        (_migration, _source, boundary) => {
-          if (boundary === "quarantined") {
-            throw new Error("leave M-03 quarantine for rollback");
-          }
-        },
-      );
-      await expect(prepareRollback.run([item])).rejects.toBeDefined();
-
-      let crashed = false;
-      const interruptedRollback = new EnvelopeSchemaV1Migration(
-        legacy,
-        paths,
-        keys,
-        records,
-        undefined,
-        (_migration, _source, boundary) => {
-          if (!crashed && boundary === crashBoundary) {
-            crashed = true;
-            throw new Error(`M-03 rollback crash at ${boundary}`);
-          }
-        },
-      );
-      await expect(interruptedRollback.rollback([item])).rejects.toBeDefined();
-      expect(crashed).toBe(true);
-
-      await new EnvelopeSchemaV1Migration(
-        legacy,
-        paths,
-        keys,
-        records,
-      ).rollback([item]);
+    } else {
+      await replay.rollback([item]);
       expect(await readFile(path.join(legacy, "record.v0"))).toEqual(
         legacyBytes,
       );
       expect(await records.get(item.id, item.recordType)).toBeUndefined();
-    });
+    }
+  });
+  return reached;
+}
+
+it("reconciles every write-ahead filesystem boundary after a crash", async () => {
+  const expected = await m02Forward();
+  assertOccurrenceMatrix(expected, 8, [
+    "before-target-write",
+    "after-target-write",
+    "before-quarantine-rename",
+    "after-quarantine-rename",
+    "before-quarantine-delete",
+    "after-quarantine-delete",
+  ]);
+  for (const occurrence of expected) await m02Forward(occurrence);
+}, 60_000);
+
+it("restores and verifies the prior copy before rollback target deletion", async () => {
+  const expected = await m02Rollback();
+  assertOccurrenceMatrix(expected, 3, [
+    "before-restore-rename",
+    "after-restore-rename",
+    "before-target-delete",
+    "after-target-delete",
+  ]);
+  for (const occurrence of expected) await m02Rollback(occurrence);
+}, 60_000);
+
+it("reconciles M-03 filesystem boundaries after a crash", async () => {
+  for (const operation of ["forward", "rollback"] as const) {
+    const expected = await m03Flow(operation);
+    assertOccurrenceMatrix(
+      expected,
+      operation === "forward" ? 7 : 3,
+      operation === "forward"
+        ? [
+            "before-target-write",
+            "after-target-write",
+            "before-quarantine-rename",
+            "after-quarantine-rename",
+            "before-quarantine-delete",
+            "after-quarantine-delete",
+          ]
+        : [
+            "before-restore-rename",
+            "after-restore-rename",
+            "before-target-delete",
+            "after-target-delete",
+          ],
+    );
+    for (const occurrence of expected) {
+      await m03Flow(operation, occurrence);
+    }
   }
-});
+}, 60_000);

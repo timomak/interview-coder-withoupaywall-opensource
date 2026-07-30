@@ -51,6 +51,8 @@ it("finds no sensitive fixture bytes at rest", async () => {
     const forbidden = [
       ...markers.map((marker) => Buffer.from(marker)),
       screenshot,
+      Buffer.from(screenshot.toString("base64")),
+      Buffer.from(screenshot.toString("hex")),
       DETERMINISTIC_INSTALLATION_KEY,
       Buffer.from(DETERMINISTIC_INSTALLATION_KEY.toString("base64")),
       Buffer.from(DETERMINISTIC_INSTALLATION_KEY.toString("hex")),

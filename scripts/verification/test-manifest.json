@@ -44,7 +44,17 @@
     {
       "path": "electron/windowOpenPolicy.test.ts",
       "name": "P01-R1-B01 denies every implicit child while preserving external links",
-      "sha256": "e99bc812843ca5e18b2fc264da7803fe30401b747e4162395911251b83a4ba8a"
+      "sha256": "4be2026f08139ed4d2cb30a3cdebb904b529d64c0566daea990f32f71f6279fc"
+    },
+    {
+      "path": "electron/ScreenshotHelper.test.ts",
+      "name": "captures previews retains and deletes without plaintext PNG persistence",
+      "sha256": "ea50b63230fe0e1d8df51f534c186a667f663fc469cb3ec14a97d5d9fe3da83a"
+    },
+    {
+      "path": "electron/ScreenshotHelper.test.ts",
+      "name": "uses the Windows in-memory fallback without a filename",
+      "sha256": "ea50b63230fe0e1d8df51f534c186a667f663fc469cb3ec14a97d5d9fe3da83a"
     },
     {
       "path": "scripts/qualification/repositoryDiscovery.test.cjs",
@@ -259,27 +269,27 @@
     {
       "path": "electron/storage/plaintextLeak.test.ts",
       "name": "finds no sensitive fixture bytes at rest",
-      "sha256": "524e41ac577c1e007bd9d321433a7a7dce76b74b4a403f292d345f56531fddb3"
+      "sha256": "6ffc8be25000c1a06030d0eb8a5e9942d13c25fbc760d32be090cb060e007aa8"
     },
     {
       "path": "electron/storage/plaintextMigration.test.ts",
       "name": "journals verifies and resumes legacy artifact migration",
-      "sha256": "9bd3e1b0f296aefac9de32af52f69c0a44005041b53b1c20cbabfcb340b8d84f"
+      "sha256": "b93caeac6923e7d7690fad3b50b13c8cde0b504c7a0f6ef4cf041513320b9e47"
     },
     {
       "path": "electron/storage/plaintextMigration.test.ts",
       "name": "reconciles every write-ahead filesystem boundary after a crash",
-      "sha256": "9bd3e1b0f296aefac9de32af52f69c0a44005041b53b1c20cbabfcb340b8d84f"
+      "sha256": "b93caeac6923e7d7690fad3b50b13c8cde0b504c7a0f6ef4cf041513320b9e47"
     },
     {
       "path": "electron/storage/plaintextMigration.test.ts",
       "name": "restores and verifies the prior copy before rollback target deletion",
-      "sha256": "9bd3e1b0f296aefac9de32af52f69c0a44005041b53b1c20cbabfcb340b8d84f"
+      "sha256": "b93caeac6923e7d7690fad3b50b13c8cde0b504c7a0f6ef4cf041513320b9e47"
     },
     {
       "path": "electron/storage/plaintextMigration.test.ts",
       "name": "reconciles M-03 filesystem boundaries after a crash",
-      "sha256": "9bd3e1b0f296aefac9de32af52f69c0a44005041b53b1c20cbabfcb340b8d84f"
+      "sha256": "b93caeac6923e7d7690fad3b50b13c8cde0b504c7a0f6ef4cf041513320b9e47"
     },
     {
       "path": "electron/storage/recovery.test.ts",
@@ -344,27 +354,37 @@
     {
       "path": "electron/orchestrator/resetSemantics.test.ts",
       "name": "performs the sole terminal lifecycle transition",
-      "sha256": "913bc219d72eb04bd1fb5b10637bf2bd34f6ffb8f773fb59ced88e7f4ac1a982"
+      "sha256": "4324f568a23f9025948ce45952e5d33223a1c51a9b5318798e747665fa144bc1"
     },
     {
       "path": "electron/orchestrator/resetSemantics.test.ts",
       "name": "routes capture queue actions through typed interview commands",
-      "sha256": "913bc219d72eb04bd1fb5b10637bf2bd34f6ffb8f773fb59ced88e7f4ac1a982"
+      "sha256": "4324f568a23f9025948ce45952e5d33223a1c51a9b5318798e747665fa144bc1"
     },
     {
       "path": "electron/orchestrator/resetSemantics.test.ts",
-      "name": "serializes reset after provider cancellation before archiving",
-      "sha256": "913bc219d72eb04bd1fb5b10637bf2bd34f6ffb8f773fb59ced88e7f4ac1a982"
+      "name": "serializes reset after compact cancellation before archiving",
+      "sha256": "4324f568a23f9025948ce45952e5d33223a1c51a9b5318798e747665fa144bc1"
+    },
+    {
+      "path": "electron/orchestrator/resetSemantics.test.ts",
+      "name": "serializes hostile concurrent submissions and delayed saves",
+      "sha256": "4324f568a23f9025948ce45952e5d33223a1c51a9b5318798e747665fa144bc1"
     },
     {
       "path": "electron/orchestrator/crashRecovery.test.ts",
       "name": "restores one encrypted provider conversation with capture off",
-      "sha256": "1ca645838a2b2e285d360c257f8d363ee50230fab5961a954d1853cd93210bd2"
+      "sha256": "8661e2f81db1061c1ceb45e5aa58fc8ab4941f29ab61199453568c28bc2fc51a"
     },
     {
       "path": "electron/orchestrator/crashRecovery.test.ts",
       "name": "retries the exact pending delivery after failure and crash",
-      "sha256": "1ca645838a2b2e285d360c257f8d363ee50230fab5961a954d1853cd93210bd2"
+      "sha256": "8661e2f81db1061c1ceb45e5aa58fc8ab4941f29ab61199453568c28bc2fc51a"
+    },
+    {
+      "path": "electron/orchestrator/crashRecovery.test.ts",
+      "name": "retains and replays byte-exact pending context after cancellation",
+      "sha256": "8661e2f81db1061c1ceb45e5aa58fc8ab4941f29ab61199453568c28bc2fc51a"
     },
     {
       "path": "src/domain/interview/contextDetail.test.ts",
@@ -384,12 +404,17 @@
     {
       "path": "electron/orchestrator/bestEffortClarification.test.ts",
       "name": "answers without confidence gates and suggests material clarifications",
-      "sha256": "bedd7ffd979e45c9008d47ea427d7c5a8e7ab44864f6057162808535e0d1c414"
+      "sha256": "54ba9486d60a3e826f7b5daeb50b52d705a84081903d299b4907cbd20087dfa6"
     },
     {
       "path": "electron/orchestrator/bestEffortClarification.test.ts",
       "name": "derives material suggestions and ignores immaterial omissions",
-      "sha256": "bedd7ffd979e45c9008d47ea427d7c5a8e7ab44864f6057162808535e0d1c414"
+      "sha256": "54ba9486d60a3e826f7b5daeb50b52d705a84081903d299b4907cbd20087dfa6"
+    },
+    {
+      "path": "electron/orchestrator/bestEffortClarification.test.ts",
+      "name": "places only material mode omissions in real provider prompts",
+      "sha256": "54ba9486d60a3e826f7b5daeb50b52d705a84081903d299b4907cbd20087dfa6"
     },
     {
       "path": "electron/orchestrator/correctionRevision.test.ts",

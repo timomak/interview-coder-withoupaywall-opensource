@@ -77,7 +77,14 @@ export type MigrationCheckpoint = (
   migration: MigrationId,
   source: string,
   boundary: MigrationBoundary,
+  occurrence: MigrationOccurrence,
 ) => void | Promise<void>;
+
+export interface MigrationOccurrence {
+  readonly boundary: MigrationBoundary;
+  readonly occurrence: number;
+  readonly id: string;
+}
 
 const MIGRATION_STAGES = new Set<MigrationStage>([
   "pending",
@@ -238,6 +245,8 @@ function hashMatches(bytes: Buffer, expected: string): boolean {
 }
 
 abstract class JournaledMigration {
+  private readonly occurrences = new Map<MigrationBoundary, number>();
+
   protected constructor(
     protected readonly migration: MigrationId,
     protected readonly journal: EncryptedMigrationJournal,
@@ -249,10 +258,10 @@ abstract class JournaledMigration {
     source: string,
     stage?: MigrationStage,
   ): Promise<void> {
-    await this.checkpoint?.(this.migration, source, "before-journal-write");
+    await this.reach(source, "before-journal-write");
     await this.journal.save(journal);
-    await this.checkpoint?.(this.migration, source, "after-journal-write");
-    if (stage) await this.checkpoint?.(this.migration, source, stage);
+    await this.reach(source, "after-journal-write");
+    if (stage) await this.reach(source, stage);
   }
 
   protected async transition(
@@ -265,7 +274,22 @@ abstract class JournaledMigration {
   }
 
   protected boundary(source: string, boundary: MigrationBoundary): Promise<void> {
-    return Promise.resolve(this.checkpoint?.(this.migration, source, boundary));
+    return this.reach(source, boundary);
+  }
+
+  private reach(
+    source: string,
+    boundary: MigrationBoundary,
+  ): Promise<void> {
+    const occurrence = (this.occurrences.get(boundary) ?? 0) + 1;
+    this.occurrences.set(boundary, occurrence);
+    return Promise.resolve(
+      this.checkpoint?.(this.migration, source, boundary, {
+        boundary,
+        occurrence,
+        id: `${boundary}#${occurrence}`,
+      }),
+    );
   }
 }
 

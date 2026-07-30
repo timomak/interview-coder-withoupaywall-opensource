@@ -23,6 +23,7 @@ import {
 import { ProviderRuntime, diagnoseProvider } from "./providers"
 import {
   ElectronSafeStorageKeyProtector,
+  EncryptedBlobRepository,
   EncryptedRecordRepository,
   InstallationKeyService,
   StoragePaths
@@ -240,23 +241,14 @@ async function providerDiagnostics(
 }
 
 function createOrchestrator(
-  executables: ProviderExecutables
+  executables: ProviderExecutables,
+  repository: ActiveSessionRepository
 ): InterviewOrchestrator {
-  const storagePaths = new StoragePaths(
-    path.join(app.getPath("userData"), "encrypted")
-  )
-  const keyService = new InstallationKeyService(
-    storagePaths,
-    new ElectronSafeStorageKeyProtector(safeStorage)
-  )
-  const records = new EncryptedRecordRepository<
-    M04ActiveSnapshot | ResetArchive
-  >(storagePaths, keyService)
   const providerRuntime = new ProviderRuntime({
     executables
   })
   return new InterviewOrchestrator({
-    repository: new ActiveSessionRepository(records),
+    repository,
     providerFactory: {
       create: (snapshot, requestedConversationId) =>
         providerRuntime.startSession({
@@ -303,9 +295,22 @@ async function initializeApplication(): Promise<void> {
   const userData = path.join(app.getPath("appData"), "InterviewCopilot")
   app.setPath("userData", userData)
   const executables = providerExecutables()
-  const orchestrator = createOrchestrator(executables)
+  const storagePaths = new StoragePaths(path.join(userData, "encrypted"))
+  const keyService = new InstallationKeyService(
+    storagePaths,
+    new ElectronSafeStorageKeyProtector(safeStorage)
+  )
+  const records = new EncryptedRecordRepository<
+    M04ActiveSnapshot | ResetArchive
+  >(storagePaths, keyService)
+  const orchestrator = createOrchestrator(
+    executables,
+    new ActiveSessionRepository(records)
+  )
   createWindow()
-  const screenshots = new ScreenshotHelper()
+  const screenshots = new ScreenshotHelper(
+    new EncryptedBlobRepository(storagePaths, keyService)
+  )
   const capture = new InterviewCaptureController(
     orchestrator,
     screenshots,

@@ -112,12 +112,14 @@ describe("window-open capture lifecycle policy", () => {
       "utf8"
     )
     expect(mainSource).toMatch(
-      /new ScreenshotHelper\(\)[\s\S]*new InterviewCaptureController\([\s\S]*new ShortcutsHelper\([\s\S]*registerGlobalShortcuts\(\)/
+      /new EncryptedBlobRepository\(storagePaths, keyService\)[\s\S]*new InterviewCaptureController\([\s\S]*new ShortcutsHelper\([\s\S]*registerGlobalShortcuts\(\)/
     )
     expect(shortcutsSource).not.toMatch(
       /setView|reset-view|screenshot-taken|processingHelper/
     )
     expect(screenshotSource.match(/screenshotQueue/g)).not.toHaveLength(0)
-    expect(screenshotSource).not.toMatch(/extraScreenshotQueue|setView/)
+    expect(screenshotSource).not.toMatch(
+      /extraScreenshotQueue|setView|writeFile|filename|app\.getPath/
+    )
   })
 })

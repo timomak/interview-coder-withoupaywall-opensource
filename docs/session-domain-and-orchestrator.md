@@ -42,7 +42,10 @@ pending packet. Preparing a turn writes the pending packet before provider I/O.
 Only an accepted completion commits its cursor; failure, cancellation, or a
 crash reuses the exact pending packet and attempt ID. This prevents evidence
 from being skipped after an uncertain delivery and prevents accepted evidence
-from being duplicated on the following turn.
+from being duplicated on the following turn. The cancellation recovery
+contract interrupts a real structured turn after that pending write, resumes
+the encrypted record, sends the byte-identical packet, and advances the cursor
+exactly once on accepted completion.
 
 | Order | Source | Coding | System design / Behavioral |
 |---|---|---:|---:|
@@ -118,13 +121,21 @@ Cancel and Reset synchronously abort the relevant child before their queued
 transition; every turn also carries a generation token, so late callbacks
 cannot publish into a newer lifecycle. Reset waits for cancellation to settle
 and for the encrypted archive write to succeed before publishing Idle.
+Hostile tests issue concurrent submissions against a repository whose later
+sequences would finish sooner if writes overlapped; observed snapshots remain
+monotonic with one write in flight. Compact Reset tests make the provider emit
+after abort and prove no stale event or active snapshot crosses the generation
+change before archive.
 
 The production composition root restores one screenshot queue and maps global
 capture, submit, exclude-last, Reset, movement, visibility, opacity, zoom, and
 quit shortcuts to typed actions. The screenshot helper owns capture mechanics
-only; it cannot change renderer views or session state. Reset clears captured
-files only after the typed Reset succeeds, preventing UI shortcuts from
-becoming a second session authority.
+only; it cannot change renderer views or session state. It captures into memory
+and retains only authenticated encrypted blobs under the installation key.
+Preview decrypts one queued blob for immediate typed staging; retention,
+exclude-last, and successful Reset remove encrypted blobs. Reset clears the
+queue only after the typed Reset succeeds, preventing UI shortcuts from
+becoming a second session authority or leaving plaintext PNGs at rest.
 
 Forward M-04 versions are rejected. There is no lossy downgrade. Rollback keeps
 the encrypted v1 record readable by the current build; withdrawing P04 restores

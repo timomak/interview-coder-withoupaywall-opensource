@@ -3,7 +3,10 @@ import type { ProviderSelection } from "../../src/shared/provider"
 import type { StartSnapshot } from "../../src/shared/interview"
 import type { ProviderConversationFactory } from "./InterviewOrchestrator"
 import { InterviewCaptureController, ScreenshotQueue } from "./captureIntegration"
+import type { M04ActiveSnapshot } from "./sessionRepository"
 import {
+  FakeProviderFactory,
+  MemoryRecordRepository,
   TEST_SNAPSHOT,
   createTestOrchestrator,
   createTestOrchestratorWithFactory,
@@ -18,6 +21,13 @@ const selection: ProviderSelection = {
 }
 
 class ResetBlockingFactory implements ProviderConversationFactory {
+  private startedResolve!: () => void
+  readonly started = new Promise<void>((resolve) => {
+    this.startedResolve = resolve
+  })
+
+  constructor(readonly trace: string[] = []) {}
+
   create(
     _snapshot: StartSnapshot,
     requestedConversationId: string
@@ -34,21 +44,83 @@ class ResetBlockingFactory implements ProviderConversationFactory {
       selection,
       conversationId: () => conversationId,
       runTurn: async (_prompt, signal, onEvent) => {
-        const event = {
-          type: "text-delta" as const,
+        const started = {
+          type: "started" as const,
           sequence: 1,
-          text: "must not survive reset"
         }
-        await onEvent?.(event)
+        await onEvent?.(started)
+        this.trace.push("provider-started")
+        this.startedResolve()
         await new Promise<void>((resolve) => {
           if (signal?.aborted) {
             resolve()
             return
           }
-          signal?.addEventListener("abort", () => resolve(), { once: true })
+          signal?.addEventListener(
+            "abort",
+            () => {
+              this.trace.push("abort-observed")
+              resolve()
+            },
+            { once: true }
+          )
         })
-        return { selection, events: [event] }
+        const stale = {
+          type: "text-delta" as const,
+          sequence: 2,
+          text: "must not survive reset"
+        }
+        await onEvent?.(stale)
+        await new Promise((resolve) => setTimeout(resolve, 5))
+        this.trace.push("provider-settled")
+        return {
+          selection,
+          events: [
+            started,
+            stale,
+            { type: "completed" as const, sequence: 3 }
+          ]
+        }
       }
+    }
+  }
+}
+
+class HostileDelayedRepository extends MemoryRecordRepository<M04ActiveSnapshot> {
+  readonly completionSequences: number[] = []
+  readonly trace: string[]
+  maxConcurrentWrites = 0
+  private concurrentWrites = 0
+
+  constructor(trace: string[] = []) {
+    super()
+    this.trace = trace
+  }
+
+  override async put(id: string, record: M04ActiveSnapshot): Promise<void> {
+    this.concurrentWrites += 1
+    this.maxConcurrentWrites = Math.max(
+      this.maxConcurrentWrites,
+      this.concurrentWrites
+    )
+    const sequence =
+      record.schemaVersion === 1 ? record.session.sequence : undefined
+    try {
+      await new Promise((resolve) =>
+        setTimeout(
+          resolve,
+          sequence === undefined ? 1 : Math.max(1, 30 - sequence)
+        )
+      )
+      await super.put(id, record)
+      if (sequence !== undefined) {
+        this.completionSequences.push(sequence)
+        this.trace.push(`active-write:${sequence}`)
+      } else if (id.startsWith("archive:")) {
+        this.trace.push("archive-write")
+      }
+    } finally {
+      this.concurrentWrites -= 1
     }
   }
 }
@@ -79,15 +151,15 @@ describe("Reset semantics", () => {
       takeScreenshot: async (hide, show) => {
         hide()
         show()
-        return "/tmp/capture-001.png"
+        return "opaque-capture-001"
       },
       getImagePreview: async () => "data:image/png;base64,capture",
-      getScreenshotQueue: () => ["/tmp/capture-001.png"],
-      deleteScreenshot: async (filePath) => {
-        deleted.push(filePath)
+      getScreenshotQueue: () => ["opaque-capture-001"],
+      deleteScreenshot: async (screenshotId) => {
+        deleted.push(screenshotId)
         return { success: true }
       },
-      clearQueues: () => {
+      clearQueues: async () => {
         cleared = true
       }
     }
@@ -103,7 +175,7 @@ describe("Reset semantics", () => {
     await controller.capture()
     expect(visibility).toEqual(["hidden", "shown"])
     expect(currentActive(orchestrator.current()).artifacts[0]).toMatchObject({
-      id: "screenshot:capture-001",
+      id: "screenshot:opaque-capture-001",
       selected: true,
       submitted: false
     })
@@ -114,36 +186,122 @@ describe("Reset semantics", () => {
     await controller.reset()
     expect(orchestrator.current().lifecycle).toBe("idle")
     expect(cleared).toBe(true)
-    expect(deleted).toEqual([])
+    expect(deleted).toEqual(["opaque-capture-001"])
   })
 
-  it("serializes reset after provider cancellation before archiving", async () => {
+  it("serializes reset after compact cancellation before archiving", async () => {
+    const trace: string[] = []
+    const provider = new ResetBlockingFactory(trace)
+    const hostileRecords = new HostileDelayedRepository(trace)
     const { orchestrator, records } = createTestOrchestratorWithFactory(
-      new ResetBlockingFactory()
+      provider,
+      hostileRecords
     )
     await orchestrator.command({ type: "start", snapshot: TEST_SNAPSHOT })
     const submission = orchestrator.command({
       type: "submit",
-      route: "mode-action",
-      input: "blocking turn",
-      sectionIds: ["answer"]
+      route: "clarification",
+      input: "blocking compact turn"
     })
-    await vi.waitFor(() => {
-      expect(currentActive(orchestrator.current()).requests).toHaveLength(1)
-    })
+    await provider.started
     const reset = orchestrator.command({ type: "reset" })
 
     expect(await submission).toMatchObject({ ok: true })
     expect(await reset).toMatchObject({ ok: true })
+    expect(trace.indexOf("abort-observed")).toBeGreaterThan(-1)
+    expect(trace.indexOf("provider-settled")).toBeLessThan(
+      trace.indexOf("archive-write")
+    )
+    const afterAbort = trace.slice(trace.indexOf("abort-observed") + 1)
+    expect(afterAbort.some((item) => item.startsWith("active-write:"))).toBe(
+      false
+    )
     expect(orchestrator.current()).toMatchObject({
       lifecycle: "idle",
       lastArchive: {
         session: {
           lifecycle: "active",
-          captureActive: false
+          captureActive: false,
+          compactExchanges: []
         }
       }
     })
     expect(records.values.has("active-interview-session")).toBe(false)
+  })
+
+  it("serializes hostile concurrent submissions and delayed saves", async () => {
+    const records = new HostileDelayedRepository()
+    const provider = new FakeProviderFactory()
+    provider.queued.push(
+      {
+        selection,
+        events: [
+          {
+            type: "typed-payload",
+            sequence: 1,
+            payload: {
+              kind: "structured",
+              sections: [{ id: "first", body: "first answer" }]
+            }
+          },
+          { type: "completed", sequence: 2 }
+        ]
+      },
+      {
+        selection,
+        events: [
+          {
+            type: "typed-payload",
+            sequence: 1,
+            payload: {
+              kind: "structured",
+              sections: [{ id: "second", body: "second answer" }]
+            }
+          },
+          { type: "completed", sequence: 2 }
+        ]
+      }
+    )
+    const fixture = createTestOrchestrator(provider, records)
+    await fixture.orchestrator.command({
+      type: "start",
+      snapshot: TEST_SNAPSHOT
+    })
+    const first = fixture.orchestrator.command({
+      type: "submit",
+      route: "mode-action",
+      input: "first concurrent command",
+      sectionIds: ["first"]
+    })
+    const second = fixture.orchestrator.command({
+      type: "submit",
+      route: "mode-action",
+      input: "second concurrent command",
+      sectionIds: ["second"]
+    })
+
+    expect(await Promise.all([first, second])).toEqual([
+      expect.objectContaining({ ok: true }),
+      expect.objectContaining({ ok: true })
+    ])
+    expect(provider.prompts.map((prompt) => JSON.parse(prompt).input)).toEqual([
+      "first concurrent command",
+      "second concurrent command"
+    ])
+    expect(records.maxConcurrentWrites).toBe(1)
+    expect(
+      records.completionSequences.every(
+        (sequence, index, values) =>
+          index === 0 || sequence >= values[index - 1]
+      )
+    ).toBe(true)
+    expect(
+      currentActive(fixture.orchestrator.current()).sections.map(
+        ({ id, body }) => ({ id, body })
+      )
+    ).toEqual([
+      { id: "first", body: "first answer" },
+      { id: "second", body: "second answer" }
+    ])
   })
 })

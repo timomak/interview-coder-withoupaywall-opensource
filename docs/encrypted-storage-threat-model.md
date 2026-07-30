@@ -96,6 +96,22 @@ Opaque lowercase hashed filenames avoid case-folding collisions. The path test
 also probes the actual test volume so the authoritative macOS run records
 whether it is case-insensitive.
 
+## Production screenshot retention
+
+Production capture acquires PNG bytes in memory. The Windows primary path and
+PowerShell fallback both return memory buffers; neither accepts a filename or
+creates a temporary PNG. The one screenshot queue stores opaque IDs backed by
+`EncryptedBlobRepository` using the same installation-key service as M-04.
+Preview decrypts one blob only long enough to create the immediate typed
+submission, then clears the byte buffer. Retention expiry, exclusion, and
+successful Reset remove the corresponding encrypted blobs.
+
+This prevents the previous failure mode where raw PNGs survived below
+`userData` or the operating-system temporary directory. JavaScript base64
+strings used for the immediate renderer payload cannot be zeroed, but they are
+never written by the capture helper and session persistence encrypts the
+payload.
+
 ## M-02 and M-03 migration/rollback
 
 Both migrations use an AES-GCM-encrypted, atomically written v1 journal. Replay
@@ -104,6 +120,13 @@ saved before every target write, quarantine rename/delete, rollback restore,
 and target delete. Replay reconciles actual source/quarantine/target presence
 against that intent before continuing, covering a crash after the filesystem
 mutation but before its completion stage can be journaled.
+
+The crash hook identifies each boundary occurrence as
+`<boundary>#<occurrence>`. Tests first enumerate the exact number of journal
+saves and filesystem mutations in each M-02/M-03 forward and rollback flow,
+then interrupt every individual occurrence. Before replay they require a
+readable source, quarantine, or authenticated target; this catches a missing
+checkpoint as well as last-copy loss.
 
 M-02 converts legacy plaintext screenshot/temp/cache artifacts:
 
@@ -149,8 +172,11 @@ The eight storage-owned tests bind directly to P03:
 - `keyLifecycle.test.ts` proves one protected random installation key and
   restart reopen, plus the locked production adapter boundary.
 - `plaintextLeak.test.ts` byte-scans every fixture file for transcript, prompt,
-  screenshot, diagram, profile, index-term, raw-key, base64-key, and hex-key
-  material.
+  screenshot (raw/base64/hex), diagram, profile, index-term, raw-key,
+  base64-key, and hex-key material.
+- `ScreenshotHelper.test.ts` exercises primary and Windows-fallback in-memory
+  capture, encrypted preview, queue retention/deletion, and userData/temp
+  raw/base64/hex marker scans while an authenticated blob exists.
 - `envelopeCrypto.test.ts` proves nonce uniqueness and ciphertext/AAD metadata
   tamper rejection.
 - `atomicity.test.ts` injects interruption and disk exhaustion and observes
