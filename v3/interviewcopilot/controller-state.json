@@ -512,12 +512,20 @@
       "w2IntegratedRevision": "a81665e09420bce21a964474a920675d78112a2c",
       "worktreeClean": true
     },
-    "targetAddendum": {
-      "path": "v3/interviewcopilot/milestone-IC-M01-target-addendum-1.json",
-      "sha256": "f4ae3109c9a3e337a235791d434bc64134bff28d00b78d580570389f652a81ac",
-      "scope": "P02_AC1_SUPABASE_WINDOW_OPEN_FIXTURE_TWO_PATHS_ONLY",
-      "owner": "IC-M01-W3"
-    },
+    "targetAddenda": [
+      {
+        "path": "v3/interviewcopilot/milestone-IC-M01-target-addendum-1.json",
+        "sha256": "f4ae3109c9a3e337a235791d434bc64134bff28d00b78d580570389f652a81ac",
+        "scope": "P02_AC1_SUPABASE_WINDOW_OPEN_FIXTURE_TWO_PATHS_ONLY",
+        "owner": "IC-M01-W3"
+      },
+      {
+        "path": "v3/interviewcopilot/milestone-IC-M01-target-addendum-2.json",
+        "sha256": "8f8ca9f3740542f74d4af4bd98e0a34ad6d4345dab7c1c7defd80c106e24553f",
+        "scope": "P02_AC1_FIVE_DECLARATION_AND_LAUNCHER_LABEL_PATHS_ONLY",
+        "owner": "IC-M01-W3"
+      }
+    ],
     "activeWorkPackage": {
       "id": "IC-M01-W3",
       "reason": "EXACT_W1_AND_W2_HANDOFFS_INTEGRATED",

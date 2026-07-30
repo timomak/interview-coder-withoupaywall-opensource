@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "kind": "milestone-mutable-target-addendum",
+  "projectKey": "InterviewCopilot",
+  "milestoneId": "IC-M01",
+  "sourceFreezePacket": "v3/interviewcopilot/milestone-IC-M01-freeze-1.json",
+  "sourceFreezePacketSha256": "ce40840212f4b1f5f114f5746acec721c430fc17a372522df1b52a153d09d05b",
+  "discoveredBy": "IC-M01-W3 cumulative P02 legacy-surface scan before candidate freeze",
+  "classification": "SOURCE_REQUIRED_P02_AC1_FINAL_DECLARATION_AND_LABEL_CLEANUP",
+  "finding": "All owned runtime surfaces and dependencies are clean, but five inherited declaration or launcher files outside the frozen targets still expose removed Supabase environment names, credit or auth-token globals, or the legacy No Paywall label.",
+  "addedMutableTargets": [
+    "env.d.ts",
+    "src/vite-env.d.ts",
+    "src/types/global.d.ts",
+    "stealth-run.sh",
+    "stealth-run.bat"
+  ],
+  "owner": "IC-M01-W3",
+  "requiredChange": [
+    "remove VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY declarations",
+    "remove __CREDITS__ and __AUTH_TOKEN__ declarations while preserving still-used non-legacy globals",
+    "replace the No Paywall launcher label with the canonical InterviewCopilot product name without changing launcher behavior"
+  ],
+  "scopeGuard": [
+    "declarations and visible launcher label only",
+    "no launcher behavior or stealth/capture change",
+    "no environment credential values",
+    "no P05 or later product scope"
+  ],
+  "ownershipAudit": {
+    "overlapWithW1": false,
+    "overlapWithW2": false,
+    "overlapWithExistingW3": false,
+    "singleWriter": "IC-M01-W3",
+    "integrationTiming": "BEFORE_CUMULATIVE_P02_ACCEPTANCE"
+  },
+  "review": "Included in the already-frozen one complete cumulative IC-M01-G1 finding batch; this source-required addendum creates no additional general review or authoritative-suite attempt.",
+  "rollback": "Restore the exact admitted P01 declarations and launcher labels if IC-M01 is withdrawn; PR 155 and the user worktree remain unchanged.",
+  "privileged": false,
+  "status": "FROZEN"
+}
