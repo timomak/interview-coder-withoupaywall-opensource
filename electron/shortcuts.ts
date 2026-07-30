@@ -21,10 +21,15 @@ export interface ShortcutRegistrationResult {
 }
 
 export class ShortcutsHelper {
-  private bindings: ShortcutBindings = DEFAULT_SHORTCUT_BINDINGS
+  private bindings: ShortcutBindings
   private hasRegisteredBindings = false
 
-  constructor(private readonly deps: ShortcutsHelperDependencies) {}
+  constructor(
+    private readonly deps: ShortcutsHelperDependencies,
+    initialBindings: ShortcutBindings = DEFAULT_SHORTCUT_BINDINGS
+  ) {
+    this.bindings = { ...initialBindings }
+  }
 
   currentBindings(): ShortcutBindings {
     return { ...this.bindings }
@@ -68,12 +73,10 @@ export class ShortcutsHelper {
     return { ok: true, bindings: this.currentBindings(), conflicts: {} }
   }
 
-  registerGlobalShortcuts(
-    bindings: ShortcutBindings = DEFAULT_SHORTCUT_BINDINGS
-  ): ShortcutRegistrationResult {
+  registerGlobalShortcuts(): ShortcutRegistrationResult {
     if (!this.deps.unregisterAll) {
       app.on("will-quit", () => globalShortcut.unregisterAll())
     }
-    return this.applyBindings(bindings)
+    return this.applyBindings(this.bindings)
   }
 }

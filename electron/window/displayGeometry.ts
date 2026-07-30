@@ -72,7 +72,7 @@ export class DisplayGeometryStore {
     this.remembered.set(`${displayId}:${state}`, { ...bounds })
   }
 
-  restore(
+  resolve(
     preferredDisplayId: string,
     state: HudState,
     fallback: WindowBounds,

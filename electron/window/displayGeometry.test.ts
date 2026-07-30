@@ -21,7 +21,7 @@ describe("display geometry", () => {
     })
 
     expect(
-      store.restore(
+      store.resolve(
         "left",
         "compact-bar",
         { x: 0, y: 24, width: 520, height: 44 },

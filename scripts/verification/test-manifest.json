@@ -484,12 +484,12 @@
     {
       "path": "electron/window/displayGeometry.test.ts",
       "name": "restores snaps and clamps each window state",
-      "sha256": "344db5fe4c1778fcfef7bf55c9237869fa7eef9f34fa0b3cba3c1fac2b8b8052"
+      "sha256": "f4b1696cfb9f4f80d3680b02a5da57d147e4368fb7e6218b92eda12ed8c5524e"
     },
     {
       "path": "electron/window/displayGeometry.test.ts",
       "name": "falls back to the nearest available display after disconnect",
-      "sha256": "344db5fe4c1778fcfef7bf55c9237869fa7eef9f34fa0b3cba3c1fac2b8b8052"
+      "sha256": "f4b1696cfb9f4f80d3680b02a5da57d147e4368fb7e6218b92eda12ed8c5524e"
     },
     {
       "path": "electron/capture/primaryDisplayCapture.test.ts",

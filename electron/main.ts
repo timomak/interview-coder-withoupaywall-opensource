@@ -126,7 +126,7 @@ function setHudState(nextState: HudState): void {
   currentHudState = nextState
   const currentBounds = mainWindow.getBounds()
   const currentDisplay = screen.getDisplayMatching(currentBounds)
-  const restored = geometryStore.restore(
+  const restored = geometryStore.resolve(
     String(currentDisplay.id),
     nextState,
     defaultBoundsFor(nextState),
@@ -434,6 +434,8 @@ async function initializeApplication(): Promise<void> {
     undefined,
     () => state.visible
   )
+  const configuredShortcuts =
+    configHelper.loadConfig().shell?.shortcuts ?? DEFAULT_SHORTCUT_BINDINGS
   const shortcuts = new ShortcutsHelper({
     invoke: (action: ShortcutAction) => {
       switch (action) {
@@ -469,10 +471,8 @@ async function initializeApplication(): Promise<void> {
           state.mainWindow?.webContents.send("shell:shortcut", action)
       }
     }
-  })
-  const configuredShortcuts =
-    configHelper.loadConfig().shell?.shortcuts ?? DEFAULT_SHORTCUT_BINDINGS
-  shortcuts.registerGlobalShortcuts(configuredShortcuts)
+  }, configuredShortcuts)
+  shortcuts.registerGlobalShortcuts()
   const applyShortcutBindings = (bindings: ShortcutBindings) => {
     const previous = shortcuts.currentBindings()
     const result = shortcuts.applyBindings(bindings)
