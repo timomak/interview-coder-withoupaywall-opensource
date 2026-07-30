@@ -1,0 +1,405 @@
+{
+  "schemaVersion": 1,
+  "kind": "milestone-replan-packet",
+  "projectKey": "InterviewCopilot",
+  "milestoneId": "IC-M00",
+  "replanId": "IC-M00-RP01",
+  "createdAt": "2026-07-30T11:10:00+02:00",
+  "controllerThreadId": "019f9ff6-e24b-7053-a2b3-fe01f8538ab4",
+  "status": "FROZEN_IMPLEMENTING",
+  "authority": {
+    "source": "Continue the existing v3 controller at durable revision dd48cb269582e257d5972e466c20bcca44749544 and perform the next safe IC-M00 milestone-level replan.",
+    "safeNonPrivilegedDesignBuildTestReviewAuthorized": true,
+    "privilegedActivationAuthorizedNow": false,
+    "passwordPromptAuthorizedNow": false,
+    "candidateInvocationAuthorizedNow": false
+  },
+  "checkpoint": {
+    "ledgerRevision": "dd48cb269582e257d5972e466c20bcca44749544",
+    "sourcePacketRevision": "P00-R9",
+    "sourcePacketCommit": "02ee6ddec78d6e4ea9e2de3c0303ffd6bc9f45bf",
+    "candidateRevision": "2e5045116db6e3c5f6e6cc18b70df6d7fa021baf",
+    "candidateParent": "1ff0881b9bd59f243146c93b6709be57d58ee17a",
+    "candidateWorktree": "/Users/thirdfacedev/.codex/worktrees/ic-m00-remediation/TimoCodes",
+    "candidateWorktreeState": "CLEAN_EXACT",
+    "pullRequest": "155_OPEN_DRAFT_HEAD_EXACT_CODEQL_SUCCESS",
+    "installedA02ControllerSha256": "73eda1532baa3044cf4feb989d2ec58d15304c86c31a298ed3d73a1a75c7494d",
+    "installedA02ManifestSha256": "945ffda713b5e9a02d2472d6f4e9e91340111384a6cdeab40890a5f3b572768b",
+    "installedA02ManifestResult": "PASS_ROOT_OWNED_EXACT",
+    "installedA02Authorization": "ABSENT",
+    "a03Installed": false,
+    "legacyV1Status": "PAYLOAD_RETAINED_QUARANTINED_DO_NOT_INVOKE",
+    "recovery03ReceiptSha256": "5da6d108e0fde1583bc09ecef806d591847c2c26c69bef461c5813390d36f5b8",
+    "recovery03Disposition": "TERMINAL_DO_NOT_RETRY"
+  },
+  "ownedRequirements": [
+    {
+      "id": "P01",
+      "status": "PARTIAL",
+      "remainingDelta": "Obtain one exact authoritative P01 verification in a trusted clean capability namespace, bind one complete independent finding batch and mechanical evidence validation to the exact candidate, integrate PR 155 through the protected workflow, and run focused post-merge verification."
+    }
+  ],
+  "outcome": "Close P01 through one fresh-namespace, principal-bound, P01-only verification capability while preserving the entire legacy verification-controller namespace and its historical evidence as immutable unauthorized state.",
+  "dependencies": [],
+  "workPackages": [
+    {
+      "id": "IC-M00-RP01-W1",
+      "title": "Build and prove the fresh-namespace P01 capability",
+      "mutableTargets": [
+        "capabilities/P00-V2-CAP-A04",
+        "v3/interviewcopilot/milestone-IC-M00-replan-1.json",
+        "v3/interviewcopilot/controller-state.json"
+      ],
+      "dependencies": []
+    }
+  ],
+  "namespaceContract": {
+    "artifactId": "P00-V2-CAP-A04",
+    "newControllerRoot": "/Users/Shared/InterviewCopilot/verification-controller-a04",
+    "newInstallRoot": "/Users/Shared/InterviewCopilot/verification-controller-a04/payload",
+    "newRequestRoot": "/Users/Shared/InterviewCopilot/verification-controller-a04/requests/501",
+    "newEvidenceRoot": "/Users/Shared/InterviewCopilot/verification-controller-a04/runs",
+    "newMetadataRoot": "/Users/Shared/InterviewCopilot/verification-controller-a04/metadata/P00-V2-CAP-A04",
+    "newAuthorization": "/etc/sudoers.d/interviewcopilot-verification-controller-a04",
+    "externalReceiptRoot": "/Users/Shared/InterviewCopilot/verification-controller-a04-receipts",
+    "activationReceipt": "/Users/Shared/InterviewCopilot/verification-controller-a04-receipts/P00-V2-CAP-A04-activation.json",
+    "legacyControllerRoot": "/Users/Shared/InterviewCopilot/verification-controller",
+    "legacyDisposition": "READ_ONLY_IDENTITY_PREFLIGHT_ONLY_NO_ENUMERATION_NO_MIGRATION_NO_MUTATION",
+    "historicalEvidenceImport": "NONE",
+    "admittedPhaseIds": [
+      "P01"
+    ],
+    "principal": {
+      "user": "thirdfacedev",
+      "uid": 501
+    },
+    "authorizedCommands": [
+      "/Users/Shared/InterviewCopilot/verification-controller-a04/payload/libexec/arm-phase-core with exactly one empty argument",
+      "/Users/Shared/InterviewCopilot/verification-controller-a04/payload/libexec/verify-phase-core with exactly one empty argument"
+    ]
+  },
+  "receiptContract": {
+    "location": "/Users/Shared/InterviewCopilot/verification-controller-a04-receipts/P00-V2-CAP-A04-activation.json",
+    "outsideRollbackDeletedNamespace": true,
+    "rootContract": "root:wheel directory, mode 0711, no ACL, no extended attributes, never recursively removed by install rollback or revocation",
+    "memberContract": "root:wheel regular file, mode 0444, link count 1, no ACL, no extended attributes, exact canonical JSON bytes",
+    "closedSchema": {
+      "schemaVersion": 1,
+      "requiredFields": [
+        "schemaVersion",
+        "artifactId",
+        "envelopeSha256",
+        "status",
+        "exitCode",
+        "checkpoint",
+        "candidateRevision",
+        "installedControllerSha256",
+        "authorizationPresent",
+        "namespacePresent",
+        "legacyA02ControllerSha256",
+        "legacyRecovery03ReceiptSha256"
+      ],
+      "artifactId": "P00-V2-CAP-A04",
+      "statusValues": [
+        "SUCCESS",
+        "FAILURE"
+      ],
+      "candidateRevision": "2e5045116db6e3c5f6e6cc18b70df6d7fa021baf",
+      "legacyA02ControllerSha256": "73eda1532baa3044cf4feb989d2ec58d15304c86c31a298ed3d73a1a75c7494d",
+      "legacyRecovery03ReceiptSha256": "5da6d108e0fde1583bc09ecef806d591847c2c26c69bef461c5813390d36f5b8"
+    },
+    "publication": "Write a root-only temporary regular file in the receipt root, fsync it, atomically publish without replacement, fsync the directory, then reopen and validate exact bytes and filesystem facts. A SUCCESS receipt is published only after authorization; any receipt-publication failure removes authorization and the fresh namespace before publishing FAILURE.",
+    "collisionAndReplay": "A pre-existing exact terminal receipt is validated and returned idempotently; any byte, schema, mode, owner, link, ACL, xattr, candidate, envelope, legacy-identity, or state disagreement fails closed. A FAILURE receipt permanently forbids reuse of the same artifact and handoff.",
+    "readContract": "UID 501 and the independent reviewer may read only the known exact receipt path through traverse-only ancestors; directory enumeration and writes remain forbidden.",
+    "retention": "Failure rollback and successful revocation retain the exact receipt. Revocation records its SHA-256 in the retained A04 evidence index and never modifies or deletes it."
+  },
+  "behaviorExpectations": [
+    "The controller remains data-closed to P01, P00-R9, PR 155, and exact candidate 2e5045116db6e3c5f6e6cc18b70df6d7fa021baf.",
+    "Source, staged, installed, metadata, request, anchor, run, and evidence identities fail closed on any disagreement.",
+    "Only the exact UID-501 empty-argument arm and verify commands receive authorization.",
+    "Candidate mutation, process survival, PR-head drift, repository-identity drift, plan drift, or evidence-integrity drift fails closed.",
+    "All package gates continue after an individual failure and aggregate exactly.",
+    "Top-level independent evidence is root-owned, single-link, non-ACL, and read-only through an explicit bounded export/read contract."
+  ],
+  "compatibilityExpectations": [
+    "P00-R9 and every frozen P01 acceptance condition remain unchanged.",
+    "PR 155 remains based on 9dcb4b2d39607273a8528a24657cdb4f5bfc3412 with exact head 2e5045116db6e3c5f6e6cc18b70df6d7fa021baf until accepted integration.",
+    "The canonical user worktree and all user-owned changes remain untouched.",
+    "Legacy v1, installed A02, A03 metadata absence, RECOVERY-01/02/03 receipts, and every historical run byte remain unchanged and unauthorized.",
+    "Existing exact candidate, CodeQL, capability-source, and closed-review evidence remains reusable where its identity is unchanged."
+  ],
+  "failureExpectations": [
+    "Installation never enumerates, normalizes, relocates, hard-links, deletes, chmods, chowns, or imports the legacy controller runs.",
+    "Installation rejects a pre-existing new namespace or authorization path instead of adopting unknown state.",
+    "Installation publishes authorization last, after exact staged and installed byte verification, metadata construction, native self-test, and negative preflight.",
+    "Installation failure removes new authorization first and removes only the fresh namespace; it never restores or changes legacy authorization.",
+    "Revocation removes new authorization first, proves no active helper or lock, retains exact new evidence and metadata, and leaves every legacy path untouched.",
+    "No failed or unreviewed verification may update PR 155 or integrate P01."
+  ],
+  "frozenP01Acceptance": {
+    "source": "P00-R9 section 6 and P01 section at 02ee6ddec78d6e4ea9e2de3c0303ffd6bc9f45bf",
+    "planPath": "scripts/verification/plans/P01.json",
+    "planSha256AtCandidate": "82f641fccb783d2e3ae8f3dbeaa733923c6f808f660866771052e2778d681a73",
+    "orderedEntries": [
+      {
+        "label": "install",
+        "argv": [
+          "npm",
+          "ci"
+        ],
+        "classification": "command",
+        "expectedExit": 0
+      },
+      {
+        "label": "policy",
+        "argv": [
+          "npm",
+          "run",
+          "verify:policy"
+        ],
+        "classification": "command",
+        "expectedExit": 0
+      },
+      {
+        "label": "lint",
+        "argv": [
+          "npm",
+          "run",
+          "lint"
+        ],
+        "classification": "command",
+        "expectedExit": 0
+      },
+      {
+        "label": "typecheck",
+        "argv": [
+          "npm",
+          "run",
+          "typecheck"
+        ],
+        "classification": "command",
+        "expectedExit": 0
+      },
+      {
+        "label": "legacy",
+        "argv": [
+          "npm",
+          "run",
+          "test:legacy",
+          "--",
+          "--reporter=verbose"
+        ],
+        "classification": "test",
+        "expectedExit": 0,
+        "minimumPassed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "label": "unit",
+        "argv": [
+          "npm",
+          "run",
+          "test:unit",
+          "--",
+          "--reporter=verbose"
+        ],
+        "classification": "test",
+        "expectedExit": 0,
+        "minimumPassed": 35,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "label": "p01",
+        "argv": [
+          "npm",
+          "run",
+          "test:p01",
+          "--",
+          "--reporter=verbose"
+        ],
+        "classification": "test",
+        "expectedExit": 0,
+        "minimumPassed": 26,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "label": "manifest",
+        "argv": [
+          "npm",
+          "run",
+          "verify:test-manifest"
+        ],
+        "classification": "command",
+        "expectedExit": 0
+      },
+      {
+        "label": "build",
+        "argv": [
+          "npm",
+          "run",
+          "build"
+        ],
+        "classification": "command",
+        "expectedExit": 0
+      }
+    ],
+    "aggregateContract": "Every child raw exit is 0; every test entry has failed=0 and skipped=0 and meets its minimumPassed; verify:test-manifest proves the inherited and phase-owned named-test inventory; reporter aggregate=0 and controller aggregate=0; final reopen and survivor count are accepting.",
+    "negativeControl": "Exact injected exits 7 then 0 both execute and remain visible in JSON, text, and broker evidence; reporter and controller aggregate exactly 1.",
+    "acceptanceCriteria": [
+      "P01-AC1 inherited CRA test executes and zero-test, failure, or skip is rejected.",
+      "P01-AC2 lint, strict typecheck, unit tests, and build each return raw exit 0 on a clean checkout.",
+      "P01-AC3 removal, rename, non-execution, skip, todo, xit, or xdescribe for any manifest test makes verification nonzero.",
+      "P01-AC4 every BrowserWindow creation and reveal path applies setContentProtection(true) and never false.",
+      "P01-AC5 visible/package identity is InterviewCopilot and license remains AGPL-3.0-or-later.",
+      "P01-AC6 shipped source has no analytics SDK, device fingerprint, automatic crash upload, or environment-secret logging.",
+      "P01-AC7 controller-owned first instruction, anchor/binding identity, brokered argv/raw exits/signals/counts, lifecycle/mutation/result-channel/TOCTOU rejection, process reaping, final reopen, and exact injected-failure evidence all satisfy P00-R9."
+    ],
+    "hostileNamedCases": [
+      "rejects archived preverify self-removal and gate mutation before reporter start",
+      "rejects committed preverify and postverify companions during anchor admission",
+      "suppresses companion hooks while preserving the requested npm target argv",
+      "rejects joint package bootstrap plan manifest and gate mutation",
+      "rejects runner plus colocated current-hash forgery",
+      "rejects PATH node npm npmrc NODE_OPTIONS and script-shell substitution",
+      "rejects detached-restorer and lifecycle-time mutate-restore",
+      "rejects same-size overwrite rename symlink hardlink and case-collision TOCTOU",
+      "rejects result-path environment stdout duplicate replay and structured-record forgery",
+      "records planned argv resolved executable actual argv raw exit and signal exactly",
+      "continues exact injected exits seven then zero and aggregates one",
+      "preserves every P01-R1-B01 through P01-R1-B06 hostile probe",
+      "rejects any surviving child or detached descendant before zero"
+    ],
+    "archivedHostileFixtureSha256": "8a081c023a044b50298d6ad1917a3fbe5ab8de349738d1457e113c39730398bc",
+    "archivedFalseZeroJsonSha256": "c2528633014d271b2501c85b1d4884694b556f10f1b16abbc1e1b95e85ce2bb3",
+    "archivedFalseZeroTextSha256": "9da4a97de56809959aa7c9d102e410fe93cca305993d1bebdc0ac9d08f52e5c1",
+    "completionEvidenceInventory": [
+      "candidate and base SHA plus clean status",
+      "dependency install log",
+      "aggregate JSON and text with every exact command, raw exit, and test count",
+      "injected-failure evidence proving aggregate 1",
+      "manifest diff proving inherited test retention",
+      "capture lifecycle output",
+      "build artifact inventory",
+      "reviewer sign-off that lint/type rules and source globs were not weakened",
+      "controller executable/ancestor ownership-mode-ACL-hash evidence, active anchor, per-run binding, sealed-root inventory, broker transcript, and final reopen/process-group proof",
+      "archived lifecycle exploit and complete mutation/result-channel/TOCTOU matrix"
+    ]
+  },
+  "hostedGateInventory": {
+    "authoritativeRole": "INFORMATIONAL_OR_MECHANICAL_ONLY_LOCAL_A04_P01_REMAINS_AUTHORITATIVE",
+    "baseMain": [
+      "CI / Build and Test on ubuntu-latest",
+      "CI / Build and Test on macos-latest",
+      "CI / Build and Test on windows-latest",
+      "CodeQL Advanced / Analyze (javascript-typescript)"
+    ],
+    "candidateHead": [
+      "CI / Informational P01 mirror (non-authoritative) on macos-latest",
+      "CodeQL Advanced / Analyze (javascript-typescript)"
+    ],
+    "integrationRequirement": "Immediately before protected integration, query the live required-check and approval set for the exact PR head/integration SHA. Every live required check and approval must be present and successful; no hosted result waives or replaces any frozen local P01 gate."
+  },
+  "rollback": {
+    "preActivation": "Delete only non-privileged build outputs in capabilities/P00-V2-CAP-A04 and reset the replan packet; installed and candidate state are untouched.",
+    "activationFailure": "Remove the A04 authorization first, remove only the incomplete fresh A04 namespace, prove legacy identities unchanged, then atomically publish and validate the terminal FAILURE receipt in the external receipt root.",
+    "postActivation": "Run the exact reviewed A04 revoker: remove authorization first, quiesce, retain sealed A04 evidence and metadata plus the exact external activation receipt digest, remove A04 command paths, and prove legacy v1/A02/historical evidence unchanged."
+  },
+  "targetedChecks": [
+    "Reproducible clean builds produce identical controller, manifest, envelope, and administrator handoff hashes.",
+    "Disposable-root install, installed-byte verification, self-test, idempotence refusal, rollback, and revocation pass without sudo.",
+    "Negative tests reject wildcard arguments, non-UID-501 principal, P02-P12, wrong candidate, wrong PR, wrong packet, source/stage/install drift, pre-existing namespace, pre-existing authorization, ACLs, links, unsafe modes, and active locks/processes.",
+    "A disposable legacy tree containing the exact historical symlink and two-link esbuild patterns remains byte-, inode-, ownership-, mode-, and link-count-identical across install failure, success, verification simulation, and revocation.",
+    "The A04 installer contains no code path that lists or normalizes the legacy runs root.",
+    "Failure before and after authorization atomically publishes one exact external FAILURE receipt only after authorization removal, fresh-namespace rollback, and unchanged legacy identity proof; receipt collisions, drift, and replay fail closed.",
+    "Success publishes and reopens one exact external SUCCESS receipt; failure to publish it removes authorization and the fresh namespace before terminal FAILURE publication.",
+    "The exact candidate targeted P01 hostile-probe, policy, lint, typecheck, build, unit, and reporter contracts remain green without invoking the installed capability."
+  ],
+  "reviewGates": [
+    {
+      "id": "IC-M00-RP01-G0",
+      "role": "complementary_high_risk",
+      "risk": "HIGH",
+      "timing": "before_freeze",
+      "scope": "Read-only planning review of requirement coverage, namespace isolation, rollback, privilege boundary, mandatory gate inventory, and canonical gate ordering.",
+      "exactShaReusable": false,
+      "correctionBudget": 1
+    },
+    {
+      "id": "IC-M00-RP01-G1",
+      "role": "complementary_high_risk",
+      "risk": "HIGH",
+      "timing": "before_authoritative_complete",
+      "scope": "One pre-activation approval limited to immutable A04 privilege, principal/argument restrictions, namespace isolation, external receipt, install rollback, revocation, and unchanged legacy-state proof. It does not duplicate the later complete P01 finding batch.",
+      "exactShaReusable": true,
+      "correctionBudget": 1
+    },
+    {
+      "id": "IC-M00-RP01-G2",
+      "role": "complete_finding_batch",
+      "risk": "HIGH",
+      "timing": "after_authoritative_complete",
+      "scope": "One independent complete finding batch over the exact candidate and full diff, every P01-AC1 through P01-AC7 requirement, exact authoritative A04 evidence, archived hostile fixture, mutation/result-channel/TOCTOU controls, hosted-gate inventory, and rollback/retention outcome.",
+      "exactShaReusable": true,
+      "correctionBudget": 1,
+      "remediationRule": "One consolidated remediation and one exact delta re-review are permitted. Any changed artifact or candidate invalidates the old authoritative evidence and requires one fresh authoritative A04 run before integration."
+    },
+    {
+      "id": "IC-M00-RP01-G3",
+      "role": "mechanical_integration_guard",
+      "risk": "HIGH",
+      "timing": "integration",
+      "scope": "After G2 approval, mechanically bind the external activation receipt, root-owned run evidence, candidate, reviewed artifact, PR head, live hosted checks, and gate dispositions to exact identities; no new general findings.",
+      "exactShaReusable": true,
+      "correctionBudget": 0
+    }
+  ],
+  "authoritativeComplete": "After G1 approval and one smallest visible administrator activation, write fresh single-use P01 arm and verify requests in the new namespace, invoke only the exact A04 empty-argument commands, and run the frozen ordered P01 plan once at candidate 2e5045116db6e3c5f6e6cc18b70df6d7fa021baf. If G2 accepts a consolidated remediation, the changed exact candidate or artifact receives one replacement authoritative run because the previous evidence is invalid.",
+  "integration": "After authoritative success, G2 complete independent approval of the exact candidate plus exact evidence, and G3 mechanical identity acceptance, update draft PR 155 at the same exact approved head, require the live hosted check/approval set to pass, integrate through the repository's protected workflow, and run focused P01 post-merge policy/gate smoke.",
+  "completionEvidence": [
+    "Exact A04 artifact revision, controller, manifest, envelope, handoff, installed manifest, and activation receipt hashes.",
+    "Exact P01 arm, verify, anchor, run, terminal, and aggregate evidence identities.",
+    "G1 pre-activation HIGH privilege disposition.",
+    "G2 complete P01 finding dispositions and any single consolidated remediation plus exact delta review.",
+    "G3 exact identity attestation, PR integration revision, live hosted checks, and focused post-merge result.",
+    "A04 retention or revocation disposition and unchanged legacy identity proof."
+  ],
+  "prohibitedTargets": [
+    "RECOVERY-01, RECOVERY-02, or RECOVERY-03 artifact invocation or modification",
+    "/Users/Shared/InterviewCopilot/verification-controller except exact read-only identity preflight",
+    "/etc/sudoers.d/interviewcopilot-verification-controller",
+    "legacy v1 or installed A02 invocation",
+    "candidate mutation before an accepted complete finding batch",
+    "P02 or later milestones",
+    "deployment, signing, privacy permission, or product-scope changes"
+  ],
+  "planningReview": {
+    "gateId": "IC-M00-RP01-G0",
+    "reviewedPacketSha256": "81c0b056d70ddd0023f1a0cf58cc0ef2123ea1d90599d6132229c32a108d8d4c",
+    "reviewer": "/root/p00_v2_cap_a01_high_review",
+    "disposition": "REQUEST_CHANGES",
+    "findingDispositions": {
+      "IC-M00-RP01-G0-B01": "ACCEPTED_CORRECTED_GATE_ORDER",
+      "IC-M00-RP01-G0-B02": "ACCEPTED_EXPLICIT_P01_AND_HOSTED_GATE_INVENTORY",
+      "IC-M00-RP01-G0-B03": "ACCEPTED_EXTERNAL_TERMINAL_RECEIPT_CONTRACT"
+    },
+    "correctionCount": 1,
+    "correctionBudgetRemaining": 0,
+    "deltaReviewRequired": false,
+    "deltaReview": {
+      "reviewedPacketSha256": "295f2f6fbd11e727e32da409c5665a71e4ce6ac364f6185e71a59faf9b58dbdd",
+      "reviewer": "/root/p00_v2_cap_a01_high_review",
+      "disposition": "APPROVE",
+      "findingDispositions": {
+        "IC-M00-RP01-G0-B01": "CLOSED",
+        "IC-M00-RP01-G0-B02": "CLOSED",
+        "IC-M00-RP01-G0-B03": "CLOSED"
+      },
+      "regression": "Fresh A04 namespace, P01-only admission, no historical import/enumeration/mutation, legacy v1/A02 unauthorized preservation, RECOVERY-01/02/03 prohibition, terminal no-retry boundary, principal/no-wildcard intent, candidate immutability, and no P02+ scope remain intact."
+    }
+  },
+  "continuation": "AUTO",
+  "nextSafeAction": "Build and test only P00-V2-CAP-A04 without sudo, installed helper invocation, candidate invocation, or legacy-state mutation. Then freeze the exact artifact revision for IC-M00-RP01-G1."
+}

@@ -136,7 +136,7 @@
   "currentMilestone": {
     "id": "IC-M00",
     "title": "Trusted local policy rails",
-    "status": "BLOCKED_TERMINAL_RECOVERY_REPLAN_REQUIRED",
+    "status": "REVIEWING",
     "frozenAt": "2026-07-29T09:10:11+02:00",
     "ownedRequirementIds": [
       "P01"
@@ -346,5 +346,16 @@
     "ownershipConflicts": 1,
     "result": "BLOCKED_TERMINAL_RECOVERY_03_NEW_LIVE_STATE_INCOMPATIBILITY_REPLAN_REQUIRED"
   },
-  "nextSafeAction": "Perform an IC-M00 milestone-level orchestration replan that preserves the historical failed run as immutable legacy evidence while removing it from active capability admission. This is not another bounded recovery retry. No privileged action or candidate invocation is authorized before the new plan and its HIGH-risk gate are frozen."
+  "activeReplan": {
+    "id": "IC-M00-RP01",
+    "packet": "v3/interviewcopilot/milestone-IC-M00-replan-1.json",
+    "status": "FROZEN_IMPLEMENTING",
+    "baseRevision": "dd48cb269582e257d5972e466c20bcca44749544",
+    "outcome": "Fresh P01-only capability namespace with no legacy evidence migration or active-admission dependency.",
+    "planningReviewGate": "IC-M00-RP01-G0_APPROVED_CORRECTED_PACKET_295F2F6",
+    "frozenPacketSha256": "36afe40406d1609072875af29b30e2f1c7b0538633ff22e6f0baa3e27cb596c7",
+    "privilegedBoundaryCrossed": false,
+    "candidateInvoked": false
+  },
+  "nextSafeAction": "Build and test the fresh-namespace P00-V2-CAP-A04 artifact without sudo, installed helper invocation, candidate invocation, or legacy-state mutation; freeze its exact immutable revision for G1."
 }
