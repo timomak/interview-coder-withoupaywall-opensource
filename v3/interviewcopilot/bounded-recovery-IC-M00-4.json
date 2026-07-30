@@ -6,7 +6,7 @@
   "attempt": 4,
   "createdAt": "2026-07-30T07:47:29+02:00",
   "controllerThreadId": "019f9ff6-e24b-7053-a2b3-fe01f8538ab4",
-  "status": "EXACT_CLOSURE_REVIEW_RESERVED",
+  "status": "APPROVED_WAITING_ADMIN_ACTIVATION",
   "authority": {
     "source": "standing checker authorization for one new bounded RECOVERY-03 design cycle",
     "safePreparationAuthorized": true,
@@ -97,7 +97,25 @@
     "timing": "before_authoritative_complete",
     "exactShaReusable": true,
     "reviewedRevision": "5ea141c1fd5ca42f8e99036ce91911a2f06277a8",
-    "status": "EXACT_CLOSURE_REVIEW_RESERVED"
+    "status": "APPROVED",
+    "reviewedAt": "2026-07-30T09:37:04+02:00",
+    "disposition": "APPROVE_EXACT_CLOSURE_B01_B02"
+  },
+  "closureReview": {
+    "reviewer": "/root/p00_v2_cap_a01_high_review",
+    "reviewedRevision": "5ea141c1fd5ca42f8e99036ce91911a2f06277a8",
+    "reviewedEnvelopeSha256": "c745aaae855cf6a9fc5c9c2673e6f67eb1af2de3ca862180d2c0847f94c324a9",
+    "reviewedHandoffSha256": "dfb835f8b7a10906eabd9b0ab3bc5b9f98bf923a0a20e4c8206774b4289f9902",
+    "reviewedAt": "2026-07-30T09:37:04+02:00",
+    "disposition": "APPROVE",
+    "findingDispositions": {
+      "IC-M00-A03R3-B01": "CLOSED",
+      "IC-M00-A03R3-B02": "CLOSED"
+    },
+    "focusedAdversarialReproduction": "3_SELECTED_METHODS_PASS_0_FAIL_IN_698.174_SECONDS",
+    "remainingRisk": "Host power or filesystem failure may still fail closed and require evidence-led recovery; no accepted scoped defect remains.",
+    "privilegedBoundaryCrossed": false,
+    "candidateInvoked": false
   },
   "correctionBudget": 0,
   "terminalCondition": "Either identical material B01 or B02 defect survives the exact closure review unchanged.",
@@ -111,5 +129,5 @@
     "PR 155",
     "P02 or later milestones"
   ],
-  "nextSafeAction": "Obtain one exact independent closure review of immutable RECOVERY-03 revision 5ea141c1fd5ca42f8e99036ce91911a2f06277a8 against B01 and B02. Do not invoke the handoff."
+  "nextSafeAction": "When the user is present, run exactly: /bin/zsh /Users/thirdfacedev/.codex/orchestration/TimoCodes-ledger/capabilities/P00-V2-CAP-A03-RECOVERY-03/build/admin-handoff.txt. Enter the macOS administrator password once. Do not run any other recovery handoff."
 }

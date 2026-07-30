@@ -105,8 +105,8 @@
       "envelopeSha256": "c745aaae855cf6a9fc5c9c2673e6f67eb1af2de3ca862180d2c0847f94c324a9",
       "adminHandoffSha256": "dfb835f8b7a10906eabd9b0ab3bc5b9f98bf923a0a20e4c8206774b4289f9902",
       "validation": "RECOVERY_18_PASS_A03_REVOCATION_1_PASS_REPRODUCIBLE_3",
-      "independentReview": "EXACT_CLOSURE_REVIEW_RESERVED_B01_B02",
-      "status": "SEALED_NOT_INVOKED_PENDING_EXACT_CLOSURE_REVIEW",
+      "independentReview": "APPROVE_EXACT_CLOSURE_5EA141C_B01_B02_CLOSED",
+      "status": "REVIEWED_SEALED_WAITING_ADMIN_ACTIVATION",
       "privilegedBoundaryCrossed": false,
       "candidateInvoked": false
     },
@@ -124,7 +124,7 @@
   "currentMilestone": {
     "id": "IC-M00",
     "title": "Trusted local policy rails",
-    "status": "IMPLEMENTING",
+    "status": "WAITING_USER",
     "frozenAt": "2026-07-29T09:10:11+02:00",
     "ownedRequirementIds": [
       "P01"
@@ -289,7 +289,9 @@
       "artifactRevision": "5ea141c1fd5ca42f8e99036ce91911a2f06277a8",
       "envelopeSha256": "c745aaae855cf6a9fc5c9c2673e6f67eb1af2de3ca862180d2c0847f94c324a9",
       "handoffSha256": "dfb835f8b7a10906eabd9b0ab3bc5b9f98bf923a0a20e4c8206774b4289f9902",
-      "reviewStatus": "EXACT_CLOSURE_REVIEW_RESERVED",
+      "reviewStatus": "APPROVE_EXACT_CLOSURE_5EA141C_B01_B02_CLOSED",
+      "reviewedAt": "2026-07-30T09:37:04+02:00",
+      "focusedAdversarialReproduction": "3_PASS_0_FAIL_IN_698.174_SECONDS",
       "privilegedBoundaryCrossed": false,
       "candidateInvoked": false
     }
@@ -315,11 +317,11 @@
     "maximumConcurrentWriters": 0,
     "candidateRevisionCount": 2,
     "authoritativeFullSuiteCount": 1,
-    "reviewAttemptCount": 3,
+    "reviewAttemptCount": 4,
     "acceptedBlockerCount": 3,
     "postIntegrationDefects": 0,
     "ownershipConflicts": 1,
-    "result": "IN_PROGRESS_CHECKER_AUTHORIZED_RECOVERY_03"
+    "result": "WAITING_USER_APPROVED_RECOVERY_03_ACTIVATION"
   },
-  "nextSafeAction": "Obtain one exact independent closure review of P00-V2-CAP-A03-RECOVERY-03 revision 5ea141c1fd5ca42f8e99036ce91911a2f06277a8 against the two frozen findings. Do not invoke privilege or any installed capability."
+  "nextSafeAction": "When the user is present, run exactly: /bin/zsh /Users/thirdfacedev/.codex/orchestration/TimoCodes-ledger/capabilities/P00-V2-CAP-A03-RECOVERY-03/build/admin-handoff.txt. Enter the macOS administrator password once. Do not run any other recovery handoff."
 }
