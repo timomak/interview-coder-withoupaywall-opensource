@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "kind": "milestone-exact-delta-review-result",
+  "projectKey": "InterviewCopilot",
+  "milestoneId": "IC-M01",
+  "gateId": "IC-M01-G1-DELTA",
+  "reviewer": "/root/ic_m01_g1_high_review",
+  "reviewedCandidate": "d630f68628462ac925d9257c2f73d799d2db5d02",
+  "reviewedParent": "32c24ab275e2d3b6d8cb00c1e6a8ba6d48377cd0",
+  "admittedBase": "a8cdcbdeb49a897946dd520981d59d9a1a3813b6",
+  "sourcePacket": "v3/interviewcopilot/bounded-remediation-IC-M01-1.json",
+  "sourcePacketSha256": "420820528e7dcfe89384c054eff8104c2f1b48568ea2a568254e51898a7c620b",
+  "remediationResult": "v3/interviewcopilot/milestone-IC-M01-remediation-result-1.json",
+  "remediationResultSha256": "2f4dbd55dc8c01ade33ec14fd1bc0ec7caf5fce69eac85b0bf69d72fc234fb9c",
+  "disposition": "REQUEST_CHANGES_TERMINAL",
+  "correctionBudgetRemaining": 0,
+  "authoritativeRouteInvoked": false,
+  "worktreeClean": true,
+  "findingDispositions": [
+    {
+      "id": "IC-M01-G1-B01",
+      "status": "CLOSED",
+      "basis": "Explicit provider create/resume modes, returned opaque IDs, and nonexistent-resume rejection are implemented and tested."
+    },
+    {
+      "id": "IC-M01-G1-B02",
+      "status": "CLOSED",
+      "basis": "Subscription-only auth parsing, diagnostics IPC, production onboarding, configuration validation, and Start authorization are implemented and tested."
+    },
+    {
+      "id": "IC-M01-G1-B03",
+      "status": "NOT_CLOSED",
+      "basis": "Write-ahead implementation is present, but generic journal-boundary loops stop at the first matching journal write and rollback coverage omits journal-write crashes, so every required boundary is not proven."
+    },
+    {
+      "id": "IC-M01-G1-B04",
+      "status": "NOT_CLOSED",
+      "basis": "Persisted pending/cursor state and failure/crash retry are present, but no end-to-end cancellation assertion proves byte-exact pending packet retention and an unadvanced cursor."
+    },
+    {
+      "id": "IC-M01-G1-B05",
+      "status": "CLOSED",
+      "basis": "Normalized streaming, partial persistence before completion, and blocking cancellation coverage are present."
+    },
+    {
+      "id": "IC-M01-G1-B06",
+      "status": "NOT_CLOSED",
+      "basis": "Serialization and generation tokens are present, but concurrent submission, hostile delayed-save ordering, and Reset-during-compact-turn coverage are absent."
+    },
+    {
+      "id": "IC-M01-G1-B07",
+      "status": "NOT_CLOSED",
+      "basis": "Runtime mode-specific best-effort data is present, but material and immaterial cases are not proven through the orchestrator and provider prompt end to end."
+    },
+    {
+      "id": "IC-M01-G1-B08",
+      "status": "NOT_CLOSED",
+      "basis": "Typed capture routing is restored, but production-reachable raw PNG persistence under userData and Windows temporary paths regresses the unchanged P03 HIGH at-rest boundary."
+    }
+  ],
+  "verificationObserved": {
+    "runtime": "NODE_20_20_2",
+    "p01": "27_PASS_0_FAIL",
+    "p02": "11_PASS_0_FAIL",
+    "p03": "11_PASS_0_FAIL",
+    "p04": "21_PASS_0_FAIL",
+    "lint": "PASS",
+    "strictTypecheck": "PASS",
+    "policy": "PASS",
+    "diffCheck": "PASS",
+    "standaloneTestManifest": "NOT_COMPLETED_REQUIRES_VALIDATED_RESULTS_ENV"
+  },
+  "downstreamDependencyAudit": {
+    "IC-M02": "BLOCKED_DEPENDS_ON_IC-M01",
+    "IC-M03": "BLOCKED_TRANSITIVELY",
+    "IC-M04": "BLOCKED_TRANSITIVELY",
+    "IC-M05": "BLOCKED_TRANSITIVELY"
+  },
+  "prohibitions": [
+    "do not invoke IC-M01-AUTH-01",
+    "do not dispatch another writer or reviewer under this exhausted packet",
+    "do not push, merge, deploy, invoke privilege, or activate A04",
+    "do not begin IC-M02 while IC-M01 is unsatisfied"
+  ],
+  "terminalReason": "A material unchanged P03 HIGH regression and four exact acceptance-evidence gaps survive the one authorized consolidated remediation and exact delta review.",
+  "status": "FAILED_TERMINAL_REPLAN_OR_NEW_AUTHORITY_REQUIRED"
+}

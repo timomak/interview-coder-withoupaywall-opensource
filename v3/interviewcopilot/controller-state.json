@@ -453,7 +453,7 @@
   "readyMilestones": [
     {
       "id": "IC-M01",
-      "status": "REVIEWING_EXACT_DELTA",
+      "status": "FAILED_TERMINAL",
       "entryGate": "IC-M00-G-DEV",
       "entryGateEvidence": "v3/interviewcopilot/development-admission-IC-M00-1.json",
       "entryGateEvidenceSha256": "d11b7297df1f9cfacb233428fc1b0f83e05c711b54a6a946a1b6c0e852ab2efb",
@@ -470,7 +470,7 @@
   ],
   "activeProductMilestone": {
     "id": "IC-M01",
-    "status": "REVIEWING_EXACT_DELTA",
+    "status": "FAILED_TERMINAL",
     "freezePacket": "v3/interviewcopilot/milestone-IC-M01-freeze-1.json",
     "freezePacketSha256": "ce40840212f4b1f5f114f5746acec721c430fc17a372522df1b52a153d09d05b",
     "baseRevision": "a8cdcbdeb49a897946dd520981d59d9a1a3813b6",
@@ -556,7 +556,7 @@
       "failedCandidate": "32c24ab275e2d3b6d8cb00c1e6a8ba6d48377cd0",
       "reviewedBase": "a8cdcbdeb49a897946dd520981d59d9a1a3813b6",
       "authoritativeRouteInvoked": false,
-      "status": "RUNNING",
+      "status": "REQUEST_CHANGES_TERMINAL",
       "findingIds": [
         "IC-M01-G1-B01",
         "IC-M01-G1-B02",
@@ -567,7 +567,21 @@
         "IC-M01-G1-B07",
         "IC-M01-G1-B08"
       ],
-      "additionalGeneralReviewProhibited": true
+      "additionalGeneralReviewProhibited": true,
+      "result": "v3/interviewcopilot/milestone-IC-M01-delta-review-result-1.json",
+      "resultSha256": "8acec4d385bc4a19414ee81f5afcee38df44303a51c166fae64c1ec456a81c0f",
+      "closedFindingIds": [
+        "IC-M01-G1-B01",
+        "IC-M01-G1-B02",
+        "IC-M01-G1-B05"
+      ],
+      "openFindingIds": [
+        "IC-M01-G1-B03",
+        "IC-M01-G1-B04",
+        "IC-M01-G1-B06",
+        "IC-M01-G1-B07",
+        "IC-M01-G1-B08"
+      ]
     },
     "activeRemediation": {
       "id": "IC-M01-REM-01",
@@ -591,9 +605,26 @@
       "result": "v3/interviewcopilot/milestone-IC-M01-remediation-result-1.json",
       "resultSha256": "2f4dbd55dc8c01ade33ec14fd1bc0ec7caf5fce69eac85b0bf69d72fc234fb9c",
       "candidateRevision": "d630f68628462ac925d9257c2f73d799d2db5d02",
-      "status": "COMMITTED_AWAITING_EXACT_DELTA_REVIEW"
+      "deltaReviewResult": "v3/interviewcopilot/milestone-IC-M01-delta-review-result-1.json",
+      "deltaReviewResultSha256": "8acec4d385bc4a19414ee81f5afcee38df44303a51c166fae64c1ec456a81c0f",
+      "status": "FAILED_TERMINAL_CORRECTION_BUDGET_EXHAUSTED"
     },
-    "releaseAssuranceParallelState": "IC-M00-G-RELEASE_PENDING_NOT_INVOKED"
+    "releaseAssuranceParallelState": "IC-M00-G-RELEASE_PENDING_NOT_INVOKED",
+    "terminalBlocker": {
+      "classification": "MATERIAL_ACCEPTANCE_FAILURE_AFTER_SINGLE_CONSOLIDATED_REMEDIATION_AND_EXACT_DELTA_REVIEW",
+      "candidateRevision": "d630f68628462ac925d9257c2f73d799d2db5d02",
+      "materialRegression": "Production-reachable raw screenshot PNG persistence violates the unchanged P03 HIGH at-rest boundary.",
+      "evidenceGaps": [
+        "Every M-02/M-03 journal and rollback crash boundary is not exercised.",
+        "Cancellation does not prove the delivery cursor and pending packet remain exact.",
+        "Concurrent submission, hostile save ordering, and Reset during compact work are not exercised.",
+        "Material and immaterial clarification are not proven end to end through the orchestrator provider prompt."
+      ],
+      "authoritativeRouteInvoked": false,
+      "downstreamReadyMilestone": null,
+      "reasonNoDownstreamWork": "IC-M02 depends on IC-M01; IC-M03 through IC-M05 are transitively blocked.",
+      "additionalWriterOrReviewProhibited": true
+    }
   },
   "metrics": {
     "projectKey": "InterviewCopilot",
@@ -637,5 +668,5 @@
     "privilegedBoundaryCrossed": false,
     "candidateInvoked": false
   },
-  "nextSafeAction": "Dispatch the already-reserved same reviewer /root/ic_m01_g1_high_review for IC-M01-G1-DELTA at immutable candidate d630f68628462ac925d9257c2f73d799d2db5d02, limited to B01 through B08 closure and regression in unchanged HIGH boundaries. Run IC-M01-AUTH-01 exactly once only after delta approval. Keep A04 release assurance pending and do not invoke privilege, integrate PR 155, merge, deploy, or mark P01 SATISFIED."
+  "nextSafeAction": "No action remains authorized under the exhausted IC-M01 remediation packet. Preserve candidate d630f68628462ac925d9257c2f73d799d2db5d02 and exact review evidence; keep IC-M01-AUTH-01 unspent, A04 pending, and IC-M02 through IC-M05 locked. A new milestone-level authority or scope decision is required before another writer, review, or candidate revision."
 }
