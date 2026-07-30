@@ -63,9 +63,16 @@ export function HotKeysPanel({
   }
 
   const reset = async () => {
-    const result = await window.electronAPI.resetShortcutBindings()
-    setBindings(result.bindings)
-    setStatus(result.ok ? "Default shortcuts restored." : "Defaults unavailable.")
+    try {
+      const result = await window.electronAPI.resetShortcutBindings()
+      setBindings(result.bindings)
+      setStatus(
+        result.ok ? "Default shortcuts restored." : "Defaults unavailable."
+      )
+    } catch {
+      setBindings(await window.electronAPI.getShortcutBindings())
+      setStatus("Defaults were not restored because preferences could not be saved.")
+    }
   }
 
   return (

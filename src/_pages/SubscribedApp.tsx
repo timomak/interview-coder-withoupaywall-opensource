@@ -18,7 +18,7 @@ import {
   InputTray,
   AnswerSections
 } from "../features/shell"
-import type { HudState } from "../shared/shell"
+import { deriveHudState } from "../shared/shell"
 
 interface SubscribedAppProps {
   readonly config: SubscriptionConfig
@@ -53,12 +53,14 @@ export default function SubscribedApp({
     session.lifecycle === "active" ? session.sections.length : 0
   const artifactCount =
     session.lifecycle === "active" ? session.artifacts.length : 0
-  const hudState: HudState =
-    settingsOpen || workspaceExpanded
-      ? "expanded"
-      : composerOpen || hotKeysOpen || sectionCount > 0
-        ? "compact-answer"
-        : "compact-bar"
+  const hudState = deriveHudState({
+    settingsOpen,
+    workspaceExpanded,
+    composerOpen,
+    hotKeysOpen,
+    sectionCount,
+    artifactCount
+  })
 
   useEffect(() => {
     void window.electronAPI.getInterviewState().then(setSession)

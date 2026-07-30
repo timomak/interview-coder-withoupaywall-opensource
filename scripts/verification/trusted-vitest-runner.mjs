@@ -65,7 +65,9 @@ const SUITES = {
     "src/features/shell/CompactComposer.test.tsx",
     "src/features/shell/pointerRegions.test.tsx",
     "src/features/shell/accessibility.test.tsx",
-    "src/features/shell/navigationShortcuts.test.tsx"
+    "src/features/shell/navigationShortcuts.test.tsx",
+    "src/features/shell/hudState.test.ts",
+    "src/features/shell/HotKeysPanel.test.tsx"
   ],
   "electron-shell": [
     "electron/window/windowVisibility.test.ts",

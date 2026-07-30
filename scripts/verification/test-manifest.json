@@ -500,6 +500,16 @@
       "path": "src/features/shell/navigationShortcuts.test.tsx",
       "name": "separates window and answer navigation",
       "sha256": "b32c178bc337a68836bca265474b18c863395308def076f1a3fb87f6e47ce79e"
+    },
+    {
+      "path": "src/features/shell/hudState.test.ts",
+      "name": "expands required staged evidence controls beyond the compact bar",
+      "sha256": "afe380471c6ced0b9dcce82065ed8295437caadcd90c27d198566186b0ac89de"
+    },
+    {
+      "path": "src/features/shell/HotKeysPanel.test.tsx",
+      "name": "recovers the active map when Reset all cannot persist defaults",
+      "sha256": "21965b42a89e22aa7b243534a742f01661ab88e19d3d995d17b5d84689977b5b"
     }
   ]
 }

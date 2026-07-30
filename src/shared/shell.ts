@@ -65,6 +65,28 @@ export const DEFAULT_LIVE_SHELL_PREFERENCES: LiveShellPreferences =
     geometry: {}
   })
 
+export interface HudStateInputs {
+  readonly settingsOpen: boolean
+  readonly workspaceExpanded: boolean
+  readonly composerOpen: boolean
+  readonly hotKeysOpen: boolean
+  readonly sectionCount: number
+  readonly artifactCount: number
+}
+
+export function deriveHudState(inputs: HudStateInputs): HudState {
+  if (inputs.settingsOpen || inputs.workspaceExpanded) return "expanded"
+  if (
+    inputs.composerOpen ||
+    inputs.hotKeysOpen ||
+    inputs.sectionCount > 0 ||
+    inputs.artifactCount > 0
+  ) {
+    return "compact-answer"
+  }
+  return "compact-bar"
+}
+
 export function shortcutConflicts(
   bindings: ShortcutBindings
 ): Readonly<Record<string, readonly ShortcutAction[]>> {
