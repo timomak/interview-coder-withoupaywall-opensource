@@ -159,4 +159,46 @@ describe("encrypted screenshot queue", () => {
       )
     })
   })
+
+  it("clears retained encrypted screenshots after restart without queue rehydration", async () => {
+    await withTempDirectory(async (fixtureRoot) => {
+      const paths = new StoragePaths(path.join(fixtureRoot, "encrypted"))
+      const keys = { get: async () => Buffer.from(TEST_KEY) }
+      const blobs = new EncryptedBlobRepository(
+        paths,
+        keys,
+        undefined,
+        "screenshots"
+      )
+      const beforeRestart = new ScreenshotHelper(blobs, {
+        capture: async () => Buffer.from("PNG::RESTART::RESET", "utf8"),
+        id: () => "opaque-retained-capture",
+        hideDelayMs: 0,
+        showDelayMs: 0
+      })
+      const screenshotId = await beforeRestart.takeScreenshot(() => {}, () => {})
+      expect(
+        await blobs.get({
+          id: screenshotId,
+          contentType: "image/png",
+          retentionClass: "artifact"
+        })
+      ).toBeDefined()
+
+      const afterRestart = new ScreenshotHelper(blobs, {
+        capture: async () => Buffer.alloc(0),
+        hideDelayMs: 0,
+        showDelayMs: 0
+      })
+      expect(afterRestart.getScreenshotQueue()).toEqual([])
+      await afterRestart.clearQueues()
+      expect(
+        await blobs.get({
+          id: screenshotId,
+          contentType: "image/png",
+          retentionClass: "artifact"
+        })
+      ).toBeUndefined()
+    })
+  })
 })

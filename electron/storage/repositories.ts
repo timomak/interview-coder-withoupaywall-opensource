@@ -39,6 +39,7 @@ export interface BlobRepository {
   put(descriptor: BlobDescriptor, bytes: Buffer): Promise<void>;
   get(descriptor: BlobDescriptor): Promise<Buffer | undefined>;
   remove(id: string): Promise<void>;
+  clearAll(): Promise<void>;
 }
 
 export interface RepositoryIssue {
@@ -177,6 +178,16 @@ class EnvelopeStore {
     }
     await bestEffortSecureDelete(target);
   }
+
+  async clear(directory: string): Promise<void> {
+    const target = await this.paths.directory(directory);
+    for (const name of await readdir(target)) {
+      if (!name.endsWith(".enc")) continue;
+      await bestEffortSecureDelete(
+        await this.paths.checkedFile(path.join(directory, name)),
+      );
+    }
+  }
 }
 
 export class EncryptedRecordRepository<T extends object>
@@ -305,6 +316,10 @@ export class EncryptedBlobRepository implements BlobRepository {
 
   remove(id: string): Promise<void> {
     return this.store.remove(this.directory, "blob", id);
+  }
+
+  clearAll(): Promise<void> {
+    return this.store.clear(this.directory);
   }
 }
 

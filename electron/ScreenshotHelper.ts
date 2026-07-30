@@ -92,9 +92,7 @@ export class ScreenshotHelper {
   }
 
   async clearQueues(): Promise<void> {
-    for (const screenshotId of [...this.screenshotQueue]) {
-      await this.blobs.remove(screenshotId)
-    }
+    await this.blobs.clearAll()
     this.screenshotQueue = []
   }
 

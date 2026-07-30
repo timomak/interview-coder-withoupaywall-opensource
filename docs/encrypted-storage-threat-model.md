@@ -104,7 +104,11 @@ creates a temporary PNG. The one screenshot queue stores opaque IDs backed by
 `EncryptedBlobRepository` using the same installation-key service as M-04.
 Preview decrypts one blob only long enough to create the immediate typed
 submission, then clears the byte buffer. Retention expiry, exclusion, and
-successful Reset remove the corresponding encrypted blobs.
+successful Reset remove the corresponding encrypted blobs. Screenshot blobs
+use a dedicated encrypted repository. Its repository-wide clear operation does
+not depend on the process-local queue, so Reset can remove captures retained
+before an app restart without reconstructing plaintext or relying on stale
+in-memory IDs.
 
 This prevents the previous failure mode where raw PNGs survived below
 `userData` or the operating-system temporary directory. JavaScript base64

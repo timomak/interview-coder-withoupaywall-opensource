@@ -26,6 +26,7 @@ const SUITES = {
     "src/features/onboarding/ProviderSetup.test.tsx"
   ],
   p03: [
+    "electron/ScreenshotHelper.test.ts",
     "electron/storage/atomicity.test.ts",
     "electron/storage/envelopeCrypto.test.ts",
     "electron/storage/keyLifecycle.test.ts",

@@ -44,17 +44,22 @@
     {
       "path": "electron/windowOpenPolicy.test.ts",
       "name": "P01-R1-B01 denies every implicit child while preserving external links",
-      "sha256": "4be2026f08139ed4d2cb30a3cdebb904b529d64c0566daea990f32f71f6279fc"
+      "sha256": "bb7ebdea283661aa4f09100b1136895ded2f303c605db97793ccb2d2df3d68db"
     },
     {
       "path": "electron/ScreenshotHelper.test.ts",
       "name": "captures previews retains and deletes without plaintext PNG persistence",
-      "sha256": "ea50b63230fe0e1d8df51f534c186a667f663fc469cb3ec14a97d5d9fe3da83a"
+      "sha256": "5fed072edfbd7323a3b640ee9e285230a62b96710c5f249660b086d7341d6e7c"
     },
     {
       "path": "electron/ScreenshotHelper.test.ts",
       "name": "uses the Windows in-memory fallback without a filename",
-      "sha256": "ea50b63230fe0e1d8df51f534c186a667f663fc469cb3ec14a97d5d9fe3da83a"
+      "sha256": "5fed072edfbd7323a3b640ee9e285230a62b96710c5f249660b086d7341d6e7c"
+    },
+    {
+      "path": "electron/ScreenshotHelper.test.ts",
+      "name": "clears retained encrypted screenshots after restart without queue rehydration",
+      "sha256": "5fed072edfbd7323a3b640ee9e285230a62b96710c5f249660b086d7341d6e7c"
     },
     {
       "path": "scripts/qualification/repositoryDiscovery.test.cjs",

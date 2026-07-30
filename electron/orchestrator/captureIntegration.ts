@@ -57,10 +57,11 @@ export class InterviewCaptureController {
     if (!result.ok) throw new Error(result.error ?? "Evidence submission failed")
   }
 
-  async reset(): Promise<void> {
+  async reset(): Promise<Awaited<ReturnType<InterviewOrchestrator["command"]>>> {
     const result = await this.orchestrator.command({ type: "reset" })
     if (!result.ok) throw new Error(result.error ?? "Interview reset failed")
     await this.screenshots.clearQueues()
+    return result
   }
 
   async excludeLastScreenshot(): Promise<void> {

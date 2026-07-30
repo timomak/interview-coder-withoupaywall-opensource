@@ -111,8 +111,16 @@ describe("window-open capture lifecycle policy", () => {
       path.join(process.cwd(), "electron/ScreenshotHelper.ts"),
       "utf8"
     )
+    const ipcSource = fs.readFileSync(
+      path.join(process.cwd(), "electron/ipcHandlers.ts"),
+      "utf8"
+    )
     expect(mainSource).toMatch(
-      /new EncryptedBlobRepository\(storagePaths, keyService\)[\s\S]*new InterviewCaptureController\([\s\S]*new ShortcutsHelper\([\s\S]*registerGlobalShortcuts\(\)/
+      /new EncryptedBlobRepository\([\s\S]*"screenshots"[\s\S]*new InterviewCaptureController\([\s\S]*new ShortcutsHelper\([\s\S]*registerGlobalShortcuts\(\)/
+    )
+    expect(mainSource).toContain("resetInterview: () => capture.reset()")
+    expect(ipcSource).toMatch(
+      /parsed\.type === "reset"[\s\S]*dependencies\.resetInterview\(\)/
     )
     expect(shortcutsSource).not.toMatch(
       /setView|reset-view|screenshot-taken|processingHelper/

@@ -309,7 +309,12 @@ async function initializeApplication(): Promise<void> {
   )
   createWindow()
   const screenshots = new ScreenshotHelper(
-    new EncryptedBlobRepository(storagePaths, keyService)
+    new EncryptedBlobRepository(
+      storagePaths,
+      keyService,
+      undefined,
+      "screenshots"
+    )
   )
   const capture = new InterviewCaptureController(
     orchestrator,
@@ -321,7 +326,9 @@ async function initializeApplication(): Promise<void> {
     getMainWindow: () => state.mainWindow,
     captureScreenshot: () => capture.capture(),
     submitSelectedEvidence: () => capture.submitSelectedEvidence(),
-    resetInterview: () => capture.reset(),
+    resetInterview: async () => {
+      await capture.reset()
+    },
     excludeLastScreenshot: () => capture.excludeLastScreenshot(),
     isVisible: () => state.visible,
     toggleMainWindow,
@@ -336,6 +343,7 @@ async function initializeApplication(): Promise<void> {
     setWindowDimensions,
     toggleMainWindow,
     diagnoseProviders: () => providerDiagnostics(executables),
+    resetInterview: () => capture.reset(),
     configureProvider: async (
       provider: ProviderId,
       model: string,

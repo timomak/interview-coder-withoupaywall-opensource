@@ -134,8 +134,12 @@ only; it cannot change renderer views or session state. It captures into memory
 and retains only authenticated encrypted blobs under the installation key.
 Preview decrypts one queued blob for immediate typed staging; retention,
 exclude-last, and successful Reset remove encrypted blobs. Reset clears the
-queue only after the typed Reset succeeds, preventing UI shortcuts from
-becoming a second session authority or leaving plaintext PNGs at rest.
+dedicated screenshot repository only after the typed Reset succeeds. Every
+renderer and recovery-prompt Reset is routed through that same capture
+controller, and repository-wide cleanup remains effective after restart even
+when the new helper has no process-local queue IDs. This prevents UI shortcuts
+from becoming a second session authority or leaving screenshot blobs retained
+after the session is reset.
 
 Forward M-04 versions are rejected. There is no lossy downgrade. Rollback keeps
 the encrypted v1 record readable by the current build; withdrawing P04 restores

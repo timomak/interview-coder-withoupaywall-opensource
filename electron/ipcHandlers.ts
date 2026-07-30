@@ -4,7 +4,8 @@ import {
   INTERVIEW_COMMAND_CHANNEL,
   INTERVIEW_RECOVERY_CHANNEL,
   INTERVIEW_STATE_CHANNEL,
-  parseInterviewCommand
+  parseInterviewCommand,
+  type CommandResult
 } from "../src/shared/interview"
 import type { InterviewOrchestrator } from "./orchestrator"
 import {
@@ -29,6 +30,7 @@ export interface IpcHandlerDependencies {
     model: string,
     responseMode: ResponseMode
   ) => Promise<SubscriptionConfig>
+  readonly resetInterview: () => Promise<CommandResult>
 }
 
 export function initializeIpcHandlers(
@@ -84,9 +86,12 @@ export function initializeIpcHandlers(
   ipcMain.handle(INTERVIEW_RECOVERY_CHANNEL, () =>
     dependencies.orchestrator.inspectRecovery()
   )
-  ipcMain.handle(INTERVIEW_COMMAND_CHANNEL, (_event, command: unknown) =>
-    dependencies.orchestrator.command(parseInterviewCommand(command))
-  )
+  ipcMain.handle(INTERVIEW_COMMAND_CHANNEL, (_event, command: unknown) => {
+    const parsed = parseInterviewCommand(command)
+    return parsed.type === "reset"
+      ? dependencies.resetInterview()
+      : dependencies.orchestrator.command(parsed)
+  })
 
   ipcMain.handle(
     "window:update-content-dimensions",
