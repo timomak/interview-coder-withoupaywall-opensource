@@ -1,4 +1,4 @@
-import { mkdir, readFile, readdir, rename, rm, symlink, writeFile } from "node:fs/promises"
+import { mkdir, readFile, readdir, realpath, rename, rm, symlink, writeFile } from "node:fs/promises"
 import path from "node:path"
 import { expect, it } from "vitest"
 import { projectHistoryArchive } from "../../src/features/history"
@@ -14,6 +14,7 @@ import { historyFixture } from "./testSupport"
 
 it("confines and atomically writes explicit exports", async () => {
   await withTempDirectory(async (root: string) => {
+    root = await realpath(root)
     const archive = projectHistoryArchive(historyFixture())
     const request = (destination: string, overwriteConfirmed = false) => ({
       sessionId: archive.sessionId,
@@ -37,6 +38,15 @@ it("confines and atomically writes explicit exports", async () => {
       .rejects.toThrow(/symbolic/i)
     await expect(new HistoryExportService(records()).export(archive, request(target)))
       .rejects.toThrow(/overwrite/i)
+
+    const symlinkTargetParent = path.join(root, "symlink-target-parent")
+    const symlinkedParent = path.join(root, "symlinked-parent")
+    await mkdir(symlinkTargetParent)
+    await symlink(symlinkTargetParent, symlinkedParent)
+    await expect(new HistoryExportService(records()).export(
+      archive,
+      request(path.join(symlinkedParent, "session.json"))
+    )).rejects.toThrow(/canonical export ancestors/i)
 
     const boundaries: readonly ExportBoundary[] = [
       "intent-saved",

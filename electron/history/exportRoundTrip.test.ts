@@ -1,4 +1,4 @@
-import { readFile } from "node:fs/promises"
+import { readFile, realpath } from "node:fs/promises"
 import path from "node:path"
 import { expect, it } from "vitest"
 import { projectHistoryArchive } from "../../src/features/history"
@@ -13,6 +13,7 @@ import { historyFixture } from "./testSupport"
 
 it("exports one safe versioned session with consent", async () => {
   await withTempDirectory(async (root: string) => {
+    root = await realpath(root)
     const projected = projectHistoryArchive(historyFixture())
     const archive = {
       ...projected,
@@ -79,5 +80,35 @@ it("exports one safe versioned session with consent", async () => {
     expect(markdown).not.toMatch(
       /EXTENSION_SECRET_SENTINEL|ACCESS_TOKEN_SENTINEL|DIAGNOSTIC_SECRET_SENTINEL|RAW_AUDIO_SECRET_SENTINEL/
     )
+
+    const leakedCredential = "arbitrary-value-that-must-not-leak"
+    const secretBearingArchive = {
+      ...projected,
+      session: Object.assign(structuredClone(projected.session), {
+        credentials: { accessToken: leakedCredential }
+      })
+    }
+    Object.assign(secretBearingArchive.session.snapshot.context[0], {
+      content: `copied credential: ${leakedCredential}`
+    })
+    await expect(exporter.export(secretBearingArchive, {
+      sessionId: secretBearingArchive.sessionId,
+      format: "json",
+      destination: path.join(root, "secret-bearing.json"),
+      disclosureAccepted: true,
+      overwriteConfirmed: false
+    })).rejects.toThrow(/credential or secret value/i)
+
+    const shapedSecretArchive = structuredClone(projected)
+    Object.assign(shapedSecretArchive.session.audio.segments[0], {
+      text: "Authorization: Bearer abcdefghijklmnopqrstuvwxyz"
+    })
+    await expect(exporter.export(shapedSecretArchive, {
+      sessionId: shapedSecretArchive.sessionId,
+      format: "markdown",
+      destination: path.join(root, "shaped-secret"),
+      disclosureAccepted: true,
+      overwriteConfirmed: false
+    })).rejects.toThrow(/credential or secret value/i)
   })
 })

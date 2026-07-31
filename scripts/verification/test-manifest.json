@@ -1144,12 +1144,12 @@
     {
       "path": "electron/history/exportPathSafety.test.ts",
       "name": "confines and atomically writes explicit exports",
-      "sha256": "07b9925137e9f957e5159830ecc345368c30a4553ed84ff0be0d695d65195a95"
+      "sha256": "33fd38f7240c083ce91cc091c4bfc1fdfb0099e03c8d48332104bb416a768176"
     },
     {
       "path": "electron/history/exportRoundTrip.test.ts",
       "name": "exports one safe versioned session with consent",
-      "sha256": "8a4bcf3f83142f85b70da36faf5c8c069a2c6192ef5946d05778729118b07a15"
+      "sha256": "6454f342e27a64fba993d6fe1813a599f1cf3a2a0ed929c429be8134b733d104"
     },
     {
       "path": "electron/history/m09Projection.test.ts",

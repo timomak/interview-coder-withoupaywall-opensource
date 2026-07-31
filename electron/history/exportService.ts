@@ -4,7 +4,6 @@ import {
   mkdir,
   open,
   readdir,
-  realpath,
   rename,
   rm
 } from "node:fs/promises"
@@ -145,7 +144,7 @@ async function planDestination(destination: string): Promise<{
       path.normalize(destination) !== destination) {
     throw new Error("Export destination must be an explicit normalized absolute path")
   }
-  const canonicalParent = await realpath(path.dirname(destination))
+  const canonicalParent = path.dirname(destination)
   const ancestorChain = await directoryChain(canonicalParent)
   const parent = ancestorChain.at(-1)!
   if (typeof process.getuid === "function" && parent.uid !== process.getuid()) {
@@ -306,6 +305,58 @@ function exportProjection(archive: HistoryArchiveV1) {
   }
 }
 
+const SECRET_KEY = /(?:^|[_-])(api[-_]?key|access[-_]?token|refresh[-_]?token|client[-_]?secret|credential|password|passwd|authorization)(?:$|[_-])/i
+const SECRET_SHAPE = [
+  /-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/,
+  /\bBearer\s+[A-Za-z0-9._~+/-]{8,}={0,2}\b/i,
+  /\b(?:sk|rk)-[A-Za-z0-9_-]{16,}\b/,
+  /\bgh[pousr]_[A-Za-z0-9]{20,}\b/,
+  /\bxox[baprs]-[A-Za-z0-9-]{10,}\b/,
+  /\bAKIA[0-9A-Z]{16}\b/,
+  /\beyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\b/,
+  /\b(?:api[-_ ]?key|access[-_ ]?token|refresh[-_ ]?token|client[-_ ]?secret|password|passwd|authorization)\b\s*[:=]\s*\S{8,}/i
+] as const
+
+function collectSensitiveValues(
+  value: unknown,
+  result = new Set<string>(),
+  sensitive = false
+): ReadonlySet<string> {
+  if (typeof value === "string") {
+    if (sensitive && value.length >= 4) result.add(value)
+    return result
+  }
+  if (Array.isArray(value)) {
+    for (const item of value) collectSensitiveValues(item, result, sensitive)
+    return result
+  }
+  if (!value || typeof value !== "object" || Buffer.isBuffer(value)) return result
+  for (const [key, child] of Object.entries(value as Record<string, unknown>)) {
+    collectSensitiveValues(child, result, sensitive || SECRET_KEY.test(key))
+  }
+  return result
+}
+
+function assertSecretFreeExport(projection: unknown, archive: HistoryArchiveV1): void {
+  const sensitiveValues = collectSensitiveValues(archive)
+  const inspect = (value: unknown): void => {
+    if (typeof value === "string") {
+      if (SECRET_SHAPE.some((pattern) => pattern.test(value)) ||
+          [...sensitiveValues].some((secret) => value.includes(secret))) {
+        throw new Error("Plaintext export contains a credential or secret value")
+      }
+      return
+    }
+    if (Array.isArray(value)) {
+      for (const item of value) inspect(item)
+      return
+    }
+    if (!value || typeof value !== "object") return
+    for (const child of Object.values(value as Record<string, unknown>)) inspect(child)
+  }
+  inspect(projection)
+}
+
 function markdown(archive: HistoryArchiveV1): string {
   const document = exportProjection(archive).session
   return [
@@ -424,6 +475,8 @@ export class HistoryExportService {
     if (plan.expectedDestination && !request.overwriteConfirmed) {
       throw new Error("Export destination already exists; overwrite is not confirmed")
     }
+    const projection = exportProjection(archive)
+    assertSecretFreeExport(projection, archive)
     const token = randomBytes(16).toString("hex")
     const staging = path.join(path.dirname(plan.destination), `.${path.basename(plan.destination)}.partial-${token}`)
     const backup = `${staging}.backup`
@@ -447,7 +500,7 @@ export class HistoryExportService {
       await this.checkpoint?.("intent-saved")
       const files: string[] = []
       if (request.format === "json") {
-        await writeFileSynced(staging, `${JSON.stringify(exportProjection(archive), null, 2)}\n`)
+        await writeFileSynced(staging, `${JSON.stringify(projection, null, 2)}\n`)
         files.push(path.basename(request.destination))
       } else {
         await mkdir(staging, { mode: 0o700 })
