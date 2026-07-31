@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "projectKey": "InterviewCopilot",
+  "milestoneId": "IC-M05",
+  "recoveryId": "IC-M05-RECOVERY-01",
+  "recordedAt": "2026-07-31T15:58:37+02:00",
+  "status": "FAILED_TERMINAL_SECOND_MATERIAL_FAILURE",
+  "packet": "v3/interviewcopilot/bounded-recovery-IC-M05-1.json",
+  "packetSha256": "3be473cfbac0bb1c4f215b5eb22843b38bc7826815f8d1889ccdfd563f633992",
+  "failedPriorCandidate": "82f29cb176da496835ab08216420bd787936a09d",
+  "reviewedRecoveryCandidate": "73a64b97442260fb5bf5d533e625936a600ca185",
+  "reviewer": "/root/ic_m04_high_review",
+  "reviewType": "EXACT_SIX_FINDING_TERMINAL_CLOSURE",
+  "disposition": "CHANGES_REQUESTED",
+  "closedFindingIds": [
+    "IC-M05-B02",
+    "IC-M05-B03",
+    "IC-M05-B04",
+    "IC-M05-B05",
+    "IC-M05-B06",
+    "IC-M05-B08"
+  ],
+  "openFindingIds": [
+    "IC-M05-B01",
+    "IC-M05-B07",
+    "IC-M05-B09"
+  ],
+  "openEvidence": {
+    "IC-M05-B01": "verify-mac-package copies Team ID, certificate SHA-256, and notarization ticket identity from the detached statement instead of independently deriving and comparing them from the mounted signed artifact.",
+    "IC-M05-B07": "production collection stops at awaiting-analysis-and-attestations; sealBundle is not reachable from the production command path, and the signed remote-helper digest is not bound to an expected reviewed helper digest.",
+    "IC-M05-B09": "the frozen corpus assertion and hash checks improved, but not every provider event executes through the orchestrator; behavioral follow-up is unused and system-design/behavioral content remains partly hardcoded."
+  },
+  "reusableClosedProof": [
+    "deep raw evidence, frame, event, timing, coverage, role, recording, and attestation bindings",
+    "mutate-restore and post-finalization replay rejection",
+    "live Meet-build observation and exact M-10 invalidation",
+    "exact releaseKeyId statement contract",
+    "RFC 8785 ordering and fatal malformed-UTF-8 rejection",
+    "capture protection across every production setBounds path",
+    "all previously accepted package, entitlement, diagnostics, claim, SBOM, and audit work"
+  ],
+  "verification": {
+    "targetedP12": "19_PASS_0_FAIL_0_SKIP",
+    "typecheck": "PASS_369_EXECUTABLE_FILES",
+    "lint": "PASS_369_EXECUTABLE_153_TEST_FILES",
+    "build": "PASS",
+    "packageInventory": "PASS_4660_ASAR_118_OUTER",
+    "manifestPolicy": "2_PASS_0_FAIL_MANIFEST_HASH_DRIFT_0",
+    "authoritativeSuite": "UNUSED_PROHIBITED_AFTER_TERMINAL_REVIEW_FAILURE"
+  },
+  "boundaries": {
+    "privilegedHelperInvoked": false,
+    "a04Invoked": false,
+    "signingPerformed": false,
+    "notarizationPerformed": false,
+    "physicalMeetPerformed": false,
+    "mergePerformed": false,
+    "deploymentPerformed": false,
+    "upstreamPr155Mutated": false,
+    "legacyAutomationUnpaused": false
+  },
+  "terminalRuleApplied": true,
+  "retryProhibited": true,
+  "nextAction": "No additional IC-M05 recovery loop is authorized. A future controller may proceed only under a genuinely new milestone-level plan or explicit superseding authority that preserves this terminal evidence; it may not relabel or retry this recovery."
+}

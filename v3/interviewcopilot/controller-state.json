@@ -866,5 +866,5 @@
     "privilegedBoundaryCrossed": false,
     "candidateInvoked": false
   },
-  "nextSafeAction": "Freeze and execute IC-M05/P12 from exact approved IC-M04 revision 9b6672464d16389b6315cbe0c17d48569714530e. Retain stacked draft PRs 1, 2, 3, and 4 unchanged; complete every safe non-interactive macOS release and qualification control before surfacing only the final signing and physical Google Meet boundary. Protected integration of upstream PR 155 remains externally repository-permission blocked. Do not invoke A04, deploy, or unpause legacy automation."
+  "nextSafeAction": "IC-M05 is terminal under bounded-recovery packet 3be473cfbac0bb1c4f215b5eb22843b38bc7826815f8d1889ccdfd563f633992 after exact recovery candidate 73a64b97442260fb5bf5d533e625936a600ca185 retained material findings IC-M05-B01, IC-M05-B07, and IC-M05-B09. Do not run the authoritative suite, create another recovery, merge, deploy, sign, invoke A04, or unpause legacy automation. Preserve all exact evidence and await only genuinely new milestone-level or explicit superseding authority."
 }
