@@ -1,0 +1,117 @@
+{
+  "schemaVersion": 1,
+  "projectKey": "InterviewCopilot",
+  "milestoneId": "IC-M02",
+  "title": "Live interview shell and answer modes",
+  "requirementIds": [
+    "P05",
+    "P06",
+    "P07",
+    "P08"
+  ],
+  "recordedAt": "2026-07-31T09:39:03+02:00",
+  "status": "APPROVED_AWAITING_DEPENDENCY_INTEGRATION",
+  "candidate": {
+    "revision": "e12930fb4ea7018d829bcc8366bed9f39d799c6d",
+    "fullSuiteRevision": "5f25c5ccebf1ecd58b58d99b6c6187213e38421d",
+    "deltaParent": "5f25c5ccebf1ecd58b58d99b6c6187213e38421d",
+    "baseRevision": "703a37e47b4a398ed90e1c5cf4be9c5859dc0849",
+    "branch": "codex/ic-m02-live-modes",
+    "remote": "fork/codex/ic-m02-live-modes",
+    "remoteRevision": "e12930fb4ea7018d829bcc8366bed9f39d799c6d",
+    "worktreeClean": true
+  },
+  "pullRequest": {
+    "repository": "timomak/interview-coder-withoupaywall-opensource",
+    "number": 2,
+    "url": "https://github.com/timomak/interview-coder-withoupaywall-opensource/pull/2",
+    "state": "OPEN_DRAFT",
+    "base": "codex/ic-m01-runtime-storage-session",
+    "head": "codex/ic-m02-live-modes",
+    "headRevision": "e12930fb4ea7018d829bcc8366bed9f39d799c6d",
+    "mergeable": true,
+    "hostedChecks": "NONE_CONFIGURED"
+  },
+  "outcome": {
+    "delivered": [
+      "Quiet Signal hidden, compact-bar, compact-answer, and expanded-workspace shell",
+      "complete command rail, compact composer, input tray, answer navigation, and visible equivalents for every global shortcut",
+      "exact answer text metrics and display-aware geometry",
+      "shared production capture-protection, pointer-routing, and in-memory exact-primary-display capture path",
+      "Coding progressive typed Answer, Plan, Code, Explain, question branching, and bounded Debug behavior",
+      "System Design progressive assumptions, estimates, architecture graph, and dependency-scoped follow-ups",
+      "encrypted candidate dossier and opportunity context with Behavioral fact parity",
+      "synthetic Behavioral persistence before session answer publication",
+      "no production-reachable plaintext screenshot PNG persistence"
+    ],
+    "rollback": "Disable the new mode composition while preserving sessions, profiles, and stored context.",
+    "dependency": "IC-M01 draft PR 1 remains unmerged, so IC-M02 remains a stacked approved draft and is not integrated."
+  },
+  "verification": {
+    "toolchain": {
+      "node": "20.20.2",
+      "npm": "10.8.2"
+    },
+    "install": "PASS_923_PACKAGES",
+    "dependencyAudit": "INHERITED_51_VULNERABILITIES_6_LOW_13_MODERATE_28_HIGH_4_CRITICAL",
+    "policy": "PASS",
+    "lint": "PASS_237_EXECUTABLE_91_TEST_FILES",
+    "typecheck": "PASS_237_EXECUTABLE_FILES",
+    "legacy": "1_PASS_0_FAIL_0_SKIP",
+    "p05": "19_PASS_AT_FULL_SUITE_REVISION_AND_20_PASS_AT_FINAL_DELTA_REVISION",
+    "electronShell": "8_PASS_AT_FULL_SUITE_REVISION_AND_9_PASS_PLUS_REAL_RUNTIME_CAPTURE_AT_FINAL_DELTA_REVISION",
+    "p06": "16_PASS_0_FAIL_0_SKIP",
+    "codingFixtures": "6_PASS_0_FAIL_0_SKIP",
+    "p07": "9_PASS_0_FAIL_0_SKIP",
+    "systemDesignFixtures": "2_PASS_0_FAIL_0_SKIP",
+    "p08": "12_PASS_0_FAIL_0_SKIP",
+    "behavioralFixtures": "1_PASS_0_FAIL_0_SKIP",
+    "unit": "142_PASS_0_FAIL_0_SKIP",
+    "build": "PASS_FINAL_DELTA_REVISION",
+    "packageInventory": {
+      "status": "PASS_FINAL_DELTA_REVISION",
+      "asarEntries": 9020,
+      "outerEntries": 107,
+      "asarSha256": "d324bff218806dd4397d15714206c755f762d7dba27eb0198f6d630510aa707d"
+    },
+    "manifest": {
+      "status": "PENDING_RELEASE_ASSURANCE",
+      "reason": "The controller-authenticated manifest boundary requires the separately retained release-assurance route. No privileged helper was invoked and no evidence was fabricated.",
+      "repositoryNativeContractEvidence": "tests/policy/testManifest.test.ts passed inside the complete 142-test unit execution"
+    },
+    "attemptNotes": [
+      "A standalone verify:test-manifest invocation stopped as designed because VERIFICATION_VALIDATED_TEST_RESULTS_PATH was absent; supported suite entry points subsequently passed.",
+      "The final two-file display-source delta was validated by typecheck, lint, P05, the Electron shell and actual runtime probe, build, package inventory, and independent exact delta review."
+    ]
+  },
+  "review": {
+    "reviewer": "ic_m01_g1_high_review",
+    "initialReviewedRevision": "39965363c6622e4ace644c1376c19e986da03e08",
+    "completeClosureRevision": "5f25c5ccebf1ecd58b58d99b6c6187213e38421d",
+    "deltaReviewedRevision": "e12930fb4ea7018d829bcc8366bed9f39d799c6d",
+    "verdict": "APPROVED",
+    "closedFindings": [
+      "B01",
+      "B02",
+      "B03",
+      "B04",
+      "B05",
+      "B06",
+      "B07",
+      "B08",
+      "B09",
+      "B10"
+    ],
+    "finalDelta": "B05 exact display-source selection fails closed and reports the source actually captured"
+  },
+  "boundaries": {
+    "privilegedHelperInvoked": false,
+    "a04Invoked": false,
+    "mergePerformed": false,
+    "deploymentPerformed": false,
+    "icM01Pr1Mutated": false,
+    "upstreamPr155Mutated": false,
+    "legacyAutomationUnpaused": false
+  },
+  "nextSafeAction": "Retain draft PR 2 at the approved exact SHA until its IC-M01 dependency can be integrated under separate authority. Do not merge, deploy, or invoke release assurance from this checkpoint."
+}
