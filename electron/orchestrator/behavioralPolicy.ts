@@ -9,6 +9,7 @@ import {
   validateStoryClaims
 } from "../../src/features/behavioral/facts"
 import type { ProvenancedClaim } from "../../src/features/profile/types"
+import { providerTemplateEnvelope } from "../prompts"
 
 export interface BehavioralProviderPayload {
   readonly kind: "behavioral"
@@ -141,6 +142,7 @@ export function buildBehavioralRequest(
         item.category === "opportunity"
     ),
     profileContextRole: "untrusted-evidence" as const,
+    template: providerTemplateEnvelope(session),
     allowedClaims: claims,
     synthetic: {
       enabled: syntheticEnabled,

@@ -1085,6 +1085,91 @@
       "path": "tests/policy/verificationReporter.test.ts",
       "name": "suppresses companion hooks while preserving the requested npm target argv",
       "sha256": "397c77550017e77c0f004a9827dccdcdb68d5f868122642c0fc303efce99f758"
+    },
+    {
+      "path": "electron/orchestrator/instructionResolution.test.ts",
+      "name": "resolves and records conflicts deterministically",
+      "sha256": "4d99415a8da2ac734ed9b213b5120dd839d0c99d63392f7214a1ec81908820a8"
+    },
+    {
+      "path": "electron/orchestrator/templateSecurity.test.ts",
+      "name": "rejects invariant and capability escalation",
+      "sha256": "69e36e32d3f0a93209547ef3d445d44533d45e7b5ff066660aa2c681d899a331"
+    },
+    {
+      "path": "electron/storage/templateMigration.test.ts",
+      "name": "migrates encrypts and isolates invalid templates",
+      "sha256": "fc6e8454c16c295cff5f21d9d863c1217350153f2c18df5fbc744ef93372f5be"
+    },
+    {
+      "path": "src/features/prompts/modeBoundary.test.ts",
+      "name": "limits templates to three protected core modes",
+      "sha256": "be2d7ddee7ce70c1d4e665a9a7fe6a36a70f10cd6c038f76d9e7940d42035e6b"
+    },
+    {
+      "path": "src/features/prompts/synchronizedStudio.test.tsx",
+      "name": "synchronizes guided and manual editing through reviewed diffs",
+      "sha256": "8a6ba1e543676af3f5dd9332e26b2dd57a92adb37d7c90a50d3488fea12c9cd6"
+    },
+    {
+      "path": "src/features/prompts/templateContentSafety.test.tsx",
+      "name": "renders untrusted instructions inertly",
+      "sha256": "7d7dc77aa79c5c0de123ff8885df56a9e4b0be2f6a65a990a5e46c7b6f55bebb"
+    },
+    {
+      "path": "src/features/prompts/templateCrud.test.ts",
+      "name": "protects built-ins and completes user CRUD",
+      "sha256": "02dc56fdc94335ba1c051c39dc9958841470f6ce2a98a6eb269136388a162f96"
+    },
+    {
+      "path": "src/features/prompts/templateSnapshot.test.ts",
+      "name": "locks template revision for active session",
+      "sha256": "f8559e4b7c61ea0f3c18c94d455e87ba27574bb0a907da92078b3f5d42af0031"
+    },
+    {
+      "path": "electron/history/archiveProjection.test.ts",
+      "name": "projects complete session and excludes audio",
+      "sha256": "eace20f51573fcde76c38edc6355e18d2f00fcec3797a5567b4be488416d825f"
+    },
+    {
+      "path": "electron/history/deletionIsolation.test.ts",
+      "name": "deletes only selected archived sessions",
+      "sha256": "c2311a47dac94afbde56039a81db4cbc00b46110ce442f9d75a3d7a7defd7755"
+    },
+    {
+      "path": "electron/history/encryptedSearch.test.ts",
+      "name": "searches in memory without plaintext index",
+      "sha256": "6007e31793c94850a28836b462040dddebb5387b0b1914db7e918b6a1406a7d9"
+    },
+    {
+      "path": "electron/history/exportPathSafety.test.ts",
+      "name": "confines and atomically writes explicit exports",
+      "sha256": "33fd38f7240c083ce91cc091c4bfc1fdfb0099e03c8d48332104bb416a768176"
+    },
+    {
+      "path": "electron/history/exportRoundTrip.test.ts",
+      "name": "exports one safe versioned session with consent",
+      "sha256": "2cd222d55103da70b9b131a2042822ab4044dfb40b94e923dbf7cdb0e80b8063"
+    },
+    {
+      "path": "electron/history/m09Projection.test.ts",
+      "name": "rebuilds the disposable M-09 projection without changing canonical archives",
+      "sha256": "8093176cbbfb980f592e3321779925da7ff8209480125f030503d490b3b335b9"
+    },
+    {
+      "path": "electron/history/readOnlyArchive.test.ts",
+      "name": "inspects History without resuming live systems",
+      "sha256": "ace8256a29777df62b1c1abe68a8e651f3e907d2348d288caf6de0828891f847"
+    },
+    {
+      "path": "src/features/history/HistorySettings.test.tsx",
+      "name": "exposes exact Settings-only controls and retention",
+      "sha256": "0c5dd840e297638648435f2f5b9522f64d0547ff98a2fb5838a33cea2fa1bbb9"
+    },
+    {
+      "path": "src/features/history/crashDecision.test.tsx",
+      "name": "offers explicit safe recovery without duplicate archive",
+      "sha256": "d29d2aa14981ffd439d8388ed7d1cbf318e0220385038dc0e928b6fa0cb28c85"
     }
   ]
 }

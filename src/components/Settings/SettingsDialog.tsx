@@ -21,6 +21,8 @@ import type {
 } from "../../shared/shell"
 import { ProfileSettings } from "../../features/profile"
 import { AudioSettings } from "../../features/audio"
+import { PromptStudio } from "../../features/prompts"
+import { HistorySettings } from "../../features/history"
 
 interface SettingsDialogProps {
   open?: boolean
@@ -146,6 +148,8 @@ export function SettingsDialog({
             ))}
           </fieldset>
           <ProfileSettings />
+          <PromptStudio />
+          <HistorySettings />
           <fieldset>
             <legend className="mb-2 text-sm font-medium">HUD density</legend>
             {(["compact", "comfortable"] as const).map((value) => (

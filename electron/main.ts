@@ -31,6 +31,8 @@ import {
   StoragePaths
 } from "./storage"
 import { ProfileRepository } from "./profile/ProfileRepository"
+import { PromptTemplateRepository } from "./prompts"
+import type { PromptStoredRecord } from "../src/features/prompts/types"
 import type { ProfileBundle } from "../src/features/profile/types"
 import type {
   M04ActiveSnapshot
@@ -68,6 +70,15 @@ import { NativeAudioCaptureRuntime } from "./audio/native/NativeAudioCaptureRunt
 import { AppleSpeechTranscriber } from "./audio/transcription/AppleSpeechTranscriber"
 import { LocalWhisperTranscriber } from "./audio/transcription/LocalWhisperTranscriber"
 import { loadAudioArtifactManifest } from "./audio/transcription/artifactManifest"
+import {
+  HistoryDeletionJournal,
+  HistoryExportService,
+  HistoryRepository,
+  HistoryService,
+  type HistoryExportJournalV1
+} from "./history"
+import type { HistoryArchiveV1 } from "../src/features/history/types"
+import type { RecordRepository } from "./storage"
 
 const isDevelopment = process.env.NODE_ENV === "development"
 
@@ -363,13 +374,15 @@ async function providerDiagnostics(
 function createOrchestrator(
   executables: ProviderExecutables,
   repository: ActiveSessionRepository,
-  profiles: ProfileRepository
+  profiles: ProfileRepository,
+  prompts: PromptTemplateRepository
 ): InterviewOrchestrator {
   const providerRuntime = new ProviderRuntime({
     executables
   })
   return new InterviewOrchestrator({
     repository,
+    snapshotTemplate: (mode) => prompts.snapshot(mode),
     providerFactory: {
       create: (snapshot, requestedConversationId) =>
         providerRuntime.startSession({
@@ -463,6 +476,43 @@ async function initializeApplication(): Promise<void> {
       "audio"
     )
   )
+  const prompts = new PromptTemplateRepository(
+    new EncryptedRecordRepository<PromptStoredRecord | object>(
+      storagePaths,
+      keyService,
+      undefined,
+      "templates"
+    )
+  )
+  const historyRepository = new HistoryRepository(
+    records as unknown as RecordRepository<object>,
+    new EncryptedRecordRepository<HistoryArchiveV1 | object>(
+      storagePaths,
+      keyService,
+      undefined,
+      "history"
+    )
+  )
+  const history = new HistoryService(
+    historyRepository,
+    new HistoryDeletionJournal(
+      new EncryptedRecordRepository(
+        storagePaths,
+        keyService,
+        undefined,
+        "history-journals"
+      ),
+      historyRepository
+    ),
+    new HistoryExportService(
+      new EncryptedRecordRepository<HistoryExportJournalV1>(
+        storagePaths,
+        keyService,
+        undefined,
+        "history-journals"
+      )
+    )
+  )
   const orchestrator = createOrchestrator(
     executables,
     new ActiveSessionRepository(
@@ -472,7 +522,8 @@ async function initializeApplication(): Promise<void> {
           .load()
           .then((preferences) => preferences.transcriptRetention)
     ),
-    profiles
+    profiles,
+    prompts
   )
   const audioResourceRoot = app.isPackaged
     ? path.join(process.resourcesPath, "audio")
@@ -678,6 +729,18 @@ async function initializeApplication(): Promise<void> {
     saveProfileBundle: (bundle) => profiles.save(bundle),
     importProfileMarkdown: (source) => profiles.importMarkdown(source),
     exportDossier: (destination) => profiles.exportDossier(destination),
+    getPromptCatalog: () => prompts.catalog(),
+    reviewPromptChange: (draft) => prompts.review(draft),
+    savePromptChange: (reviewed) => prompts.apply(reviewed),
+    deletePromptTemplate: (id, confirmedName) =>
+      prompts.delete(id, confirmedName),
+    selectPromptTemplate: (mode, id) => prompts.select(mode, id),
+    restoreBuiltInPrompt: (mode) => prompts.restoreBuiltIn(mode),
+    listHistory: () => history.list(),
+    searchHistory: (query) => history.search(query),
+    openHistory: (sessionId) => history.open(sessionId),
+    deleteHistory: (request) => history.delete(request),
+    exportHistory: (request) => history.export(request),
     getAudioSessionState: () => audio.current(),
     dispatchAudioCommand: (command) => audio.command(command),
     getAudioPreferences: () => audioPreferences.load(),
@@ -727,6 +790,7 @@ async function initializeApplication(): Promise<void> {
       state.mainWindow?.webContents.send("settings:show")
   })
   await audio.cleanupStartup()
+  await history.recover()
   await orchestrator.inspectRecovery()
   screen.on("display-removed", () => setHudState(currentHudState))
   screen.on("display-metrics-changed", () => setHudState(currentHudState))

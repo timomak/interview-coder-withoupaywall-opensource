@@ -44,6 +44,7 @@ export interface StartSnapshot {
   readonly responseMode: ResponseMode
   readonly language: string
   readonly context: readonly ContextItem[]
+  readonly template?: import("../../features/prompts/types").PromptSessionSnapshot
 }
 
 export type ArtifactKind = "transcript" | "screenshot"
@@ -156,6 +157,10 @@ export type InterviewSessionEvent =
   | (EventEnvelope & {
       readonly type: "start"
       readonly snapshot: StartSnapshot
+    })
+  | (EventEnvelope & {
+      readonly type: "template-resolution-updated"
+      readonly template: import("../../features/prompts/types").PromptSessionSnapshot
     })
   | (EventEnvelope & {
       readonly type: "context-update-started"

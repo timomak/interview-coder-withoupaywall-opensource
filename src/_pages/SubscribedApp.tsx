@@ -28,6 +28,7 @@ import {
   SystemDesignWorkspace
 } from "../features/system-design"
 import { BehavioralResponseWorkspace } from "../features/behavioral"
+import { CrashDecision } from "../features/history"
 import { deriveHudState } from "../shared/shell"
 import {
   AudioSessionPanel,
@@ -322,36 +323,26 @@ export default function SubscribedApp({
         />
       ) : null}
       <p className="quiet-status" role="status">{shellStatus}</p>
-      {recovery.available && session.lifecycle === "idle" ? (
-        <div className="my-4 rounded border border-amber-400/30 p-3">
-          <p>Previous interview found. Capture remains off.</p>
-          <div className="mt-2 flex gap-2">
-            <button
-              onClick={() =>
-                void window.electronAPI
-                  .dispatchInterviewCommand({ type: "resume" })
-                  .then((result) => {
-                    setSession(result.state)
-                    setRecovery({ available: false, captureActive: false })
-                  })
-              }
-            >
-              Resume
-            </button>
-            <button
-              onClick={() =>
-                void window.electronAPI
-                  .dispatchInterviewCommand({ type: "reset" })
-                  .then((result) => {
-                    setSession(result.state)
-                    setRecovery({ available: false, captureActive: false })
-                  })
-              }
-            >
-              Reset
-            </button>
-          </div>
-        </div>
+      {session.lifecycle === "idle" ? (
+        <CrashDecision
+          recovery={recovery}
+          onResume={() =>
+            void window.electronAPI
+              .dispatchInterviewCommand({ type: "resume" })
+              .then((result) => {
+                setSession(result.state)
+                setRecovery({ available: false, captureActive: false })
+              })
+          }
+          onReset={() =>
+            void window.electronAPI
+              .dispatchInterviewCommand({ type: "reset" })
+              .then((result) => {
+                setSession(result.state)
+                setRecovery({ available: false, captureActive: false })
+              })
+          }
+        />
       ) : null}
       {session.lifecycle === "active" ? (
         <>
