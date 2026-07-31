@@ -1,0 +1,98 @@
+{
+  "schemaVersion": 1,
+  "milestoneId": "IC-M03",
+  "phaseId": "P09",
+  "kind": "SINGLE_CONSOLIDATED_REMEDIATION",
+  "status": "FROZEN_IN_PROGRESS",
+  "frozenAt": "2026-07-31T12:05:00+02:00",
+  "sourcePacket": "v3/interviewcopilot/milestone-IC-M03-packet-1.json",
+  "candidateRevision": "fa6a432a8215ba27d2dca3b83a7b5604f8b8651f",
+  "review": {
+    "reviewer": "/root/ic_m03_high_review",
+    "risk": "HIGH",
+    "disposition": "REQUEST_CHANGES",
+    "completeFindingBatch": true,
+    "passingCriteria": [
+      "P09-AC1",
+      "P09-AC2",
+      "P09-AC7",
+      "P09-AC9",
+      "P09-AC11"
+    ],
+    "openCriteria": [
+      "P09-AC3",
+      "P09-AC4",
+      "P09-AC5",
+      "P09-AC6",
+      "P09-AC8",
+      "P09-AC10",
+      "M-07"
+    ]
+  },
+  "findings": [
+    {
+      "id": "IC-M03-B01",
+      "criterion": "P09-AC5",
+      "summary": "Apple Speech consent is reachable but no production Speech adapter or usage-description metadata exists."
+    },
+    {
+      "id": "IC-M03-B02",
+      "criterion": "P09-AC3",
+      "summary": "Packaged microphone and speech permission metadata is incomplete and live helper failures do not disable the affected source."
+    },
+    {
+      "id": "IC-M03-B03",
+      "criterion": "P09-AC3",
+      "summary": "Capture can emit frames before Electron creates the source buffer, and live helper or source errors leave stale active state."
+    },
+    {
+      "id": "IC-M03-B04",
+      "criterion": "P09-AC6",
+      "summary": "Capture lacks rolling segmentation and cannot cancel or reap in-flight transcription at Reset, error, shutdown, or crash boundaries."
+    },
+    {
+      "id": "IC-M03-B05",
+      "criterion": "P09-AC4",
+      "summary": "The named gate does not authenticate the packaged local engine/model path and x64 runtime qualification remains pending."
+    },
+    {
+      "id": "IC-M03-B06",
+      "criterion": "P09-AC8/P09-AC10",
+      "summary": "Native timestamp provenance, partial transcript delivery, elapsed time, and preparing-answer state are not production-reachable."
+    },
+    {
+      "id": "IC-M03-B07",
+      "criterion": "M-07",
+      "summary": "The encrypted retain-finalized-transcript preference is persisted but not enforced by session recovery or archival persistence."
+    }
+  ],
+  "scope": {
+    "allowed": [
+      "implement the explicit Apple Speech adapter and permission disclosure",
+      "complete macOS packaged permission metadata",
+      "make native start, error, crash, and source-state propagation race-safe",
+      "add bounded rolling segmentation and cancellation/reap-safe terminal cleanup",
+      "bind actual packaged local transcription evidence and represent unsupported x64 runtime honestly",
+      "make native timestamps, partial/final segments, elapsed time, and preparing-answer reachable",
+      "enforce the M-07 transcript-retention preference"
+    ],
+    "prohibited": [
+      "new audio provider",
+      "automatic answering",
+      "raw-audio retention",
+      "Windows or Linux audio support",
+      "unrelated product or verification infrastructure",
+      "a second general review or a second remediation cycle"
+    ]
+  },
+  "verification": {
+    "targetedFirst": true,
+    "completeExactCandidateSuiteAfterCorrection": true,
+    "deltaReview": {
+      "reviewer": "/root/ic_m03_high_review",
+      "scope": "IC-M03-B01 through IC-M03-B07 plus regression of previously passing criteria",
+      "maximumAttempts": 1
+    }
+  },
+  "rollback": "Revert the single remediation revision, terminate and reap every audio helper/transcriber, remove known ephemeral buffers, preserve encrypted session state, and restore both sources and Apple Speech to off without retaining raw audio."
+}
