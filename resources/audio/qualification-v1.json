@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "qualifiedAt": "2026-07-31",
+  "toolchain": {
+    "cmake": "4.4.1",
+    "appleClang": "21.0.0 (clang-2100.1.1.101)",
+    "macOS": "26.5.1",
+    "xcode": "26.6 (17F113)"
+  },
+  "source": {
+    "commit": "23ee03506a91ac3d3f0071b40e66a430eebdfa1d",
+    "archiveSha256": "c8b0de473e9ec47a74bdf6104425c709261beeada8d6d7c1fec7432be701d032"
+  },
+  "model": {
+    "repositoryRevision": "5359861c739e955e79d9a303bcbc70fb988958b1",
+    "sha256": "a03779c86df3323075f5e796cb2ce5029f00ec8869eee3fdfb897afe36c6d002"
+  },
+  "architectures": {
+    "arm64": {
+      "build": "passed",
+      "binarySha256": "7c0ee3d080d03df6d2dcb5e398b7e83fe7cfae74ce1122e4c55322bbf59b30a6",
+      "offlineSyntheticFixtureRuntime": "passed"
+    },
+    "x64": {
+      "build": "passed",
+      "binarySha256": "657b0b29bfbf9e4f7947af1938849d4240611aa76d7de1048e1edd547d9f18f5",
+      "offlineSyntheticFixtureRuntime": "pending-x64-hardware"
+    }
+  },
+  "limitations": [
+    "The arm64 run proves the pinned local engine and model on the recorded synthetic fixtures with sandbox-exec denying network.",
+    "The x64 binary is compile-and-hash qualified only until the same fixture harness runs on x64 macOS hardware.",
+    "Neither run proves microphone or ScreenCaptureKit permission behavior."
+  ]
+}

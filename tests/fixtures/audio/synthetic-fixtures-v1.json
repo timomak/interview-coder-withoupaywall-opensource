@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "privacyClass": "synthetic-no-user-or-interview-content",
+  "format": {
+    "container": "WAVE",
+    "codec": "pcm_s16le",
+    "sampleRate": 16000,
+    "channels": 1
+  },
+  "fixtures": [
+    {
+      "source": "microphone",
+      "file": "microphone.wav",
+      "sha256": "6631f597d2a73334a6d6458ebfd103003dc749b6aa1bd7cbf1e3101258754675",
+      "durationSeconds": 2.581688,
+      "spokenText": "Microphone channel marker cedar amber nine",
+      "requiredNormalizedTokens": [
+        "microphone",
+        "channel",
+        "marker",
+        "cedar",
+        "amber",
+        "9"
+      ]
+    },
+    {
+      "source": "system",
+      "file": "system.wav",
+      "sha256": "26e9be7b23e8023352c65106e153b628400618fb07b5bb0472bb2417d4d9cdad",
+      "durationSeconds": 2.487438,
+      "spokenText": "System channel marker river cobalt seven",
+      "requiredNormalizedTokens": [
+        "system",
+        "channel",
+        "marker",
+        "river",
+        "cobalt",
+        "7"
+      ]
+    }
+  ],
+  "asserted": [
+    "source identity",
+    "pinned bytes",
+    "normalized marker tokens",
+    "offline execution"
+  ],
+  "notAsserted": [
+    "capitalization",
+    "punctuation",
+    "word-level timestamps",
+    "general speech accuracy",
+    "diarization truth",
+    "real-device gain or echo behavior"
+  ]
+}
