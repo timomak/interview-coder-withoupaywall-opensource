@@ -19,11 +19,13 @@
     "arm64": {
       "build": "passed",
       "binarySha256": "7c0ee3d080d03df6d2dcb5e398b7e83fe7cfae74ce1122e4c55322bbf59b30a6",
+      "nativeHelperSha256": "cee9f5ee82fd858411b80c20bb850f157a35c76f6e206ca323f62a2fea45c586",
       "offlineSyntheticFixtureRuntime": "passed"
     },
     "x64": {
       "build": "passed",
       "binarySha256": "657b0b29bfbf9e4f7947af1938849d4240611aa76d7de1048e1edd547d9f18f5",
+      "nativeHelperSha256": "858de9d50d5528ff2cfc8e43849243bc3824a7c126dbe324f0d00208e258ec9a",
       "offlineSyntheticFixtureRuntime": "pending-x64-hardware"
     }
   },

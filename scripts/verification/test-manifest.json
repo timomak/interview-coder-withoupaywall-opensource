@@ -2,204 +2,374 @@
   "schemaVersion": 1,
   "tests": [
     {
-      "path": "renderer/src/App.test.tsx",
-      "name": "renders learn react link",
-      "sha256": "1f0914ca057e799130da87a78d48021657aba67e01fcbcb50b099944ee2ea864"
+      "path": "electron/audio/channelSeparation.integration.test.ts",
+      "name": "preserves two-channel provenance end to end",
+      "sha256": "8d8a7a8ed9de4f02194f5fefa1be8e8ba43c14a7ef67e718ffaa9a74a6c05334"
     },
     {
-      "path": "electron/captureProtection.test.ts",
-      "name": "protects creation and reveal lifecycle paths",
-      "sha256": "645417518a8669a6c1c7a4e383e201ed738926f981df13bc6cb812193bae3b9c"
+      "path": "electron/audio/cloudFallbackConsent.test.ts",
+      "name": "requires explicit Apple transcription consent",
+      "sha256": "447cb6abe2127bb8287aa61eec1c206ca573d675c211e393b54518ee9c38ae9c"
+    },
+    {
+      "path": "electron/audio/explicitActivation.test.ts",
+      "name": "fails closed before capture when Remote lacks the Apple adapter",
+      "sha256": "95a8d4440c3a389578bd8027686d67f952f53557842acf67863ceb3acb29b698"
+    },
+    {
+      "path": "electron/audio/explicitActivation.test.ts",
+      "name": "never creates the helper or opens capture before explicit activation",
+      "sha256": "95a8d4440c3a389578bd8027686d67f952f53557842acf67863ceb3acb29b698"
+    },
+    {
+      "path": "electron/audio/explicitActivation.test.ts",
+      "name": "preserves source provenance and removes raw bytes after finalization",
+      "sha256": "95a8d4440c3a389578bd8027686d67f952f53557842acf67863ceb3acb29b698"
+    },
+    {
+      "path": "electron/audio/localTranscription.contract.test.ts",
+      "name": "pins source model licenses checksums and both macOS architectures",
+      "sha256": "b9c35c637456f561b63aed8aed175e4786268ce81d4f8de4ca849303f332409b"
+    },
+    {
+      "path": "electron/audio/modelOperationRouting.test.ts",
+      "name": "rejects provider payload capability fields",
+      "sha256": "57df4326a49f974d5d2deb7d6fc4c64f3eb3dc328d07d659ea7fbb3f84bceba0"
+    },
+    {
+      "path": "electron/audio/modelOperationRouting.test.ts",
+      "name": "routes a durable correction as text-only analysis without an answer",
+      "sha256": "57df4326a49f974d5d2deb7d6fc4c64f3eb3dc328d07d659ea7fbb3f84bceba0"
+    },
+    {
+      "path": "electron/audio/modelOperationRouting.test.ts",
+      "name": "uses finalized text in the existing conversation and never auto-answers",
+      "sha256": "57df4326a49f974d5d2deb7d6fc4c64f3eb3dc328d07d659ea7fbb3f84bceba0"
+    },
+    {
+      "path": "electron/audio/native/frameProtocol.test.ts",
+      "name": "fails closed on an oversized declared payload",
+      "sha256": "a3bb62d704fdfd2bb61f1474be9731801acd028c7e0e44aee2c4e93e9542565b"
+    },
+    {
+      "path": "electron/audio/native/frameProtocol.test.ts",
+      "name": "keeps source timestamp and sequence across fragmented frames",
+      "sha256": "a3bb62d704fdfd2bb61f1474be9731801acd028c7e0e44aee2c4e93e9542565b"
+    },
+    {
+      "path": "electron/audio/native/NativeAudioCaptureRuntime.test.ts",
+      "name": "fails closed before capture when Remote lacks the Apple adapter",
+      "sha256": "8072fde7cda818dafea12a80cebce70a416f2992395c46c6c27c85da46709d69"
+    },
+    {
+      "path": "electron/audio/native/NativeAudioCaptureRuntime.test.ts",
+      "name": "never creates the helper or opens capture before explicit activation",
+      "sha256": "8072fde7cda818dafea12a80cebce70a416f2992395c46c6c27c85da46709d69"
+    },
+    {
+      "path": "electron/audio/native/NativeAudioCaptureRuntime.test.ts",
+      "name": "preserves source provenance and removes raw bytes after finalization",
+      "sha256": "8072fde7cda818dafea12a80cebce70a416f2992395c46c6c27c85da46709d69"
+    },
+    {
+      "path": "electron/audio/native/protocol.test.ts",
+      "name": "accepts bounded typed events and rejects extra or sensitive fields",
+      "sha256": "3422b2e57a4fd3ed2a1e7c5a4cc9fb48040efdcea127c7787adeaf40dee00500"
+    },
+    {
+      "path": "electron/audio/native/protocol.test.ts",
+      "name": "encodes only versioned source-scoped commands",
+      "sha256": "3422b2e57a4fd3ed2a1e7c5a4cc9fb48040efdcea127c7787adeaf40dee00500"
+    },
+    {
+      "path": "electron/audio/permissionRecovery.test.ts",
+      "name": "cleans runtime and archives every source off on Reset",
+      "sha256": "80189a13c859a65c35e28f0f385051a48bac90645cf2c2f73fd78180705e35d4"
+    },
+    {
+      "path": "electron/audio/permissionRecovery.test.ts",
+      "name": "controls two sources deterministically without cross-source failure",
+      "sha256": "80189a13c859a65c35e28f0f385051a48bac90645cf2c2f73fd78180705e35d4"
+    },
+    {
+      "path": "electron/audio/permissionRecovery.test.ts",
+      "name": "coordinates startup cleanup and persists crash recovery capture-off",
+      "sha256": "80189a13c859a65c35e28f0f385051a48bac90645cf2c2f73fd78180705e35d4"
+    },
+    {
+      "path": "electron/audio/questionDetection.test.ts",
+      "name": "rejects provider payload capability fields",
+      "sha256": "d2cebebf87c6a872b1272d0db5295ce8ca94c8d5407f4526c8cf3699ff62fca7"
+    },
+    {
+      "path": "electron/audio/questionDetection.test.ts",
+      "name": "routes a durable correction as text-only analysis without an answer",
+      "sha256": "d2cebebf87c6a872b1272d0db5295ce8ca94c8d5407f4526c8cf3699ff62fca7"
+    },
+    {
+      "path": "electron/audio/questionDetection.test.ts",
+      "name": "uses finalized text in the existing conversation and never auto-answers",
+      "sha256": "d2cebebf87c6a872b1272d0db5295ce8ca94c8d5407f4526c8cf3699ff62fca7"
+    },
+    {
+      "path": "electron/audio/rawAudioRetention.test.ts",
+      "name": "deletes the active file when a bounded append is exceeded",
+      "sha256": "4c9c85f5308aac04399b1b4ea9c1435fdfde17c8cab0cc9b5c02b19a07bbe664"
+    },
+    {
+      "path": "electron/audio/rawAudioRetention.test.ts",
+      "name": "uses mode 0600 and removes success Reset and crash leftovers",
+      "sha256": "4c9c85f5308aac04399b1b4ea9c1435fdfde17c8cab0cc9b5c02b19a07bbe664"
+    },
+    {
+      "path": "electron/audio/session/m07Preferences.test.ts",
+      "name": "defaults capture and Apple Speech off and persists no plaintext index",
+      "sha256": "224868df58f7c697a0c016c416d285d37bf022f138d92f5ec72708f7fc68845e"
+    },
+    {
+      "path": "electron/audio/session/sourceStateMachine.test.ts",
+      "name": "cleans runtime and archives every source off on Reset",
+      "sha256": "dd2ebfe1be717286af1b5a837a9a36c476daec807ee142e0debe8ca70e36c969"
+    },
+    {
+      "path": "electron/audio/session/sourceStateMachine.test.ts",
+      "name": "controls two sources deterministically without cross-source failure",
+      "sha256": "dd2ebfe1be717286af1b5a837a9a36c476daec807ee142e0debe8ca70e36c969"
+    },
+    {
+      "path": "electron/audio/session/sourceStateMachine.test.ts",
+      "name": "coordinates startup cleanup and persists crash recovery capture-off",
+      "sha256": "dd2ebfe1be717286af1b5a837a9a36c476daec807ee142e0debe8ca70e36c969"
+    },
+    {
+      "path": "electron/audio/sourceStateMachine.test.ts",
+      "name": "cleans runtime and archives every source off on Reset",
+      "sha256": "65636981016fee378356b5e629f359bfd8718795154980b9c257468a506309f2"
+    },
+    {
+      "path": "electron/audio/sourceStateMachine.test.ts",
+      "name": "controls two sources deterministically without cross-source failure",
+      "sha256": "65636981016fee378356b5e629f359bfd8718795154980b9c257468a506309f2"
+    },
+    {
+      "path": "electron/audio/sourceStateMachine.test.ts",
+      "name": "coordinates startup cleanup and persists crash recovery capture-off",
+      "sha256": "65636981016fee378356b5e629f359bfd8718795154980b9c257468a506309f2"
+    },
+    {
+      "path": "electron/audio/temporary/rawAudioRetention.test.ts",
+      "name": "deletes the active file when a bounded append is exceeded",
+      "sha256": "349c29b104da0549051591ef8cdc03e5408a935d5a2114cada4458f752ae4f60"
+    },
+    {
+      "path": "electron/audio/temporary/rawAudioRetention.test.ts",
+      "name": "uses mode 0600 and removes success Reset and crash leftovers",
+      "sha256": "349c29b104da0549051591ef8cdc03e5408a935d5a2114cada4458f752ae4f60"
+    },
+    {
+      "path": "electron/audio/transcription/artifactManifest.test.ts",
+      "name": "pins source model licenses checksums and both macOS architectures",
+      "sha256": "40f697e8cf711ad6825dac21ecd6f1663410aaf211a107bae24b0ef04e97a9e0"
+    },
+    {
+      "path": "electron/capture/primaryDisplayCapture.test.ts",
+      "name": "captures primary display and preserves visibility",
+      "sha256": "d8c92c2fb295024e58ee719ad3084d3672c2ada808303baccae32edcf0c1f1d7"
+    },
+    {
+      "path": "electron/capture/primaryDisplayCapture.test.ts",
+      "name": "fails closed instead of substituting another display source",
+      "sha256": "d8c92c2fb295024e58ee719ad3084d3672c2ada808303baccae32edcf0c1f1d7"
     },
     {
       "path": "electron/captureProtection.test.ts",
       "name": "only enables the underlying Electron content-protection flag",
-      "sha256": "645417518a8669a6c1c7a4e383e201ed738926f981df13bc6cb812193bae3b9c"
+      "sha256": "8cb772ef9459a61acae588420c5d1fdc6529f23482ae85dd0ae44a1f545dd5fe"
     },
     {
-      "path": "tests/policy/gateContract.test.ts",
-      "name": "executes the inherited CRA test and rejects a zero-test run",
-      "sha256": "ce4a704ee5861b89eba8d4c64c35c730de60777c6b405412ea7807164b5deb38"
-    },
-    {
-      "path": "tests/policy/gateContract.test.ts",
-      "name": "propagates every child gate exit code",
-      "sha256": "ce4a704ee5861b89eba8d4c64c35c730de60777c6b405412ea7807164b5deb38"
-    },
-    {
-      "path": "tests/policy/testManifest.test.ts",
-      "name": "rejects missing renamed skipped and unexecuted tests",
-      "sha256": "fa0a27da57bab7e6b51d187a9c0764ba8eea3c425f2c8475ca245fb08936e56c"
-    },
-    {
-      "path": "tests/policy/productPolicy.test.ts",
-      "name": "enforces canonical identity and AGPL metadata",
-      "sha256": "b2083fdaed1f9cc12724d3f0a541556102aa3db7fe1c2368d3057f7aed781d57"
-    },
-    {
-      "path": "tests/policy/productPolicy.test.ts",
-      "name": "rejects telemetry crash upload and secret logging entry points",
-      "sha256": "b2083fdaed1f9cc12724d3f0a541556102aa3db7fe1c2368d3057f7aed781d57"
-    },
-    {
-      "path": "electron/windowOpenPolicy.test.ts",
-      "name": "P01-R1-B01 denies every implicit child while preserving external links",
-      "sha256": "bb7ebdea283661aa4f09100b1136895ded2f303c605db97793ccb2d2df3d68db"
-    },
-    {
-      "path": "electron/ScreenshotHelper.test.ts",
-      "name": "captures previews retains and deletes without plaintext PNG persistence",
-      "sha256": "5fed072edfbd7323a3b640ee9e285230a62b96710c5f249660b086d7341d6e7c"
-    },
-    {
-      "path": "electron/ScreenshotHelper.test.ts",
-      "name": "uses the Windows in-memory fallback without a filename",
-      "sha256": "5fed072edfbd7323a3b640ee9e285230a62b96710c5f249660b086d7341d6e7c"
-    },
-    {
-      "path": "electron/ScreenshotHelper.test.ts",
-      "name": "clears retained encrypted screenshots after restart without queue rehydration",
-      "sha256": "5fed072edfbd7323a3b640ee9e285230a62b96710c5f249660b086d7341d6e7c"
-    },
-    {
-      "path": "scripts/qualification/repositoryDiscovery.test.cjs",
-      "name": "executes repository-wide .cjs test discovery",
-      "sha256": "274d73c0daf7713d309b9f8ec5e57358e4a623891408691ac7b7213a6b1ce4fc"
-    },
-    {
-      "path": "scripts/qualification/repositoryDiscovery.test.cts",
-      "name": "executes repository-wide .cts test discovery",
-      "sha256": "76ad5a38a5409da23d82994b79f96a407960ed11e24b06cf394b34fdc6d6eae3"
-    },
-    {
-      "path": "scripts/qualification/repositoryDiscovery.test.mjs",
-      "name": "executes repository-wide .mjs test discovery",
-      "sha256": "cf90a79d1f50a271869f43b159003c0e5d2e052995907fb6bab8a501b3ccd7d8"
-    },
-    {
-      "path": "scripts/qualification/repositoryDiscovery.test.mts",
-      "name": "executes repository-wide .mts test discovery",
-      "sha256": "d4fbccdfa57804197bc415abbe824924acc2679c626b4a3ee33f6c978ced6967"
-    },
-    {
-      "path": "src/domain/repositoryDiscovery.test.ts",
-      "name": "executes repository-wide .ts test discovery",
-      "sha256": "f50252aa0db4abf29a7986a958bc5b65c5c0f9e83c999ef9b7727497190494c5"
-    },
-    {
-      "path": "src/domain/repositoryDiscovery.test.tsx",
-      "name": "executes repository-wide .tsx test discovery",
-      "sha256": "5047173032451403b8abd68fa1054500621dceaa57f44973f0053177f833256a"
-    },
-    {
-      "path": "src/features/repositoryDiscovery.test.js",
-      "name": "executes repository-wide .js test discovery",
-      "sha256": "ffa9c50241774b335279c5216bad199b4662fb29e879b9ca6a4716b90cecf315"
-    },
-    {
-      "path": "src/features/repositoryDiscovery.test.jsx",
-      "name": "executes repository-wide .jsx test discovery",
-      "sha256": "60d296cd20bf33a7987687708f89343b1d337857a446b9a6c84a89e647543918"
-    },
-    {
-      "path": "tests/policy/packageInventory.test.ts",
-      "name": "P01-R1-B06 rejects tests verification files and raw runtime source",
-      "sha256": "9031d95023cdc4edcd54a5b3a79629be26f0134aa3aa23e95c1c1581825de73d"
-    },
-    {
-      "path": "tests/policy/productPolicy.test.ts",
-      "name": "P01-R1-B05 rejects syntax-aware privacy bypasses without inert-text false positives",
-      "sha256": "b2083fdaed1f9cc12724d3f0a541556102aa3db7fe1c2368d3057f7aed781d57"
-    },
-    {
-      "path": "tests/policy/sourceGate.test.ts",
-      "name": "P01-R1-B04 gates JSX MTS CTS retained renderer and verification sources",
-      "sha256": "d8230201cb4a10cd5a4947f634b213413709e81bbeefee6a2efb071f103644c0"
-    },
-    {
-      "path": "tests/policy/testManifest.test.ts",
-      "name": "P01-R1-B02 discovers every future root and supported extension",
-      "sha256": "fa0a27da57bab7e6b51d187a9c0764ba8eea3c425f2c8475ca245fb08936e56c"
-    },
-    {
-      "path": "tests/policy/packageInventory.test.ts",
-      "name": "P01-R1-B06 fails an actual fresh build that injects extraResources source",
-      "sha256": "9031d95023cdc4edcd54a5b3a79629be26f0134aa3aa23e95c1c1581825de73d"
-    },
-    {
-      "path": "tests/policy/verificationReporter.test.ts",
-      "name": "rejects archived preverify self-removal and gate mutation before reporter start",
-      "sha256": "397c77550017e77c0f004a9827dccdcdb68d5f868122642c0fc303efce99f758"
-    },
-    {
-      "path": "tests/policy/verificationReporter.test.ts",
-      "name": "rejects committed preverify and postverify companions during anchor admission",
-      "sha256": "397c77550017e77c0f004a9827dccdcdb68d5f868122642c0fc303efce99f758"
-    },
-    {
-      "path": "tests/policy/verificationReporter.test.ts",
-      "name": "suppresses companion hooks while preserving the requested npm target argv",
-      "sha256": "397c77550017e77c0f004a9827dccdcdb68d5f868122642c0fc303efce99f758"
-    },
-    {
-      "path": "tests/policy/verificationReporter.test.ts",
-      "name": "rejects joint package bootstrap plan manifest and gate mutation",
-      "sha256": "397c77550017e77c0f004a9827dccdcdb68d5f868122642c0fc303efce99f758"
-    },
-    {
-      "path": "tests/policy/verificationReporter.test.ts",
-      "name": "rejects runner plus colocated current-hash forgery",
-      "sha256": "397c77550017e77c0f004a9827dccdcdb68d5f868122642c0fc303efce99f758"
-    },
-    {
-      "path": "tests/policy/verificationReporter.test.ts",
-      "name": "rejects PATH node npm npmrc NODE_OPTIONS and script-shell substitution",
-      "sha256": "397c77550017e77c0f004a9827dccdcdb68d5f868122642c0fc303efce99f758"
-    },
-    {
-      "path": "tests/policy/verificationReporter.test.ts",
-      "name": "rejects detached-restorer and lifecycle-time mutate-restore",
-      "sha256": "397c77550017e77c0f004a9827dccdcdb68d5f868122642c0fc303efce99f758"
-    },
-    {
-      "path": "tests/policy/verificationReporter.test.ts",
-      "name": "rejects same-size overwrite rename symlink hardlink and case-collision TOCTOU",
-      "sha256": "397c77550017e77c0f004a9827dccdcdb68d5f868122642c0fc303efce99f758"
-    },
-    {
-      "path": "tests/policy/verificationReporter.test.ts",
-      "name": "rejects result-path environment stdout duplicate replay and structured-record forgery",
-      "sha256": "397c77550017e77c0f004a9827dccdcdb68d5f868122642c0fc303efce99f758"
-    },
-    {
-      "path": "tests/policy/verificationReporter.test.ts",
-      "name": "records planned argv resolved executable actual argv raw exit and signal exactly",
-      "sha256": "397c77550017e77c0f004a9827dccdcdb68d5f868122642c0fc303efce99f758"
-    },
-    {
-      "path": "tests/policy/verificationReporter.test.ts",
-      "name": "continues exact injected exits seven then zero and aggregates one",
-      "sha256": "397c77550017e77c0f004a9827dccdcdb68d5f868122642c0fc303efce99f758"
-    },
-    {
-      "path": "tests/policy/verificationReporter.test.ts",
-      "name": "preserves every P01-R1-B01 through P01-R1-B06 hostile probe",
-      "sha256": "397c77550017e77c0f004a9827dccdcdb68d5f868122642c0fc303efce99f758"
-    },
-    {
-      "path": "tests/policy/verificationReporter.test.ts",
-      "name": "rejects any surviving child or detached descendant before zero",
-      "sha256": "397c77550017e77c0f004a9827dccdcdb68d5f868122642c0fc303efce99f758"
-    },
-    {
-      "path": "tests/policy/productPolicy.test.ts",
-      "name": "enforces cumulative subscription and session boundary",
-      "sha256": "b2083fdaed1f9cc12724d3f0a541556102aa3db7fe1c2368d3057f7aed781d57"
+      "path": "electron/captureProtection.test.ts",
+      "name": "protects creation and reveal lifecycle paths",
+      "sha256": "8cb772ef9459a61acae588420c5d1fdc6529f23482ae85dd0ae44a1f545dd5fe"
     },
     {
       "path": "electron/config/configMigration.test.ts",
       "name": "migrates legacy settings once without persisting secrets",
       "sha256": "99bae04eeca40aa752335c53daf54addfac0e62311de3037d3ca8e148f09ffae"
+    },
+    {
+      "path": "electron/config/shellPreferencesMigration.test.ts",
+      "name": "adds safe defaults and replaces invalid additive preferences",
+      "sha256": "c24f60bd6884f1d618757e386b2d79b95d6efcd5419581c55e59d62cfc31dbb5"
+    },
+    {
+      "path": "electron/orchestrator/audioRouting.test.ts",
+      "name": "rejects provider payload capability fields",
+      "sha256": "daf7a66bcc4aa53300b7a0c1b1bc06413ebe52559951304a09d1656b44c7ffd8"
+    },
+    {
+      "path": "electron/orchestrator/audioRouting.test.ts",
+      "name": "routes a durable correction as text-only analysis without an answer",
+      "sha256": "daf7a66bcc4aa53300b7a0c1b1bc06413ebe52559951304a09d1656b44c7ffd8"
+    },
+    {
+      "path": "electron/orchestrator/audioRouting.test.ts",
+      "name": "uses finalized text in the existing conversation and never auto-answers",
+      "sha256": "daf7a66bcc4aa53300b7a0c1b1bc06413ebe52559951304a09d1656b44c7ffd8"
+    },
+    {
+      "path": "electron/orchestrator/behavioralFactuality.test.ts",
+      "name": "admits one fact object and rejects independent prose sections",
+      "sha256": "a3ae435992df146c4741cd64fc13ab9ef7c37b18c1a38dba2fe2001b15769a69"
+    },
+    {
+      "path": "electron/orchestrator/behavioralFactuality.test.ts",
+      "name": "does not publish a synthetic answer until the reusable story is durable",
+      "sha256": "a3ae435992df146c4741cd64fc13ab9ef7c37b18c1a38dba2fe2001b15769a69"
+    },
+    {
+      "path": "electron/orchestrator/behavioralFactuality.test.ts",
+      "name": "refuses unsupported real stories and metrics",
+      "sha256": "a3ae435992df146c4741cd64fc13ab9ef7c37b18c1a38dba2fe2001b15769a69"
+    },
+    {
+      "path": "electron/orchestrator/bestEffortClarification.test.ts",
+      "name": "answers without confidence gates and suggests material clarifications",
+      "sha256": "54ba9486d60a3e826f7b5daeb50b52d705a84081903d299b4907cbd20087dfa6"
+    },
+    {
+      "path": "electron/orchestrator/bestEffortClarification.test.ts",
+      "name": "derives material suggestions and ignores immaterial omissions",
+      "sha256": "54ba9486d60a3e826f7b5daeb50b52d705a84081903d299b4907cbd20087dfa6"
+    },
+    {
+      "path": "electron/orchestrator/bestEffortClarification.test.ts",
+      "name": "places only material mode omissions in real provider prompts",
+      "sha256": "54ba9486d60a3e826f7b5daeb50b52d705a84081903d299b4907cbd20087dfa6"
+    },
+    {
+      "path": "electron/orchestrator/cancelContinue.test.ts",
+      "name": "resumes unfinished sections without duplicate evidence",
+      "sha256": "b5dee324463f3a21f47af51e0ab10c7d30a7c6d904cfb59e5ad29e961c47ec8c"
+    },
+    {
+      "path": "electron/orchestrator/codingBranch.test.ts",
+      "name": "isolates new question within one interview",
+      "sha256": "02857c022c1bdc7e845444db95efcbb81d95b39783fd93b4b530b22bb6254a4d"
+    },
+    {
+      "path": "electron/orchestrator/codingDebugFailure.test.ts",
+      "name": "fails honestly without regeneration or fallback",
+      "sha256": "595276dab8b94f14b92850d16d763445a9639136606c9096808cb5ab7a7a43c4"
+    },
+    {
+      "path": "electron/orchestrator/codingIsolation.test.ts",
+      "name": "excludes personal context and execution tools",
+      "sha256": "c01e4b1fbbfa8755d7893b89e27e8e7af0c2ea6768e30a9ce70e82fbb2b48cf9"
+    },
+    {
+      "path": "electron/orchestrator/contextPolicy.test.ts",
+      "name": "replays the byte-exact pending packet until accepted completion",
+      "sha256": "7ec4c82116399d10ce5a91a308ff838e77a163cdd2f5ba257ff70fc5ffcff7b3"
+    },
+    {
+      "path": "electron/orchestrator/contextPolicy.test.ts",
+      "name": "seeds once sends deltas and excludes coding personal context",
+      "sha256": "7ec4c82116399d10ce5a91a308ff838e77a163cdd2f5ba257ff70fc5ffcff7b3"
+    },
+    {
+      "path": "electron/orchestrator/correctionRevision.test.ts",
+      "name": "applies correction-scoped revision without collateral changes",
+      "sha256": "815984aa681408252263a61fa48e096d707978aa0ac13e9a7ebb316949ba5897"
+    },
+    {
+      "path": "electron/orchestrator/crashRecovery.test.ts",
+      "name": "restores one encrypted provider conversation with capture off",
+      "sha256": "8661e2f81db1061c1ceb45e5aa58fc8ab4941f29ab61199453568c28bc2fc51a"
+    },
+    {
+      "path": "electron/orchestrator/crashRecovery.test.ts",
+      "name": "retains and replays byte-exact pending context after cancellation",
+      "sha256": "8661e2f81db1061c1ceb45e5aa58fc8ab4941f29ab61199453568c28bc2fc51a"
+    },
+    {
+      "path": "electron/orchestrator/crashRecovery.test.ts",
+      "name": "retries the exact pending delivery after failure and crash",
+      "sha256": "8661e2f81db1061c1ceb45e5aa58fc8ab4941f29ab61199453568c28bc2fc51a"
+    },
+    {
+      "path": "electron/orchestrator/evidenceAuthority.test.ts",
+      "name": "applies screenshot authority rule",
+      "sha256": "7c465d197d1a98b204aa2552c194feeef051973cb8b4fbba641a42e784221944"
+    },
+    {
+      "path": "electron/orchestrator/pendingArtifacts.test.ts",
+      "name": "stages removes submits and deduplicates evidence",
+      "sha256": "8c8592b184dba5419517899e4b27bdadbf729048ad9fb2788ce8c18306080d9d"
+    },
+    {
+      "path": "electron/orchestrator/personalContextRouting.test.ts",
+      "name": "routes personal context only to approved modes",
+      "sha256": "4f7f797085c39851c75ea666a2679431215ed80d3c97a9b40a1953f60dfe0cb0"
+    },
+    {
+      "path": "electron/orchestrator/progressiveSections.test.ts",
+      "name": "accepts independently final Coding sections across typed payloads",
+      "sha256": "60a10dc045f027c90bb64cdf64346fce24d0a0090903e7661009aae335272c39"
+    },
+    {
+      "path": "electron/orchestrator/progressiveSections.test.ts",
+      "name": "persists a streamed partial section before cancellation settles",
+      "sha256": "60a10dc045f027c90bb64cdf64346fce24d0a0090903e7661009aae335272c39"
+    },
+    {
+      "path": "electron/orchestrator/progressiveSections.test.ts",
+      "name": "streams stable independently final sections",
+      "sha256": "60a10dc045f027c90bb64cdf64346fce24d0a0090903e7661009aae335272c39"
+    },
+    {
+      "path": "electron/orchestrator/resetSemantics.test.ts",
+      "name": "performs the sole terminal lifecycle transition",
+      "sha256": "4324f568a23f9025948ce45952e5d33223a1c51a9b5318798e747665fa144bc1"
+    },
+    {
+      "path": "electron/orchestrator/resetSemantics.test.ts",
+      "name": "routes capture queue actions through typed interview commands",
+      "sha256": "4324f568a23f9025948ce45952e5d33223a1c51a9b5318798e747665fa144bc1"
+    },
+    {
+      "path": "electron/orchestrator/resetSemantics.test.ts",
+      "name": "serializes hostile concurrent submissions and delayed saves",
+      "sha256": "4324f568a23f9025948ce45952e5d33223a1c51a9b5318798e747665fa144bc1"
+    },
+    {
+      "path": "electron/orchestrator/resetSemantics.test.ts",
+      "name": "serializes reset after compact cancellation before archiving",
+      "sha256": "4324f568a23f9025948ce45952e5d33223a1c51a9b5318798e747665fa144bc1"
+    },
+    {
+      "path": "electron/orchestrator/responseRouting.test.ts",
+      "name": "separates structured updates from compact clarification",
+      "sha256": "dc00ffeeb49cae9c0824a359f33fa4adb9dd497f4d16bc2a56ac90dbf0d06cb8"
+    },
+    {
+      "path": "electron/orchestrator/sharedConversation.test.ts",
+      "name": "routes curated and chat turns through one conversation",
+      "sha256": "a4b5bd1d97cda13cda8101ed2b3b6cb234fac3a282ce0efaadd095ab238c632a"
+    },
+    {
+      "path": "electron/orchestrator/systemDesignAssumptions.test.ts",
+      "name": "answers best effort without clarification gate",
+      "sha256": "b880fcc65507b1451a0f0af885be3d20ecbc98c40a26cce98b980dd802c32158"
+    },
+    {
+      "path": "electron/orchestrator/systemDesignFollowup.test.ts",
+      "name": "admits a scoped provider follow-up without duplicating fixed sections",
+      "sha256": "ff62f8aa347e415aa3b7473ee0948d34a2bc3200a3da124b71d79ad258074a73"
+    },
+    {
+      "path": "electron/orchestrator/systemDesignFollowup.test.ts",
+      "name": "applies dependency-scoped revisions",
+      "sha256": "ff62f8aa347e415aa3b7473ee0948d34a2bc3200a3da124b71d79ad258074a73"
     },
     {
       "path": "electron/providers/conversationIdBoundary.test.ts",
@@ -224,16 +394,16 @@
     {
       "path": "electron/providers/processSafety.test.ts",
       "name": "constrains provider child processes",
-      "sha256": "a3e61959d170703ffb2d1b9f7c28f45f10035c49b52318cc37406f8897fc8d06"
-    },
-    {
-      "path": "electron/providers/providerBoundary.test.ts",
-      "name": "rejects legacy providers and entitlement surfaces",
-      "sha256": "9994666d7acd3f3706903e70298b71c6bada636c6385f8abaa1c5e8e10a9f441"
+      "sha256": "ea2a10932d98c92742cd4127ce559fc6ee234f68a030175aea2320e6942f58a9"
     },
     {
       "path": "electron/providers/providerBoundary.test.ts",
       "name": "accepts only explicit first-party subscription authentication",
+      "sha256": "9994666d7acd3f3706903e70298b71c6bada636c6385f8abaa1c5e8e10a9f441"
+    },
+    {
+      "path": "electron/providers/providerBoundary.test.ts",
+      "name": "rejects legacy providers and entitlement surfaces",
       "sha256": "9994666d7acd3f3706903e70298b71c6bada636c6385f8abaa1c5e8e10a9f441"
     },
     {
@@ -242,19 +412,34 @@
       "sha256": "dd3a3137319f0cb9d2835c728c2ff0690649d45c1c481ed859f7cf72d6d7a007"
     },
     {
-      "path": "src/features/onboarding/ProviderSetup.test.tsx",
-      "name": "completes provider-only onboarding",
-      "sha256": "e41dda173fd1e617f96d8c12de945a4711ea92266982723d7be1d207a5aa0bd5"
+      "path": "electron/ScreenshotHelper.test.ts",
+      "name": "captures previews retains and deletes without plaintext PNG persistence",
+      "sha256": "5fed072edfbd7323a3b640ee9e285230a62b96710c5f249660b086d7341d6e7c"
     },
     {
-      "path": "src/features/onboarding/ProviderSetup.test.tsx",
-      "name": "blocks completion and retries when no subscription is ready",
-      "sha256": "e41dda173fd1e617f96d8c12de945a4711ea92266982723d7be1d207a5aa0bd5"
+      "path": "electron/ScreenshotHelper.test.ts",
+      "name": "clears retained encrypted screenshots after restart without queue rehydration",
+      "sha256": "5fed072edfbd7323a3b640ee9e285230a62b96710c5f249660b086d7341d6e7c"
+    },
+    {
+      "path": "electron/ScreenshotHelper.test.ts",
+      "name": "uses the Windows in-memory fallback without a filename",
+      "sha256": "5fed072edfbd7323a3b640ee9e285230a62b96710c5f249660b086d7341d6e7c"
+    },
+    {
+      "path": "electron/shortcuts/shortcutRegistry.test.ts",
+      "name": "registers remaps and rolls back conflicts atomically",
+      "sha256": "8341538c01bd438ec534aae2e0c7167ae4eaca0aa9c92d1afa694f84647994e5"
     },
     {
       "path": "electron/storage/atomicity.test.ts",
       "name": "survives interruption and disk exhaustion",
       "sha256": "e50623fc1eb469388ab4a8462b11e10a749a5412808d4c18ff7173e3f86aa4ad"
+    },
+    {
+      "path": "electron/storage/audioTranscriptEncryption.test.ts",
+      "name": "encrypts M-07 transcript text and recovers every source off",
+      "sha256": "3dddaa820e8b03880c2c8a9b0713b488184ebbf0e36e84624c8476536d36d58d"
     },
     {
       "path": "electron/storage/envelopeCrypto.test.ts",
@@ -288,13 +473,18 @@
     },
     {
       "path": "electron/storage/plaintextMigration.test.ts",
-      "name": "restores and verifies the prior copy before rollback target deletion",
+      "name": "reconciles M-03 filesystem boundaries after a crash",
       "sha256": "b93caeac6923e7d7690fad3b50b13c8cde0b504c7a0f6ef4cf041513320b9e47"
     },
     {
       "path": "electron/storage/plaintextMigration.test.ts",
-      "name": "reconciles M-03 filesystem boundaries after a crash",
+      "name": "restores and verifies the prior copy before rollback target deletion",
       "sha256": "b93caeac6923e7d7690fad3b50b13c8cde0b504c7a0f6ef4cf041513320b9e47"
+    },
+    {
+      "path": "electron/storage/profileEncryption.test.ts",
+      "name": "encrypts reusable personal context and indexes",
+      "sha256": "60f3272f842efc57c24cf095eb2c9e878e2d2a3a872e5b1b46de99af46374bc4"
     },
     {
       "path": "electron/storage/recovery.test.ts",
@@ -307,6 +497,76 @@
       "sha256": "f410080aa2bf031e5c7c2415ed44a63b6405ded3ec684134361896dae25b036b"
     },
     {
+      "path": "electron/window/captureProtection.integration.test.ts",
+      "name": "protects before every show and reconfiguration",
+      "sha256": "d2e4be1190be2adb19ef8f944ecdbd5def2427b80c19f97515475b60b2e4ce49"
+    },
+    {
+      "path": "electron/window/captureProtection.integration.test.ts",
+      "name": "routes pointer changes through the production shell primitive",
+      "sha256": "d2e4be1190be2adb19ef8f944ecdbd5def2427b80c19f97515475b60b2e4ce49"
+    },
+    {
+      "path": "electron/window/composerVisibility.test.ts",
+      "name": "restores the exact hidden or visible origin on close",
+      "sha256": "ebe86ffd293051b046d84c512c662e4d291d166c9154c69948ea389add8b9111"
+    },
+    {
+      "path": "electron/window/displayGeometry.test.ts",
+      "name": "falls back to the nearest available display after disconnect",
+      "sha256": "f4b1696cfb9f4f80d3680b02a5da57d147e4368fb7e6218b92eda12ed8c5524e"
+    },
+    {
+      "path": "electron/window/displayGeometry.test.ts",
+      "name": "restores snaps and clamps each window state",
+      "sha256": "f4b1696cfb9f4f80d3680b02a5da57d147e4368fb7e6218b92eda12ed8c5524e"
+    },
+    {
+      "path": "electron/window/windowVisibility.test.ts",
+      "name": "launches hidden and restores exact HUD state",
+      "sha256": "2e9e9a0254b76f97569f1316a656ff4a413c81a04481ab2d374de7ed4e526171"
+    },
+    {
+      "path": "electron/windowOpenPolicy.test.ts",
+      "name": "P01-R1-B01 denies every implicit child while preserving external links",
+      "sha256": "13b3519d8ad1b302d19cab4e5cf9707742ddba06af9bc0927ab73ed8e528f47a"
+    },
+    {
+      "path": "renderer/src/App.test.tsx",
+      "name": "renders learn react link",
+      "sha256": "1f0914ca057e799130da87a78d48021657aba67e01fcbcb50b099944ee2ea864"
+    },
+    {
+      "path": "scripts/qualification/repositoryDiscovery.test.cjs",
+      "name": "executes repository-wide .cjs test discovery",
+      "sha256": "274d73c0daf7713d309b9f8ec5e57358e4a623891408691ac7b7213a6b1ce4fc"
+    },
+    {
+      "path": "scripts/qualification/repositoryDiscovery.test.cts",
+      "name": "executes repository-wide .cts test discovery",
+      "sha256": "76ad5a38a5409da23d82994b79f96a407960ed11e24b06cf394b34fdc6d6eae3"
+    },
+    {
+      "path": "scripts/qualification/repositoryDiscovery.test.mjs",
+      "name": "executes repository-wide .mjs test discovery",
+      "sha256": "cf90a79d1f50a271869f43b159003c0e5d2e052995907fb6bab8a501b3ccd7d8"
+    },
+    {
+      "path": "scripts/qualification/repositoryDiscovery.test.mts",
+      "name": "executes repository-wide .mts test discovery",
+      "sha256": "d4fbccdfa57804197bc415abbe824924acc2679c626b4a3ee33f6c978ced6967"
+    },
+    {
+      "path": "src/domain/interview/contextDetail.test.ts",
+      "name": "renders exact honest source-level context detail",
+      "sha256": "3db6be25c06944ec57bd5ee459eb4c58880ec0d439b6eabce9249c3e3e929f92"
+    },
+    {
+      "path": "src/domain/interview/contextStatus.test.ts",
+      "name": "derives honest synchronization and compaction state",
+      "sha256": "e85911f675cd8eae0d97732740e8288e6af2215b1ae9a952312a73bbe38beb4e"
+    },
+    {
       "path": "src/domain/interview/sessionLifecycle.test.ts",
       "name": "locks start snapshot until reset",
       "sha256": "431673ef1b09ed4feac0968df6a25d573856c1756143a13c392b7f149b3876da"
@@ -317,139 +577,149 @@
       "sha256": "a9208363ab29b98c184ad8ce3b89c91b7bfde9e026c0eb91a7024f1b8b505e56"
     },
     {
-      "path": "electron/orchestrator/contextPolicy.test.ts",
-      "name": "seeds once sends deltas and excludes coding personal context",
-      "sha256": "7ec4c82116399d10ce5a91a308ff838e77a163cdd2f5ba257ff70fc5ffcff7b3"
+      "path": "src/domain/repositoryDiscovery.test.ts",
+      "name": "executes repository-wide .ts test discovery",
+      "sha256": "f50252aa0db4abf29a7986a958bc5b65c5c0f9e83c999ef9b7727497190494c5"
     },
     {
-      "path": "electron/orchestrator/contextPolicy.test.ts",
-      "name": "replays the byte-exact pending packet until accepted completion",
-      "sha256": "7ec4c82116399d10ce5a91a308ff838e77a163cdd2f5ba257ff70fc5ffcff7b3"
+      "path": "src/domain/repositoryDiscovery.test.tsx",
+      "name": "executes repository-wide .tsx test discovery",
+      "sha256": "5047173032451403b8abd68fa1054500621dceaa57f44973f0053177f833256a"
     },
     {
-      "path": "electron/orchestrator/pendingArtifacts.test.ts",
-      "name": "stages removes submits and deduplicates evidence",
-      "sha256": "8c8592b184dba5419517899e4b27bdadbf729048ad9fb2788ce8c18306080d9d"
+      "path": "src/features/audio/audioControls.test.tsx",
+      "name": "never answers until the user invokes the explicit mode action",
+      "sha256": "743d4c5e15dd7319989d8d2e4e3a964872e248b2c835be7ced8a132424083e76"
     },
     {
-      "path": "electron/orchestrator/evidenceAuthority.test.ts",
-      "name": "applies screenshot authority rule",
-      "sha256": "7c465d197d1a98b204aa2552c194feeef051973cb8b4fbba641a42e784221944"
+      "path": "src/features/audio/audioControls.test.tsx",
+      "name": "presents deterministic master and independent source actions",
+      "sha256": "743d4c5e15dd7319989d8d2e4e3a964872e248b2c835be7ced8a132424083e76"
     },
     {
-      "path": "src/domain/interview/contextStatus.test.ts",
-      "name": "derives honest synchronization and compaction state",
-      "sha256": "e85911f675cd8eae0d97732740e8288e6af2215b1ae9a952312a73bbe38beb4e"
+      "path": "src/features/audio/audioControls.test.tsx",
+      "name": "presents Pause only when both sources are actively capturing",
+      "sha256": "743d4c5e15dd7319989d8d2e4e3a964872e248b2c835be7ced8a132424083e76"
     },
     {
-      "path": "electron/orchestrator/progressiveSections.test.ts",
-      "name": "streams stable independently final sections",
-      "sha256": "9d123a429db82dc68fdfa7783e8ec0d50ec9e74689ec4ea695e4880faa90cb30"
+      "path": "src/features/audio/audioControls.test.tsx",
+      "name": "scopes permission repair and retry to the failed source",
+      "sha256": "743d4c5e15dd7319989d8d2e4e3a964872e248b2c835be7ced8a132424083e76"
     },
     {
-      "path": "electron/orchestrator/progressiveSections.test.ts",
-      "name": "persists a streamed partial section before cancellation settles",
-      "sha256": "9d123a429db82dc68fdfa7783e8ec0d50ec9e74689ec4ea695e4880faa90cb30"
+      "path": "src/features/audio/AudioSettings.test.tsx",
+      "name": "requires explicit visible consent before enabling Remote transcription",
+      "sha256": "e446b74567ee7d79e9471fb722a0262ace95b0387a846a0f48e59abd535aa5d4"
     },
     {
-      "path": "electron/orchestrator/cancelContinue.test.ts",
-      "name": "resumes unfinished sections without duplicate evidence",
-      "sha256": "b5dee324463f3a21f47af51e0ab10c7d30a7c6d904cfb59e5ad29e961c47ec8c"
+      "path": "src/features/audio/audioStatusAccessibility.test.tsx",
+      "name": "names Local and Remote transcription without relying on color",
+      "sha256": "01e7e8df508bff7ef09623f7bf605e4889a7f9ec912e5e497336250b51bd6b0a"
     },
     {
-      "path": "electron/orchestrator/resetSemantics.test.ts",
-      "name": "performs the sole terminal lifecycle transition",
-      "sha256": "4324f568a23f9025948ce45952e5d33223a1c51a9b5318798e747665fa144bc1"
+      "path": "src/features/audio/audioStatusAccessibility.test.tsx",
+      "name": "renders complete accessible audio state model",
+      "sha256": "01e7e8df508bff7ef09623f7bf605e4889a7f9ec912e5e497336250b51bd6b0a"
     },
     {
-      "path": "electron/orchestrator/resetSemantics.test.ts",
-      "name": "routes capture queue actions through typed interview commands",
-      "sha256": "4324f568a23f9025948ce45952e5d33223a1c51a9b5318798e747665fa144bc1"
+      "path": "src/features/audio/speakerAttribution.test.ts",
+      "name": "labels marks and corrects transcript provenance",
+      "sha256": "190e0eafc6044c3438da7138363e56b8e87ced497ff96a073af5ab169e005770"
     },
     {
-      "path": "electron/orchestrator/resetSemantics.test.ts",
-      "name": "serializes reset after compact cancellation before archiving",
-      "sha256": "4324f568a23f9025948ce45952e5d33223a1c51a9b5318798e747665fa144bc1"
+      "path": "src/features/audio/speakerAttribution.test.ts",
+      "name": "rejects empty correction commands",
+      "sha256": "190e0eafc6044c3438da7138363e56b8e87ced497ff96a073af5ab169e005770"
     },
     {
-      "path": "electron/orchestrator/resetSemantics.test.ts",
-      "name": "serializes hostile concurrent submissions and delayed saves",
-      "sha256": "4324f568a23f9025948ce45952e5d33223a1c51a9b5318798e747665fa144bc1"
+      "path": "src/features/behavioral/factParity.test.ts",
+      "name": "preserves claims across concise and full formats",
+      "sha256": "4dc7652d883902feb33e2a298a9cf0ea70e26c1efee610dcccf97ff75fe6a63b"
     },
     {
-      "path": "electron/orchestrator/crashRecovery.test.ts",
-      "name": "restores one encrypted provider conversation with capture off",
-      "sha256": "8661e2f81db1061c1ceb45e5aa58fc8ab4941f29ab61199453568c28bc2fc51a"
+      "path": "src/features/behavioral/liveOnlyBoundary.test.tsx",
+      "name": "excludes deferred Practice behavior",
+      "sha256": "e4bce22a5107709031d4702e42540882e4046d3184cd660f7e1f8d17eb140815"
     },
     {
-      "path": "electron/orchestrator/crashRecovery.test.ts",
-      "name": "retries the exact pending delivery after failure and crash",
-      "sha256": "8661e2f81db1061c1ceb45e5aa58fc8ab4941f29ab61199453568c28bc2fc51a"
+      "path": "src/features/behavioral/syntheticStory.test.ts",
+      "name": "labels persists and reuses synthetic evidence",
+      "sha256": "e6922d7719902fe350d2ba8774eecc905978b783cd54efc3f32557c249d57e65"
     },
     {
-      "path": "electron/orchestrator/crashRecovery.test.ts",
-      "name": "retains and replays byte-exact pending context after cancellation",
-      "sha256": "8661e2f81db1061c1ceb45e5aa58fc8ab4941f29ab61199453568c28bc2fc51a"
+      "path": "src/features/coding/CodePanel.test.tsx",
+      "name": "exposes only approved read-only actions",
+      "sha256": "e56c2ebeef1c5e4da1ffbf05b15136189327651179cddb067705c787963e2326"
     },
     {
-      "path": "src/domain/interview/contextDetail.test.ts",
-      "name": "renders exact honest source-level context detail",
-      "sha256": "3db6be25c06944ec57bd5ee459eb4c58880ec0d439b6eabce9249c3e3e929f92"
+      "path": "src/features/coding/codingIntent.test.ts",
+      "name": "maps each intent to a distinct typed section contract",
+      "sha256": "fb66ce5834357e4b42d0739c7475ddce82f4ff75caa1c9e2603e3bed22250d83"
     },
     {
-      "path": "electron/orchestrator/sharedConversation.test.ts",
-      "name": "routes curated and chat turns through one conversation",
-      "sha256": "a4b5bd1d97cda13cda8101ed2b3b6cb234fac3a282ce0efaadd095ab238c632a"
+      "path": "src/features/coding/codingIntent.test.ts",
+      "name": "rejects prose that bypasses the live generated-code contract",
+      "sha256": "fb66ce5834357e4b42d0739c7475ddce82f4ff75caa1c9e2603e3bed22250d83"
     },
     {
-      "path": "electron/orchestrator/responseRouting.test.ts",
-      "name": "separates structured updates from compact clarification",
-      "sha256": "dc00ffeeb49cae9c0824a359f33fa4adb9dd497f4d16bc2a56ac90dbf0d06cb8"
+      "path": "src/features/coding/codingIntent.test.ts",
+      "name": "requires and validates explicit intent",
+      "sha256": "fb66ce5834357e4b42d0739c7475ddce82f4ff75caa1c9e2603e3bed22250d83"
     },
     {
-      "path": "electron/orchestrator/bestEffortClarification.test.ts",
-      "name": "answers without confidence gates and suggests material clarifications",
-      "sha256": "54ba9486d60a3e826f7b5daeb50b52d705a84081903d299b4907cbd20087dfa6"
+      "path": "src/features/coding/fixCurrentCode.test.ts",
+      "name": "performs isolated targeted screenshot debug",
+      "sha256": "a3cd0fffcb1f3f0cd98a9924091a83eeb03556a93e1153f8da6f4bd690c14f73"
     },
     {
-      "path": "electron/orchestrator/bestEffortClarification.test.ts",
-      "name": "derives material suggestions and ignores immaterial omissions",
-      "sha256": "54ba9486d60a3e826f7b5daeb50b52d705a84081903d299b4907cbd20087dfa6"
+      "path": "src/features/coding/languageSnapshot.test.ts",
+      "name": "normalizes and locks the complete language catalog",
+      "sha256": "cb9ea2e1471c5e52dbb3982590ba2cab829d5d8a90fb05351eef250849f155ef"
     },
     {
-      "path": "electron/orchestrator/bestEffortClarification.test.ts",
-      "name": "places only material mode omissions in real provider prompts",
-      "sha256": "54ba9486d60a3e826f7b5daeb50b52d705a84081903d299b4907cbd20087dfa6"
+      "path": "src/features/coding/progressiveCodingAnswer.test.tsx",
+      "name": "renders concise answer before stable code",
+      "sha256": "05567165ff8002042f4d6018ebaf1e7517c0868292fc47df568b671845e13bcf"
     },
     {
-      "path": "electron/orchestrator/correctionRevision.test.ts",
-      "name": "applies correction-scoped revision without collateral changes",
-      "sha256": "815984aa681408252263a61fa48e096d707978aa0ac13e9a7ebb316949ba5897"
+      "path": "src/features/onboarding/ProviderSetup.test.tsx",
+      "name": "blocks completion and retries when no subscription is ready",
+      "sha256": "e41dda173fd1e617f96d8c12de945a4711ea92266982723d7be1d207a5aa0bd5"
     },
     {
-      "path": "electron/window/windowVisibility.test.ts",
-      "name": "launches hidden and restores exact HUD state",
-      "sha256": "e4309d5389fff141fff796d8d689dbab6b61d0f1d8d79b2ffa36bf9825e57829"
+      "path": "src/features/onboarding/ProviderSetup.test.tsx",
+      "name": "completes provider-only onboarding",
+      "sha256": "e41dda173fd1e617f96d8c12de945a4711ea92266982723d7be1d207a5aa0bd5"
     },
     {
-      "path": "electron/window/composerVisibility.test.ts",
-      "name": "restores the exact hidden or visible origin on close",
-      "sha256": "ebe86ffd293051b046d84c512c662e4d291d166c9154c69948ea389add8b9111"
+      "path": "src/features/profile/candidateDossier.test.ts",
+      "name": "builds reviews and edits canonical Markdown",
+      "sha256": "6edd538e903f62f06baa363265ed28e137a5704a3d418c54812b6a3ea9692442"
     },
     {
-      "path": "electron/shortcuts/shortcutRegistry.test.ts",
-      "name": "registers remaps and rolls back conflicts atomically",
-      "sha256": "8341538c01bd438ec534aae2e0c7167ae4eaca0aa9c92d1afa694f84647994e5"
+      "path": "src/features/profile/markdownSafety.test.ts",
+      "name": "treats imported content as untrusted evidence",
+      "sha256": "36c7d12cd378ec7cdea621cb446dfd2ac8c9dee42d73d8fb8dc5ac7d02f626f8"
     },
     {
-      "path": "electron/window/captureProtection.integration.test.ts",
-      "name": "protects before every show and reconfiguration",
-      "sha256": "4dc38203379b296b7fa9a96fcd52f54c8d6967eb4a8a47bdb8a3df324790182e"
+      "path": "src/features/profile/opportunitySnapshot.test.ts",
+      "name": "isolates named opportunities across sessions",
+      "sha256": "06bf2cc75007334870fb7d04eb847eebce6b9f19ae40cd66b7d4b22fb8a0c9b6"
     },
     {
-      "path": "electron/config/shellPreferencesMigration.test.ts",
-      "name": "adds safe defaults and replaces invalid additive preferences",
-      "sha256": "8a17c1aeb6bf9c1c9690b26531a2b9e3c4583fd3b2a770d461c0f9e7df8c43da"
+      "path": "src/features/repositoryDiscovery.test.js",
+      "name": "executes repository-wide .js test discovery",
+      "sha256": "ffa9c50241774b335279c5216bad199b4662fb29e879b9ca6a4716b90cecf315"
+    },
+    {
+      "path": "src/features/repositoryDiscovery.test.jsx",
+      "name": "executes repository-wide .jsx test discovery",
+      "sha256": "60d296cd20bf33a7987687708f89343b1d337857a446b9a6c84a89e647543918"
+    },
+    {
+      "path": "src/features/shell/accessibility.test.tsx",
+      "name": "enforces Quiet Signal accessibility and silence invariants",
+      "sha256": "8ab34492054177c96f38fcf3df609a2310685546edd9dc83c2a034ac69c2082b"
     },
     {
       "path": "src/features/shell/CommandRail.test.tsx",
@@ -463,43 +733,23 @@
     },
     {
       "path": "src/features/shell/CompactComposer.test.tsx",
-      "name": "implements universal submit and focus return",
-      "sha256": "c460d79f9a2d8eeed5f002a7531df57febc1cd1dd18c5aef264978c17aa5bd6f"
+      "name": "does not call the provider route without a message or evidence",
+      "sha256": "3415619bf79b36458f464615b3fab05c5ed340361935bf752294b47c1733f8c3"
     },
     {
       "path": "src/features/shell/CompactComposer.test.tsx",
-      "name": "does not call the provider route without a message or evidence",
-      "sha256": "c460d79f9a2d8eeed5f002a7531df57febc1cd1dd18c5aef264978c17aa5bd6f"
+      "name": "implements universal submit and focus return",
+      "sha256": "3415619bf79b36458f464615b3fab05c5ed340361935bf752294b47c1733f8c3"
     },
     {
-      "path": "src/features/shell/pointerRegions.test.tsx",
-      "name": "separates passthrough drag and controls",
-      "sha256": "2a8eab2f472ec4046955313e9fff80be8e8144aea7cf4bc2f0e449660cbdbb86"
+      "path": "src/features/shell/HotKeysPanel.test.tsx",
+      "name": "keeps every shortcut action available as a visible control",
+      "sha256": "550a68cc11d3fcc980113632ba077fec61365ed06d1da176271adbcc4f2b3a80"
     },
     {
-      "path": "src/features/shell/accessibility.test.tsx",
-      "name": "enforces Quiet Signal accessibility and silence invariants",
-      "sha256": "8ab34492054177c96f38fcf3df609a2310685546edd9dc83c2a034ac69c2082b"
-    },
-    {
-      "path": "electron/window/displayGeometry.test.ts",
-      "name": "restores snaps and clamps each window state",
-      "sha256": "f4b1696cfb9f4f80d3680b02a5da57d147e4368fb7e6218b92eda12ed8c5524e"
-    },
-    {
-      "path": "electron/window/displayGeometry.test.ts",
-      "name": "falls back to the nearest available display after disconnect",
-      "sha256": "f4b1696cfb9f4f80d3680b02a5da57d147e4368fb7e6218b92eda12ed8c5524e"
-    },
-    {
-      "path": "electron/capture/primaryDisplayCapture.test.ts",
-      "name": "captures primary display and preserves visibility",
-      "sha256": "2817417f972d45ff26d920c2e0cf9f3a4cb943e099b15cb7e5bdf24634b33846"
-    },
-    {
-      "path": "src/features/shell/navigationShortcuts.test.tsx",
-      "name": "separates window and answer navigation",
-      "sha256": "b32c178bc337a68836bca265474b18c863395308def076f1a3fb87f6e47ce79e"
+      "path": "src/features/shell/HotKeysPanel.test.tsx",
+      "name": "recovers the active map when Reset all cannot persist defaults",
+      "sha256": "550a68cc11d3fcc980113632ba077fec61365ed06d1da176271adbcc4f2b3a80"
     },
     {
       "path": "src/features/shell/hudState.test.ts",
@@ -507,9 +757,219 @@
       "sha256": "afe380471c6ced0b9dcce82065ed8295437caadcd90c27d198566186b0ac89de"
     },
     {
-      "path": "src/features/shell/HotKeysPanel.test.tsx",
-      "name": "recovers the active map when Reset all cannot persist defaults",
-      "sha256": "7832af6e5925aaf2cf276c24b36c0601d62d9d806b80c7da764d9abd4d1a4163"
+      "path": "src/features/shell/navigationShortcuts.test.tsx",
+      "name": "separates window and answer navigation",
+      "sha256": "b32c178bc337a68836bca265474b18c863395308def076f1a3fb87f6e47ce79e"
+    },
+    {
+      "path": "src/features/shell/pointerRegions.test.tsx",
+      "name": "separates passthrough drag and controls",
+      "sha256": "2a8eab2f472ec4046955313e9fff80be8e8144aea7cf4bc2f0e449660cbdbb86"
+    },
+    {
+      "path": "src/features/system-design/architectureSchema.test.ts",
+      "name": "validates safe vendor-neutral graphs",
+      "sha256": "1356c2a1560d26ec4a9d46794f71e594163eeeaa90e2a582bef772089dc33715"
+    },
+    {
+      "path": "src/features/system-design/ArchitectureView.test.tsx",
+      "name": "exposes only approved read-only interactions",
+      "sha256": "6adea72313109b28150b741019c7844e827ec65f2a38eb6e5c75f68d38462251"
+    },
+    {
+      "path": "src/features/system-design/diagramRetention.test.ts",
+      "name": "archives graph data without live export surface",
+      "sha256": "e90b5488a7a1488aa93ef50736e508d2d22de3372f1f49345600bad073a3dfca"
+    },
+    {
+      "path": "src/features/system-design/sectionContract.test.tsx",
+      "name": "renders fixed progressive design sequence",
+      "sha256": "0416101fd184b6d71807cb31149a9dc3a0c060c8afb48170285269ce542160ae"
+    },
+    {
+      "path": "src/shared/audio/ipc.test.ts",
+      "name": "accepts only bounded exact command shapes",
+      "sha256": "f43251d47118951631614eb9e02277e7ee0b4b467c165365f2abf835c903fa18"
+    },
+    {
+      "path": "src/shared/audio/ipc.test.ts",
+      "name": "keeps source defaults false and validates finalization",
+      "sha256": "f43251d47118951631614eb9e02277e7ee0b4b467c165365f2abf835c903fa18"
+    },
+    {
+      "path": "src/shared/audio/stateMachine.test.ts",
+      "name": "retains typed provenance through correction and question editing",
+      "sha256": "7a0b18b0aea9f4b44d26ab4e5520d76808a322be226affe8d0b2b1e9b793d353"
+    },
+    {
+      "path": "src/shared/audio/stateMachine.test.ts",
+      "name": "starts every source off and makes master pause only when both listen",
+      "sha256": "7a0b18b0aea9f4b44d26ab4e5520d76808a322be226affe8d0b2b1e9b793d353"
+    },
+    {
+      "path": "tests/fixtures/behavioral/verifiedClaims.contract.test.ts",
+      "name": "prevents unsupported precision",
+      "sha256": "654bfb808c8e42f78bc71e3944926a0a31a402b28360d589920d984ad177b06c"
+    },
+    {
+      "path": "tests/fixtures/coding/firstClassQuality.contract.test.ts",
+      "name": "'cpp' solve/syntax/debug contract",
+      "sha256": "19412de69eda2da1bb4a62c44d878e40f8030692a129b170d2bdfc96d130fc95"
+    },
+    {
+      "path": "tests/fixtures/coding/firstClassQuality.contract.test.ts",
+      "name": "'csharp' solve/syntax/debug contract",
+      "sha256": "19412de69eda2da1bb4a62c44d878e40f8030692a129b170d2bdfc96d130fc95"
+    },
+    {
+      "path": "tests/fixtures/coding/firstClassQuality.contract.test.ts",
+      "name": "'go' solve/syntax/debug contract",
+      "sha256": "19412de69eda2da1bb4a62c44d878e40f8030692a129b170d2bdfc96d130fc95"
+    },
+    {
+      "path": "tests/fixtures/coding/firstClassQuality.contract.test.ts",
+      "name": "'java' solve/syntax/debug contract",
+      "sha256": "19412de69eda2da1bb4a62c44d878e40f8030692a129b170d2bdfc96d130fc95"
+    },
+    {
+      "path": "tests/fixtures/coding/firstClassQuality.contract.test.ts",
+      "name": "'python3' solve/syntax/debug contract",
+      "sha256": "19412de69eda2da1bb4a62c44d878e40f8030692a129b170d2bdfc96d130fc95"
+    },
+    {
+      "path": "tests/fixtures/coding/firstClassQuality.contract.test.ts",
+      "name": "'typescript' solve/syntax/debug contract",
+      "sha256": "19412de69eda2da1bb4a62c44d878e40f8030692a129b170d2bdfc96d130fc95"
+    },
+    {
+      "path": "tests/fixtures/system-design/materialEstimates.contract.test.ts",
+      "name": "validates bounded material calculations",
+      "sha256": "2dd921dc87ac9c833ebd136e65b7785935d439701226e9de655d4fca5b771411"
+    },
+    {
+      "path": "tests/fixtures/system-design/vendorNeutrality.contract.test.ts",
+      "name": "keeps providers in secondary detail examples only",
+      "sha256": "6fc90eacd41a9feefc2676c78027133a644062fbb8b2556e67a3a16fc13c45b2"
+    },
+    {
+      "path": "tests/policy/gateContract.test.ts",
+      "name": "executes the inherited CRA test and rejects a zero-test run",
+      "sha256": "ce4a704ee5861b89eba8d4c64c35c730de60777c6b405412ea7807164b5deb38"
+    },
+    {
+      "path": "tests/policy/gateContract.test.ts",
+      "name": "propagates every child gate exit code",
+      "sha256": "ce4a704ee5861b89eba8d4c64c35c730de60777c6b405412ea7807164b5deb38"
+    },
+    {
+      "path": "tests/policy/packageInventory.test.ts",
+      "name": "P01-R1-B06 fails an actual fresh build that injects extraResources source",
+      "sha256": "9031d95023cdc4edcd54a5b3a79629be26f0134aa3aa23e95c1c1581825de73d"
+    },
+    {
+      "path": "tests/policy/packageInventory.test.ts",
+      "name": "P01-R1-B06 rejects tests verification files and raw runtime source",
+      "sha256": "9031d95023cdc4edcd54a5b3a79629be26f0134aa3aa23e95c1c1581825de73d"
+    },
+    {
+      "path": "tests/policy/productPolicy.test.ts",
+      "name": "enforces canonical identity and AGPL metadata",
+      "sha256": "b2083fdaed1f9cc12724d3f0a541556102aa3db7fe1c2368d3057f7aed781d57"
+    },
+    {
+      "path": "tests/policy/productPolicy.test.ts",
+      "name": "enforces cumulative subscription and session boundary",
+      "sha256": "b2083fdaed1f9cc12724d3f0a541556102aa3db7fe1c2368d3057f7aed781d57"
+    },
+    {
+      "path": "tests/policy/productPolicy.test.ts",
+      "name": "P01-R1-B05 rejects syntax-aware privacy bypasses without inert-text false positives",
+      "sha256": "b2083fdaed1f9cc12724d3f0a541556102aa3db7fe1c2368d3057f7aed781d57"
+    },
+    {
+      "path": "tests/policy/productPolicy.test.ts",
+      "name": "rejects telemetry crash upload and secret logging entry points",
+      "sha256": "b2083fdaed1f9cc12724d3f0a541556102aa3db7fe1c2368d3057f7aed781d57"
+    },
+    {
+      "path": "tests/policy/sourceGate.test.ts",
+      "name": "P01-R1-B04 gates JSX MTS CTS retained renderer and verification sources",
+      "sha256": "d8230201cb4a10cd5a4947f634b213413709e81bbeefee6a2efb071f103644c0"
+    },
+    {
+      "path": "tests/policy/testManifest.test.ts",
+      "name": "P01-R1-B02 discovers every future root and supported extension",
+      "sha256": "fa0a27da57bab7e6b51d187a9c0764ba8eea3c425f2c8475ca245fb08936e56c"
+    },
+    {
+      "path": "tests/policy/testManifest.test.ts",
+      "name": "rejects missing renamed skipped and unexecuted tests",
+      "sha256": "fa0a27da57bab7e6b51d187a9c0764ba8eea3c425f2c8475ca245fb08936e56c"
+    },
+    {
+      "path": "tests/policy/verificationReporter.test.ts",
+      "name": "continues exact injected exits seven then zero and aggregates one",
+      "sha256": "397c77550017e77c0f004a9827dccdcdb68d5f868122642c0fc303efce99f758"
+    },
+    {
+      "path": "tests/policy/verificationReporter.test.ts",
+      "name": "preserves every P01-R1-B01 through P01-R1-B06 hostile probe",
+      "sha256": "397c77550017e77c0f004a9827dccdcdb68d5f868122642c0fc303efce99f758"
+    },
+    {
+      "path": "tests/policy/verificationReporter.test.ts",
+      "name": "records planned argv resolved executable actual argv raw exit and signal exactly",
+      "sha256": "397c77550017e77c0f004a9827dccdcdb68d5f868122642c0fc303efce99f758"
+    },
+    {
+      "path": "tests/policy/verificationReporter.test.ts",
+      "name": "rejects any surviving child or detached descendant before zero",
+      "sha256": "397c77550017e77c0f004a9827dccdcdb68d5f868122642c0fc303efce99f758"
+    },
+    {
+      "path": "tests/policy/verificationReporter.test.ts",
+      "name": "rejects archived preverify self-removal and gate mutation before reporter start",
+      "sha256": "397c77550017e77c0f004a9827dccdcdb68d5f868122642c0fc303efce99f758"
+    },
+    {
+      "path": "tests/policy/verificationReporter.test.ts",
+      "name": "rejects committed preverify and postverify companions during anchor admission",
+      "sha256": "397c77550017e77c0f004a9827dccdcdb68d5f868122642c0fc303efce99f758"
+    },
+    {
+      "path": "tests/policy/verificationReporter.test.ts",
+      "name": "rejects detached-restorer and lifecycle-time mutate-restore",
+      "sha256": "397c77550017e77c0f004a9827dccdcdb68d5f868122642c0fc303efce99f758"
+    },
+    {
+      "path": "tests/policy/verificationReporter.test.ts",
+      "name": "rejects joint package bootstrap plan manifest and gate mutation",
+      "sha256": "397c77550017e77c0f004a9827dccdcdb68d5f868122642c0fc303efce99f758"
+    },
+    {
+      "path": "tests/policy/verificationReporter.test.ts",
+      "name": "rejects PATH node npm npmrc NODE_OPTIONS and script-shell substitution",
+      "sha256": "397c77550017e77c0f004a9827dccdcdb68d5f868122642c0fc303efce99f758"
+    },
+    {
+      "path": "tests/policy/verificationReporter.test.ts",
+      "name": "rejects result-path environment stdout duplicate replay and structured-record forgery",
+      "sha256": "397c77550017e77c0f004a9827dccdcdb68d5f868122642c0fc303efce99f758"
+    },
+    {
+      "path": "tests/policy/verificationReporter.test.ts",
+      "name": "rejects runner plus colocated current-hash forgery",
+      "sha256": "397c77550017e77c0f004a9827dccdcdb68d5f868122642c0fc303efce99f758"
+    },
+    {
+      "path": "tests/policy/verificationReporter.test.ts",
+      "name": "rejects same-size overwrite rename symlink hardlink and case-collision TOCTOU",
+      "sha256": "397c77550017e77c0f004a9827dccdcdb68d5f868122642c0fc303efce99f758"
+    },
+    {
+      "path": "tests/policy/verificationReporter.test.ts",
+      "name": "suppresses companion hooks while preserving the requested npm target argv",
+      "sha256": "397c77550017e77c0f004a9827dccdcdb68d5f868122642c0fc303efce99f758"
     }
   ]
 }

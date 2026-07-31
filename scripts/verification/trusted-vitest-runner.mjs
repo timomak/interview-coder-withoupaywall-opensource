@@ -121,6 +121,7 @@ const SUITES = {
     "electron/audio/rawAudioRetention.test.ts",
     "src/features/audio/speakerAttribution.test.ts",
     "src/features/audio/audioStatusAccessibility.test.tsx",
+    "src/features/audio/AudioSettings.test.tsx",
     "electron/audio/questionDetection.test.ts",
     "electron/audio/channelSeparation.integration.test.ts",
     "electron/audio/modelOperationRouting.test.ts"

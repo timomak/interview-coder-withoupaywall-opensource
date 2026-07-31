@@ -62,9 +62,10 @@ import {
 import {
   AudioPreferencesRepository,
   AudioSessionController,
-  UnavailableAudioCaptureRuntime,
   type M07AudioPreferencesRecord
 } from "./audio/session"
+import { NativeAudioCaptureRuntime } from "./audio/native/NativeAudioCaptureRuntime"
+import { LocalWhisperTranscriber } from "./audio/transcription/LocalWhisperTranscriber"
 
 const isDevelopment = process.env.NODE_ENV === "development"
 
@@ -465,11 +466,48 @@ async function initializeApplication(): Promise<void> {
       "audio"
     )
   )
+  const audioResourceRoot = app.isPackaged
+    ? path.join(process.resourcesPath, "audio")
+    : path.join(app.getAppPath(), "resources", "audio")
+  const architecture = process.arch === "x64" ? "x64" : "arm64"
+  const nativeHelperExecutable = app.isPackaged
+    ? path.join(
+        audioResourceRoot,
+        "native",
+        architecture,
+        "interviewcopilot-audio-helper"
+      )
+    : path.join(
+        app.getAppPath(),
+        "native",
+        "audio",
+        ".build",
+        `${architecture}-apple-macosx`,
+        "release",
+        "interviewcopilot-audio-helper"
+      )
+  const audioRuntime = new NativeAudioCaptureRuntime({
+    helperExecutable: nativeHelperExecutable,
+    temporaryRoot: path.join(userData, "audio-temporary"),
+    localTranscriber: new LocalWhisperTranscriber({
+      executable: path.join(
+        audioResourceRoot,
+        "whisper",
+        architecture,
+        "whisper-cli"
+      ),
+      model: path.join(audioResourceRoot, "models", "ggml-base.en.bin"),
+      manifest: path.join(audioResourceRoot, "audio-artifacts-v1.json"),
+      architecture
+    })
+  })
   const audio = new AudioSessionController(
     orchestrator,
     audioPreferences,
-    new UnavailableAudioCaptureRuntime()
+    audioRuntime
   )
+  audioRuntime.setTranscriptSink((segment) => audio.ingestTranscript(segment))
+  audioRuntime.setStatusSink((status) => audio.updateStatus(status))
   createWindow()
   const screenshots = new ScreenshotHelper(
     new EncryptedBlobRepository(

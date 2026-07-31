@@ -118,7 +118,9 @@ describe("window-open capture lifecycle policy", () => {
     expect(mainSource).toMatch(
       /new EncryptedBlobRepository\([\s\S]*"screenshots"[\s\S]*new InterviewCaptureController\([\s\S]*new ShortcutsHelper\([\s\S]*registerGlobalShortcuts\(\)/
     )
-    expect(mainSource).toContain("resetInterview: () => capture.reset()")
+    expect(mainSource).toContain(
+      "resetInterview: () => audio.reset(() => capture.reset())"
+    )
     expect(ipcSource).toMatch(
       /parsed\.type === "reset"[\s\S]*dependencies\.resetInterview\(\)/
     )

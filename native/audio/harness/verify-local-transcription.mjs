@@ -35,6 +35,7 @@ if (
   throw new Error("architecture binary is not checksum-qualified")
 }
 
+/** @param {string} file */
 async function sha256(file) {
   return crypto
     .createHash("sha256")
@@ -53,6 +54,7 @@ if (
   throw new Error("whisper.cpp model checksum mismatch")
 }
 
+/** @param {string} value */
 function normalize(value) {
   return value
     .toLocaleLowerCase("en-US")
@@ -62,6 +64,13 @@ function normalize(value) {
     .trim()
 }
 
+/**
+ * @param {{
+ *   file: string,
+ *   sha256: string,
+ *   requiredNormalizedTokens: string[]
+ * }} fixture
+ */
 async function transcribe(fixture) {
   const waveFile = path.join(artifactRoot, fixture.file)
   if ((await sha256(waveFile)) !== fixture.sha256) {
@@ -88,6 +97,7 @@ async function transcribe(fixture) {
         stdio: ["ignore", "pipe", "pipe"]
       }
     )
+    /** @type {Buffer[]} */
     const stdout = []
     let stdoutBytes = 0
     let stderrBytes = 0
