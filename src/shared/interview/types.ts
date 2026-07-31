@@ -218,6 +218,11 @@ export type InterviewSessionEvent =
       readonly question: string
     })
   | (EventEnvelope & {
+      readonly type: "coding-question-defined"
+      readonly branchId: string
+      readonly question: string
+    })
+  | (EventEnvelope & {
       readonly type: "reset"
     })
 

@@ -64,6 +64,24 @@ export class InterviewCaptureController {
     if (state.lifecycle !== "active" || state.snapshot.mode !== "coding") {
       throw new Error("Fix current code requires an active Coding question")
     }
+    const branch = state.codingQuestions?.branches.find(
+      (candidate) =>
+        candidate.id === state.codingQuestions?.currentBranchId
+    )
+    const hasCurrentCode = branch?.sectionIds.some((sectionId) => {
+      const section = state.sections.find(
+        (candidate) => candidate.id === sectionId
+      )
+      return (
+        section?.id.replace(/-\d+$/, "") === "code" &&
+        section.body.trim().length > 0
+      )
+    })
+    if (!branch?.question.trim() || !hasCurrentCode) {
+      throw new Error(
+        "Fix current code requires a problem and generated code in the current branch"
+      )
+    }
     const restoreVisibility = this.isMainWindowVisible()
     const screenshotId = await this.screenshots.takeScreenshot(
       this.hideMainWindow,

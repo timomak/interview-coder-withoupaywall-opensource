@@ -23,7 +23,7 @@
     "test:system-design-fixtures": "node scripts/verification/trusted-vitest-runner.mjs system-design-fixtures",
     "test:p08": "node scripts/verification/trusted-vitest-runner.mjs p08",
     "test:behavioral-fixtures": "node scripts/verification/trusted-vitest-runner.mjs behavioral-fixtures",
-    "test:electron-shell": "node scripts/verification/trusted-vitest-runner.mjs electron-shell",
+    "test:electron-shell": "node scripts/verification/trusted-vitest-runner.mjs electron-shell && node scripts/verification/run-electron-shell-runtime.mjs",
     "lint": "node scripts/verification/source-inventory.mjs && eslint .",
     "typecheck": "node scripts/verification/typecheck-inventory.mjs && tsc -p tsconfig.electron.json --noEmit",
     "verify:node": "node scripts/verification/require-node20.mjs",
@@ -160,7 +160,6 @@
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.28.1",
     "react-syntax-highlighter": "^15.6.1",
-    "screenshot-desktop": "^1.15.0",
     "tailwind-merge": "^2.5.5",
     "uuid": "^11.0.3"
   },

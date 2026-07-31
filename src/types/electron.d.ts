@@ -46,6 +46,7 @@ export interface ElectronAPI {
   saveProfileBundle: (
     bundle: import("../features/profile/types").ProfileBundle
   ) => Promise<{ success: boolean }>
+  importProfileMarkdown: (source: string) => Promise<string>
   exportDossier: (destination: string) => Promise<{ success: boolean }>
   dispatchInterviewCommand: (
     command: InterviewCommand
@@ -74,6 +75,9 @@ export interface ElectronAPI {
   closeComposer: () => Promise<{ success: boolean }>
   onShellShortcut: (
     callback: (action: ShortcutAction) => void
+  ) => () => void
+  onShellStartupWarning: (
+    callback: (message: string) => void
   ) => () => void
   toggleMainWindow: () => Promise<{ success: boolean }>
   getPlatform: () => NodeJS.Platform

@@ -5,12 +5,14 @@ import { CompactComposer } from "./CompactComposer"
 describe("CompactComposer", () => {
   it("implements universal submit and focus return", async () => {
     const onSubmit = vi.fn(() => true)
+    const onDraftChange = vi.fn()
     const origin = document.createElement("button")
     document.body.append(origin)
     origin.focus()
     const { unmount } = render(
       <CompactComposer
         hasSelectedEvidence={false}
+        onDraftChange={onDraftChange}
         onSubmit={onSubmit}
         onClose={vi.fn()}
       />
@@ -19,6 +21,7 @@ describe("CompactComposer", () => {
     expect(field).toHaveFocus()
 
     fireEvent.change(field, { target: { value: "first line" } })
+    expect(onDraftChange).toHaveBeenLastCalledWith("first line")
     fireEvent.keyDown(field, { key: "Enter" })
     expect(onSubmit).not.toHaveBeenCalled()
     fireEvent.keyDown(field, {
@@ -27,6 +30,7 @@ describe("CompactComposer", () => {
       shiftKey: true
     })
     await waitFor(() => expect(onSubmit).toHaveBeenCalledWith("first line"))
+    expect(onDraftChange).toHaveBeenLastCalledWith("")
 
     unmount()
     expect(origin).toHaveFocus()

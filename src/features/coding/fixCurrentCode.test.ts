@@ -22,6 +22,41 @@ describe("Fix current code", () => {
         context: []
       }
     })
+    fixture.providerFactory.queued.push({
+      selection: {
+        provider: "codex",
+        model: "gpt-5.4",
+        responseMode: "fast",
+        effort: "low"
+      },
+      events: [
+        {
+          type: "typed-payload",
+          sequence: 1,
+          payload: {
+            kind: "structured",
+            sections: [
+              { id: "answer", body: "Use an indexed loop." },
+              {
+                id: "plan",
+                body:
+                  "- Scan the collection once.\n- Return the match.\nTrade-off: uses an auxiliary map.\nTime O(n); Space O(n)."
+              },
+              { id: "code", body: "def solve(values):\n    return values" },
+              { id: "explain", body: "The loop is bounded by the input." }
+            ]
+          }
+        },
+        { type: "completed", sequence: 2 }
+      ]
+    })
+    const generated = await fixture.orchestrator.command({
+      type: "submit",
+      route: "mode-action",
+      codingIntent: "generate-code",
+      input: "Implement the bounded loop."
+    })
+    expect(generated.ok).toBe(true)
     await fixture.orchestrator.command({
       type: "stage-artifact",
       artifact: {

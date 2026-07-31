@@ -32,9 +32,49 @@ export interface OpportunityContext {
 export interface ProfileBundle {
   readonly schemaVersion: 1
   readonly dossier?: CandidateDossier
+  readonly dossierHistory?: readonly CandidateDossier[]
   readonly opportunities: readonly OpportunityContext[]
   readonly activeOpportunityId?: string
   readonly syntheticEnabled?: boolean
+  readonly syntheticStories?: readonly {
+    readonly id: string
+    readonly title: string
+    readonly status: "synthetic-draft"
+    readonly claims: readonly ProvenancedClaim[]
+  }[]
+  readonly guidedMessages?: readonly {
+    readonly role: "guide" | "candidate"
+    readonly content: string
+    readonly at: string
+  }[]
+}
+
+function isClaim(value: unknown, provenances: ReadonlySet<string>): boolean {
+  if (typeof value !== "object" || value === null) return false
+  const claim = value as Record<string, unknown>
+  return (
+    typeof claim.id === "string" &&
+    typeof claim.text === "string" &&
+    provenances.has(String(claim.provenance)) &&
+    Number.isSafeInteger(claim.sourceRevision) &&
+    (claim.metric === undefined || typeof claim.metric === "string")
+  )
+}
+
+function isDossier(
+  value: unknown,
+  provenances: ReadonlySet<string>
+): value is CandidateDossier {
+  if (typeof value !== "object" || value === null) return false
+  const dossier = value as Record<string, unknown>
+  return (
+    dossier.schemaVersion === 1 &&
+    Number.isSafeInteger(dossier.revision) &&
+    typeof dossier.markdown === "string" &&
+    Array.isArray(dossier.claims) &&
+    dossier.claims.every((claim) => isClaim(claim, provenances)) &&
+    (dossier.status === "draft" || dossier.status === "reviewed")
+  )
 }
 
 export function isProfileBundle(value: unknown): value is ProfileBundle {
@@ -50,7 +90,6 @@ export function isProfileBundle(value: unknown): value is ProfileBundle {
   ) {
     return false
   }
-  const dossier = bundle.dossier as Record<string, unknown> | undefined
   const provenances = new Set([
     "resume-import",
     "guided-chat",
@@ -59,25 +98,41 @@ export function isProfileBundle(value: unknown): value is ProfileBundle {
     "synthetic-draft"
   ])
   if (
-    dossier !== undefined &&
-    (typeof dossier !== "object" ||
-      dossier === null ||
-      dossier.schemaVersion !== 1 ||
-      !Number.isSafeInteger(dossier.revision) ||
-      typeof dossier.markdown !== "string" ||
-      !Array.isArray(dossier.claims) ||
-      !dossier.claims.every((value) => {
-        if (typeof value !== "object" || value === null) return false
-        const claim = value as Record<string, unknown>
-        return (
-          typeof claim.id === "string" &&
-          typeof claim.text === "string" &&
-          provenances.has(String(claim.provenance)) &&
-          Number.isSafeInteger(claim.sourceRevision) &&
-          (claim.metric === undefined || typeof claim.metric === "string")
-        )
-      }) ||
-      (dossier.status !== "draft" && dossier.status !== "reviewed"))
+    (bundle.dossier !== undefined &&
+      !isDossier(bundle.dossier, provenances)) ||
+    (bundle.dossierHistory !== undefined &&
+      (!Array.isArray(bundle.dossierHistory) ||
+        !bundle.dossierHistory.every((value) =>
+          isDossier(value, provenances)
+        ))) ||
+    (bundle.syntheticStories !== undefined &&
+      (!Array.isArray(bundle.syntheticStories) ||
+        !bundle.syntheticStories.every((value) => {
+          if (typeof value !== "object" || value === null) return false
+          const story = value as Record<string, unknown>
+          return (
+            typeof story.id === "string" &&
+            typeof story.title === "string" &&
+            story.status === "synthetic-draft" &&
+            Array.isArray(story.claims) &&
+            story.claims.every(
+              (claim) =>
+                isClaim(claim, provenances) &&
+                (claim as ProvenancedClaim).provenance === "synthetic-draft"
+            )
+          )
+        }))) ||
+    (bundle.guidedMessages !== undefined &&
+      (!Array.isArray(bundle.guidedMessages) ||
+        !bundle.guidedMessages.every((value) => {
+          if (typeof value !== "object" || value === null) return false
+          const message = value as Record<string, unknown>
+          return (
+            (message.role === "guide" || message.role === "candidate") &&
+            typeof message.content === "string" &&
+            typeof message.at === "string"
+          )
+        })))
   ) {
     return false
   }

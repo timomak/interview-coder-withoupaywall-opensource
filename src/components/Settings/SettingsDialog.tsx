@@ -55,7 +55,7 @@ export function SettingsDialog({
   const [responseMode, setResponseMode] = useState<ResponseMode>("fast")
   const [isLoading, setIsLoading] = useState(false)
   const [density, setDensity] = useState<DensityPreference>("compact")
-  const [textSize, setTextSize] = useState<TextSizePreference>("standard")
+  const [textSize, setTextSize] = useState<TextSizePreference>("default")
   const [shellPreferences, setShellPreferences] =
     useState<LiveShellPreferences | null>(null)
   const { showToast } = useToast()
@@ -160,14 +160,18 @@ export function SettingsDialog({
           </fieldset>
           <fieldset>
             <legend className="mb-2 text-sm font-medium">Text size</legend>
-            {(["standard", "large"] as const).map((value) => (
+            {(["small", "default", "large"] as const).map((value) => (
               <label key={value} className="mr-4 inline-flex gap-2">
                 <input
                   type="radio"
                   checked={textSize === value}
                   onChange={() => setTextSize(value)}
                 />
-                {value === "standard" ? "Standard" : "Large"}
+                {value === "default"
+                  ? "Default"
+                  : value === "small"
+                    ? "Small"
+                    : "Large"}
               </label>
             ))}
           </fieldset>

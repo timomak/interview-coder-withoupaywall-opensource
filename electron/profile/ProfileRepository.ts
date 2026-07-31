@@ -58,11 +58,45 @@ export class ProfileRepository {
     ) {
       throw new Error("Active opportunity is missing")
     }
+    const previous = await this.load()
+    const dossierHistory = [...(bundle.dossierHistory ?? [])]
+    if (
+      previous.dossier &&
+      bundle.dossier &&
+      previous.dossier.revision !== bundle.dossier.revision &&
+      !dossierHistory.some(
+        (dossier) => dossier.revision === previous.dossier?.revision
+      )
+    ) {
+      dossierHistory.push(previous.dossier)
+    }
+    const persisted = {
+      ...bundle,
+      dossierHistory:
+        dossierHistory.length > 0 ? dossierHistory : undefined
+    }
     await this.records.put(
       PROFILE_RECORD_ID,
-      bundle,
+      persisted,
       "application/vnd.interviewcopilot.profile+json"
     )
+  }
+
+  async importMarkdown(source: string): Promise<string> {
+    if (!path.isAbsolute(source) || path.extname(source).toLowerCase() !== ".md") {
+      throw new Error("Profile import requires an explicit Markdown path")
+    }
+    const metadata = await fs.lstat(source)
+    if (!metadata.isFile() || metadata.isSymbolicLink()) {
+      throw new Error("Profile import must be an owner-controlled regular file")
+    }
+    if (
+      typeof process.getuid === "function" &&
+      metadata.uid !== process.getuid()
+    ) {
+      throw new Error("Profile import is owned by another user")
+    }
+    return sanitizeProfileMarkdown(await fs.readFile(source, "utf8"))
   }
 
   async exportDossier(destination: string): Promise<void> {

@@ -31,6 +31,9 @@ export interface SubscriptionConfig {
     readonly m05b?: {
       readonly completedAt: string
     }
+    readonly m06?: {
+      readonly completedAt: string
+    }
   }
   migration: {
     id: "M-01"
@@ -50,6 +53,9 @@ export const DEFAULT_SUBSCRIPTION_CONFIG: SubscriptionConfig = {
       completedAt: "fresh-install"
     },
     m05b: {
+      completedAt: "fresh-install"
+    },
+    m06: {
       completedAt: "fresh-install"
     }
   },
@@ -165,7 +171,11 @@ export function validateSubscriptionConfig(value: unknown): SubscriptionConfig {
       throw new Error("Configuration migrations are malformed")
     }
     const migrations = candidate.migrations as Record<string, unknown>
-    if (Object.keys(migrations).some((key) => key !== "m05a" && key !== "m05b")) {
+    if (
+      Object.keys(migrations).some(
+        (key) => key !== "m05a" && key !== "m05b" && key !== "m06"
+      )
+    ) {
       throw new Error("Configuration migration is unsupported")
     }
     if (migrations.m05a !== undefined) {
@@ -188,6 +198,17 @@ export function validateSubscriptionConfig(value: unknown): SubscriptionConfig {
           "string"
       ) {
         throw new Error("M-05b migration marker is malformed")
+      }
+    }
+    if (migrations.m06 !== undefined) {
+      if (
+        typeof migrations.m06 !== "object" ||
+        migrations.m06 === null ||
+        Object.keys(migrations.m06).some((key) => key !== "completedAt") ||
+        typeof (migrations.m06 as Record<string, unknown>).completedAt !==
+          "string"
+      ) {
+        throw new Error("M-06 migration marker is malformed")
       }
     }
   }
@@ -222,7 +243,9 @@ function validateLiveShellPreferences(value: unknown): LiveShellPreferences {
     ) ||
     (candidate.density !== "compact" &&
       candidate.density !== "comfortable") ||
-    (candidate.textSize !== "standard" && candidate.textSize !== "large") ||
+    (candidate.textSize !== "small" &&
+      candidate.textSize !== "default" &&
+      candidate.textSize !== "large") ||
     typeof candidate.shortcuts !== "object" ||
     candidate.shortcuts === null ||
     typeof candidate.geometry !== "object" ||
@@ -302,7 +325,8 @@ export function withM05aDefaults(
     migrations: {
       ...config.migrations,
       m05a: config.migrations?.m05a ?? { completedAt },
-      m05b: config.migrations?.m05b ?? { completedAt }
+      m05b: config.migrations?.m05b ?? { completedAt },
+      m06: config.migrations?.m06 ?? { completedAt }
     }
   }
 }

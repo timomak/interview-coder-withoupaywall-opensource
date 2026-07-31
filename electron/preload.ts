@@ -54,6 +54,8 @@ const electronAPI = {
   getProfileBundle: () => ipcRenderer.invoke("profile:get-bundle"),
   saveProfileBundle: (bundle: unknown) =>
     ipcRenderer.invoke("profile:save-bundle", bundle),
+  importProfileMarkdown: (source: string) =>
+    ipcRenderer.invoke("profile:import-markdown", source),
   exportDossier: (destination: string) =>
     ipcRenderer.invoke("profile:export-dossier", destination),
   dispatchInterviewCommand: (command: InterviewCommand) =>
@@ -92,6 +94,12 @@ const electronAPI = {
       callback(action)
     ipcRenderer.on("shell:shortcut", listener)
     return () => ipcRenderer.removeListener("shell:shortcut", listener)
+  },
+  onShellStartupWarning: (callback: (message: string) => void) => {
+    const listener = (_event: IpcRendererEvent, message: string) =>
+      callback(message)
+    ipcRenderer.on("shell:startup-warning", listener)
+    return () => ipcRenderer.removeListener("shell:startup-warning", listener)
   },
   toggleMainWindow: () => ipcRenderer.invoke("window:toggle"),
   getPlatform: () => process.platform,

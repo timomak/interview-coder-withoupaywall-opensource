@@ -38,7 +38,15 @@ summary {
   padding: 8px 12px;
 }
 
-.quiet-shell[data-text-size="large"] {
+.quiet-shell[data-text-size="small"] .quiet-answer-region {
+  font-size: 0.8125rem;
+}
+
+.quiet-shell[data-text-size="default"] .quiet-answer-region {
+  font-size: 1rem;
+}
+
+.quiet-shell[data-text-size="large"] .quiet-answer-region {
   font-size: 1.125rem;
 }
 
@@ -104,7 +112,8 @@ summary {
   outline-offset: 1px;
 }
 
-.quiet-primary {
+.quiet-rail .quiet-primary,
+.quiet-composer .quiet-primary {
   color: #06110e;
   background: var(--quiet-signal);
 }
@@ -259,7 +268,7 @@ summary {
   width: min(760px, 100vw);
   max-height: 70vh;
   margin-top: 8px;
-  overflow: hidden;
+  overflow: auto;
   border: 1px solid var(--quiet-border);
   border-radius: 12px;
   background: var(--quiet-surface-strong);

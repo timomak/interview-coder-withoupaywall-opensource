@@ -1,6 +1,6 @@
 import { execFile } from "node:child_process"
 import { promisify } from "node:util"
-import screenshot from "screenshot-desktop"
+import { desktopCapturer, screen } from "electron"
 import { v4 as uuidv4 } from "uuid"
 import type { BlobDescriptor, BlobRepository } from "./storage"
 import { errorMessage } from "./errorUtils"
@@ -62,6 +62,26 @@ async function captureWindowsFallback(): Promise<Buffer> {
   return bytes
 }
 
+async function captureDisplayInMemory(displayId?: number): Promise<Buffer> {
+  const display =
+    screen.getAllDisplays().find((candidate) => candidate.id === displayId) ??
+    screen.getPrimaryDisplay()
+  const sources = await desktopCapturer.getSources({
+    types: ["screen"],
+    thumbnailSize: {
+      width: Math.max(1, Math.round(display.size.width * display.scaleFactor)),
+      height: Math.max(1, Math.round(display.size.height * display.scaleFactor))
+    }
+  })
+  const source =
+    sources.find((candidate) => Number(candidate.display_id) === display.id) ??
+    sources[0]
+  if (!source || source.thumbnail.isEmpty()) {
+    throw new Error("Electron desktop capture returned no primary-display pixels")
+  }
+  return source.thumbnail.toPNG()
+}
+
 export class ScreenshotHelper {
   private screenshotQueue: string[] = []
   private readonly platform: NodeJS.Platform
@@ -80,8 +100,7 @@ export class ScreenshotHelper {
     this.platform = options.platform ?? process.platform
     this.capture =
       options.capture ??
-      ((displayId) =>
-        screenshot({ format: "png", screen: displayId }) as Promise<Buffer>)
+      captureDisplayInMemory
     this.windowsFallback =
       options.captureWindowsFallback ?? captureWindowsFallback
     this.id = options.id ?? uuidv4

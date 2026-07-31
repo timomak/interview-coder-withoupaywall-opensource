@@ -15,7 +15,7 @@ const REQUIRED_SECTIONS = [
 const UNSAFE_LINK = /\]\(\s*(?:javascript|data|file):[^)]*\)/gi
 const HTML = /<\/?[a-z][^>]*>/gi
 const PROTECTED_DIRECTIVE =
-  /^\s*(?:system|assistant|developer)\s*:\s*|ignore (?:all|previous) instructions/i
+  /^\s*(?:system|assistant|developer|tool)\s*:\s*|(?:ignore|disregard|override|replace|forget)\b.*\b(?:instructions?|rules?|prompt|policy)\b|(?:reveal|print|expose)\b.*\b(?:prompt|secret|token|key)\b/i
 
 export function sanitizeProfileMarkdown(source: string): string {
   return source

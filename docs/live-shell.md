@@ -55,16 +55,19 @@ stages one encrypted artifact, and restores the exact prior visibility state.
 Region, active-window, and per-session display selection are intentionally not
 supported.
 
-These unit and Electron-shell tests prove application call order, display
-selection, geometry, and visibility restoration. They do **not** qualify Google
+The Electron-shell suite includes a real BrowserWindow runtime probe for
+visibility, content-protection invocation, pointer routing, primary-display
+matching, and geometry in addition to deterministic unit contracts. It does
+**not** qualify Google
 Meet, browser-tab sharing, ScreenCaptureKit, or any other external capture
 tuple. External capture qualification remains a separate release activity.
 
 ## Accessibility and migration
 
 Compact density uses a 44px rail and 32px controls. Comfortable density uses a
-52px rail and larger spacing without hiding or changing actions. Standard and
-large text use the same information architecture. Required shell text is at
+52px rail and larger spacing without hiding or changing actions. Small,
+Default, and Large change answer text only and use the same information
+architecture; rail chrome keeps a stable size. Required shell text is at
 least 12px, all pointer actions have keyboard-operable controls, focus returns
 to the originating control after transient panels close, and reduced-motion
 preferences remove nonessential animation. The shell has no sound, haptic, TTS,

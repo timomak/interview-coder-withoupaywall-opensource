@@ -19,6 +19,14 @@ const EMPTY_DOSSIER = `# Candidate
 ## Stories
 `
 
+const GUIDED_QUESTIONS = [
+  "What project best shows your ownership?",
+  "What constraint made it difficult?",
+  "What did you personally do?",
+  "What verifiable result followed?",
+  "What did you learn?"
+] as const
+
 export function ProfileSettings() {
   const [bundle, setBundle] = useState<ProfileBundle>({
     schemaVersion: 1,
@@ -29,6 +37,7 @@ export function ProfileSettings() {
   const [opportunityName, setOpportunityName] = useState("")
   const [opportunityMarkdown, setOpportunityMarkdown] = useState("")
   const [exportPath, setExportPath] = useState("")
+  const [importPath, setImportPath] = useState("")
   const [status, setStatus] = useState("")
   const [nextProvenance, setNextProvenance] = useState<
     "resume-import" | "guided-chat" | "manual-edit"
@@ -61,10 +70,40 @@ export function ProfileSettings() {
     }
   }
 
-  const addGuidedAnswer = () => {
+  const addGuidedAnswer = async () => {
     const answer = guidedAnswer.trim()
     if (!answer) return
     setMarkdown((value) => `${value.trim()}\n- ${answer}\n`)
+    const priorMessages = bundle.guidedMessages ?? []
+    const answered = priorMessages.filter(
+      (message) => message.role === "candidate"
+    ).length
+    const nextQuestion = GUIDED_QUESTIONS[answered + 1]
+    const at = new Date().toISOString()
+    const next = {
+      ...bundle,
+      guidedMessages: [
+        ...(priorMessages.length > 0
+          ? priorMessages
+          : [
+              {
+                role: "guide" as const,
+                content: GUIDED_QUESTIONS[0],
+                at
+              }
+            ]),
+        {
+          role: "candidate" as const,
+          content: answer,
+          at
+        },
+        ...(nextQuestion
+          ? [{ role: "guide" as const, content: nextQuestion, at }]
+          : [])
+      ]
+    }
+    await window.electronAPI.saveProfileBundle(next)
+    setBundle(next)
     setNextProvenance("guided-chat")
     setGuidedAnswer("")
     setStatus("Guided answer added to the review draft.")
@@ -121,7 +160,54 @@ export function ProfileSettings() {
           className="mt-1 w-full rounded bg-black p-2"
         />
       </label>
-      <button type="button" onClick={addGuidedAnswer}>Add to Stories</button>
+      <ol aria-label="Guided profile conversation" className="text-sm">
+        {(bundle.guidedMessages?.length
+          ? bundle.guidedMessages
+          : [
+              {
+                role: "guide" as const,
+                content: GUIDED_QUESTIONS[0],
+                at: ""
+              }
+            ]
+        ).map((message, index) => (
+          <li key={`${message.role}-${message.at}-${index}`}>
+            <strong>{message.role === "guide" ? "Guide" : "You"}:</strong>{" "}
+            {message.content}
+          </li>
+        ))}
+      </ol>
+      <button type="button" onClick={() => void addGuidedAnswer()}>
+        Add to Stories
+      </button>
+      <label className="block text-sm">
+        Resume Markdown path
+        <input
+          value={importPath}
+          onChange={(event) => setImportPath(event.target.value)}
+          className="w-full rounded bg-black p-2"
+        />
+      </label>
+      <button
+        type="button"
+        disabled={!importPath.trim()}
+        onClick={() =>
+          void window.electronAPI
+            .importProfileMarkdown(importPath)
+            .then((source) => {
+              setMarkdown(source)
+              setNextProvenance("resume-import")
+              setStatus("Markdown imported into the review draft.")
+            })
+            .catch((error: unknown) =>
+              setStatus(
+                error instanceof Error ? error.message : "Import failed."
+              )
+            )
+        }
+      >
+        Import Markdown
+      </button>
       <h3 className="text-sm font-medium">Opportunity</h3>
       <input
         aria-label="Opportunity name"

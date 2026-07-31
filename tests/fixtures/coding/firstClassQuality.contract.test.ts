@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { normalizeCodingLanguage } from "../../../src/features/coding/language"
+import { validateFirstClassCode } from "../../../electron/orchestrator/codingPolicy"
 
 const fixtures = [
   { language: "python3", solve: "def two_sum(nums, target):", debug: "IndexError", syntax: /^def / },
@@ -14,6 +15,10 @@ describe("first-class Coding quality matrix", () => {
   it.each(fixtures)("$language solve/syntax/debug contract", (fixture) => {
     expect(normalizeCodingLanguage(fixture.language).quality).toBe("first-class")
     expect(fixture.solve).toMatch(fixture.syntax)
+    expect(validateFirstClassCode(fixture.language, fixture.solve)).toEqual([])
+    expect(validateFirstClassCode(fixture.language, "plain prose")).not.toEqual(
+      []
+    )
     expect(fixture.debug.length).toBeGreaterThan(3)
   })
 })

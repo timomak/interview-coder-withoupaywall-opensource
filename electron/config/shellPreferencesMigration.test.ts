@@ -26,11 +26,14 @@ describe("M-05a live-shell preference migration", () => {
       expect(first.migrated).toBe(true)
       expect(first.config.shell).toEqual({
         density: "compact",
-        textSize: "standard",
+        textSize: "default",
         shortcuts: DEFAULT_SHORTCUT_BINDINGS,
         geometry: {}
       })
       expect(first.config.migrations?.m05a?.completedAt).toBe(
+        "2026-07-30T23:00:00.000Z"
+      )
+      expect(first.config.migrations?.m06?.completedAt).toBe(
         "2026-07-30T23:00:00.000Z"
       )
 

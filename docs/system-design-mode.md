@@ -11,6 +11,10 @@ types such as service, datastore, cache, queue, and worker. Provider products
 may appear only as secondary detail examples, not as graph types, labels, or
 icon dependencies.
 
+Calculation and graph schemas are validated in the live provider admission
+path before session persistence, not only when rendered or exercised by
+fixtures.
+
 The live diagram supports inspect, zoom, pan, regenerate, and deterministic
 screen-reader text. It has no editing, reconnecting, serialization, copy, or
 standalone export action. Follow-ups declare impacted sections and a complete

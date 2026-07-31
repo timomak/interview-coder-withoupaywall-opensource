@@ -38,7 +38,7 @@ export const DEFAULT_SHORTCUT_BINDINGS: ShortcutBindings = Object.freeze({
 })
 
 export type DensityPreference = "compact" | "comfortable"
-export type TextSizePreference = "standard" | "large"
+export type TextSizePreference = "small" | "default" | "large"
 export type HudState = "compact-bar" | "compact-answer" | "expanded"
 
 export interface PersistedWindowBounds {
@@ -60,7 +60,7 @@ export interface LiveShellPreferences {
 export const DEFAULT_LIVE_SHELL_PREFERENCES: LiveShellPreferences =
   Object.freeze({
     density: "compact",
-    textSize: "standard",
+    textSize: "default",
     shortcuts: DEFAULT_SHORTCUT_BINDINGS,
     geometry: {}
   })

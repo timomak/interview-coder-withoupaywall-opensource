@@ -304,6 +304,35 @@ function activeReduction(
         })
       }
     }
+    case "coding-question-defined": {
+      if (
+        state.snapshot.mode !== "coding" ||
+        !state.codingQuestions ||
+        event.branchId !== state.codingQuestions.currentBranchId ||
+        event.question.trim().length === 0
+      ) {
+        return reject(state, "invalid-transition")
+      }
+      const current = state.codingQuestions.branches.find(
+        (branch) => branch.id === event.branchId
+      )
+      if (!current || current.question.trim().length > 0) {
+        return reject(state, "invalid-transition")
+      }
+      return {
+        accepted: true,
+        state: advance(state, event, {
+          codingQuestions: {
+            ...state.codingQuestions,
+            branches: state.codingQuestions.branches.map((branch) =>
+              branch.id === event.branchId
+                ? { ...branch, question: event.question.trim() }
+                : branch
+            )
+          }
+        })
+      }
+    }
     case "section-delta": {
       const request = state.requests.find(
         (candidate) => candidate.id === event.requestId

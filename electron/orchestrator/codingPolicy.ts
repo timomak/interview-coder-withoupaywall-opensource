@@ -7,8 +7,10 @@ import {
   isCodingIntent,
   sectionsForCodingIntent,
   type CodingIntent,
-  type CodingFixCard
+  type CodingFixCard,
+  type CodingSectionId
 } from "../../src/features/coding/types"
+import { normalizeCodingLanguage } from "../../src/features/coding/language"
 
 const CODING_CONTEXT_CATEGORIES = new Set(["instructions", "transcript", "screenshot"])
 
@@ -129,4 +131,71 @@ export function parseCodingFixCard(value: unknown): CodingFixCard | null {
     return null
   }
   return card as unknown as CodingFixCard
+}
+
+const FIRST_CLASS_SYNTAX: Readonly<Record<string, RegExp>> = Object.freeze({
+  python3: /\b(?:def|class|for|while|return|import)\b/,
+  typescript: /\b(?:function|const|let|class|interface|return)\b|=>/,
+  java: /\b(?:class|public|private|static|return)\b/,
+  go: /\b(?:package|func|type|return|range)\b/,
+  cpp: /#include|\b(?:class|struct|vector|return)\b|std::/,
+  csharp: /\b(?:namespace|class|public|private|using|return)\b/
+})
+
+export function validateFirstClassCode(
+  languageId: string,
+  code: string
+): readonly string[] {
+  const language = normalizeCodingLanguage(languageId)
+  if (language.quality !== "first-class") return []
+  const syntax = FIRST_CLASS_SYNTAX[language.id]
+  return syntax?.test(code)
+    ? []
+    : [`Code does not contain representative ${language.label} syntax`]
+}
+
+export function validateCodingSections(
+  intent: CodingIntent,
+  languageId: string,
+  sections: readonly { readonly id: string; readonly body: string }[]
+): readonly string[] {
+  if (intent === "debug") return []
+  const errors: string[] = []
+  const required = sectionsForCodingIntent(intent)
+  const byBaseId = new Map<CodingSectionId, string>()
+  for (const section of sections) {
+    const baseId = section.id.replace(/-\d+$/, "") as CodingSectionId
+    byBaseId.set(baseId, section.body.trim())
+  }
+  for (const sectionId of required) {
+    const baseId = sectionId.startsWith("fix-") ? sectionId : sectionId
+    if (!byBaseId.get(baseId)?.length) {
+      errors.push(`Missing non-empty Coding section: ${sectionId}`)
+    }
+  }
+  if (intent === "analyze" || intent === "generate-code") {
+    const plan = byBaseId.get("plan") ?? ""
+    const bullets = plan
+      .split(/\r?\n/)
+      .filter((line) => /^\s*(?:[-*]|\d+[.)])\s+\S/.test(line))
+    if (bullets.length < 2 || bullets.length > 4) {
+      errors.push("Coding plan must contain 2-4 approach bullets")
+    }
+    if (!/\btrade-?off\b/i.test(plan)) {
+      errors.push("Coding plan must state exactly one trade-off")
+    }
+    if ((plan.match(/\btrade-?off\b/gi) ?? []).length !== 1) {
+      errors.push("Coding plan must state exactly one trade-off")
+    }
+    if (!/\btime\b[\s\S]*\bO\s*\(/i.test(plan)) {
+      errors.push("Coding plan must state time complexity")
+    }
+    if (!/\bspace\b[\s\S]*\bO\s*\(/i.test(plan)) {
+      errors.push("Coding plan must state space complexity")
+    }
+  }
+  if (intent === "generate-code") {
+    errors.push(...validateFirstClassCode(languageId, byBaseId.get("code") ?? ""))
+  }
+  return [...new Set(errors)]
 }

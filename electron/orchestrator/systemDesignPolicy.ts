@@ -4,6 +4,12 @@ import type {
   ResponseSection
 } from "../../src/shared/interview"
 import { SYSTEM_DESIGN_SECTIONS } from "../../src/features/system-design/types"
+import type {
+  ArchitectureGraph,
+  MaterialCalculation
+} from "../../src/features/system-design/types"
+import { validateArchitectureGraph } from "../../src/features/system-design/architectureSchema"
+import { validateMaterialCalculations } from "../../src/features/system-design/estimates"
 import type { BestEffortDecision } from "./responseRouting"
 
 export function buildSystemDesignRequest(
@@ -72,4 +78,83 @@ export function applySystemDesignFollowup(
     }
   }
   return { sections: revised, before, after, whatChanged: [...whatChanged] }
+}
+
+function record(value: unknown): Record<string, unknown> | undefined {
+  return typeof value === "object" && value !== null
+    ? (value as Record<string, unknown>)
+    : undefined
+}
+
+export function parseArchitectureGraph(body: string): ArchitectureGraph {
+  const parsed = record(JSON.parse(body))
+  if (!parsed || !Array.isArray(parsed.nodes) || !Array.isArray(parsed.edges)) {
+    throw new Error("Architecture section must be a graph object")
+  }
+  if (
+    parsed.nodes.some((value) => {
+      const node = record(value)
+      return (
+        !node ||
+        typeof node.id !== "string" ||
+        typeof node.type !== "string" ||
+        typeof node.label !== "string" ||
+        typeof node.detail !== "string"
+      )
+    }) ||
+    parsed.edges.some((value) => {
+      const edge = record(value)
+      return (
+        !edge ||
+        typeof edge.id !== "string" ||
+        typeof edge.from !== "string" ||
+        typeof edge.to !== "string" ||
+        typeof edge.label !== "string"
+      )
+    })
+  ) {
+    throw new Error("Architecture graph members are malformed")
+  }
+  const graph = parsed as unknown as ArchitectureGraph
+  const errors = validateArchitectureGraph(graph)
+  if (errors.length > 0) throw new Error(errors.join("; "))
+  return graph
+}
+
+export function parseMaterialCalculations(
+  body: string
+): readonly MaterialCalculation[] {
+  const parsed = JSON.parse(body) as unknown
+  if (
+    !Array.isArray(parsed) ||
+    parsed.some((value) => {
+      const calculation = record(value)
+      return (
+        !calculation ||
+        typeof calculation.name !== "string" ||
+        typeof calculation.expression !== "string" ||
+        typeof calculation.result !== "number" ||
+        typeof calculation.unit !== "string" ||
+        typeof calculation.assumption !== "string"
+      )
+    })
+  ) {
+    throw new Error("Estimate section must be a calculation array")
+  }
+  const calculations = parsed as unknown as readonly MaterialCalculation[]
+  const errors = validateMaterialCalculations(calculations)
+  if (errors.length > 0) throw new Error(errors.join("; "))
+  return calculations
+}
+
+export function validateSystemDesignSection(
+  sectionId: string,
+  body: string
+): void {
+  if (!body.trim()) throw new Error(`System Design section is empty: ${sectionId}`)
+  if (sectionId === "estimate") {
+    parseMaterialCalculations(body)
+  } else if (sectionId === "architecture") {
+    parseArchitectureGraph(body)
+  }
 }

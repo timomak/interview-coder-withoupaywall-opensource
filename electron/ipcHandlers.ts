@@ -58,6 +58,7 @@ export interface IpcHandlerDependencies {
   readonly getProfileContext: () => Promise<readonly ContextItem[]>
   readonly getProfileBundle: () => Promise<ProfileBundle>
   readonly saveProfileBundle: (bundle: ProfileBundle) => Promise<void>
+  readonly importProfileMarkdown: (source: string) => Promise<string>
   readonly exportDossier: (destination: string) => Promise<void>
 }
 
@@ -124,6 +125,12 @@ export function initializeIpcHandlers(
     if (!isProfileBundle(value)) throw new Error("Profile bundle is malformed")
     await dependencies.saveProfileBundle(value)
     return { success: true }
+  })
+  ipcMain.handle("profile:import-markdown", async (_event, value: unknown) => {
+    if (typeof value !== "string" || value.trim().length === 0) {
+      throw new Error("Profile import path is malformed")
+    }
+    return dependencies.importProfileMarkdown(value)
   })
   ipcMain.handle("profile:export-dossier", async (_event, value: unknown) => {
     if (typeof value !== "string" || value.trim().length === 0) {

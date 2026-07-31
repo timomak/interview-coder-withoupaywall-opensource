@@ -22,11 +22,58 @@ export interface CorrectionPayload {
   }[]
 }
 
-export type ParsedProviderPayload = StructuredPayload | CorrectionPayload
+export interface SystemDesignFollowupPayload {
+  readonly kind: "system-design-followup"
+  readonly impactedSectionIds: readonly string[]
+  readonly sections: readonly {
+    readonly id: string
+    readonly body: string
+  }[]
+  readonly whatChanged: readonly string[]
+}
+
+export type ParsedProviderPayload =
+  | StructuredPayload
+  | CorrectionPayload
+  | SystemDesignFollowupPayload
 
 export function parseProviderPayload(value: unknown): ParsedProviderPayload | null {
   if (typeof value !== "object" || value === null) return null
   const candidate = value as Record<string, unknown>
+  if (candidate.kind === "system-design-followup") {
+    if (
+      !Array.isArray(candidate.impactedSectionIds) ||
+      !candidate.impactedSectionIds.every((id) => typeof id === "string") ||
+      !Array.isArray(candidate.whatChanged) ||
+      !candidate.whatChanged.every((item) => typeof item === "string") ||
+      !Array.isArray(candidate.sections)
+    ) {
+      return null
+    }
+    const sections = candidate.sections.flatMap((section) => {
+      if (
+        typeof section !== "object" ||
+        section === null ||
+        typeof (section as Record<string, unknown>).id !== "string" ||
+        typeof (section as Record<string, unknown>).body !== "string"
+      ) {
+        return []
+      }
+      return [
+        {
+          id: (section as { id: string }).id,
+          body: (section as { body: string }).body
+        }
+      ]
+    })
+    if (sections.length !== candidate.sections.length) return null
+    return {
+      kind: "system-design-followup",
+      impactedSectionIds: candidate.impactedSectionIds as string[],
+      sections,
+      whatChanged: candidate.whatChanged as string[]
+    }
+  }
   if (candidate.kind !== "structured" && candidate.kind !== "correction") {
     return null
   }

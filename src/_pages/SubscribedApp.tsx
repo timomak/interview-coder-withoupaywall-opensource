@@ -60,6 +60,7 @@ export default function SubscribedApp({
   const [codingIntent, setCodingIntent] = useState<CodingIntent>()
   const hotKeysButton = useRef<HTMLButtonElement>(null)
   const shell = useRef<HTMLElement>(null)
+  const answerRegion = useRef<HTMLDivElement>(null)
   const sectionCount =
     session.lifecycle === "active" ? session.sections.length : 0
   const artifactCount =
@@ -173,9 +174,49 @@ export default function SubscribedApp({
           }
         } else if (action === "submit" && session.lifecycle === "active") {
           void submit()
+        } else if (
+          action === "section-previous" ||
+          action === "section-next"
+        ) {
+          const candidates = Array.from(
+            answerRegion.current?.querySelectorAll<HTMLElement>(
+              "article, [role='article']"
+            ) ?? []
+          )
+          if (candidates.length === 0) return
+          const currentIndex = Math.max(
+            0,
+            candidates.findIndex((candidate) =>
+              candidate.contains(document.activeElement)
+            )
+          )
+          const delta = action === "section-previous" ? -1 : 1
+          const next =
+            candidates[
+              (currentIndex + delta + candidates.length) % candidates.length
+            ]
+          next.tabIndex = 0
+          next.focus()
+          next.scrollIntoView({ block: "nearest" })
+        } else if (
+          action === "section-scroll-up" ||
+          action === "section-scroll-down"
+        ) {
+          answerRegion.current?.scrollBy({
+            top: action === "section-scroll-up" ? -120 : 120,
+            behavior: "smooth"
+          })
         }
       }),
     [input, session]
+  )
+
+  useEffect(
+    () =>
+      window.electronAPI.onShellStartupWarning((message) => {
+        setShellStatus(message)
+      }),
+    []
   )
 
   useEffect(() => {
@@ -190,7 +231,7 @@ export default function SubscribedApp({
       ref={shell}
       className={`quiet-shell quiet-shell-${hudState}`}
       data-density={config.shell?.density ?? "compact"}
-      data-text-size={config.shell?.textSize ?? "standard"}
+      data-text-size={config.shell?.textSize ?? "default"}
     >
       <PointerRegions />
       <CommandRail
@@ -238,6 +279,7 @@ export default function SubscribedApp({
       {composerOpen && session.lifecycle === "active" ? (
         <CompactComposer
           initialValue={input}
+          onDraftChange={setInput}
           hasSelectedEvidence={session.artifacts.some(
             (artifact) => artifact.selected && !artifact.submitted
           )}
@@ -301,7 +343,11 @@ export default function SubscribedApp({
             }
           />
           <ContextDetail session={session} />
-          <div className="quiet-answer-region">
+          <div
+            ref={answerRegion}
+            className="quiet-answer-region"
+            data-interactive
+          >
             {session.snapshot.mode === "coding" ? (
               <CodingWorkspace
                 intent={codingIntent}

@@ -144,6 +144,7 @@ function setHudState(nextState: HudState): void {
 function focusMainWindow(mainWindow: BrowserWindow): void {
   revealCaptureProtectedWindow(mainWindow, (protectedWindow) => {
     if (protectedWindow.isMinimized()) protectedWindow.restore()
+    if (!protectedWindow.isVisible()) protectedWindow.showInactive()
     protectedWindow.focus()
   })
 }
@@ -347,7 +348,8 @@ async function providerDiagnostics(
 
 function createOrchestrator(
   executables: ProviderExecutables,
-  repository: ActiveSessionRepository
+  repository: ActiveSessionRepository,
+  profiles: ProfileRepository
 ): InterviewOrchestrator {
   const providerRuntime = new ProviderRuntime({
     executables
@@ -390,6 +392,19 @@ function createOrchestrator(
         diagnostics.supported
       )
     },
+    saveSyntheticStory: async (story) => {
+      const bundle = await profiles.load()
+      const syntheticStories = [
+        ...(bundle.syntheticStories ?? []).filter(
+          (candidate) => candidate.id !== story.id
+        ),
+        {
+          ...story,
+          status: "synthetic-draft" as const
+        }
+      ]
+      await profiles.save({ ...bundle, syntheticStories })
+    },
     onState: (session) => {
       state.mainWindow?.webContents.send(INTERVIEW_STATE_EVENT, session)
     }
@@ -422,7 +437,8 @@ async function initializeApplication(): Promise<void> {
   )
   const orchestrator = createOrchestrator(
     executables,
-    new ActiveSessionRepository(records)
+    new ActiveSessionRepository(records),
+    profiles
   )
   createWindow()
   const screenshots = new ScreenshotHelper(
@@ -485,7 +501,16 @@ async function initializeApplication(): Promise<void> {
       }
     }
   }, configuredShortcuts)
-  shortcuts.registerGlobalShortcuts()
+  const initialShortcutRegistration = shortcuts.registerGlobalShortcuts()
+  if (!initialShortcutRegistration.ok) {
+    state.mainWindow?.once("ready-to-show", () => {
+      showMainWindow()
+      state.mainWindow?.webContents.send(
+        "shell:startup-warning",
+        `Global shortcut unavailable: ${initialShortcutRegistration.rejectedAccelerator ?? "unknown"}`
+      )
+    })
+  }
   const applyShortcutBindings = (bindings: ShortcutBindings) => {
     const previous = shortcuts.currentBindings()
     const result = shortcuts.applyBindings(bindings)
@@ -522,7 +547,10 @@ async function initializeApplication(): Promise<void> {
           id: `candidate-dossier:${bundle.dossier.revision}`,
           category: "profile" as const,
           revision: bundle.dossier.revision,
-          content: bundle.dossier.markdown
+          content: JSON.stringify({
+            markdown: bundle.dossier.markdown,
+            claims: bundle.dossier.claims
+          })
         })
       }
       const opportunity = bundle.opportunities.find(
@@ -548,6 +576,7 @@ async function initializeApplication(): Promise<void> {
     },
     getProfileBundle: () => profiles.load(),
     saveProfileBundle: (bundle) => profiles.save(bundle),
+    importProfileMarkdown: (source) => profiles.importMarkdown(source),
     exportDossier: (destination) => profiles.exportDossier(destination),
     setWindowPointerEvents: (ignore, forward) =>
       state.mainWindow?.setIgnoreMouseEvents(ignore, { forward }),

@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react"
 export interface CompactComposerProps {
   readonly initialValue?: string
   readonly hasSelectedEvidence: boolean
+  readonly onDraftChange?: (message: string) => void
   readonly onSubmit: (message: string) => Promise<boolean> | boolean
   readonly onClose: () => void
 }
@@ -10,6 +11,7 @@ export interface CompactComposerProps {
 export function CompactComposer({
   initialValue = "",
   hasSelectedEvidence,
+  onDraftChange,
   onSubmit,
   onClose
 }: CompactComposerProps) {
@@ -33,6 +35,7 @@ export function CompactComposer({
     }
     if (await onSubmit(trimmed)) {
       setMessage("")
+      onDraftChange?.("")
       setStatus("")
     }
   }
@@ -43,7 +46,10 @@ export function CompactComposer({
         ref={field}
         aria-label="Message"
         value={message}
-        onChange={(event) => setMessage(event.target.value)}
+        onChange={(event) => {
+          setMessage(event.target.value)
+          onDraftChange?.(event.target.value)
+        }}
         onKeyDown={(event) => {
           if (event.key === "Enter" && event.ctrlKey && event.shiftKey) {
             event.preventDefault()

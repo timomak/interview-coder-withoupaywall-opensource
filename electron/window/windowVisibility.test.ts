@@ -24,5 +24,8 @@ describe("window visibility", () => {
     expect(captureSource).toContain(
       "restoreVisibility ? this.showMainWindow : () => undefined"
     )
+    expect(source).toMatch(
+      /initialShortcutRegistration[\s\S]*?if \(!initialShortcutRegistration\.ok\)[\s\S]*?once\("ready-to-show"[\s\S]*?showMainWindow\(\)/
+    )
   })
 })

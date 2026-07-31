@@ -10,6 +10,10 @@ complexity. Code is selectable but read-only. Its only actions are Copy,
 Regenerate, Debug, and Explain; InterviewCopilot has no editor, terminal,
 execution, or test tool.
 
+Those requirements are validated on the typed provider payload before any
+section is admitted. First-class languages also require representative
+language syntax, preventing a provider from satisfying Code with prose.
+
 The selected language is normalized by M-05b and snapshotted when the interview
 starts. Python means Python 3. Python 3, JavaScript/TypeScript, Java, Go, C++,
 and C# are first-class fixture-backed languages. Rust, Swift, Kotlin, Ruby,
@@ -23,6 +27,9 @@ only that artifact. Other staged evidence stays pending, and the current
 solution stays intact. A supported diagnosis is appended as a versioned Fix
 card. When the image is insufficient, the card asks for specific better
 evidence and must not fabricate a patch or fall back to answer regeneration.
+The first submission defines the current problem atomically. New Question
+requires a non-empty next problem, and Debug is unavailable until that current
+branch has both a problem and generated code.
 
 Coding provider requests omit profile and opportunity context and expose no
 code-writing or execution tools. This prevents accidental personal-context
