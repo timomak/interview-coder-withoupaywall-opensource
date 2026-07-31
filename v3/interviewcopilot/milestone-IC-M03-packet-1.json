@@ -1,0 +1,156 @@
+{
+  "schemaVersion": 1,
+  "milestoneId": "IC-M03",
+  "phaseId": "P09",
+  "title": "macOS audio capture, transcription, and question detection",
+  "status": "FROZEN_READY_IMPLEMENTATION",
+  "frozenAt": "2026-07-31T11:05:00+02:00",
+  "acceptedSource": {
+    "revision": "02ee6ddec78d6e4ea9e2de3c0303ffd6bc9f45bf",
+    "packet": "docs/implementation/phase-execution-packet.md",
+    "packetLines": "1660-1793",
+    "design": "design.md",
+    "designLines": "444-478"
+  },
+  "lineage": {
+    "baseMilestone": "IC-M02",
+    "baseRevision": "e12930fb4ea7018d829bcc8366bed9f39d799c6d",
+    "branch": "codex/ic-m03-audio",
+    "worktree": "/Users/thirdfacedev/.codex/worktrees/ic-m03/TimoCodes",
+    "protectedIntegrationPendingUpstream": true
+  },
+  "risk": {
+    "tier": "HIGH",
+    "complexity": "VERY_HIGH",
+    "reasons": [
+      "native macOS capture and permission boundary",
+      "highly sensitive raw audio",
+      "local model supply-chain and offline guarantee",
+      "explicit remote-transcription consent",
+      "single-conversation and no-auto-answer invariants"
+    ]
+  },
+  "ownedDecisions": [
+    "D-016",
+    "D-017",
+    "D-017b",
+    "D-017c",
+    "D-017d",
+    "D-017e",
+    "D-018",
+    "D-019",
+    "D-041"
+  ],
+  "ownedMigration": "M-07",
+  "scope": {
+    "included": [
+      "source-separated microphone and system-audio capture",
+      "deterministic master and per-source state",
+      "contextual permission recovery",
+      "pinned local whisper.cpp transcription",
+      "explicit Apple Speech fallback consent",
+      "typed transcript segments, attribution, correction, and pending question",
+      "accessible eight-state audio UI",
+      "bounded owner-only temporary buffers with zero retention",
+      "text-only analysis in the existing provider conversation"
+    ],
+    "excluded": [
+      "Windows or Linux support",
+      "TTS, UI sounds, or haptics",
+      "automatic answer submission",
+      "retained raw audio",
+      "cloud transcription vendors other than Apple Speech",
+      "a second provider conversation"
+    ]
+  },
+  "acceptanceCriteria": [
+    "P09-AC1 explicit session-scoped activation and capture-off resume",
+    "P09-AC2 deterministic master/per-source controls with hide/collapse neutrality",
+    "P09-AC3 source-scoped denial/error with explicit retry only",
+    "P09-AC4 actual checksum-pinned offline local transcription with zero network",
+    "P09-AC5 explicit visible Apple Speech consent without answer-provider access",
+    "P09-AC6 bounded mode-0600 buffers removed at every terminal/crash boundary and absent from persistence/logs",
+    "P09-AC7 default and uncertain attribution with durable correction",
+    "P09-AC8 partial/final and eight visible accessible states with waveform text equivalent",
+    "P09-AC9 editable pending question with zero automatic answer calls",
+    "P09-AC10 independent two-channel provenance through pending selection",
+    "P09-AC11 finalized text only through the one persistent conversation",
+    "M-07 defaults both sources and Apple fallback off and never restores activation"
+  ],
+  "workPackages": [
+    {
+      "id": "IC-M03-WP1",
+      "title": "native capture, transcription, and ephemeral-buffer boundary",
+      "mutableTargets": [
+        "native/audio/**",
+        "electron/audio/native/**",
+        "electron/audio/transcription/**",
+        "electron/audio/temporary/**",
+        "resources/audio/**",
+        "tests/fixtures/audio/**",
+        "native audio build metadata and isolated native/retention harnesses"
+      ]
+    },
+    {
+      "id": "IC-M03-WP2",
+      "title": "audio session domain, M-07, and single-conversation routing",
+      "mutableTargets": [
+        "src/shared/audio/**",
+        "audio-related src/shared/interview/** and src/domain/interview/**",
+        "electron/audio/session/**",
+        "audio-related electron/orchestrator/**, electron/config/**, and electron/storage/**",
+        "electron/main.ts",
+        "electron/ipcHandlers.ts",
+        "electron/preload.ts"
+      ]
+    },
+    {
+      "id": "IC-M03-WP3",
+      "title": "Quiet Signal audio and transcript UI",
+      "mutableTargets": [
+        "src/features/audio/**",
+        "audio-related src/features/shell/**",
+        "audio-related src/components/Settings/**",
+        "audio-related application composition",
+        "renderer audio API declarations",
+        "audio-related CSS"
+      ]
+    }
+  ],
+  "integrationOwnerTargets": [
+    "package.json",
+    "package-lock.json",
+    "scripts/verification/trusted-vitest-runner.mjs",
+    "scripts/verification/test-manifest.json",
+    "scripts/verification/package inventory allowlists",
+    "final audio documentation"
+  ],
+  "review": {
+    "kind": "READ_ONLY_PLANNING_REVIEW",
+    "status": "APPROVED",
+    "result": "Requirement coverage, milestone cohesion, dependency lineage, mutable-target isolation, high-risk gates, existing-evidence reuse, and rollback are complete.",
+    "correctionsUsed": 0
+  },
+  "verification": {
+    "writerChecks": [
+      "eleven named P09 tests",
+      "native compile and native suite",
+      "raw-audio retention suite",
+      "policy",
+      "lint",
+      "typecheck",
+      "targeted package inventory"
+    ],
+    "completeFindingBatchCount": 1,
+    "maximumRemediationCount": 1,
+    "authoritativeSuiteCount": 1,
+    "authoritativePlan": "scripts/verification/plans/P09.json",
+    "latePhysicalEvidence": [
+      "actual device-open timing",
+      "macOS permission grant and denial",
+      "Apple Speech consent network trace",
+      "supported architecture qualification"
+    ]
+  },
+  "rollback": "Stop and reap helper/sidecar processes, remove all known temporary buffers, revert P09 code and packaged engine/model resources, retain encrypted session records, ignore unsupported transcript fields, and never restore source activation, Apple consent, or raw audio."
+}
