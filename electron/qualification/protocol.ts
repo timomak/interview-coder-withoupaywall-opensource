@@ -118,7 +118,9 @@ function canonicalize(value: unknown): string {
   if (Array.isArray(value)) return `[${value.map(canonicalize).join(",")}]`
   if (value && typeof value === "object") {
     return `{${Object.entries(value)
-      .sort(([a], [b]) => Buffer.from(a).compare(Buffer.from(b)))
+      // RFC 8785 section 3.2.3 sorts property names by their raw UTF-16
+      // code units, which is JavaScript's default string ordering.
+      .sort(([a], [b]) => a < b ? -1 : a > b ? 1 : 0)
       .map(([key, child]) => `${JSON.stringify(key)}:${canonicalize(child)}`)
       .join(",")}}`
   }
@@ -131,7 +133,9 @@ export function canonicalJson(value: unknown): string {
 }
 
 export function parseCanonicalJson(bytes: Buffer | string): unknown {
-  const source = Buffer.isBuffer(bytes) ? bytes.toString("utf8") : bytes
+  const source = Buffer.isBuffer(bytes)
+    ? new TextDecoder("utf-8", { fatal: true }).decode(bytes)
+    : bytes
   if (source.startsWith("\ufeff") || source.endsWith("\n")) {
     throw new Error("Protocol JSON must not contain a BOM or trailing newline")
   }
@@ -294,7 +298,8 @@ export function verifyEnvelope(
   matrix: QualificationMatrix,
   domain: string,
   purpose: TrustEntry["purpose"],
-  role: TrustEntry["role"]
+  role: TrustEntry["role"],
+  payloadKeyField: "keyId" | "releaseKeyId" = "keyId"
 ): Record<string, unknown> {
   requireClosedObject(envelope, ["payload", "signature"], "signature envelope")
   requireClosedObject(envelope.signature, ["algorithm", "keyId", "value"], "signature")
@@ -303,8 +308,8 @@ export function verifyEnvelope(
     throw new Error("Signed payload must be an object")
   }
   const payload = envelope.payload as Record<string, unknown>
-  if (payload.keyId !== envelope.signature.keyId) throw new Error("Envelope key IDs disagree")
-  const key = trustKey(matrix, String(payload.keyId), purpose, role)
+  if (payload[payloadKeyField] !== envelope.signature.keyId) throw new Error("Envelope key IDs disagree")
+  const key = trustKey(matrix, String(payload[payloadKeyField]), purpose, role)
   const rawPublic = decodeBase64Url(key.publicKeyBase64Url, 32)
   const publicKey = crypto.createPublicKey({
     key: Buffer.concat([

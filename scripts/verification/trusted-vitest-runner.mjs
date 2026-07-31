@@ -172,6 +172,7 @@ const SUITES = {
   p12: [
     "tests/qualification/macosPackagePolicy.test.ts",
     "tests/qualification/packagedCaptureProtection.test.ts",
+    "tests/qualification/liveProcedure.e2e.test.ts",
     "src/features/privacy/MeetVerification.test.tsx",
     "electron/privacy/verificationRecord.test.ts",
     "scripts/qualification/meet-artifact-validator.test.ts",
@@ -191,6 +192,7 @@ const SUITES = {
   ],
   "e2e-macos": [
     "tests/qualification/packagedCaptureProtection.test.ts",
+    "tests/qualification/liveProcedure.e2e.test.ts",
     "src/features/privacy/MeetVerification.test.tsx",
     "tests/qualification/scopedRecovery.e2e.test.ts"
   ],

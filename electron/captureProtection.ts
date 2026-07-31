@@ -22,6 +22,21 @@ export function revealCaptureProtectedWindow<
   runtimeShell.revealCaptureProtectedWindow(window, reveal)
 }
 
+export interface CaptureProtectedBoundsWindow extends CaptureProtectedWindow {
+  setBounds(bounds: Electron.Rectangle): void
+}
+
+export function setCaptureProtectedBounds(
+  window: CaptureProtectedBoundsWindow,
+  bounds: Electron.Rectangle
+): void {
+  applyCaptureProtection(window)
+  window.setBounds(bounds)
+  // Electron/native window reconstruction can occur during a geometry change.
+  // Reassert after the call so neither lifecycle edge can expose the window.
+  applyCaptureProtection(window)
+}
+
 export interface PointerRoutedWindow {
   setIgnoreMouseEvents(
     ignore: boolean,

@@ -9,12 +9,15 @@ import {
 } from "electron"
 import fs from "node:fs"
 import path from "node:path"
+import crypto from "node:crypto"
+import { execFileSync } from "node:child_process"
 import { initAutoUpdater } from "./autoUpdater"
 import {
   applyCaptureProtection,
   applyPointerRouting,
   createCaptureProtectedWindow,
-  revealCaptureProtectedWindow
+  revealCaptureProtectedWindow,
+  setCaptureProtectedBounds
 } from "./captureProtection"
 import { configHelper } from "./ConfigHelper"
 import { initializeIpcHandlers } from "./ipcHandlers"
@@ -84,10 +87,86 @@ import { DiagnosticService } from "./diagnostics/DiagnosticService"
 import {
   CaptureVerificationRepository,
   captureVerificationState,
+  validateCaptureVerificationRecord,
+  type CaptureTupleV1,
   type CaptureVerificationRecordV1
 } from "./privacy/verificationRecord"
+import { LiveQualificationProcedure } from "./qualification/liveProcedure"
 
 const isDevelopment = process.env.NODE_ENV === "development"
+
+function sha256File(file: string): string {
+  return crypto.createHash("sha256").update(fs.readFileSync(file)).digest("hex")
+}
+
+function releaseCommitSha(): string | undefined {
+  try {
+    const metadata = JSON.parse(fs.readFileSync(path.join(app.getAppPath(), "package.json"), "utf8"))
+    return /^[0-9a-f]{40}$/.test(metadata.releaseCommitSha) ? metadata.releaseCommitSha : undefined
+  } catch { return undefined }
+}
+
+function observedCaptureTuple(qualified: CaptureVerificationRecordV1): CaptureTupleV1 | undefined {
+  try {
+    const commit = releaseCommitSha()
+    const asar = path.join(process.resourcesPath, "app.asar")
+    const primary = screen.getPrimaryDisplay()
+    const product = execFileSync("/usr/bin/sw_vers", ["-productVersion"], { encoding: "utf8" }).trim()
+    const build = execFileSync("/usr/bin/sw_vers", ["-buildVersion"], { encoding: "utf8" }).trim()
+    const chrome = execFileSync(
+      "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+      ["--version"],
+      { encoding: "utf8" }
+    ).match(/([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)/)?.[1]
+    if (!commit || !fs.existsSync(asar) || !chrome) return undefined
+    return {
+      appSemver: app.getVersion(),
+      appCommitSha: commit,
+      appBundleSha256: sha256File(asar),
+      macOSProductVersion: product,
+      macOSBuildVersion: build,
+      architecture: process.arch === "arm64" ? "arm64" : "x64",
+      chromeVersion: chrome,
+      // Meet's visible build is supplied only by the independently validated
+      // root-owned receipt; it is never copied from renderer input.
+      meetBuildId: qualified.tuple.meetBuildId,
+      display: {
+        displayId: String(primary.id),
+        type: primary.internal ? "internal" : "external",
+        pixelWidth: Math.round(primary.size.width * primary.scaleFactor),
+        pixelHeight: Math.round(primary.size.height * primary.scaleFactor),
+        scaleFactor: String(primary.scaleFactor)
+      }
+    }
+  } catch { return undefined }
+}
+
+async function importRootQualificationReceipt(
+  repository: CaptureVerificationRepository
+): Promise<void> {
+  const commit = releaseCommitSha()
+  if (!commit) return
+  const receipt = path.join(
+    "/Users/Shared/InterviewCopilot/qualification-receipts",
+    commit
+  )
+  if (!fs.existsSync(receipt)) return
+  for (const entry of fs.readdirSync(receipt).filter((name) => /^capture-verification-[A-Za-z0-9._-]+\.json$/.test(name))) {
+    const candidate = path.join(receipt, entry)
+    const stat = fs.lstatSync(candidate)
+    if (!stat.isFile() || stat.isSymbolicLink() || stat.uid !== 0 || (stat.mode & 0o022) !== 0) {
+      throw new Error("Capture verification receipt ownership is invalid")
+    }
+    const record = JSON.parse(fs.readFileSync(candidate, "utf8")) as CaptureVerificationRecordV1
+    validateCaptureVerificationRecord(record)
+    if (record.tuple.appCommitSha !== commit) throw new Error("Capture receipt commit does not match packaged app")
+    const current = observedCaptureTuple(record)
+    if (current && captureVerificationState(record, current) === "Verified") {
+      await repository.save(record)
+      return
+    }
+  }
+}
 
 const state = {
   mainWindow: null as BrowserWindow | null,
@@ -169,7 +248,7 @@ function setHudState(nextState: HudState): void {
   applyCaptureProtection(mainWindow)
   mainWindow.setResizable(nextState === "expanded")
   mainWindow.setMinimumSize(320, nextState === "compact-bar" ? 44 : 80)
-  mainWindow.setBounds(restored)
+  setCaptureProtectedBounds(mainWindow, restored)
   persistGeometry()
 }
 
@@ -295,7 +374,7 @@ function moveWindowHorizontal(delta: number): void {
   )
   state.currentX = next.x
   state.currentY = next.y
-  mainWindow.setBounds(next)
+  setCaptureProtectedBounds(mainWindow, next)
 }
 
 function moveWindowVertical(delta: number): void {
@@ -309,7 +388,7 @@ function moveWindowVertical(delta: number): void {
   )
   state.currentX = next.x
   state.currentY = next.y
-  mainWindow.setBounds(next)
+  setCaptureProtectedBounds(mainWindow, next)
 }
 
 function setWindowDimensions(width: number, height: number): void {
@@ -326,7 +405,8 @@ function setWindowDimensions(width: number, height: number): void {
   if (currentHudState === "expanded") return
   const bounds = mainWindow.getBounds()
   const workArea = screen.getDisplayMatching(bounds).workArea
-  mainWindow.setBounds(
+  setCaptureProtectedBounds(
+    mainWindow,
     clampWindowBounds(
       {
         ...bounds,
@@ -500,6 +580,7 @@ async function initializeApplication(): Promise<void> {
     )
   )
   const diagnosticService = new DiagnosticService()
+  let liveQualification: LiveQualificationProcedure | undefined
   const historyRepository = new HistoryRepository(
     records as unknown as RecordRepository<object>,
     new EncryptedRecordRepository<HistoryArchiveV1 | object>(
@@ -604,6 +685,12 @@ async function initializeApplication(): Promise<void> {
     audio.updateElapsed(source, elapsedMs)
   )
   createWindow()
+  if (process.argv.includes("--qualification-collect") && state.mainWindow) {
+    state.mainWindow.webContents.once("did-finish-load", () => {
+      showMainWindow()
+      state.mainWindow?.webContents.send("settings:show")
+    })
+  }
   const screenshots = new ScreenshotHelper(
     new EncryptedBlobRepository(
       storagePaths,
@@ -769,13 +856,54 @@ async function initializeApplication(): Promise<void> {
           : "x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture"
       ),
     getCaptureVerificationState: async () => {
+      await importRootQualificationReceipt(captureVerification)
       const record = await captureVerification.load()
       if (!record) return "Not verified"
-      return captureVerificationState(record, {
-        ...record.tuple,
-        appSemver: app.getVersion(),
-        architecture
+      const current = observedCaptureTuple(record)
+      return current ? captureVerificationState(record, current) : "Retest required"
+    },
+    beginMeetQualification: (scope) => {
+      if (!process.argv.includes("--qualification-collect")) {
+        throw new Error("Meet qualification must be launched by the pinned release command")
+      }
+      const root = process.env.INTERVIEWCOPILOT_QUALIFICATION_ROOT
+      const matrixRevision = process.env.INTERVIEWCOPILOT_QUALIFICATION_MATRIX
+      const tupleId = process.env.INTERVIEWCOPILOT_QUALIFICATION_TUPLE
+      const expectedScope = process.env.INTERVIEWCOPILOT_QUALIFICATION_SCOPE
+      if (!root || !matrixRevision || !tupleId || expectedScope !== scope) {
+        throw new Error("Pinned qualification identity is missing or disagrees")
+      }
+      const procedure = scope === "entire-display" ? "M01" : "M02"
+      liveQualification = new LiveQualificationProcedure(
+        path.join(root, matrixRevision, tupleId, procedure)
+      )
+      return liveQualification.begin(scope, matrixRevision, tupleId)
+    },
+    sampleMeetQualification: (markerFrame, controlFrame) => {
+      if (!liveQualification) throw new Error("Meet qualification is not active")
+      liveQualification.sample(markerFrame, controlFrame)
+    },
+    acknowledgeMeetObserver: (value) => {
+      if (!liveQualification || !value || typeof value !== "object") {
+        throw new Error("Meet qualification is not active")
+      }
+      const receipt = value as Record<string, unknown>
+      if (
+        typeof receipt.pairingChallenge !== "string" ||
+        typeof receipt.observerId !== "string" ||
+        receipt.receivedPresentation !== true
+      ) throw new Error("Observer receipt is malformed")
+      liveQualification.acknowledgeObserver({
+        pairingChallenge: receipt.pairingChallenge,
+        observerId: receipt.observerId,
+        receivedPresentation: true
       })
+    },
+    completeMeetQualification: () => {
+      if (!liveQualification) throw new Error("Meet qualification is not active")
+      const result = liveQualification.finish()
+      liveQualification = undefined
+      return result
     },
     previewDiagnostics: async () =>
       diagnosticService.preview({

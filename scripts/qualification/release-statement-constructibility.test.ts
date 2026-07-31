@@ -1,10 +1,14 @@
 import { describe, expect, it } from "vitest"
 import { validateReleaseStatement } from "../../electron/qualification/releaseStatement"
 import { createReleaseStatement } from "../../tests/qualification/testSupport"
+import { parseCanonicalJson } from "../../electron/qualification/protocol"
 
 describe("detached release statement", () => {
   it("binds a post-build statement without changing pre-commit matrix identity", () => {
     const fixture = createReleaseStatement()
+    const envelope = parseCanonicalJson(fixture.bytes) as { payload: Record<string, unknown>; signature: { keyId: string } }
+    expect(envelope.payload).not.toHaveProperty("keyId")
+    expect(envelope.payload.releaseKeyId).toBe(envelope.signature.keyId)
     expect(
       validateReleaseStatement(fixture.bytes, fixture.matrix, fixture.context)
     ).toMatchObject({

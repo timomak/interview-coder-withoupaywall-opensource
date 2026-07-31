@@ -31,6 +31,7 @@
         { "sectionId": "testing", "text": "Test concurrency, clock skew, expiry, tenant isolation, store outage, and maintain the policy behind one interface." }
       ],
       "expectedAffectedSectionIds": ["failure"],
+      "expectedRuntimeAffectedSectionIds": ["explain"],
       "forbiddenFields": ["practiceScore", "practiceFeedback", "postAnswerScore"],
       "assertions": ["ambiguity", "trade-off", "time-complexity", "space-complexity", "production-failure", "testing", "maintainability"]
     },
@@ -50,6 +51,7 @@
         { "sectionId": "operations", "text": "Migrate with dual reads and shadow dispatch, assign Scheduler on-call ownership, budget storage/egress/compute, and confirm the cost ceiling." }
       ],
       "expectedAffectedSectionIds": ["reliability"],
+      "expectedRuntimeAffectedSectionIds": ["deep-dives-trade-offs"],
       "forbiddenFields": ["practiceScore", "practiceFeedback", "postAnswerScore"],
       "assertions": ["five-sections", "2-4-unit-estimates", "assumptions", "vendor-neutral", "regional-failure", "migration", "ownership", "cost", "scoped-follow-up-hash"]
     },
@@ -69,6 +71,7 @@
         { "sectionId": "follow-ups", "text": "Be ready to explain how disagreements were resolved and how rollout ownership was assigned." }
       ],
       "expectedAffectedSectionIds": ["talking-points", "full-answer", "evidence"],
+      "expectedRuntimeAffectedSectionIds": ["answer", "star", "evidence"],
       "forbiddenFields": ["practiceScore", "practiceFeedback", "postAnswerScore"],
       "assertions": ["dossier-only", "leadership", "influence", "organizational-impact", "unknown-metrics-qualitative", "concise-full-same-facts", "correction-scoped-hash"]
     }

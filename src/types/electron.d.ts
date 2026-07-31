@@ -139,6 +139,16 @@ export interface ElectronAPI {
   getCaptureVerificationState: () => Promise<
     import("../../electron/privacy/verificationRecord").CaptureVerificationState
   >
+  beginMeetQualification: (
+    scope: import("../../electron/privacy/verificationRecord").CaptureScope
+  ) => Promise<import("../../electron/qualification/liveProcedure").LiveProcedureSession>
+  sampleMeetQualification: (markerFrame: number, controlFrame: number) => Promise<void>
+  acknowledgeMeetObserver: (receipt: {
+    pairingChallenge: string
+    observerId: string
+    receivedPresentation: true
+  }) => Promise<void>
+  completeMeetQualification: () => Promise<{ runId: string; rawRoot: string }>
   previewDiagnostics: () => Promise<
     import("../../electron/diagnostics/DiagnosticService").DiagnosticPreview
   >

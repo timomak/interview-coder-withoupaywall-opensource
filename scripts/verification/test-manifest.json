@@ -604,12 +604,17 @@
     {
       "path": "electron/window/captureProtection.integration.test.ts",
       "name": "protects before every show and reconfiguration",
-      "sha256": "d2e4be1190be2adb19ef8f944ecdbd5def2427b80c19f97515475b60b2e4ce49"
+      "sha256": "10a0a69b74b0309fdc409682bb3d09cdad14f27b4c2a204158b0d699ac332fd6"
     },
     {
       "path": "electron/window/captureProtection.integration.test.ts",
       "name": "routes pointer changes through the production shell primitive",
-      "sha256": "d2e4be1190be2adb19ef8f944ecdbd5def2427b80c19f97515475b60b2e4ce49"
+      "sha256": "10a0a69b74b0309fdc409682bb3d09cdad14f27b4c2a204158b0d699ac332fd6"
+    },
+    {
+      "path": "electron/window/captureProtection.integration.test.ts",
+      "name": "reapplies protection around every production bounds mutation",
+      "sha256": "10a0a69b74b0309fdc409682bb3d09cdad14f27b4c2a204158b0d699ac332fd6"
     },
     {
       "path": "electron/window/composerVisibility.test.ts",
@@ -1184,12 +1189,12 @@
     {
       "path": "scripts/qualification/canonical-bytes.test.ts",
       "name": "reproduces JCS bytes digests and exact signature domains",
-      "sha256": "a3d42b8631b357a50a9108122e4b457c30fa6e3d20e784f7aa6383cf31052dbe"
+      "sha256": "b63bd2029717349fd8a46cc88fab1ea6fe12109eb39cd8ab5fc8566cce258a4a"
     },
     {
       "path": "scripts/qualification/collector-write-once.test.ts",
-      "name": "rejects second writes regeneration and mutate-then-restore history",
-      "sha256": "2e3f681ea27ace239f056844ed505f17c87f74c8b829cbb3768f205b44c58a5d"
+      "name": "persists first-touch recovery and rejects replay or final mutation",
+      "sha256": "f35a4b079b556d378409d9c9eb03f71541a7d964e8d9f545751faafc3efeee34"
     },
     {
       "path": "scripts/qualification/evidence-graph.test.ts",
@@ -1199,12 +1204,12 @@
     {
       "path": "scripts/qualification/meet-artifact-validator.test.ts",
       "name": "rejects incomplete cyclic final-byte-mutated untrusted or local-only evidence",
-      "sha256": "bb9929876ac68313c562f8ca921884efb512b8f496eb8b0f607cf586cce7fe00"
+      "sha256": "df416e3d5e73f7d01f6f278e6c8894943e0ae6bccb5afddc6682a84f752871b6"
     },
     {
       "path": "scripts/qualification/release-statement-constructibility.test.ts",
       "name": "binds a post-build statement without changing pre-commit matrix identity",
-      "sha256": "6e5109ffa0835be5b0dafa8cb892335049f07e39f129968dac69308f7355340d"
+      "sha256": "7625e4d27efbc2bf9b2a67a2d9ea097da32624536ba8e12c67f794e60b42cd70"
     },
     {
       "path": "scripts/qualification/schema-inventory.test.ts",
@@ -1219,7 +1224,7 @@
     {
       "path": "src/features/privacy/MeetVerification.test.tsx",
       "name": "guides only qualified scopes with remote confirmation",
-      "sha256": "809f40f53a465463067d8d8384307b94aa88b3ce057eb732941cb9200535644e"
+      "sha256": "d02b304adfcbf0efe37d12d2d7446b21a90baa6186f536974befe847bfcd3752"
     },
     {
       "path": "tests/qualification/claimPolicy.test.ts",
@@ -1259,7 +1264,12 @@
     {
       "path": "tests/qualification/staffLivePositioning.contract.test.ts",
       "name": "enforces the frozen Live-first Staff-plus corpus",
-      "sha256": "539f61dbfba9676f15f38d1965d859916965de91aae2d02a9b7056facf8f20dc"
+      "sha256": "9b04bfb407bdefb6269737a714c9070a1b022c15ded0ef0512061f8d3c498d68"
+    },
+    {
+      "path": "tests/qualification/liveProcedure.e2e.test.ts",
+      "name": "enforces pairing one-shot marker control and 120-second collection",
+      "sha256": "948f2013e055f9e3efdaa7f86d89777b2d1c90db0c92a4d517a399212ecc123f"
     }
   ]
 }

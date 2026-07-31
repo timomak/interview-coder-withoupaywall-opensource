@@ -87,6 +87,14 @@ const electronAPI = {
     ipcRenderer.invoke(AUDIO_OPEN_SYSTEM_SETTINGS_CHANNEL, source),
   getCaptureVerificationState: () =>
     ipcRenderer.invoke("privacy:verification-state"),
+  beginMeetQualification: (scope: "entire-display" | "specific-window") =>
+    ipcRenderer.invoke("privacy:qualification-begin", scope),
+  sampleMeetQualification: (markerFrame: number, controlFrame: number) =>
+    ipcRenderer.invoke("privacy:qualification-sample", { markerFrame, controlFrame }),
+  acknowledgeMeetObserver: (receipt: unknown) =>
+    ipcRenderer.invoke("privacy:qualification-observer", receipt),
+  completeMeetQualification: () =>
+    ipcRenderer.invoke("privacy:qualification-complete"),
   previewDiagnostics: () =>
     ipcRenderer.invoke("privacy:diagnostics-preview"),
   exportDiagnostics: (preview: unknown) =>

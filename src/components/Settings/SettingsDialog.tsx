@@ -151,7 +151,7 @@ export function SettingsDialog({
           <ProfileSettings />
           <PromptStudio />
           <HistorySettings />
-          <MeetVerification state="Not verified" />
+          <MeetVerification />
           <fieldset>
             <legend className="mb-2 text-sm font-medium">HUD density</legend>
             {(["compact", "comfortable"] as const).map((value) => (

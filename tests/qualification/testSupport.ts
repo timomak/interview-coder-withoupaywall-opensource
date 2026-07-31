@@ -79,7 +79,7 @@ export function signedEnvelope(
     payload,
     signature: {
       algorithm: "Ed25519",
-      keyId: payload.keyId,
+      keyId: payload.keyId ?? payload.releaseKeyId,
       value: signature.toString("base64url")
     }
   }
@@ -114,9 +114,69 @@ export function createValidBundle(includeBundleSignature = false) {
     scope: identity.scope,
     runId: identity.runId
   }
-  for (const path of EVIDENCE_MEMBER_PATHS.slice(1)) {
-    files.set(path, path.endsWith(".json") ? Buffer.from("{}") : Buffer.from("fixture\n"))
+  const releaseBinding = {
+    appSemver: "1.0.19",
+    packageSha256: "1".repeat(64),
+    signingTeamId: "ABCDEFGHIJ",
+    signingCertificateSha256: "2".repeat(64),
+    notarizationTicketId: "notary-ticket-001"
   }
+  const event = (eventType: string, payload: Record<string, unknown>) =>
+    Buffer.from(`${canonicalJson({
+      schemaVersion: 1,
+      sequence: "0",
+      at: "2026-07-31T12:00:16.000Z",
+      monotonicNs: "17000000000",
+      frameId: "0",
+      eventType,
+      payload
+    })}\n`)
+  files.set("raw/local-preflight.json", Buffer.from(canonicalJson({
+    schemaVersion: 1,
+    kind: "qualification-local-preflight",
+    ...common,
+    packageSha256: releaseBinding.packageSha256,
+    participantCount: "2",
+    network: { downMbps: "20", upMbps: "20", rttMillis: "40", packetLossPpm: "0" },
+    clockSkewMillis: "500",
+    diskFreeBytes: "6000000000",
+    permissions: { screenRecording: true, observerRecording: true },
+    notificationsDisabled: true
+  })))
+  files.set("raw/local-marker-events.ndjson", event("marker-render", {
+    seed: "3".repeat(64), frame: "0", quadrant: "top-left", color: "#FF00FF", sizePixels: "256"
+  }))
+  files.set("raw/local-control-events.ndjson", event("control-render", {
+    seed: "3".repeat(64), frame: "0", checkerIndex: "0", counter: "0"
+  }))
+  files.set("raw/remote-observer-events.ndjson", event("observer-pairing", {
+    observerId: "remote-observer-identity-0001",
+    pairingChallengeSha256: "4".repeat(64),
+    receivedPresentation: true
+  }))
+  files.set("raw/remote-observer.mov", Buffer.from("fixture-video-bytes"))
+  files.set("derived/frame-analysis.ndjson", event("frame-analysis", {
+    markerDetected: false, controlRecognized: true, markerContinuityPpm: "1000000"
+  }))
+  files.set("derived/control-coverage.json", Buffer.from(canonicalJson({
+    schemaVersion: 1,
+    kind: "qualification-control-coverage",
+    seed: "3".repeat(64),
+    totalFrames: "2880",
+    recognizedFrames: "2880",
+    recognizedPpm: "1000000",
+    oneSecondGapCount: "0"
+  })))
+  files.set("validation/report.json", Buffer.from(canonicalJson({
+    schemaVersion: 1,
+    kind: "qualification-content-validation",
+    ...common,
+    result: "pass",
+    markerDetectedFrames: "0",
+    markerContinuityPpm: "1000000",
+    controlRecognizedPpm: "1000000",
+    validSharedIntervalFrames: "2880"
+  })))
   const evidenceMembers = EVIDENCE_MEMBER_PATHS.slice(1).map((path) => {
     const bytes = files.get(path)!
     return { path, bytes: String(bytes.length), sha256: sha256(bytes) }
@@ -127,12 +187,12 @@ export function createValidBundle(includeBundleSignature = false) {
     procedureId: "P12-M01",
     ...common,
     app: {
-      semver: "1.0.19",
+      semver: releaseBinding.appSemver,
       commitSha: identity.expectedRcSha,
-      packageSha256: "1".repeat(64),
-      signingTeamId: "ABCDEFGHIJ",
-      signingCertificateSha256: "2".repeat(64),
-      notarizationTicketId: "notary-ticket-001"
+      packageSha256: releaseBinding.packageSha256,
+      signingTeamId: releaseBinding.signingTeamId,
+      signingCertificateSha256: releaseBinding.signingCertificateSha256,
+      notarizationTicketId: releaseBinding.notarizationTicketId
     },
     environment: {
       macOSProductVersion: "15.6.1",
@@ -191,9 +251,12 @@ export function createValidBundle(includeBundleSignature = false) {
   const evidenceManifestSha256 = sha256(files.get("evidence-manifest.json")!)
   for (const role of ["local-operator", "remote-observer"] as const) {
     const keyId = role === "local-operator" ? "local-operator-key-01" : "remote-observer-key-01"
-    const acknowledgementId = role === "local-operator"
-      ? "raw-streams-finalized"
-      : "raw-upload-complete"
+    const acknowledgementIds = role === "local-operator"
+      ? ["preflight-ready", "meet-two-party-confirmed", "personal-content-absent", "entire-display-share-selected", "remote-observation-start-received", "continuous-interval-complete", "presentation-stop-commanded", "raw-streams-finalized"]
+      : ["recorder-armed", "meet-two-party-confirmed", "entire-display-presentation-received", "presentation-pinned", "control-seed-readable", "observation-start-acknowledged", "continuous-interval-complete", "presentation-stopped", "raw-upload-complete"]
+    const acknowledgementTimes = role === "local-operator"
+      ? ["12:00:01", "12:00:02", "12:00:03", "12:00:04", "12:00:15", "12:02:14", "12:02:16", "12:02:29"]
+      : ["12:00:01", "12:00:02", "12:00:03", "12:00:04", "12:00:05", "12:00:15", "12:02:14", "12:02:15", "12:02:25"]
     files.set(
       `attestations/${role}.json`,
       Buffer.from(canonicalJson(signedEnvelope({
@@ -204,18 +267,18 @@ export function createValidBundle(includeBundleSignature = false) {
         role,
         roleId: `${role}-identity-0001`,
         keyId,
-        acknowledgements: [{
+        acknowledgements: acknowledgementIds.map((acknowledgementId, index) => ({
           acknowledgementId,
           role,
           scope: identity.scope,
           result: "acknowledged",
-          at: "2026-07-31T12:02:29.000Z",
-          monotonicNs: "150000000000"
-        }],
+          at: `2026-07-31T${acknowledgementTimes[index]}.000Z`,
+          monotonicNs: String(index < 5 ? 2_000_000_000 + index * 1_000_000_000 : 16_000_000_000 + (index - 5) * 40_000_000_000)
+        })),
         observedResult: "pass",
         deviations: [],
         aborts: [],
-        attestedAt: "2026-07-31T12:03:00.000Z",
+        attestedAt: "2026-07-31T12:02:30.000Z",
         evidenceManifestSha256
       }, trust.privateKeys[keyId], ROLE_ATTESTATION_DOMAIN)))
     )
@@ -273,7 +336,7 @@ export function createValidBundle(includeBundleSignature = false) {
       reproductionRunId: "87654321-4321-4321-8321-cba987654321"
     }
   }, trust.privateKeys["independent-reviewer-01"], INDEPENDENT_REVIEW_DOMAIN)))
-  return { ...trust, identity, files, review, bundleManifestSha256 }
+  return { ...trust, identity, releaseBinding, files, review, bundleManifestSha256 }
 }
 
 export function createReleaseStatement(trust = createTestTrust()) {
@@ -317,7 +380,6 @@ export function createReleaseStatement(trust = createTestTrust()) {
       stapledAt: "2026-07-31T12:02:00.000Z"
     }],
     releaseKeyId: "release-statement-key-01",
-    keyId: "release-statement-key-01",
     issuedAt: "2026-07-31T12:03:00.000Z"
   }
   return {

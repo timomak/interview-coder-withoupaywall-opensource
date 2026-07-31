@@ -17,6 +17,9 @@ describe("qualification canonical bytes", () => {
     expect(nodeBytes).toBe(independentSerializerBytes)
     expect(sha256(nodeBytes)).toBe(sha256(independentSerializerBytes))
     expect(parseCanonicalJson(nodeBytes)).toEqual(value)
+    expect(canonicalJson({ "\uE000": 1, "😀": 2 })).toBe("{\"😀\":2,\"\":1}")
+    expect(() => parseCanonicalJson(Buffer.from([0x7b, 0x22, 0xff, 0x22, 0x3a, 0x31, 0x7d])))
+      .toThrow()
     for (const invalid of [
       "{ \"a\":1}",
       "{\"a\":1.0}",

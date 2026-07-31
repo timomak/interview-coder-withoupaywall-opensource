@@ -60,6 +60,7 @@ import type {
 } from "../src/features/history/types"
 import type { DiagnosticPreview } from "./diagnostics/DiagnosticService"
 import type { CaptureVerificationState } from "./privacy/verificationRecord"
+import type { LiveProcedureSession } from "./qualification/liveProcedure"
 
 export interface IpcHandlerDependencies {
   readonly orchestrator: InterviewOrchestrator
@@ -129,6 +130,10 @@ export interface IpcHandlerDependencies {
   readonly previewDiagnostics: () => Promise<DiagnosticPreview>
   readonly exportDiagnostics: (preview: DiagnosticPreview) => Promise<boolean>
   readonly getCaptureVerificationState: () => Promise<CaptureVerificationState>
+  readonly beginMeetQualification: (scope: "entire-display" | "specific-window") => LiveProcedureSession
+  readonly sampleMeetQualification: (markerFrame: number, controlFrame: number) => void
+  readonly acknowledgeMeetObserver: (receipt: unknown) => void
+  readonly completeMeetQualification: () => { readonly runId: string; readonly rawRoot: string }
 }
 
 export function initializeIpcHandlers(
@@ -149,6 +154,22 @@ export function initializeIpcHandlers(
   )
   ipcMain.handle("privacy:verification-state", () =>
     dependencies.getCaptureVerificationState()
+  )
+  ipcMain.handle("privacy:qualification-begin", (_event, scope: unknown) => {
+    if (scope !== "entire-display" && scope !== "specific-window") throw new Error("Qualification scope is invalid")
+    return dependencies.beginMeetQualification(scope)
+  })
+  ipcMain.handle("privacy:qualification-sample", (_event, value: unknown) => {
+    if (!value || typeof value !== "object") throw new Error("Qualification sample is invalid")
+    const sample = value as { markerFrame?: unknown; controlFrame?: unknown }
+    if (!Number.isSafeInteger(sample.markerFrame) || !Number.isSafeInteger(sample.controlFrame)) throw new Error("Qualification sample is invalid")
+    dependencies.sampleMeetQualification(sample.markerFrame as number, sample.controlFrame as number)
+  })
+  ipcMain.handle("privacy:qualification-observer", (_event, value: unknown) =>
+    dependencies.acknowledgeMeetObserver(value)
+  )
+  ipcMain.handle("privacy:qualification-complete", () =>
+    dependencies.completeMeetQualification()
   )
   ipcMain.handle("privacy:diagnostics-preview", () =>
     dependencies.previewDiagnostics()

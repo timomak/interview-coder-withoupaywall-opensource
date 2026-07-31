@@ -54,11 +54,12 @@ export function validateReleaseStatement(
     matrix,
     RELEASE_STATEMENT_DOMAIN,
     "qualification-release-statement",
-    "release-statement"
+    "release-statement",
+    "releaseKeyId"
   )
   requireClosedObject(
     payload,
-    ["schemaVersion", "kind", "expectedRcSha", "matrixPath", "matrixBlobSha256", "matrixRevision", "appSemver", "packages", "releaseKeyId", "keyId", "issuedAt"],
+    ["schemaVersion", "kind", "expectedRcSha", "matrixPath", "matrixBlobSha256", "matrixRevision", "appSemver", "packages", "releaseKeyId", "issuedAt"],
     "release statement payload"
   )
   if (
@@ -70,7 +71,6 @@ export function validateReleaseStatement(
     payload.matrixBlobSha256 !== context.matrixBlobSha256 ||
     payload.matrixRevision !== context.matrixRevision ||
     payload.appSemver !== context.appSemver ||
-    payload.releaseKeyId !== payload.keyId ||
     !UTC_MILLIS_PATTERN.test(String(payload.issuedAt)) ||
     Number.isNaN(Date.parse(String(payload.issuedAt))) ||
     !Array.isArray(payload.packages)
