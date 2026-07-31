@@ -106,6 +106,9 @@ describe("audio session source state machine", () => {
     expect(result.ok).toBe(true)
     expect(runtime.cleanups).toEqual(["reset"])
     expect(result.state.lifecycle).toBe("idle")
+    if (result.state.lifecycle !== "idle") {
+      throw new Error("Reset did not return the interview to Idle")
+    }
     expect(result.state.lastArchive?.session.audio.sources).toMatchObject({
       microphone: { phase: "off", intent: "off" },
       system: { phase: "off", intent: "off" }

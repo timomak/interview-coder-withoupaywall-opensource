@@ -45,12 +45,13 @@ compilerHost.resolveModuleNameLiterals = /** @type {NonNullable<import("typescri
   options
 ) =>
   moduleLiterals.map((literal) => {
-    if (
-      literal.text === "./testHelpers.cjs" &&
-      normalizeRepositoryPath(path.relative(root, containingFile)).startsWith(
-        "electron/storage/"
+    const resolvedRepositoryPath = normalizeRepositoryPath(
+      path.relative(
+        root,
+        path.resolve(path.dirname(containingFile), literal.text)
       )
-    ) {
+    )
+    if (resolvedRepositoryPath === p03TestHelper) {
       return {
         resolvedModule: {
           resolvedFileName: p03TestHelperDeclaration,
