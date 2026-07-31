@@ -866,5 +866,5 @@
     "privilegedBoundaryCrossed": false,
     "candidateInvoked": false
   },
-  "nextSafeAction": "Execute frozen IC-M03/P09 packet v3/interviewcopilot/milestone-IC-M03-packet-1.json at SHA-256 876623dceb4186fb341a78a3079b25451374c9fd220ff32d642bcad1baed452e from exact approved IC-M02 base e12930fb4ea7018d829bcc8366bed9f39d799c6d using three non-overlapping work packages and one integration owner. Protected integration of upstream PR 155 remains externally repository-permission blocked. Do not invoke A04, deploy, or unpause legacy automation."
+  "nextSafeAction": "Freeze and execute IC-M04/P10-P11 from exact approved IC-M03 revision 72a6d2517cdfad5e2f8ed92f6c90e223dc2c2821. Retain stacked draft PRs 1, 2, and 3 unchanged; protected integration of upstream PR 155 remains externally repository-permission blocked. Do not invoke A04, deploy, or unpause legacy automation."
 }

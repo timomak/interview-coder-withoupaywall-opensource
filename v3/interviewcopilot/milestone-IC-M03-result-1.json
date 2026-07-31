@@ -1,0 +1,102 @@
+{
+  "schemaVersion": 1,
+  "projectKey": "InterviewCopilot",
+  "milestoneId": "IC-M03",
+  "title": "macOS audio capture and transcription",
+  "requirementIds": [
+    "P09",
+    "M-07"
+  ],
+  "recordedAt": "2026-07-31T12:44:59+02:00",
+  "status": "APPROVED_AWAITING_DEPENDENCY_INTEGRATION",
+  "candidate": {
+    "revision": "72a6d2517cdfad5e2f8ed92f6c90e223dc2c2821",
+    "baseRevision": "e12930fb4ea7018d829bcc8366bed9f39d799c6d",
+    "branch": "codex/ic-m03-audio",
+    "remote": "fork/codex/ic-m03-audio",
+    "remoteRevision": "72a6d2517cdfad5e2f8ed92f6c90e223dc2c2821",
+    "worktree": "/Users/thirdfacedev/.codex/worktrees/ic-m03/TimoCodes",
+    "worktreeClean": true
+  },
+  "pullRequest": {
+    "repository": "timomak/interview-coder-withoupaywall-opensource",
+    "number": 3,
+    "url": "https://github.com/timomak/interview-coder-withoupaywall-opensource/pull/3",
+    "state": "OPEN_DRAFT",
+    "base": "codex/ic-m02-live-modes",
+    "head": "codex/ic-m03-audio",
+    "baseRevision": "e12930fb4ea7018d829bcc8366bed9f39d799c6d",
+    "headRevision": "72a6d2517cdfad5e2f8ed92f6c90e223dc2c2821",
+    "mergeable": true
+  },
+  "outcome": {
+    "delivered": [
+      "explicit source-scoped macOS microphone and system-audio capture",
+      "offline local Whisper transcription with pinned model and arm64/x64 packaged-engine qualification under network denial",
+      "explicitly consented Apple Speech transcription with reviewed native adapter and packaged permission disclosure",
+      "started-handshake gating, native timestamp provenance, rolling bounded segments, and partial/final transcript delivery",
+      "source-scoped live failure and retry state with deterministic Reset, shutdown, crash, and cancellation cleanup",
+      "no retained raw audio and enforced encrypted finalized-transcript retention preference",
+      "hard cancellation and process timeout across runtime and both production transcription adapters"
+    ],
+    "rollback": "Disable both capture sources, cancel and reap every helper/transcriber, remove ephemeral buffers, preserve encrypted session state, and restore Local/Remote transcription to off.",
+    "dependency": "IC-M02 and its IC-M01/upstream dependencies remain stacked open drafts, so IC-M03 is approved but not integrated."
+  },
+  "verification": {
+    "toolchain": {
+      "node": "20.20.2",
+      "npm": "10.8.2"
+    },
+    "install": "PASS_923_PACKAGES",
+    "dependencyAudit": "INHERITED_51_VULNERABILITIES_6_LOW_13_MODERATE_28_HIGH_4_CRITICAL",
+    "policy": "PASS",
+    "lint": "PASS_293_EXECUTABLE_117_TEST_FILES",
+    "typecheck": "PASS_293_EXECUTABLE_FILES",
+    "legacy": "1_PASS_0_FAIL_0_SKIP",
+    "unit": "217_PASS_0_FAIL_0_SKIP_117_FILES_AUTHENTICATED_EXACT_SHA",
+    "testManifest": "217_NAMED_TESTS_EXECUTED_AND_ACCEPTED",
+    "p09": "35_PASS_0_FAIL_0_SKIP",
+    "audioNative": "16_PASS_0_FAIL_0_SKIP",
+    "audioEngine": "4_PASS_0_FAIL_0_SKIP_ARM64_X64_NETWORK_DENIED",
+    "audioRetention": "4_PASS_0_FAIL_0_SKIP",
+    "swiftBoundary": "8_PASS_0_FAIL_0_SKIP",
+    "package": "PASS_SIGNED_X64_AND_ARM64_LOCAL_PACKAGES_NOT_NOTARIZED_NOT_DEPLOYED",
+    "packageInventory": {
+      "status": "PASS",
+      "asarEntries": 9044,
+      "outerEntries": 118,
+      "asarSha256": "07f83e879f089fdfa72e13a6958877b6243d9f1732193380ad0b1240cb6e0fe2"
+    },
+    "packageHashes": {
+      "x64Dmg": "7411b07bcc34453a58560a3bad6d2527f407232f8f9e1e5b7d3e575dac3e94ca",
+      "arm64Dmg": "55e7f3744be48d1152af368774d8fa2101ac23b77f7b8c36f53566872f131c24",
+      "x64Zip": "c665a8a4ec70c78697c2451f7799ded5823f109dfc431ee2f94c453f8a30dfd8",
+      "arm64Zip": "14db1bc73f655919f0969e091337850a728fc05b531a1805d34ff26e8bcfe0ab"
+    }
+  },
+  "review": {
+    "reviewer": "/root/ic_m03_high_review",
+    "risk": "HIGH",
+    "initialDisposition": "REQUEST_CHANGES_COMPLETE_BATCH_B01_THROUGH_B07",
+    "finalReviewedRevision": "72a6d2517cdfad5e2f8ed92f6c90e223dc2c2821",
+    "finalDisposition": "APPROVE",
+    "closedFindingIds": [
+      "IC-M03-B01",
+      "IC-M03-B02",
+      "IC-M03-B03",
+      "IC-M03-B04",
+      "IC-M03-B05",
+      "IC-M03-B06",
+      "IC-M03-B07"
+    ]
+  },
+  "boundaries": {
+    "privilegedHelperInvoked": false,
+    "a04Invoked": false,
+    "mergePerformed": false,
+    "deploymentPerformed": false,
+    "upstreamPr155Mutated": false,
+    "legacyAutomationUnpaused": false
+  },
+  "nextSafeAction": "Freeze and execute IC-M04 Prompt Studio and durable lifecycle from exact approved IC-M03 revision 72a6d2517cdfad5e2f8ed92f6c90e223dc2c2821 while retaining all stacked draft dependencies unchanged."
+}
