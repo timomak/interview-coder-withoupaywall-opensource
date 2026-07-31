@@ -1125,6 +1125,51 @@
       "path": "src/features/prompts/templateSnapshot.test.ts",
       "name": "locks template revision for active session",
       "sha256": "1abb23432308e71b592e3d09670b0de29a710610f5ce2a8a4afc05ebca0c55f4"
+    },
+    {
+      "path": "electron/history/archiveProjection.test.ts",
+      "name": "projects complete session and excludes audio",
+      "sha256": "e42368c4a29ce39980305375c10f1469fa1e8415d1f7155886df66563dc1b01c"
+    },
+    {
+      "path": "electron/history/deletionIsolation.test.ts",
+      "name": "deletes only selected archived sessions",
+      "sha256": "6264c27178ceadb28eba72e0bb277aaeb7ade3808e388fda47387aea0fd5c0f5"
+    },
+    {
+      "path": "electron/history/encryptedSearch.test.ts",
+      "name": "searches in memory without plaintext index",
+      "sha256": "6007e31793c94850a28836b462040dddebb5387b0b1914db7e918b6a1406a7d9"
+    },
+    {
+      "path": "electron/history/exportPathSafety.test.ts",
+      "name": "confines and atomically writes explicit exports",
+      "sha256": "28e568c4892fe212ccb702671d38e91152c9c33a6877eea2556b8e6f2cc90f48"
+    },
+    {
+      "path": "electron/history/exportRoundTrip.test.ts",
+      "name": "exports one safe versioned session with consent",
+      "sha256": "1c97e342f0f2c5b6a862d9796bd0dd9e1d29b01e40a46e6d06a0a48ded249aad"
+    },
+    {
+      "path": "electron/history/m09Projection.test.ts",
+      "name": "rebuilds the disposable M-09 projection without changing canonical archives",
+      "sha256": "cee869dd86f9a30b2d3ea4c4bacec6cf4547deca93c25a4b02c6236c9985fc2c"
+    },
+    {
+      "path": "electron/history/readOnlyArchive.test.ts",
+      "name": "inspects History without resuming live systems",
+      "sha256": "ace8256a29777df62b1c1abe68a8e651f3e907d2348d288caf6de0828891f847"
+    },
+    {
+      "path": "src/features/history/HistorySettings.test.tsx",
+      "name": "exposes exact Settings-only controls and retention",
+      "sha256": "1cffb9614f0ea45fc8849279e6de7fc6b9e50b6bd8d3cce871d5d8f1ae9a7218"
+    },
+    {
+      "path": "src/features/history/crashDecision.test.tsx",
+      "name": "offers explicit safe recovery without duplicate archive",
+      "sha256": "d29d2aa14981ffd439d8388ed7d1cbf318e0220385038dc0e928b6fa0cb28c85"
     }
   ]
 }

@@ -75,6 +75,19 @@ export interface ElectronAPI {
   restoreBuiltInPrompt: (
     mode: import("../shared/interview").InterviewMode
   ) => Promise<import("../features/prompts/types").PromptCatalog>
+  listHistory: () => Promise<import("../features/history/types").HistoryCatalog>
+  searchHistory: (
+    query: string
+  ) => Promise<import("../features/history/types").HistoryCatalog>
+  openHistory: (
+    sessionId: string
+  ) => Promise<import("../features/history/types").HistoryArchiveV1>
+  deleteHistory: (
+    request: import("../features/history/types").HistoryDeleteRequest
+  ) => Promise<import("../features/history/types").HistoryCatalog>
+  exportHistory: (
+    request: import("../features/history/types").HistoryExportRequest
+  ) => Promise<import("../features/history/types").HistoryExportReceipt>
   dispatchInterviewCommand: (
     command: InterviewCommand
   ) => Promise<CommandResult>

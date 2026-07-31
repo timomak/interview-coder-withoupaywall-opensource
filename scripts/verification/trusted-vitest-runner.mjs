@@ -149,6 +149,26 @@ const SUITES = {
     "src/features/prompts/modeBoundary.test.ts",
     "src/features/prompts/templateContentSafety.test.tsx"
   ],
+  p11: [
+    "src/features/history/crashDecision.test.tsx",
+    "electron/history/archiveProjection.test.ts",
+    "src/features/history/HistorySettings.test.tsx",
+    "electron/history/encryptedSearch.test.ts",
+    "electron/history/exportRoundTrip.test.ts",
+    "electron/history/exportPathSafety.test.ts",
+    "electron/history/deletionIsolation.test.ts",
+    "electron/history/readOnlyArchive.test.ts",
+    "electron/history/m09Projection.test.ts"
+  ],
+  "history-roundtrip": [
+    "electron/history/archiveProjection.test.ts",
+    "electron/history/exportRoundTrip.test.ts",
+    "electron/history/m09Projection.test.ts"
+  ],
+  "plaintext-scan": [
+    "electron/history/encryptedSearch.test.ts",
+    "electron/storage/plaintextLeak.test.ts"
+  ],
   "electron-shell": [
     "electron/window/windowVisibility.test.ts",
     "electron/window/composerVisibility.test.ts",

@@ -70,6 +70,14 @@ import { NativeAudioCaptureRuntime } from "./audio/native/NativeAudioCaptureRunt
 import { AppleSpeechTranscriber } from "./audio/transcription/AppleSpeechTranscriber"
 import { LocalWhisperTranscriber } from "./audio/transcription/LocalWhisperTranscriber"
 import { loadAudioArtifactManifest } from "./audio/transcription/artifactManifest"
+import {
+  HistoryDeletionJournal,
+  HistoryExportService,
+  HistoryRepository,
+  HistoryService
+} from "./history"
+import type { HistoryArchiveV1 } from "../src/features/history/types"
+import type { RecordRepository } from "./storage"
 
 const isDevelopment = process.env.NODE_ENV === "development"
 
@@ -475,6 +483,28 @@ async function initializeApplication(): Promise<void> {
       "templates"
     )
   )
+  const historyRepository = new HistoryRepository(
+    records as unknown as RecordRepository<object>,
+    new EncryptedRecordRepository<HistoryArchiveV1 | object>(
+      storagePaths,
+      keyService,
+      undefined,
+      "history"
+    )
+  )
+  const history = new HistoryService(
+    historyRepository,
+    new HistoryDeletionJournal(
+      new EncryptedRecordRepository(
+        storagePaths,
+        keyService,
+        undefined,
+        "history-journals"
+      ),
+      historyRepository
+    ),
+    new HistoryExportService()
+  )
   const orchestrator = createOrchestrator(
     executables,
     new ActiveSessionRepository(
@@ -698,6 +728,11 @@ async function initializeApplication(): Promise<void> {
       prompts.delete(id, confirmedName),
     selectPromptTemplate: (mode, id) => prompts.select(mode, id),
     restoreBuiltInPrompt: (mode) => prompts.restoreBuiltIn(mode),
+    listHistory: () => history.list(),
+    searchHistory: (query) => history.search(query),
+    openHistory: (sessionId) => history.open(sessionId),
+    deleteHistory: (request) => history.delete(request),
+    exportHistory: (request) => history.export(request),
     getAudioSessionState: () => audio.current(),
     dispatchAudioCommand: (command) => audio.command(command),
     getAudioPreferences: () => audioPreferences.load(),
@@ -747,6 +782,7 @@ async function initializeApplication(): Promise<void> {
       state.mainWindow?.webContents.send("settings:show")
   })
   await audio.cleanupStartup()
+  await history.recover()
   await orchestrator.inspectRecovery()
   screen.on("display-removed", () => setHudState(currentHudState))
   screen.on("display-metrics-changed", () => setHudState(currentHudState))

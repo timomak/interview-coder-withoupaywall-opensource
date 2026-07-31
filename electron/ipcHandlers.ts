@@ -51,6 +51,13 @@ import type {
   ReviewedPromptChange
 } from "../src/features/prompts/types"
 import { INTERVIEW_MODES, type InterviewMode } from "../src/shared/interview"
+import type {
+  HistoryArchiveV1,
+  HistoryCatalog,
+  HistoryDeleteRequest,
+  HistoryExportReceipt,
+  HistoryExportRequest
+} from "../src/features/history/types"
 
 export interface IpcHandlerDependencies {
   readonly orchestrator: InterviewOrchestrator
@@ -101,6 +108,13 @@ export interface IpcHandlerDependencies {
   readonly restoreBuiltInPrompt: (
     mode: InterviewMode
   ) => Promise<PromptCatalog>
+  readonly listHistory: () => Promise<HistoryCatalog>
+  readonly searchHistory: (query: string) => Promise<HistoryCatalog>
+  readonly openHistory: (sessionId: string) => Promise<HistoryArchiveV1>
+  readonly deleteHistory: (request: HistoryDeleteRequest) => Promise<HistoryCatalog>
+  readonly exportHistory: (
+    request: HistoryExportRequest
+  ) => Promise<HistoryExportReceipt>
   readonly getAudioSessionState: () => AudioSessionState
   readonly dispatchAudioCommand: (
     command: unknown
@@ -245,6 +259,56 @@ export function initializeIpcHandlers(
       throw new Error("Template mode is malformed")
     }
     return dependencies.restoreBuiltInPrompt(value as InterviewMode)
+  })
+  ipcMain.handle("history:list", () => dependencies.listHistory())
+  ipcMain.handle("history:search", (_event, value: unknown) => {
+    if (typeof value !== "string" || value.length > 512) {
+      throw new Error("History search is malformed")
+    }
+    return dependencies.searchHistory(value)
+  })
+  ipcMain.handle("history:open", (_event, value: unknown) => {
+    if (typeof value !== "string" || value.length === 0 || value.length > 512) {
+      throw new Error("History identity is malformed")
+    }
+    return dependencies.openHistory(value)
+  })
+  ipcMain.handle("history:delete", (_event, value: unknown) => {
+    if (
+      typeof value !== "object" ||
+      value === null ||
+      (value as { confirmed?: unknown }).confirmed !== true ||
+      !Array.isArray((value as { sessionIds?: unknown }).sessionIds) ||
+      !(value as { sessionIds: unknown[] }).sessionIds.every(
+        (id) => typeof id === "string" && id.length > 0 && id.length <= 512
+      )
+    ) throw new Error("History deletion is malformed")
+    return dependencies.deleteHistory(value as HistoryDeleteRequest)
+  })
+  ipcMain.handle("history:export", (_event, value: unknown) => {
+    if (
+      typeof value !== "object" ||
+      value === null ||
+      Object.keys(value).some(
+        (key) =>
+          ![
+            "sessionId",
+            "format",
+            "destination",
+            "disclosureAccepted",
+            "overwriteConfirmed"
+          ].includes(key)
+      ) ||
+      typeof (value as { sessionId?: unknown }).sessionId !== "string" ||
+      !["markdown", "json"].includes(
+        String((value as { format?: unknown }).format)
+      ) ||
+      typeof (value as { destination?: unknown }).destination !== "string" ||
+      (value as { disclosureAccepted?: unknown }).disclosureAccepted !== true ||
+      typeof (value as { overwriteConfirmed?: unknown }).overwriteConfirmed !==
+        "boolean"
+    ) throw new Error("History export is malformed")
+    return dependencies.exportHistory(value as HistoryExportRequest)
   })
   ipcMain.handle(INTERVIEW_COMMAND_CHANNEL, (_event, command: unknown) => {
     const parsed = parseInterviewCommand(command)
