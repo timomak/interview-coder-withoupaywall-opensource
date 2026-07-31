@@ -26,11 +26,16 @@ it("rejects invariant and capability escalation", () => {
     mode: "coding",
     modeSchema: PROMPT_MODE_SCHEMAS.coding,
     name: "Safe",
+    selectedInstructions: "Prefer a worked example.",
     instructions: "Prefer a worked example.",
     resolution: {
       schemaVersion: 1,
       mode: "coding",
       resolvedAt: "2026-07-31T10:00:00.000Z",
+      task: {
+        fingerprintSha256: "0".repeat(64),
+        factorModel: "token-overlap-specificity-recency-provenance-v1"
+      },
       decisions: []
     }
   }

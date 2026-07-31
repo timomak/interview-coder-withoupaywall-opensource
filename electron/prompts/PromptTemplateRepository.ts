@@ -3,6 +3,7 @@ import type { RecordRepository } from "../storage"
 import type { InterviewMode } from "../../src/shared/interview"
 import {
   BUILT_IN_PROMPTS,
+  createPromptDraft,
   defaultBuiltIn,
   validatePromptTemplate
 } from "../../src/features/prompts/model"
@@ -30,6 +31,7 @@ function stable(value: unknown): string {
   if (Array.isArray(value)) return `[${value.map(stable).join(",")}]`
   if (typeof value === "object" && value !== null) {
     return `{${Object.entries(value as Record<string, unknown>)
+      .filter(([, item]) => item !== undefined)
       .sort(([left], [right]) => left.localeCompare(right, "en-US"))
       .map(([key, item]) => `${JSON.stringify(key)}:${stable(item)}`)
       .join(",")}}`
@@ -39,11 +41,24 @@ function stable(value: unknown): string {
 
 function reviewDigest(
   draft: PromptTemplateDraft,
-  reviewedAt: string
+  reviewedAt: string,
+  baseSha256: string,
+  candidateSha256: string
 ): string {
   return createHash("sha256")
-    .update(stable({ schemaVersion: 1, kind: "reviewed-prompt-change", draft, reviewedAt }))
+    .update(stable({
+      schemaVersion: 1,
+      kind: "reviewed-prompt-change",
+      draft,
+      reviewedAt,
+      baseSha256,
+      candidateSha256
+    }))
     .digest("hex")
+}
+
+function objectSha256(value: unknown): string {
+  return createHash("sha256").update(stable(value)).digest("hex")
 }
 
 function validateSelection(value: unknown): PromptSelectionV1 {
@@ -76,6 +91,8 @@ function classification(value: unknown): "newer-version" | "malformed" {
 }
 
 export class PromptTemplateRepository {
+  private mutationTail: Promise<void> = Promise.resolve()
+
   constructor(
     private readonly records: RecordRepository<PromptStoredRecord | object>,
     private readonly now: () => string = () => new Date().toISOString()
@@ -125,53 +142,109 @@ export class PromptTemplateRepository {
     return { templates, selections, quarantine }
   }
 
-  review(draft: PromptTemplateDraft): ReviewedPromptChange {
-    const candidate = validatePromptTemplate(draft.candidate)
-    if (candidate.kind !== "user" || draft.changes.length === 0) {
+  private reconstructDraft(
+    supplied: PromptTemplateDraft,
+    catalog: PromptCatalog
+  ): { readonly draft: PromptTemplateDraft; readonly base?: PromptTemplateV1 } {
+    const candidate = validatePromptTemplate(supplied.candidate)
+    const base = supplied.baseId
+      ? catalog.templates.find((template) => template.id === supplied.baseId)
+      : undefined
+    if (
+      (supplied.baseId !== undefined && !base) ||
+      (base && base.revision !== supplied.baseRevision) ||
+      (!base && supplied.baseRevision !== 0)
+    ) {
+      throw new Error("Prompt review base is stale or missing")
+    }
+    const reconstructed = createPromptDraft({
+      base,
+      id: candidate.id,
+      mode: candidate.mode,
+      name: candidate.name,
+      instructions: candidate.instructions,
+      source: supplied.source === "built-in" ? "manual-edit" : supplied.source,
+      updatedAt: candidate.updatedAt
+    })
+    if (
+      stable(reconstructed.candidate) !== stable(candidate) ||
+      stable(reconstructed.changes) !== stable(supplied.changes)
+    ) {
+      throw new Error("Prompt semantic diff does not match the persisted base")
+    }
+    return { draft: reconstructed, base }
+  }
+
+  private exclusive<T>(operation: () => Promise<T>): Promise<T> {
+    const run = this.mutationTail.then(operation, operation)
+    this.mutationTail = run.then(() => undefined, () => undefined)
+    return run
+  }
+
+  async review(draft: PromptTemplateDraft): Promise<ReviewedPromptChange> {
+    const reconstructed = this.reconstructDraft(draft, await this.catalog())
+    const candidate = reconstructed.draft.candidate
+    if (candidate.kind !== "user" || reconstructed.draft.changes.length === 0) {
       throw new Error("A semantic user-template change is required")
     }
     const reviewedAt = this.now()
-    const normalized = { ...draft, candidate }
+    const baseSha256 = objectSha256(reconstructed.base ?? null)
+    const candidateSha256 = objectSha256(candidate)
     return {
       schemaVersion: 1,
       kind: "reviewed-prompt-change",
-      draft: normalized,
+      draft: reconstructed.draft,
       reviewedAt,
-      digest: reviewDigest(normalized, reviewedAt)
+      baseSha256,
+      candidateSha256,
+      digest: reviewDigest(
+        reconstructed.draft,
+        reviewedAt,
+        baseSha256,
+        candidateSha256
+      )
     }
   }
 
   async apply(reviewed: ReviewedPromptChange): Promise<PromptCatalog> {
-    if (
-      reviewed.schemaVersion !== 1 ||
-      reviewed.kind !== "reviewed-prompt-change" ||
-      reviewed.digest !== reviewDigest(reviewed.draft, reviewed.reviewedAt)
-    ) {
-      throw new Error("Prompt change has not passed semantic review")
-    }
-    const template = validatePromptTemplate(reviewed.draft.candidate)
-    if (template.kind !== "user" || reviewed.draft.changes.length === 0) {
-      throw new Error("Reviewed prompt change is invalid")
-    }
-    const catalog = await this.catalog()
-    const existing = catalog.templates.find((candidate) => candidate.id === template.id)
-    if (existing?.kind === "built-in") throw new Error("Built-in templates are immutable")
-    const stale =
-      reviewed.draft.baseRevision === 0
-        ? existing !== undefined || template.revision !== 1
-        : !existing ||
-          existing.kind !== "user" ||
-          existing.revision !== reviewed.draft.baseRevision ||
-          reviewed.draft.baseId !== existing.id ||
-          template.revision !== existing.revision + 1
-    if (stale) {
-      throw new Error("Prompt changed after review")
-    }
-    await this.records.put(storageId(template.id), template, RECORD_TYPE)
-    return this.catalog()
+    return this.exclusive(async () => {
+      if (
+        reviewed.schemaVersion !== 1 ||
+        reviewed.kind !== "reviewed-prompt-change" ||
+        reviewed.digest !== reviewDigest(
+          reviewed.draft,
+          reviewed.reviewedAt,
+          reviewed.baseSha256,
+          reviewed.candidateSha256
+        )
+      ) {
+        throw new Error("Prompt change has not passed semantic review")
+      }
+      const catalog = await this.catalog()
+      const reconstructed = this.reconstructDraft(reviewed.draft, catalog)
+      const template = reconstructed.draft.candidate
+      if (
+        objectSha256(reconstructed.base ?? null) !== reviewed.baseSha256 ||
+        objectSha256(template) !== reviewed.candidateSha256
+      ) {
+        throw new Error("Prompt candidate bytes changed after review")
+      }
+      const target = catalog.templates.find((candidate) => candidate.id === template.id)
+      if (target?.kind === "built-in") throw new Error("Built-in templates are immutable")
+      if (reconstructed.base?.id === template.id) {
+        if (!target || target.revision !== reviewed.draft.baseRevision) {
+          throw new Error("Prompt changed after review")
+        }
+      } else if (target) {
+        throw new Error("Prompt changed after review")
+      }
+      await this.records.put(storageId(template.id), template, RECORD_TYPE)
+      return this.catalog()
+    })
   }
 
   async delete(id: string, confirmedName: string): Promise<PromptCatalog> {
+    return this.exclusive(async () => {
     const catalog = await this.catalog()
     const template = catalog.templates.find((candidate) => candidate.id === id)
     if (!template || template.kind === "built-in") {
@@ -180,12 +253,27 @@ export class PromptTemplateRepository {
     if (confirmedName !== template.name) throw new Error("Template deletion is not confirmed")
     await this.records.remove(storageId(id))
     for (const mode of CORE_MODES) {
-      if (catalog.selections[mode] === id) await this.restoreBuiltIn(mode)
+      if (catalog.selections[mode] === id) {
+        await this.records.put(
+          storageId(`selection:${mode}`),
+          {
+            schemaVersion: PROMPT_SCHEMA_VERSION,
+            migration: PROMPT_MIGRATION,
+            recordType: "selection",
+            mode,
+            templateId: defaultBuiltIn(mode).id,
+            updatedAt: this.now()
+          },
+          RECORD_TYPE
+        )
+      }
     }
     return this.catalog()
+    })
   }
 
   async select(mode: InterviewMode, templateId: string): Promise<PromptCatalog> {
+    return this.exclusive(async () => {
     const catalog = await this.catalog()
     if (!catalog.templates.some((template) => template.id === templateId && template.mode === mode)) {
       throw new Error("Template does not belong to the selected mode")
@@ -203,6 +291,7 @@ export class PromptTemplateRepository {
       RECORD_TYPE
     )
     return this.catalog()
+    })
   }
 
   restoreBuiltIn(mode: InterviewMode): Promise<PromptCatalog> {
@@ -238,6 +327,7 @@ export class PromptTemplateRepository {
       mode,
       modeSchema: selected.modeSchema,
       name: selected.name,
+      selectedInstructions: selected.instructions,
       instructions: resolution.instructions.join("\n"),
       resolution: resolution.record
     }

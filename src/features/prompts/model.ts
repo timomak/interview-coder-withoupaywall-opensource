@@ -4,6 +4,7 @@ import {
   PROMPT_MODE_SCHEMAS,
   PROMPT_SCHEMA_VERSION,
   type PromptSemanticChange,
+  type PromptChatSession,
   type PromptTemplateDraft,
   type PromptTemplateV1
 } from "./types"
@@ -155,7 +156,10 @@ export function createPromptDraft(input: {
   if (input.base?.kind === "built-in" && input.id === input.base.id) {
     throw new Error("Built-in templates are immutable")
   }
-  const revision = input.base?.kind === "user" ? input.base.revision + 1 : 1
+  const revision =
+    input.base?.kind === "user" && input.base.id === input.id
+      ? input.base.revision + 1
+      : 1
   const candidate = validatePromptTemplate({
     schemaVersion: PROMPT_SCHEMA_VERSION,
     migration: PROMPT_MIGRATION,
@@ -174,27 +178,84 @@ export function createPromptDraft(input: {
   })
   return {
     source: input.source,
-    baseId: input.base?.kind === "user" ? input.base.id : undefined,
-    baseRevision: input.base?.kind === "user" ? input.base.revision : 0,
+    baseId: input.base?.id,
+    baseRevision: input.base?.revision ?? 0,
     candidate,
     changes: semanticChanges(input.base, candidate)
   }
 }
 
-export function applyGuidedPromptAnswer(
-  base: PromptTemplateV1 | undefined,
-  input: Omit<Parameters<typeof createPromptDraft>[0], "base" | "instructions" | "source"> & {
-    readonly answer: string
+const CHAT_QUESTIONS = [
+  "What should this variant help you do differently?",
+  "When should that behavior matter most?",
+  "What style or constraint should the proposal preserve?"
+] as const
+
+export function startPromptChat(input: {
+  readonly mode: InterviewMode
+  readonly draftId: string
+  readonly at: string
+  readonly base?: PromptTemplateV1
+}): PromptChatSession {
+  return {
+    schemaVersion: 1,
+    mode: input.mode,
+    draftId: input.draftId,
+    baseId: input.base?.id,
+    answers: [],
+    messages: [
+      { role: "guide", content: CHAT_QUESTIONS[0], at: input.at }
+    ]
   }
-): PromptTemplateDraft {
-  const answer = normalizedText(input.answer, "Guided answer", 2_000)
-  const instructions = base?.instructions
-    ? `${base.instructions.trim()}\n${answer}`
-    : answer
-  return createPromptDraft({
-    ...input,
+}
+
+export function answerPromptChat(
+  session: PromptChatSession,
+  answer: string,
+  base: PromptTemplateV1 | undefined,
+  at: string
+): PromptChatSession {
+  if (session.proposal) throw new Error("Prompt Chat proposal is already complete")
+  if (session.baseId !== base?.id) throw new Error("Prompt Chat base changed")
+  const normalized = normalizedText(answer, "Prompt Chat answer", 2_000)
+  const answers = [...session.answers, normalized]
+  const messages = [
+    ...session.messages,
+    { role: "user" as const, content: normalized, at }
+  ]
+  const nextQuestion = CHAT_QUESTIONS[answers.length]
+  if (nextQuestion) {
+    return {
+      ...session,
+      answers,
+      messages: [...messages, { role: "guide", content: nextQuestion, at }]
+    }
+  }
+  const instructions = [
+    base?.instructions,
+    `Goal: ${answers[0]}`,
+    `Apply when: ${answers[1]}`,
+    `Preserve: ${answers[2]}`
+  ].filter(Boolean).join("\n")
+  const proposal = createPromptDraft({
     base,
+    id: session.draftId,
+    mode: session.mode,
+    name: base?.kind === "user" ? base.name : `${base?.name ?? "Custom"} variant`,
     instructions,
-    source: "guided-chat"
+    source: "guided-chat",
+    updatedAt: at
   })
+  const explanation =
+    "The proposal keeps the selected mode schema fixed and turns your goal, applicability, and style answers into one typed template revision. Review its semantic diff before saving."
+  return {
+    ...session,
+    answers,
+    messages: [
+      ...messages,
+      { role: "guide", content: explanation, at }
+    ],
+    proposal,
+    explanation
+  }
 }

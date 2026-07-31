@@ -9,7 +9,8 @@ const PROVENANCE_RANK = { system: 3, "built-in": 2, user: 1 } as const
 export function resolvePromptInstructions(
   mode: InterviewMode,
   contenders: readonly PromptResolutionContender[],
-  resolvedAt: string
+  resolvedAt: string,
+  taskFingerprintSha256 = "0".repeat(64)
 ): { readonly instructions: readonly string[]; readonly record: PromptResolutionRecord } {
   const applicable = contenders.filter((candidate) =>
     candidate.applicableModes.includes(mode)
@@ -37,6 +38,10 @@ export function resolvePromptInstructions(
       schemaVersion: 1,
       mode,
       resolvedAt,
+      task: {
+        fingerprintSha256: taskFingerprintSha256,
+        factorModel: "token-overlap-specificity-recency-provenance-v1"
+      },
       decisions: winners.map(({ winner, candidates }) => ({
         topic: winner.topic,
         winnerId: winner.id,

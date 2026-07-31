@@ -28,7 +28,7 @@ it("migrates encrypts and isolates invalid templates", async () => {
       source: "manual-edit",
       updatedAt: "2026-07-31T10:00:00.000Z"
     })
-    await repository.apply(repository.review(draft))
+    await repository.apply(await repository.review(draft))
     await repository.select("behavioral", draft.candidate.id)
     await records.put("newer", { schemaVersion: 2, recordType: "template", marker: "NEWER_SECRET" })
     await records.put("malformed", { schemaVersion: 1, recordType: "template", marker: "MALFORMED_SECRET" })

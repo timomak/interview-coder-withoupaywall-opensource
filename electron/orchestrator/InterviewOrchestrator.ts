@@ -54,7 +54,10 @@ import type {
   TranscriptSegmentV1
 } from "../../src/shared/audio"
 import { parseAudioAnalysisPayload } from "./audioAnalysis"
-import { providerTemplateEnvelope } from "../prompts"
+import {
+  providerTemplateEnvelope,
+  resolveTemplateForTask
+} from "../prompts"
 import type { PromptSessionSnapshot } from "../../src/features/prompts/types"
 
 export interface ProviderConversationFactory {
@@ -629,13 +632,14 @@ export class InterviewOrchestrator {
     const turnId = this.id()
     const turn = this.beginTurn(turnId)
     try {
+      const template = await this.resolveTemplateForTask(input)
       const attempt = await this.prepareContext(runtime)
       const result = await runtime.provider.runTurn(
         JSON.stringify({
           route,
           input,
           context: JSON.parse(serializeContextPacket(attempt.packet)),
-          template: providerTemplateEnvelope(active(this.state)),
+          template,
           response: "compact"
         }),
         turn.controller.signal,
@@ -682,6 +686,7 @@ export class InterviewOrchestrator {
     let syntheticStoryToSave: BehavioralStory | undefined
     let behavioralBodyToPublish: string | undefined
     try {
+      await this.resolveTemplateForTask(input)
       const attempt = await this.prepareContext(runtime)
       const bestEffort = deriveBestEffortDecision(active(this.state), input)
       const session = active(this.state)
@@ -939,6 +944,7 @@ export class InterviewOrchestrator {
     const turnId = this.id()
     const turn = this.beginTurn(turnId)
     try {
+      await this.resolveTemplateForTask(input)
       const attempt = await this.prepareContext(runtime)
       const session = active(this.state)
       const result = await runtime.provider.runTurn(
@@ -1271,6 +1277,20 @@ export class InterviewOrchestrator {
   private requireRuntime(): ActiveRuntime {
     if (!this.runtime) throw new Error("No provider conversation is active")
     return this.runtime
+  }
+
+  private async resolveTemplateForTask(task: string) {
+    const session = active(this.state)
+    const current = session.snapshot.template
+    if (!current) return undefined
+    const template = resolveTemplateForTask({
+      template: current,
+      context: session.snapshot.context,
+      task,
+      resolvedAt: this.now()
+    })
+    await this.dispatch({ type: "template-resolution-updated", template })
+    return providerTemplateEnvelope(active(this.state))
   }
 
   private async dispatch(

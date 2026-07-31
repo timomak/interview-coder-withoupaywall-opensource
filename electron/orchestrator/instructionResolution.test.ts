@@ -1,6 +1,12 @@
 import { expect, it } from "vitest"
 import { resolvePromptInstructions } from "../../src/features/prompts"
-import type { PromptResolutionContender } from "../../src/features/prompts"
+import {
+  PROMPT_MODE_SCHEMAS,
+  type PromptResolutionContender,
+  type PromptSessionSnapshot
+} from "../../src/features/prompts"
+import { resolveTemplateForTask } from "../prompts"
+import { reduceAccepted, startedSession } from "./testSupport"
 
 it("resolves and records conflicts deterministically", () => {
   const contenders: PromptResolutionContender[] = [
@@ -48,4 +54,56 @@ it("resolves and records conflicts deterministically", () => {
   })
   expect(JSON.stringify(forward.record)).not.toContain("SECRET_")
   expect(JSON.stringify(forward.record)).not.toContain("WRONG_MODE")
+
+  const snapshot: PromptSessionSnapshot = {
+    schemaVersion: 1,
+    templateId: "user:task-aware",
+    templateRevision: 3,
+    mode: "system-design",
+    modeSchema: PROMPT_MODE_SCHEMAS["system-design"],
+    name: "Task aware",
+    selectedInstructions: "Prefer bottleneck analysis.",
+    instructions: "Prefer bottleneck analysis.",
+    resolution: forward.record
+  }
+  const resolved = resolveTemplateForTask({
+    template: snapshot,
+    context: [
+      {
+        id: "detail:old",
+        category: "instructions",
+        revision: 1,
+        content: "Prefer a generic overview."
+      },
+      {
+        id: "detail:new",
+        category: "instructions",
+        revision: 2,
+        content: "Explain database bottlenecks."
+      }
+    ],
+    task: "Design a database and explain bottlenecks",
+    resolvedAt: "2026-07-31T13:00:00.000Z"
+  })
+  expect(resolved.resolution.task.fingerprintSha256).toMatch(/^[a-f0-9]{64}$/)
+  expect(resolved.resolution.decisions.flatMap((decision) => decision.contenderIds)).toEqual(
+    expect.arrayContaining(["user:task-aware", "context:detail:old", "context:detail:new"])
+  )
+  expect(JSON.stringify(resolved.resolution)).not.toContain("database")
+  expect(JSON.stringify(resolved.resolution)).not.toContain("noFallback")
+
+  const initial = startedSession({
+    mode: "system-design",
+    provider: "codex",
+    model: "gpt-5.4",
+    responseMode: "fast",
+    language: "typescript",
+    context: [],
+    template: snapshot
+  })
+  const updated = reduceAccepted(initial, {
+    type: "template-resolution-updated",
+    template: resolved
+  })
+  expect(updated.snapshot.template?.resolution).toEqual(resolved.resolution)
 })

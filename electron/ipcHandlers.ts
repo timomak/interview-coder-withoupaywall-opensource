@@ -93,7 +93,7 @@ export interface IpcHandlerDependencies {
   readonly getPromptCatalog: () => Promise<PromptCatalog>
   readonly reviewPromptChange: (
     draft: PromptTemplateDraft
-  ) => ReviewedPromptChange
+  ) => Promise<ReviewedPromptChange>
   readonly savePromptChange: (
     reviewed: ReviewedPromptChange
   ) => Promise<PromptCatalog>

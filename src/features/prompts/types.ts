@@ -63,7 +63,26 @@ export interface ReviewedPromptChange {
   readonly kind: "reviewed-prompt-change"
   readonly draft: PromptTemplateDraft
   readonly reviewedAt: string
+  readonly baseSha256: string
+  readonly candidateSha256: string
   readonly digest: string
+}
+
+export interface PromptChatMessage {
+  readonly role: "guide" | "user"
+  readonly content: string
+  readonly at: string
+}
+
+export interface PromptChatSession {
+  readonly schemaVersion: 1
+  readonly mode: InterviewMode
+  readonly draftId: string
+  readonly baseId?: string
+  readonly answers: readonly string[]
+  readonly messages: readonly PromptChatMessage[]
+  readonly proposal?: PromptTemplateDraft
+  readonly explanation?: string
 }
 
 export interface PromptResolutionContender {
@@ -96,6 +115,10 @@ export interface PromptResolutionRecord {
   readonly schemaVersion: 1
   readonly mode: InterviewMode
   readonly resolvedAt: string
+  readonly task: {
+    readonly fingerprintSha256: string
+    readonly factorModel: "token-overlap-specificity-recency-provenance-v1"
+  }
   readonly decisions: readonly PromptResolutionDecision[]
 }
 
@@ -106,6 +129,7 @@ export interface PromptSessionSnapshot {
   readonly mode: InterviewMode
   readonly modeSchema: PromptModeSchema
   readonly name: string
+  readonly selectedInstructions?: string
   readonly instructions: string
   readonly resolution: PromptResolutionRecord
 }

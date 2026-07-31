@@ -159,6 +159,10 @@ export type InterviewSessionEvent =
       readonly snapshot: StartSnapshot
     })
   | (EventEnvelope & {
+      readonly type: "template-resolution-updated"
+      readonly template: import("../../features/prompts/types").PromptSessionSnapshot
+    })
+  | (EventEnvelope & {
       readonly type: "context-update-started"
     })
   | (EventEnvelope & {

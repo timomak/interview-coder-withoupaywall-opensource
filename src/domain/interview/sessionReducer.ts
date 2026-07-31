@@ -159,6 +159,25 @@ function activeReduction(
   if (envelopeError) return reject(state, envelopeError)
 
   switch (event.type) {
+    case "template-resolution-updated": {
+      const current = state.snapshot.template
+      if (
+        !current ||
+        event.template.templateId !== current.templateId ||
+        event.template.templateRevision !== current.templateRevision ||
+        event.template.mode !== state.snapshot.mode ||
+        event.template.modeSchema !== current.modeSchema ||
+        event.template.name !== current.name ||
+        (event.template.selectedInstructions ?? event.template.instructions) !==
+          (current.selectedInstructions ?? current.instructions)
+      ) return reject(state, "invalid-transition")
+      return {
+        accepted: true,
+        state: advance(state, event, {
+          snapshot: { ...state.snapshot, template: structuredClone(event.template) }
+        })
+      }
+    }
     case "context-update-started":
       return {
         accepted: true,

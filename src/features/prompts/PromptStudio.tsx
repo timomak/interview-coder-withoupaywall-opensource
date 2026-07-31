@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useState } from "react"
 import type { InterviewMode } from "../../shared/interview"
 import {
-  applyGuidedPromptAnswer,
-  createPromptDraft
+  answerPromptChat,
+  createPromptDraft,
+  startPromptChat
 } from "./model"
 import type {
   PromptCatalog,
+  PromptChatSession,
   PromptTemplateV1,
   ReviewedPromptChange
 } from "./types"
@@ -41,6 +43,7 @@ export function PromptStudio() {
   const [instructions, setInstructions] = useState("")
   const [source, setSource] = useState<"duplicate" | "guided-chat" | "manual-edit">("manual-edit")
   const [guidedAnswer, setGuidedAnswer] = useState("")
+  const [chat, setChat] = useState<PromptChatSession>()
   const [reviewed, setReviewed] = useState<ReviewedPromptChange>()
   const [deleteConfirmation, setDeleteConfirmation] = useState("")
   const [status, setStatus] = useState("")
@@ -58,12 +61,25 @@ export function PromptStudio() {
   const edit = (template: PromptTemplateV1) => {
     setMode(template.mode)
     setBaseId(template.id)
-    setDraftId(template.kind === "built-in" ? newId() : template.id)
-    setName(template.kind === "built-in" ? `${template.name} copy` : template.name)
+    setDraftId(template.id)
+    setName(template.name)
     setInstructions(template.instructions)
-    setSource(template.kind === "built-in" ? "duplicate" : "manual-edit")
+    setSource("manual-edit")
+    setChat(undefined)
     setReviewed(undefined)
     setDeleteConfirmation("")
+  }
+
+  const duplicate = (template: PromptTemplateV1) => {
+    setMode(template.mode)
+    setBaseId(template.id)
+    setDraftId(newId())
+    setName(`${template.name} copy`)
+    setInstructions(template.instructions)
+    setSource("duplicate")
+    setReviewed(undefined)
+    setChat(undefined)
+    setStatus(`Duplicating ${template.kind} template through a reviewed diff.`)
   }
 
   const resetDraft = (nextMode = mode) => {
@@ -74,6 +90,7 @@ export function PromptStudio() {
     setInstructions("")
     setSource("manual-edit")
     setReviewed(undefined)
+    setChat(undefined)
   }
 
   const draft = () => createPromptDraft({
@@ -88,7 +105,15 @@ export function PromptStudio() {
 
   const review = async () => {
     try {
-      setReviewed(await bridge.reviewPromptChange(draft()))
+      const proposed = chat?.proposal
+      const candidate =
+        proposed &&
+        proposed.candidate.id === draftId &&
+        proposed.candidate.name === name &&
+        proposed.candidate.instructions === instructions
+          ? proposed
+          : draft()
+      setReviewed(await bridge.reviewPromptChange(candidate))
       setStatus("Review the semantic diff, then save.")
     } catch (error) {
       setStatus(error instanceof Error ? error.message : "Review failed.")
@@ -108,20 +133,30 @@ export function PromptStudio() {
     }
   }
 
+  const beginChat = () => {
+    setChat(startPromptChat({
+      mode,
+      draftId,
+      base,
+      at: new Date().toISOString()
+    }))
+    setGuidedAnswer("")
+    setReviewed(undefined)
+  }
+
   const addGuided = () => {
     try {
-      const next = applyGuidedPromptAnswer(base, {
-        id: draftId,
-        mode,
-        name,
-        answer: guidedAnswer,
-        updatedAt: new Date().toISOString()
-      })
-      setInstructions(next.candidate.instructions)
-      setSource("guided-chat")
+      if (!chat) throw new Error("Start Prompt Chat first")
+      const next = answerPromptChat(chat, guidedAnswer, base, new Date().toISOString())
+      setChat(next)
+      if (next.proposal) {
+        setName(next.proposal.candidate.name)
+        setInstructions(next.proposal.candidate.instructions)
+        setSource("guided-chat")
+      }
       setGuidedAnswer("")
       setReviewed(undefined)
-      setStatus("Guided change added to the same review draft.")
+      setStatus(next.proposal ? "Prompt Chat proposal is ready for semantic review." : "Prompt Chat recorded your answer.")
     } catch (error) {
       setStatus(error instanceof Error ? error.message : "Guided edit failed.")
     }
@@ -147,6 +182,9 @@ export function PromptStudio() {
             <button type="button" onClick={() => edit(template)}>
               {template.name} {template.kind === "built-in" ? "(built-in)" : ""}
             </button>
+            <button type="button" className="ml-2" onClick={() => duplicate(template)}>
+              Duplicate
+            </button>
             {catalog?.selections[mode] === template.id ? " — selected" : ""}
             <button
               type="button"
@@ -170,6 +208,7 @@ export function PromptStudio() {
         Name
         <input
           aria-label="Template name"
+          disabled={base?.kind === "built-in" && draftId === base.id}
           value={name}
           onChange={(event) => {
             setName(event.target.value)
@@ -183,6 +222,7 @@ export function PromptStudio() {
         Manage instructions
         <textarea
           aria-label="Template instructions"
+          disabled={base?.kind === "built-in" && draftId === base.id}
           value={instructions}
           onChange={(event) => {
             setInstructions(event.target.value)
@@ -193,7 +233,7 @@ export function PromptStudio() {
         />
       </label>
       <label className="block text-sm">
-        Guided change
+        Prompt Chat answer
         <textarea
           aria-label="Guided template answer"
           value={guidedAnswer}
@@ -201,7 +241,19 @@ export function PromptStudio() {
           className="mt-1 w-full rounded bg-black p-2"
         />
       </label>
-      <button type="button" onClick={addGuided}>Add guided change</button>
+      <button type="button" onClick={beginChat}>Start Prompt Chat</button>
+      <button type="button" className="ml-2" onClick={addGuided}>Answer Prompt Chat</button>
+      {chat ? (
+        <ol aria-label="Prompt Chat conversation" className="text-xs">
+          {chat.messages.map((message, index) => (
+            <li key={`${message.at}-${index}`}>
+              <strong>{message.role === "guide" ? "Prompt guide" : "You"}:</strong>{" "}
+              {message.content}
+            </li>
+          ))}
+        </ol>
+      ) : null}
+      {chat?.explanation ? <p aria-label="Prompt proposal explanation">{chat.explanation}</p> : null}
       <button type="button" className="ml-2" onClick={() => void review()}>Review changes</button>
       {reviewed ? (
         <div aria-label="Semantic template diff" className="space-y-1 text-xs">

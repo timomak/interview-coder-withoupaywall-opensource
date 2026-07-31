@@ -23,7 +23,8 @@ it("protects built-ins and completes user CRUD", async () => {
     source: "duplicate",
     updatedAt: "2026-07-31T10:00:00.000Z"
   })
-  await repository.apply(repository.review(createdDraft))
+  const reviewedCreate = await repository.review(createdDraft)
+  await repository.apply(reviewedCreate)
   await repository.select("coding", createdDraft.candidate.id)
   expect((await repository.catalog()).selections.coding).toBe("user:coding-reviewer")
 
@@ -36,11 +37,36 @@ it("protects built-ins and completes user CRUD", async () => {
     source: "manual-edit",
     updatedAt: "2026-07-31T10:00:03.000Z"
   })
-  const afterEdit = await repository.apply(repository.review(editedDraft))
+  const afterEdit = await repository.apply(await repository.review(editedDraft))
   expect(afterEdit.templates.find((value) => value.id === editedDraft.candidate.id)).toMatchObject({
     name: "Coding reviewer renamed",
     revision: 2
   })
+  const duplicateUser = createPromptDraft({
+    base: editedDraft.candidate,
+    id: "user:coding-reviewer-copy",
+    mode: "coding",
+    name: "Coding reviewer copy",
+    instructions: editedDraft.candidate.instructions,
+    source: "duplicate",
+    updatedAt: "2026-07-31T10:00:04.000Z"
+  })
+  await repository.apply(await repository.review(duplicateUser))
+  expect(duplicateUser.candidate.revision).toBe(1)
+  await expect(repository.review({
+    ...duplicateUser,
+    changes: []
+  })).rejects.toThrow("semantic diff")
+  await expect(repository.apply({
+    ...reviewedCreate,
+    draft: {
+      ...reviewedCreate.draft,
+      candidate: {
+        ...reviewedCreate.draft.candidate,
+        instructions: "Changed after authorization"
+      }
+    }
+  })).rejects.toThrow("semantic review")
   await expect(repository.delete(editedDraft.candidate.id, "wrong")).rejects.toThrow("confirmed")
   await repository.delete(editedDraft.candidate.id, editedDraft.candidate.name)
   const afterDelete = await repository.catalog()

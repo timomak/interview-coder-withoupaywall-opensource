@@ -27,7 +27,7 @@ it("locks template revision for active session", async () => {
     source: "manual-edit",
     updatedAt: "2026-07-31T10:00:00.000Z"
   })
-  await prompts.apply(prompts.review(first))
+  await prompts.apply(await prompts.review(first))
   await prompts.select("system-design", first.candidate.id)
   const orchestrator = new InterviewOrchestrator({
     providerFactory: new FakeProviderFactory(),
@@ -50,7 +50,7 @@ it("locks template revision for active session", async () => {
     source: "manual-edit",
     updatedAt: "2026-07-31T10:00:04.000Z"
   })
-  await prompts.apply(prompts.review(edited))
+  await prompts.apply(await prompts.review(edited))
   expect(active.snapshot.template?.templateRevision).toBe(1)
   expect((await prompts.snapshot("system-design")).templateRevision).toBe(2)
 })
