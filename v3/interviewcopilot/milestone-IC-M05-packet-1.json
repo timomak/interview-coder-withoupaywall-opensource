@@ -1,0 +1,81 @@
+{
+  "schemaVersion": 1,
+  "projectKey": "InterviewCopilot",
+  "milestoneId": "IC-M05",
+  "title": "macOS release and Google Meet qualification",
+  "requirementIds": [
+    "P12",
+    "M-10"
+  ],
+  "frozenAt": "2026-07-31T14:04:50+02:00",
+  "status": "FROZEN_IMPLEMENTATION_AUTHORIZED",
+  "sourceAuthority": {
+    "packetRevision": "P00-R9",
+    "commit": "02ee6ddec78d6e4ea9e2de3c0303ffd6bc9f45bf",
+    "path": "docs/implementation/phase-execution-packet.md",
+    "section": "P12",
+    "milestoneMapId": "IC-M05"
+  },
+  "base": {
+    "revision": "9b6672464d16389b6315cbe0c17d48569714530e",
+    "milestone": "IC-M04",
+    "pullRequest": 4
+  },
+  "candidate": {
+    "branch": "codex/ic-m05-release",
+    "worktree": "/Users/thirdfacedev/.codex/worktrees/ic-m05/TimoCodes"
+  },
+  "workPackages": [
+    {
+      "id": "IC-M05-W1",
+      "title": "Release hardening and qualification",
+      "mutableTargets": [
+        "macos/release",
+        "signing",
+        "meet-qualification"
+      ]
+    }
+  ],
+  "requiredOutcome": [
+    "macOS-only arm64/x64 package policy with exact separate parent and inherited entitlement allowlists",
+    "packaged first-frame capture-protection trace, scoped recovery, M-10 exact-tuple verification state, local-only redacted diagnostics, and qualified claim/deferred-scope policy",
+    "frozen three-case Live-first Staff-plus corpus and deterministic contract",
+    "closed pre-commit matrix and trust registry plus detached post-RC statement, canonical schema, evidence graph, collector, validator, and independent-review controls",
+    "guided entire-display and specific-window Google Meet procedures requiring independent remote confirmation",
+    "release documentation, SBOM, vulnerability disposition, and explicit unsupported platform/app/scope deferrals"
+  ],
+  "nonGoals": [
+    "browser-tab certification",
+    "Zoom, Teams, Discord, Windows, or Linux support",
+    "generic Test My Setup",
+    "anti-proctoring, process hiding, monitoring evasion, or universal undetectability",
+    "analytics, crash upload, deployment, or automatic local-preview pass"
+  ],
+  "gateOrder": [
+    "design",
+    "build",
+    "self-test",
+    "independent HIGH-risk review",
+    "single authoritative complete suite at exact approved candidate",
+    "mechanical integration guards",
+    "final external signing and two-device live qualification boundary"
+  ],
+  "externalBoundary": {
+    "requiredOnlyAfterSafeWork": true,
+    "items": [
+      "Developer ID signing and notarization credentials",
+      "exact current-stable arm64 and x64 matrix machines",
+      "second physical device and independent remote Google Meet observer"
+    ],
+    "doesNotBlockImplementation": true
+  },
+  "rollback": "Retain the last accepted stacked revision, revoke temporary signing or qualification resources, invalidate M-10 on tuple/build change, and publish no unsupported claim.",
+  "prohibitions": {
+    "invokeA04": false,
+    "invokePrivilegedHelper": false,
+    "merge": false,
+    "deploy": false,
+    "mutateUpstreamPr155": false,
+    "unpauseLegacyAutomation": false
+  }
+}
