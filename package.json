@@ -53,7 +53,7 @@
     "generate:sbom": "npm sbom --sbom-format spdx > docs/macos-release/sbom.spdx.json",
     "run-prod": "cross-env NODE_ENV=production electron ./dist-electron/main.js",
     "package": "npm run package:mac",
-    "package:mac": "npm run build && node scripts/qualification/package-mac.mjs"
+    "package:mac": "npm run build:runtime && node scripts/qualification/package-mac.mjs"
   },
   "build": {
     "appId": "com.interviewcopilot.desktop",

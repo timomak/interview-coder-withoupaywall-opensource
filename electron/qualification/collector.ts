@@ -10,6 +10,15 @@ interface TouchRecord {
   readonly sha256: string
 }
 
+interface FrozenRecord extends TouchRecord {
+  readonly device: string
+  readonly inode: string
+  readonly ctimeNs: string
+  readonly uid: number
+  readonly gid: number
+  readonly mode: number
+}
+
 function syncDirectory(directory: string): void {
   const fd = fs.openSync(directory, fs.constants.O_RDONLY)
   try { fs.fsyncSync(fd) } finally { fs.closeSync(fd) }
@@ -32,6 +41,14 @@ export class QualificationCollector {
   private readonly stateRoot: string
   private readonly touchRoot: string
   private readonly frozenRoot: string
+
+  private finalizedPath(): string {
+    return path.join(this.stateRoot, "finalized.json")
+  }
+
+  private assertOpen(): void {
+    if (fs.existsSync(this.finalizedPath())) throw new Error("Qualification run is already finalized")
+  }
 
   constructor(runRoot: string) {
     this.runRoot = path.resolve(runRoot)
@@ -68,7 +85,7 @@ export class QualificationCollector {
   }
 
   reserveForRecovery(relative: string, value: Buffer | string): void {
-    if (fs.existsSync(path.join(this.stateRoot, "finalized.json"))) throw new Error("Qualification run is already finalized")
+    this.assertOpen()
     const bytes = Buffer.isBuffer(value) ? Buffer.from(value) : Buffer.from(value)
     this.resolveMember(relative)
     const record: TouchRecord = { schemaVersion: 1, path: relative, bytes: String(bytes.length), sha256: sha256(bytes) }
@@ -87,6 +104,7 @@ export class QualificationCollector {
   }
 
   recover(relative: string, value: Buffer | string): void {
+    this.assertOpen()
     const bytes = Buffer.isBuffer(value) ? Buffer.from(value) : Buffer.from(value)
     const target = this.resolveMember(relative)
     this.expectedTouch(relative, bytes)
@@ -96,6 +114,7 @@ export class QualificationCollector {
   }
 
   create(relative: string, value: Buffer | string): void {
+    this.assertOpen()
     const bytes = Buffer.isBuffer(value) ? Buffer.from(value) : Buffer.from(value)
     if (fs.existsSync(this.touchPath(relative))) throw new Error(`Second write rejected: ${relative}`)
     this.reserveForRecovery(relative, bytes)
@@ -103,18 +122,40 @@ export class QualificationCollector {
   }
 
   freeze(relative: string): void {
-    const bytes = fs.readFileSync(this.resolveMember(relative))
+    this.assertOpen()
+    const target = this.resolveMember(relative)
+    const bytes = fs.readFileSync(target)
     this.expectedTouch(relative, bytes)
-    const record = { schemaVersion: 1, path: relative, bytes: String(bytes.length), sha256: sha256(bytes) }
+    fs.chmodSync(target, 0o400)
+    const stat = fs.statSync(target, { bigint: true })
+    const record: FrozenRecord = {
+      schemaVersion: 1,
+      path: relative,
+      bytes: String(bytes.length),
+      sha256: sha256(bytes),
+      device: String(stat.dev),
+      inode: String(stat.ino),
+      ctimeNs: String(stat.ctimeNs),
+      uid: Number(stat.uid),
+      gid: Number(stat.gid),
+      mode: Number(stat.mode & 0o777n)
+    }
     exclusiveWrite(path.join(this.frozenRoot, crypto.createHash("sha256").update(relative).digest("hex")), Buffer.from(canonicalJson(record)))
   }
 
   assertFrozen(): void {
     for (const name of fs.readdirSync(this.frozenRoot)) {
-      const record = parseCanonicalJson(fs.readFileSync(path.join(this.frozenRoot, name))) as TouchRecord
+      const record = parseCanonicalJson(fs.readFileSync(path.join(this.frozenRoot, name))) as FrozenRecord
       const target = this.resolveMember(record.path)
       const bytes = fs.readFileSync(target)
-      if (String(bytes.length) !== record.bytes || sha256(bytes) !== record.sha256) {
+      const stat = fs.statSync(target, { bigint: true })
+      if (
+        String(bytes.length) !== record.bytes || sha256(bytes) !== record.sha256 ||
+        String(stat.dev) !== record.device || String(stat.ino) !== record.inode ||
+        String(stat.ctimeNs) !== record.ctimeNs || Number(stat.uid) !== record.uid ||
+        Number(stat.gid) !== record.gid || Number(stat.mode & 0o777n) !== record.mode ||
+        stat.nlink !== 1n
+      ) {
         throw new Error(`Frozen qualification member changed: ${record.path}`)
       }
     }
@@ -132,16 +173,17 @@ export class QualificationCollector {
   }
 
   finish(paths: readonly string[]): ReadonlyMap<string, Buffer> {
+    this.assertOpen()
     this.assertFrozen()
     const members = new Map<string, Buffer>()
     for (const relative of paths) {
       const target = this.resolveMember(relative)
       const bytes = fs.readFileSync(target)
       members.set(relative, bytes)
-      fs.chmodSync(target, 0o400)
+      if ((fs.statSync(target).mode & 0o777) !== 0o400) throw new Error(`Frozen qualification mode changed: ${relative}`)
     }
     exclusiveWrite(
-      path.join(this.stateRoot, "finalized.json"),
+      this.finalizedPath(),
       Buffer.from(canonicalJson({
         schemaVersion: 1,
         kind: "qualification-finalization",
@@ -162,6 +204,11 @@ export class QualificationCollector {
     visit(this.runRoot)
     for (const directory of directories) fs.chmodSync(directory, 0o500)
     fs.chmodSync(this.runRoot, 0o500)
+    for (const directory of [this.touchRoot, this.frozenRoot]) {
+      for (const name of fs.readdirSync(directory)) fs.chmodSync(path.join(directory, name), 0o400)
+      fs.chmodSync(directory, 0o500)
+    }
+    fs.chmodSync(this.stateRoot, 0o500)
     return members
   }
 }

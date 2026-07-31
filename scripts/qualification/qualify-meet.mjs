@@ -32,7 +32,8 @@ try {
             INTERVIEWCOPILOT_QUALIFICATION_MATRIX: pinned.matrix.matrixRevision,
             INTERVIEWCOPILOT_QUALIFICATION_TUPLE: entry.tupleId,
             INTERVIEWCOPILOT_QUALIFICATION_SCOPE: scope,
-            INTERVIEWCOPILOT_QUALIFICATION_ROOT: path.join(root, ".artifacts/qualification")
+            INTERVIEWCOPILOT_QUALIFICATION_ROOT: path.join(root, ".artifacts/qualification"),
+            INTERVIEWCOPILOT_QUALIFICATION_MATRIX_JSON: JSON.stringify(pinned.matrix)
           }
         })
         if (launched.status !== 0) throw new Error(`Interactive ${entry.tupleId}/${scope} qualification failed with ${launched.status ?? launched.signal}`)

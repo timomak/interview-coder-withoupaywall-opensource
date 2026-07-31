@@ -55,6 +55,9 @@ const ROLE_ATTESTATION_KEYS = [
   "acknowledgements", "observedResult", "deviations", "aborts", "attestedAt",
   "evidenceManifestSha256"
 ] as const
+const REMOTE_ROLE_ATTESTATION_KEYS = [
+  ...ROLE_ATTESTATION_KEYS, "remoteHelperSha256", "remoteRecordingSha256"
+] as const
 const METADATA_KEYS = [
   "schemaVersion", "kind", ...IDENTITY_KEYS, "procedureId", "evidenceManifestSha256",
   "localAttestationSha256", "remoteAttestationSha256", "finalizedAt", "retentionDeleteAt",
@@ -124,6 +127,7 @@ function validateRawAndDerived(
   readonly markerEvents: readonly Record<string, unknown>[]
   readonly controlEvents: readonly Record<string, unknown>[]
   readonly observerEvents: readonly Record<string, unknown>[]
+  readonly frameEvents: readonly Record<string, unknown>[]
   readonly coverage: Record<string, unknown>
   readonly report: Record<string, unknown>
 } {
@@ -152,26 +156,40 @@ function validateRawAndDerived(
     "control-render": ["seed", "frame", "checkerIndex", "counter"]
   })
   const observerEvents = validateNdjson(files.get("raw/remote-observer-events.ndjson")!, "observer events", {
-    "observer-pairing": ["observerId", "pairingChallengeSha256", "receivedPresentation"],
-    "observer-stop": ["observerId", "pairingChallengeSha256", "receivedPresentation"]
+    "observer-pairing": ["observerId", "pairingChallengeSha256", "receivedPresentation", "remoteHelperSha256", "meetBuildId", "recordingSessionId"],
+    "observer-stop": ["observerId", "pairingChallengeSha256", "receivedPresentation", "remoteHelperSha256", "meetBuildId", "recordingSessionId", "recordingSha256", "recordingBytes"]
   })
-  validateNdjson(files.get("derived/frame-analysis.ndjson")!, "frame analysis", {
+  const frameEvents = validateNdjson(files.get("derived/frame-analysis.ndjson")!, "frame analysis", {
     "frame-analysis": ["markerDetected", "controlRecognized", "markerContinuityPpm"]
   })
 
   const coverage = json(files, "derived/control-coverage.json")
   requireClosedObject(coverage, ["schemaVersion", "kind", "seed", "totalFrames", "recognizedFrames", "recognizedPpm", "oneSecondGapCount"], "control coverage")
-  if (coverage.schemaVersion !== 1 || coverage.kind !== "qualification-control-coverage" || coverage.oneSecondGapCount !== "0") {
+  const recognizedFrames = frameEvents.filter((event) => (event.payload as Record<string, unknown>).controlRecognized === true).length
+  const markerDetectedFrames = frameEvents.filter((event) => (event.payload as Record<string, unknown>).markerDetected === true).length
+  const recognizedPpm = String(Math.floor(recognizedFrames * 1_000_000 / frameEvents.length))
+  if (
+    coverage.schemaVersion !== 1 || coverage.kind !== "qualification-control-coverage" ||
+    coverage.oneSecondGapCount !== "0" || coverage.totalFrames !== String(frameEvents.length) ||
+    coverage.recognizedFrames !== String(recognizedFrames) || coverage.recognizedPpm !== recognizedPpm
+  ) {
     throw new Error("Control coverage is invalid")
   }
   const report = json(files, "validation/report.json")
   requireClosedObject(report, ["schemaVersion", "kind", ...IDENTITY_KEYS, "result", "markerDetectedFrames", "markerContinuityPpm", "controlRecognizedPpm", "validSharedIntervalFrames"], "content validation report")
   assertIdentity(report, identity)
-  if (report.schemaVersion !== 1 || report.kind !== "qualification-content-validation" || report.result !== "pass" || report.markerDetectedFrames !== "0") {
+  const continuity = frameEvents.map((event) => String((event.payload as Record<string, unknown>).markerContinuityPpm))
+  if (
+    report.schemaVersion !== 1 || report.kind !== "qualification-content-validation" || report.result !== "pass" ||
+    report.markerDetectedFrames !== String(markerDetectedFrames) || report.markerDetectedFrames !== "0" ||
+    report.validSharedIntervalFrames !== String(frameEvents.length) || report.controlRecognizedPpm !== recognizedPpm ||
+    continuity.some((value) => !UINT64_PATTERN.test(value) || BigInt(value) < 995000n || BigInt(value) > 1000000n) ||
+    report.markerContinuityPpm !== String(Math.min(...continuity.map(Number)))
+  ) {
     throw new Error("Content validation report is invalid")
   }
   if ((files.get("raw/remote-observer.mov")?.length ?? 0) === 0) throw new Error("Remote observer video is empty")
-  return { preflight, markerEvents, controlEvents, observerEvents, coverage, report }
+  return { preflight, markerEvents, controlEvents, observerEvents, frameEvents, coverage, report }
 }
 
 export function validateQualificationBundle(
@@ -200,6 +218,10 @@ export function validateQualificationBundle(
   requireClosedObject(collection.roles, ["localOperator", "remoteObserver"], "collection roles")
   requireClosedObject(collection.roles.localOperator, ["roleId", "keyId"], "local operator role")
   requireClosedObject(collection.roles.remoteObserver, ["roleId", "keyId"], "remote observer role")
+  const collectionRoles = collection.roles as {
+    localOperator: Record<string, unknown>
+    remoteObserver: Record<string, unknown>
+  }
   requireClosedObject(collection.timestamps, ["startedAt", "shareStartedAt", "shareStoppedAt", "endedAt"], "collection timestamps")
   requireClosedObject(collection.monotonicNs, ["startedAt", "shareStartedAt", "shareStoppedAt", "endedAt"], "collection monotonic times")
   requireClosedObject(collection.marker, ["algorithm", "seed", "cadenceHz", "sizePixels"], "collection marker")
@@ -224,6 +246,13 @@ export function validateQualificationBundle(
   const utcValues = [timestamps.startedAt, timestamps.shareStartedAt, timestamps.shareStoppedAt, timestamps.endedAt].map(String)
   const monotonicValues = [monotonic.startedAt, monotonic.shareStartedAt, monotonic.shareStoppedAt, monotonic.endedAt].map(String)
   const exactEvidencePaths = EVIDENCE_MEMBER_PATHS.slice(1)
+  const recording = files.get("raw/remote-observer.mov")!
+  const observerStart = raw.observerEvents[0]
+  const observerStop = raw.observerEvents[1]
+  const observerStartPayload = observerStart?.payload as Record<string, unknown> | undefined
+  const observerStopPayload = observerStop?.payload as Record<string, unknown> | undefined
+  const markerStartNs = raw.markerEvents[0] ? BigInt(String(raw.markerEvents[0].monotonicNs)) : -1n
+  const markerStopNs = raw.markerEvents.at(-1) ? BigInt(String(raw.markerEvents.at(-1)!.monotonicNs)) : -1n
   if (
     collection.schemaVersion !== 1 ||
     collection.kind !== "qualification-collection" ||
@@ -243,6 +272,26 @@ export function validateQualificationBundle(
     control.cadenceHz !== "2" ||
     control.gridSize !== "8" ||
     control.seed !== marker.seed ||
+    raw.markerEvents.length < 480 || raw.controlEvents.length < 240 || raw.frameEvents.length !== raw.markerEvents.length ||
+    raw.observerEvents.length !== 2 || observerStart?.eventType !== "observer-pairing" || observerStop?.eventType !== "observer-stop" ||
+    markerStartNs < BigInt(String(monotonic.shareStartedAt)) || markerStopNs > BigInt(String(monotonic.shareStoppedAt)) ||
+    markerStopNs - markerStartNs < 119_000_000_000n ||
+    raw.markerEvents.some((event, index) => {
+      const payload = event.payload as Record<string, unknown>
+      const colors = ["#FF00FF", "#00FFFF", "#A6FF00", "#000000"]
+      const quadrants = ["top-left", "top-right", "bottom-right", "bottom-left"]
+      return event.frameId !== String(index) || payload.frame !== String(index) ||
+        payload.color !== colors[index % colors.length] || payload.quadrant !== quadrants[Math.floor(index / 60) % quadrants.length]
+    }) ||
+    raw.controlEvents.some((event, index) => {
+      const payload = event.payload as Record<string, unknown>
+      return event.frameId !== String(index) || payload.frame !== String(index) ||
+        payload.counter !== String(index) || payload.checkerIndex !== String(index % 64)
+    }) ||
+    raw.frameEvents.some((event, index) => {
+      const payload = event.payload as Record<string, unknown>
+      return event.frameId !== String(index) || payload.markerDetected !== false || payload.controlRecognized !== true
+    }) ||
     raw.markerEvents.some((event) => {
       const payload = event.payload as Record<string, unknown>
       return payload.seed !== marker.seed || payload.sizePixels !== marker.sizePixels
@@ -253,8 +302,14 @@ export function validateQualificationBundle(
     }) ||
     raw.observerEvents.some((event) => {
       const payload = event.payload as Record<string, unknown>
-      return payload.pairingChallengeSha256 !== collection.pairingChallengeSha256 || payload.receivedPresentation !== true
+      return payload.pairingChallengeSha256 !== collection.pairingChallengeSha256 || payload.receivedPresentation !== true ||
+        payload.observerId !== collectionRoles.remoteObserver.roleId || payload.meetBuildId !== matrixEntry.meetBuildId ||
+        !SHA256_PATTERN.test(String(payload.remoteHelperSha256))
     }) ||
+    observerStartPayload?.recordingSessionId !== observerStopPayload?.recordingSessionId ||
+    observerStartPayload?.remoteHelperSha256 !== observerStopPayload?.remoteHelperSha256 ||
+    observerStopPayload?.recordingSha256 !== sha256(recording) ||
+    observerStopPayload?.recordingBytes !== String(recording.length) ||
     raw.coverage.seed !== control.seed ||
     raw.coverage.recognizedPpm !== contentResult.controlRecognizedPpm ||
     raw.report.result !== contentResult.result ||
@@ -306,7 +361,7 @@ export function validateQualificationBundle(
       "qualification-role-attestation",
       role
     )
-    requireClosedObject(payload, ROLE_ATTESTATION_KEYS, `${role} attestation payload`)
+    requireClosedObject(payload, role === "remote-observer" ? REMOTE_ROLE_ATTESTATION_KEYS : ROLE_ATTESTATION_KEYS, `${role} attestation payload`)
     assertIdentity(payload, identity)
     if (!Array.isArray(payload.acknowledgements)) throw new Error("Role acknowledgements are invalid")
     let previousAt = 0
@@ -331,6 +386,8 @@ export function validateQualificationBundle(
       payload.kind !== "qualification-role-attestation" ||
       payload.procedureId !== collection.procedureId ||
       payload.role !== role ||
+      payload.roleId !== collectionRoles[role === "local-operator" ? "localOperator" : "remoteObserver"].roleId ||
+      payload.keyId !== collectionRoles[role === "local-operator" ? "localOperator" : "remoteObserver"].keyId ||
       JSON.stringify(payload.acknowledgements.map((item) => (item as Record<string, unknown>).acknowledgementId)) !== JSON.stringify(expectedAcknowledgements) ||
       payload.acknowledgements.some((item) => {
         const acknowledgement = item as Record<string, unknown>
@@ -341,6 +398,11 @@ export function validateQualificationBundle(
       JSON.stringify(payload.deviations) !== "[]" ||
       JSON.stringify(payload.aborts) !== "[]"
     ) throw new Error("Qualification role attestation is invalid")
+    if (
+      role === "remote-observer" &&
+      (payload.remoteHelperSha256 !== observerStopPayload?.remoteHelperSha256 ||
+        payload.remoteRecordingSha256 !== sha256(recording))
+    ) throw new Error("Remote helper and recording signature binding is invalid")
     const byId = new Map(payload.acknowledgements.map((item) => {
       const acknowledgement = item as Record<string, unknown>
       return [acknowledgement.acknowledgementId, acknowledgement]

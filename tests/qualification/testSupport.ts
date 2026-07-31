@@ -121,16 +121,21 @@ export function createValidBundle(includeBundleSignature = false) {
     signingCertificateSha256: "2".repeat(64),
     notarizationTicketId: "notary-ticket-001"
   }
-  const event = (eventType: string, payload: Record<string, unknown>) =>
-    Buffer.from(`${canonicalJson({
-      schemaVersion: 1,
-      sequence: "0",
-      at: "2026-07-31T12:00:16.000Z",
-      monotonicNs: "17000000000",
-      frameId: "0",
-      eventType,
-      payload
-    })}\n`)
+  const event = (
+    eventType: string,
+    payload: Record<string, unknown>,
+    sequence = 0,
+    stepMillis = 250,
+    baseNs = 16_250_000_000n
+  ) => canonicalJson({
+    schemaVersion: 1,
+    sequence: String(sequence),
+    at: new Date(Date.parse("2026-07-31T12:00:15.000Z") + (sequence + 1) * stepMillis).toISOString(),
+    monotonicNs: String(baseNs + BigInt(sequence * stepMillis) * 1_000_000n),
+    frameId: String(sequence),
+    eventType,
+    payload
+  })
   files.set("raw/local-preflight.json", Buffer.from(canonicalJson({
     schemaVersion: 1,
     kind: "qualification-local-preflight",
@@ -143,27 +148,36 @@ export function createValidBundle(includeBundleSignature = false) {
     permissions: { screenRecording: true, observerRecording: true },
     notificationsDisabled: true
   })))
-  files.set("raw/local-marker-events.ndjson", event("marker-render", {
-    seed: "3".repeat(64), frame: "0", quadrant: "top-left", color: "#FF00FF", sizePixels: "256"
-  }))
-  files.set("raw/local-control-events.ndjson", event("control-render", {
-    seed: "3".repeat(64), frame: "0", checkerIndex: "0", counter: "0"
-  }))
-  files.set("raw/remote-observer-events.ndjson", event("observer-pairing", {
-    observerId: "remote-observer-identity-0001",
-    pairingChallengeSha256: "4".repeat(64),
-    receivedPresentation: true
-  }))
-  files.set("raw/remote-observer.mov", Buffer.from("fixture-video-bytes"))
-  files.set("derived/frame-analysis.ndjson", event("frame-analysis", {
+  const colors = ["#FF00FF", "#00FFFF", "#A6FF00", "#000000"]
+  const quadrants = ["top-left", "top-right", "bottom-right", "bottom-left"]
+  files.set("raw/local-marker-events.ndjson", Buffer.from(Array.from({ length: 480 }, (_, frame) => event("marker-render", {
+    seed: "3".repeat(64), frame: String(frame), quadrant: quadrants[Math.floor(frame / 60) % 4], color: colors[frame % 4], sizePixels: "256"
+  }, frame)).join("\n") + "\n"))
+  files.set("raw/local-control-events.ndjson", Buffer.from(Array.from({ length: 240 }, (_, frame) => event("control-render", {
+    seed: "3".repeat(64), frame: String(frame), checkerIndex: String(frame % 64), counter: String(frame)
+  }, frame, 500)).join("\n") + "\n"))
+  const recording = Buffer.from("fixture-video-bytes-from-independent-remote-device")
+  files.set("raw/remote-observer-events.ndjson", Buffer.from([
+    event("observer-pairing", {
+      observerId: "remote-observer-identity-0001", pairingChallengeSha256: "4".repeat(64), receivedPresentation: true,
+      remoteHelperSha256: "5".repeat(64), meetBuildId: "meet-web-2026-07-31", recordingSessionId: "remote-recording-session-0001"
+    }, 0, 1, 16_000_000_000n),
+    event("observer-stop", {
+      observerId: "remote-observer-identity-0001", pairingChallengeSha256: "4".repeat(64), receivedPresentation: true,
+      remoteHelperSha256: "5".repeat(64), meetBuildId: "meet-web-2026-07-31", recordingSessionId: "remote-recording-session-0001",
+      recordingSha256: sha256(recording), recordingBytes: String(recording.length)
+    }, 1, 60000, 16_000_000_000n)
+  ].join("\n") + "\n"))
+  files.set("raw/remote-observer.mov", recording)
+  files.set("derived/frame-analysis.ndjson", Buffer.from(Array.from({ length: 480 }, (_, frame) => event("frame-analysis", {
     markerDetected: false, controlRecognized: true, markerContinuityPpm: "1000000"
-  }))
+  }, frame)).join("\n") + "\n"))
   files.set("derived/control-coverage.json", Buffer.from(canonicalJson({
     schemaVersion: 1,
     kind: "qualification-control-coverage",
     seed: "3".repeat(64),
-    totalFrames: "2880",
-    recognizedFrames: "2880",
+    totalFrames: "480",
+    recognizedFrames: "480",
     recognizedPpm: "1000000",
     oneSecondGapCount: "0"
   })))
@@ -175,7 +189,7 @@ export function createValidBundle(includeBundleSignature = false) {
     markerDetectedFrames: "0",
     markerContinuityPpm: "1000000",
     controlRecognizedPpm: "1000000",
-    validSharedIntervalFrames: "2880"
+    validSharedIntervalFrames: "480"
   })))
   const evidenceMembers = EVIDENCE_MEMBER_PATHS.slice(1).map((path) => {
     const bytes = files.get(path)!
@@ -243,7 +257,7 @@ export function createValidBundle(includeBundleSignature = false) {
       markerDetectedFrames: "0",
       markerContinuityPpm: "1000000",
       controlRecognizedPpm: "1000000",
-      validSharedIntervalFrames: "2880"
+      validSharedIntervalFrames: "480"
     },
     evidenceMembers
   })))
@@ -279,7 +293,11 @@ export function createValidBundle(includeBundleSignature = false) {
         deviations: [],
         aborts: [],
         attestedAt: "2026-07-31T12:02:30.000Z",
-        evidenceManifestSha256
+        evidenceManifestSha256,
+        ...(role === "remote-observer" ? {
+          remoteHelperSha256: "5".repeat(64),
+          remoteRecordingSha256: sha256(recording)
+        } : {})
       }, trust.privateKeys[keyId], ROLE_ATTESTATION_DOMAIN)))
     )
   }

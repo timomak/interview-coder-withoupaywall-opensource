@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import type { CaptureScope, CaptureVerificationState } from "../../../electron/privacy/verificationRecord"
 import type { LiveProcedureSession } from "../../../electron/qualification/liveProcedure"
+import type { RemoteObserverReceipt } from "../../../electron/qualification/liveProcedure"
 import type { DiagnosticPreview } from "../../../electron/diagnostics/DiagnosticService"
 
 const PROCEDURE: Record<CaptureScope, readonly string[]> = {
@@ -24,8 +25,8 @@ export interface MeetVerificationProps {
   readonly state?: CaptureVerificationState
   readonly begin?: (scope: CaptureScope) => Promise<LiveProcedureSession>
   readonly sample?: (markerFrame: number, controlFrame: number) => Promise<void>
-  readonly acknowledge?: (receipt: { pairingChallenge: string; observerId: string; receivedPresentation: true }) => Promise<void>
-  readonly complete?: () => Promise<unknown>
+  readonly acknowledge?: (receipt: RemoteObserverReceipt) => Promise<void>
+  readonly complete?: (value: { stopReceipt: RemoteObserverReceipt; recordingPath: string }) => Promise<unknown>
 }
 
 export function MeetVerification({ state, begin, sample, acknowledge, complete }: MeetVerificationProps) {
@@ -33,8 +34,9 @@ export function MeetVerification({ state, begin, sample, acknowledge, complete }
   const [session, setSession] = useState<LiveProcedureSession>()
   const [frame, setFrame] = useState(0)
   const [remaining, setRemaining] = useState(120)
-  const [observerId, setObserverId] = useState("")
-  const [observerChallenge, setObserverChallenge] = useState("")
+  const [observerStartReceipt, setObserverStartReceipt] = useState("")
+  const [observerStopReceipt, setObserverStopReceipt] = useState("")
+  const [remoteRecordingPath, setRemoteRecordingPath] = useState("")
   const [observerConfirmed, setObserverConfirmed] = useState(false)
   const [verificationState, setVerificationState] = useState<CaptureVerificationState>(state ?? "Not verified")
   const [diagnosticPreview, setDiagnosticPreview] = useState<DiagnosticPreview>()
@@ -45,7 +47,7 @@ export function MeetVerification({ state, begin, sample, acknowledge, complete }
   }, [state])
 
   useEffect(() => {
-    if (!session) return
+    if (!session || !observerConfirmed) return
     const started = Date.now()
     let markerFrame = 0
     const timer = window.setInterval(() => {
@@ -55,7 +57,7 @@ export function MeetVerification({ state, begin, sample, acknowledge, complete }
       void (sample ?? window.electronAPI.sampleMeetQualification)(next, Math.floor(next / 2))
     }, 250)
     return () => window.clearInterval(timer)
-  }, [sample, session])
+  }, [observerConfirmed, sample, session])
 
   const start = async () => {
     const active = await (begin ?? window.electronAPI.beginMeetQualification)(scope)
@@ -67,12 +69,15 @@ export function MeetVerification({ state, begin, sample, acknowledge, complete }
 
   const confirmObserver = async () => {
     if (!session) return
-    await (acknowledge ?? window.electronAPI.acknowledgeMeetObserver)({
-      pairingChallenge: observerChallenge,
-      observerId,
-      receivedPresentation: true
-    })
+    const receipt = JSON.parse(observerStartReceipt) as RemoteObserverReceipt
+    await (acknowledge ?? window.electronAPI.acknowledgeMeetObserver)(receipt)
     setObserverConfirmed(true)
+    setRemaining(120)
+  }
+
+  const finalize = async () => {
+    const stopReceipt = JSON.parse(observerStopReceipt) as RemoteObserverReceipt
+    await (complete ?? window.electronAPI.completeMeetQualification)({ stopReceipt, recordingPath: remoteRecordingPath })
   }
 
   const colors = ["#FF00FF", "#00FFFF", "#A6FF00", "#000000"]
@@ -97,7 +102,7 @@ export function MeetVerification({ state, begin, sample, acknowledge, complete }
       {session ? (
         <>
           <ol>{PROCEDURE[scope].map((step) => <li key={step}>{step}</li>)}</ol>
-          <p>Continuous observation remaining: {remaining} seconds</p>
+          <p>Signed remote observation remaining: {observerConfirmed ? remaining : 120} seconds</p>
           <code aria-label="one-time remote pairing challenge">{session.pairingChallenge}</code>
           <div aria-label="Qualification Control" data-seed={session.seed} data-cadence-hz="2" data-grid-size="8">
             Qualification Control — frame {Math.floor(frame / 2)} — 8 × 8 checker
@@ -110,14 +115,16 @@ export function MeetVerification({ state, begin, sample, acknowledge, complete }
             data-position={markerPosition}
             style={{ width: 256, height: 256, backgroundColor: colors[frame % colors.length] }}
           >{session.seed.slice(0, 12)} / {frame}</div>
-          <label>Remote observer identity<input value={observerId} onChange={(event) => setObserverId(event.target.value)} /></label>
-          <label>Returned one-time challenge<input value={observerChallenge} onChange={(event) => setObserverChallenge(event.target.value)} /></label>
-          <button type="button" onClick={() => void confirmObserver()}>Validate remote observer receipt</button>
+          <label>Signed remote start receipt<textarea value={observerStartReceipt} onChange={(event) => setObserverStartReceipt(event.target.value)} /></label>
+          <button type="button" disabled={!observerStartReceipt} onClick={() => void confirmObserver()}>Validate signed remote helper receipt</button>
+          <label>Signed remote stop receipt<textarea value={observerStopReceipt} onChange={(event) => setObserverStopReceipt(event.target.value)} /></label>
+          <label>Remote helper recording inbox path<input value={remoteRecordingPath} onChange={(event) => setRemoteRecordingPath(event.target.value)} /></label>
           <button
             type="button"
             disabled={!observerConfirmed || remaining !== 0}
-            onClick={() => void (complete ?? window.electronAPI.completeMeetQualification)()}
-          >Finalize immutable raw collection</button>
+            onClick={() => void finalize()}
+          >Finalize signed remote raw collection</button>
+          <p className="text-xs text-white/60">Raw capture remains pending until frame analysis, collection metadata, both signed role attestations, manifests, and detached review are sealed.</p>
         </>
       ) : null}
       <p className="text-xs text-white/60">Browser-tab sharing and other meeting apps are outside the qualified scope.</p>

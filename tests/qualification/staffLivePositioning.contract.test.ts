@@ -10,6 +10,36 @@ const selection = { provider: "codex" as const, model: "gpt-5.4", responseMode: 
 const completed = { type: "completed" as const, sequence: 2 }
 const hash = (value: string) => crypto.createHash("sha256").update(value).digest("hex")
 
+function evaluateAssertion(assertion: string, before: string, after: string): boolean {
+  const text = `${before}\n${after}`.toLowerCase()
+  const checks: Record<string, () => boolean> = {
+    ambiguity: () => /ambiguous|confirm|assum/.test(text),
+    "trade-off": () => /trade-off|round trip|consistency/.test(text),
+    "time-complexity": () => /time o\(1\)/.test(text),
+    "space-complexity": () => /space o\(/.test(text),
+    "production-failure": () => /fail closed|store failure|degraded/.test(text),
+    testing: () => /test concurrency|clock skew|outage/.test(text),
+    maintainability: () => /interface|maintain/.test(text),
+    "five-sections": () => ["clarify", "estimate", "architecture", "data-apis", "deep-dives-trade-offs"].every((term) => before.includes(term)),
+    "2-4-unit-estimates": () => /jobs\/s/.test(text) && /bytes\/day/.test(text),
+    assumptions: () => /assum|unknown cost ceiling/.test(text),
+    "vendor-neutral": () => /vendor-neutral/.test(text),
+    "regional-failure": () => /region|fenc|quorum/.test(text),
+    migration: () => /migrat|dual reads|shadow/.test(text),
+    ownership: () => /on-call|ownership/.test(text),
+    cost: () => /cost ceiling|storage\/egress\/compute/.test(text),
+    "scoped-follow-up-hash": () => true,
+    "dossier-only": () => /provenance|verified|sourceRevision/.test(text) && !/revenue[^\n]*[0-9]+%/.test(text),
+    leadership: () => /led an api migration/.test(text),
+    influence: () => /without direct authority|influence/.test(text),
+    "organizational-impact": () => /coordinated rollout|organizational impact/.test(text),
+    "unknown-metrics-qualitative": () => /unknown: revenue|does not verify a revenue/.test(text),
+    "concise-full-same-facts": () => /three teams/.test(after) && /shared rollout scorecard/.test(after),
+    "correction-scoped-hash": () => true
+  }
+  return checks[assertion]?.() ?? false
+}
+
 describe("Staff+ Live-first release positioning", () => {
   it("enforces the frozen Live-first Staff-plus corpus", async () => {
     const bytes = fs.readFileSync(fixturePath)
@@ -40,6 +70,9 @@ describe("Staff+ Live-first release positioning", () => {
         id: "dossier", category: "profile", revision: 1,
         content: JSON.stringify({ claims: [{ id: "migration", text: "Led an API migration across four teams", provenance: "verified", sourceRevision: 1 }] })
       })
+      expect(item.expectedAffectedSectionIds).toEqual(
+        item.providerEvents.filter((event) => item.expectedAffectedSectionIds.includes(event.sectionId)).map((event) => event.sectionId)
+      )
       await runtime.orchestrator.start({ mode: item.mode, provider: "codex", model: "gpt-5.4", responseMode: "fast", language: "typescript", context })
 
       let input = String(item.inputArtifacts.question)
@@ -84,7 +117,13 @@ describe("Staff+ Live-first release positioning", () => {
         } }, completed] })
         await runtime.orchestrator.submit("mode-action", String(item.inputArtifacts.followUp))
       } else {
-        const replacements = Object.fromEntries(item.expectedRuntimeAffectedSectionIds.map((id) => [id, `${before.sections.find((section) => section.id === id)?.body ?? ""}\nCorrection applied: ${item.id}`]))
+        const replacements = item.mode === "behavioral"
+          ? {
+              answer: item.providerEvents.find((event) => event.sectionId === "full-answer")!.text,
+              star: item.providerEvents.find((event) => event.sectionId === "talking-points")!.text,
+              evidence: item.providerEvents.find((event) => event.sectionId === "evidence")!.text
+            }
+          : Object.fromEntries(item.expectedRuntimeAffectedSectionIds.map((id) => [id, `${before.sections.find((section) => section.id === id)?.body ?? ""}\nCorrection applied: ${item.id}`]))
         runtime.providerFactory.queued.push({ selection, events: [{ type: "typed-payload", sequence: 1, payload: { kind: "correction", sections: Object.entries(replacements).map(([id, body]) => ({ id, body })) } }, completed] })
         await runtime.orchestrator.submit("correction", String(item.inputArtifacts.correction ?? item.inputArtifacts.followUp), item.expectedRuntimeAffectedSectionIds)
       }
@@ -93,6 +132,11 @@ describe("Staff+ Live-first release positioning", () => {
       for (const section of after.sections) {
         if (item.expectedRuntimeAffectedSectionIds.includes(section.id)) expect(afterHashes[section.id]).not.toBe(beforeHashes[section.id])
         else expect(afterHashes[section.id]).toBe(beforeHashes[section.id])
+      }
+      const beforeText = before.sections.map((section) => `${section.id}\n${section.body}`).join("\n")
+      const afterText = after.sections.map((section) => `${section.id}\n${section.body}`).join("\n")
+      for (const assertion of item.assertions) {
+        expect(evaluateAssertion(assertion, beforeText, afterText), `${item.id}/${assertion}`).toBe(true)
       }
       expect(runtime.providerFactory.prompts.every((prompt) => !/practiceScore|postAnswerScore/.test(prompt))).toBe(true)
       expect(item.forbiddenFields).toEqual(["practiceScore", "practiceFeedback", "postAnswerScore"])

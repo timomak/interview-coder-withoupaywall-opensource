@@ -92,8 +92,10 @@ import {
   type CaptureVerificationRecordV1
 } from "./privacy/verificationRecord"
 import { LiveQualificationProcedure } from "./qualification/liveProcedure"
+import { parseCanonicalJson, validateMatrix } from "./qualification/protocol"
 
 const isDevelopment = process.env.NODE_ENV === "development"
+let observedMeetBuildId: string | undefined
 
 function sha256File(file: string): string {
   return crypto.createHash("sha256").update(fs.readFileSync(file)).digest("hex")
@@ -106,7 +108,7 @@ function releaseCommitSha(): string | undefined {
   } catch { return undefined }
 }
 
-function observedCaptureTuple(qualified: CaptureVerificationRecordV1): CaptureTupleV1 | undefined {
+function observedCaptureTuple(): CaptureTupleV1 | undefined {
   try {
     const commit = releaseCommitSha()
     const asar = path.join(process.resourcesPath, "app.asar")
@@ -127,9 +129,10 @@ function observedCaptureTuple(qualified: CaptureVerificationRecordV1): CaptureTu
       macOSBuildVersion: build,
       architecture: process.arch === "arm64" ? "arm64" : "x64",
       chromeVersion: chrome,
-      // Meet's visible build is supplied only by the independently validated
-      // root-owned receipt; it is never copied from renderer input.
-      meetBuildId: qualified.tuple.meetBuildId,
+      // A historical receipt cannot establish the currently served Meet web
+      // build. Outside an active signed observer session this remains unknown,
+      // which deliberately forces Retest required instead of copying history.
+      meetBuildId: observedMeetBuildId ?? "unobserved-current-meet-build",
       display: {
         displayId: String(primary.id),
         type: primary.internal ? "internal" : "external",
@@ -160,7 +163,7 @@ async function importRootQualificationReceipt(
     const record = JSON.parse(fs.readFileSync(candidate, "utf8")) as CaptureVerificationRecordV1
     validateCaptureVerificationRecord(record)
     if (record.tuple.appCommitSha !== commit) throw new Error("Capture receipt commit does not match packaged app")
-    const current = observedCaptureTuple(record)
+    const current = observedCaptureTuple()
     if (current && captureVerificationState(record, current) === "Verified") {
       await repository.save(record)
       return
@@ -859,7 +862,7 @@ async function initializeApplication(): Promise<void> {
       await importRootQualificationReceipt(captureVerification)
       const record = await captureVerification.load()
       if (!record) return "Not verified"
-      const current = observedCaptureTuple(record)
+      const current = observedCaptureTuple()
       return current ? captureVerificationState(record, current) : "Retest required"
     },
     beginMeetQualification: (scope) => {
@@ -870,12 +873,14 @@ async function initializeApplication(): Promise<void> {
       const matrixRevision = process.env.INTERVIEWCOPILOT_QUALIFICATION_MATRIX
       const tupleId = process.env.INTERVIEWCOPILOT_QUALIFICATION_TUPLE
       const expectedScope = process.env.INTERVIEWCOPILOT_QUALIFICATION_SCOPE
-      if (!root || !matrixRevision || !tupleId || expectedScope !== scope) {
+      const matrixJson = process.env.INTERVIEWCOPILOT_QUALIFICATION_MATRIX_JSON
+      if (!root || !matrixRevision || !tupleId || !matrixJson || expectedScope !== scope) {
         throw new Error("Pinned qualification identity is missing or disagrees")
       }
       const procedure = scope === "entire-display" ? "M01" : "M02"
       liveQualification = new LiveQualificationProcedure(
-        path.join(root, matrixRevision, tupleId, procedure)
+        path.join(root, matrixRevision, tupleId, procedure),
+        validateMatrix(parseCanonicalJson(matrixJson))
       )
       return liveQualification.begin(scope, matrixRevision, tupleId)
     },
@@ -887,21 +892,23 @@ async function initializeApplication(): Promise<void> {
       if (!liveQualification || !value || typeof value !== "object") {
         throw new Error("Meet qualification is not active")
       }
-      const receipt = value as Record<string, unknown>
-      if (
-        typeof receipt.pairingChallenge !== "string" ||
-        typeof receipt.observerId !== "string" ||
-        receipt.receivedPresentation !== true
-      ) throw new Error("Observer receipt is malformed")
-      liveQualification.acknowledgeObserver({
-        pairingChallenge: receipt.pairingChallenge,
-        observerId: receipt.observerId,
-        receivedPresentation: true
-      })
+      const observed = liveQualification.acknowledgeObserver(value as { payload: unknown; signature: unknown })
+      observedMeetBuildId = observed.meetBuildId
     },
-    completeMeetQualification: () => {
+    completeMeetQualification: (value) => {
       if (!liveQualification) throw new Error("Meet qualification is not active")
-      const result = liveQualification.finish()
+      if (!value || typeof value !== "object") throw new Error("Remote stop receipt is malformed")
+      const input = value as Record<string, unknown>
+      const recordingPath = path.resolve(String(input.recordingPath ?? ""))
+      const root = path.resolve(String(process.env.INTERVIEWCOPILOT_QUALIFICATION_ROOT ?? ""))
+      const inbox = path.join(root, "remote-inbox")
+      if (!recordingPath.startsWith(`${inbox}${path.sep}`)) throw new Error("Remote recording must come from the fixed inbox")
+      const stat = fs.lstatSync(recordingPath)
+      if (!stat.isFile() || stat.isSymbolicLink() || stat.nlink !== 1) throw new Error("Remote recording input is unsafe")
+      const result = liveQualification.finishRaw(
+        input.stopReceipt as { payload: unknown; signature: unknown },
+        fs.readFileSync(recordingPath)
+      )
       liveQualification = undefined
       return result
     },

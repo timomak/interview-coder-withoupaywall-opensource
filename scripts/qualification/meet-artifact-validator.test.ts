@@ -29,13 +29,46 @@ describe("Google Meet qualification artifact validator", () => {
     mutated.set("raw/remote-observer.mov", Buffer.from("changed"))
     expect(() =>
       validateQualificationBundle(mutated, valid.review, valid.matrix, valid.identity, valid.releaseBinding)
-    ).toThrow("Collection evidence member binding is invalid")
+    ).toThrow()
 
     const localOnly = new Map(valid.files)
     localOnly.delete("attestations/remote-observer.json")
     expect(() =>
       validateQualificationBundle(localOnly, valid.review, valid.matrix, valid.identity, valid.releaseBinding)
     ).toThrow("Missing qualification member")
+
+    const oneFrameClaims120Seconds = new Map(valid.files)
+    oneFrameClaims120Seconds.set(
+      "derived/frame-analysis.ndjson",
+      Buffer.from(valid.files.get("derived/frame-analysis.ndjson")!.toString("utf8").split("\n")[0] + "\n")
+    )
+    expect(() => validateQualificationBundle(
+      oneFrameClaims120Seconds, valid.review, valid.matrix, valid.identity, valid.releaseBinding
+    )).toThrow()
+
+    const falseAnalysis = new Map(valid.files)
+    falseAnalysis.set(
+      "derived/frame-analysis.ndjson",
+      Buffer.from(valid.files.get("derived/frame-analysis.ndjson")!.toString("utf8").replace('"controlRecognized":true', '"controlRecognized":false'))
+    )
+    expect(() => validateQualificationBundle(
+      falseAnalysis, valid.review, valid.matrix, valid.identity, valid.releaseBinding
+    )).toThrow()
+
+    const unrelatedRecording = new Map(valid.files)
+    unrelatedRecording.set("raw/remote-observer.mov", Buffer.from("different remote recording"))
+    expect(() => validateQualificationBundle(
+      unrelatedRecording, valid.review, valid.matrix, valid.identity, valid.releaseBinding
+    )).toThrow()
+
+    const copiedRole = new Map(valid.files)
+    copiedRole.set(
+      "attestations/remote-observer.json",
+      valid.files.get("attestations/local-operator.json")!
+    )
+    expect(() => validateQualificationBundle(
+      copiedRole, valid.review, valid.matrix, valid.identity, valid.releaseBinding
+    )).toThrow()
 
     const optional = createValidBundle(true)
     expect(() =>

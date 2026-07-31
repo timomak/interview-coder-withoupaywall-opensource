@@ -133,7 +133,11 @@ export interface IpcHandlerDependencies {
   readonly beginMeetQualification: (scope: "entire-display" | "specific-window") => LiveProcedureSession
   readonly sampleMeetQualification: (markerFrame: number, controlFrame: number) => void
   readonly acknowledgeMeetObserver: (receipt: unknown) => void
-  readonly completeMeetQualification: () => { readonly runId: string; readonly rawRoot: string }
+  readonly completeMeetQualification: (value: unknown) => {
+    readonly runId: string
+    readonly rawRoot: string
+    readonly state: "awaiting-analysis-and-attestations"
+  }
 }
 
 export function initializeIpcHandlers(
@@ -168,8 +172,8 @@ export function initializeIpcHandlers(
   ipcMain.handle("privacy:qualification-observer", (_event, value: unknown) =>
     dependencies.acknowledgeMeetObserver(value)
   )
-  ipcMain.handle("privacy:qualification-complete", () =>
-    dependencies.completeMeetQualification()
+  ipcMain.handle("privacy:qualification-complete", (_event, value: unknown) =>
+    dependencies.completeMeetQualification(value)
   )
   ipcMain.handle("privacy:diagnostics-preview", () =>
     dependencies.previewDiagnostics()

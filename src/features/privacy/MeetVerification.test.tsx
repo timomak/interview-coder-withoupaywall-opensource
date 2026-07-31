@@ -7,6 +7,7 @@ describe("guided Google Meet verification", () => {
     const begin = vi.fn().mockResolvedValue({
       runId: "12345678-1234-4123-8123-123456789abc",
       scope: "entire-display",
+      tupleId: "arm64-primary",
       seed: "a".repeat(64),
       pairingChallenge: "one-time-challenge",
       pairingChallengeSha256: "b".repeat(64),
@@ -22,6 +23,8 @@ describe("guided Google Meet verification", () => {
     expect(screen.getByLabelText("one-time remote pairing challenge").textContent).toBe("one-time-challenge")
     expect(screen.getByLabelText("Qualification Control")).toBeTruthy()
     expect(screen.queryByRole("checkbox")).toBeNull()
-    expect(screen.getByRole("button", { name: "Finalize immutable raw collection" })).toBeDisabled()
+    expect(screen.getByLabelText("Signed remote start receipt")).toBeTruthy()
+    expect(screen.getByRole("button", { name: "Finalize signed remote raw collection" })).toBeDisabled()
+    expect(screen.getByText(/remains pending until frame analysis/i)).toBeTruthy()
   })
 })

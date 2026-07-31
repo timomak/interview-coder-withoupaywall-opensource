@@ -93,8 +93,8 @@ const electronAPI = {
     ipcRenderer.invoke("privacy:qualification-sample", { markerFrame, controlFrame }),
   acknowledgeMeetObserver: (receipt: unknown) =>
     ipcRenderer.invoke("privacy:qualification-observer", receipt),
-  completeMeetQualification: () =>
-    ipcRenderer.invoke("privacy:qualification-complete"),
+  completeMeetQualification: (value: unknown) =>
+    ipcRenderer.invoke("privacy:qualification-complete", value),
   previewDiagnostics: () =>
     ipcRenderer.invoke("privacy:diagnostics-preview"),
   exportDiagnostics: (preview: unknown) =>

@@ -54,7 +54,7 @@ try {
   if (!fs.existsSync(runtimePath)) throw new Error("Authoritative package policy runtime is absent")
   const policy = require(runtimePath)
   const protocol = require(path.join(root, "dist-electron/qualification/protocol.js"))
-  /** @type {Array<{architecture: string; appAsarSha256: string}>} */
+  /** @type {Array<{architecture: string; appAsarSha256: string; packageSha256: string; releaseStatementSha256: string; signingTeamId: unknown; signingCertificateSha256: unknown; notarizationTicketId: unknown}>} */
   const inspections = []
   for (const architecture of ["arm64", "x64"]) {
     const dmg = pinned.packagePaths[architecture]
@@ -76,9 +76,16 @@ try {
       })
       const metadata = JSON.parse(asar.extractFile(path.join(appPath, "Contents/Resources/app.asar"), "package.json").toString("utf8"))
       if (metadata.releaseCommitSha !== pinned.expectedRcSha) throw new Error("Packaged commit identity is not the pinned RC")
+      const statementPackage = pinned.statementPayload.packages.find(/** @param {Record<string, unknown>} candidate */ (candidate) => candidate.architecture === architecture)
+      if (!statementPackage) throw new Error(`Detached statement package is absent for ${architecture}`)
       inspections.push({
         architecture,
-        appAsarSha256: protocol.sha256(fs.readFileSync(path.join(appPath, "Contents/Resources/app.asar")))
+        appAsarSha256: protocol.sha256(fs.readFileSync(path.join(appPath, "Contents/Resources/app.asar"))),
+        packageSha256: protocol.sha256(fs.readFileSync(dmg)),
+        releaseStatementSha256: protocol.sha256(fs.readFileSync(pinned.statement)),
+        signingTeamId: statementPackage.signingTeamId,
+        signingCertificateSha256: statementPackage.signingCertificateSha256,
+        notarizationTicketId: statementPackage.notarizationTicketId
       })
     } finally {
       spawnSync("/usr/bin/hdiutil", ["detach", mount, "-force"], { encoding: "utf8" })

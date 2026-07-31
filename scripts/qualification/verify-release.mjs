@@ -2,6 +2,7 @@ import fs from "node:fs"
 import path from "node:path"
 import process from "node:process"
 import { createRequire } from "node:module"
+import { spawnSync } from "node:child_process"
 import { fileURLToPath } from "node:url"
 import { assertPinnedCheckoutUnchanged, requireExternalReleaseBoundary } from "./release-preflight.mjs"
 import { validateAllQualificationEvidence } from "./validate-evidence.mjs"
@@ -11,23 +12,45 @@ const require = createRequire(import.meta.url)
 try {
   if (process.argv.length !== 2) throw new Error("verify:release accepts no artifact or identity overrides")
   const pinned = requireExternalReleaseBoundary(root)
+  const packageVerification = spawnSync(process.execPath, [path.join(root, "scripts/qualification/verify-mac-package.mjs")], {
+    cwd: root,
+    stdio: "inherit",
+    env: { PATH: process.env.PATH, HOME: process.env.HOME }
+  })
+  if (packageVerification.status !== 0) throw new Error("Independent package verification did not pass in this release run")
   const results = validateAllQualificationEvidence(root, pinned)
   const protocol = require(path.join(root, "dist-electron/qualification/protocol.js"))
-  const inspection = protocol.parseCanonicalJson(
-    fs.readFileSync(path.join(path.dirname(pinned.statement), "package-inspection.json"))
+  const packageInspection = require(path.join(root, "dist-electron/qualification/packageInspection.js"))
+  const statementPackages = Object.fromEntries(pinned.statementPayload.packages.map(/** @param {Record<string, unknown>} item */ (item) => {
+    const architecture = String(item.architecture)
+    return [architecture, {
+      bytes: fs.readFileSync(pinned.packagePaths[architecture]),
+      signingTeamId: item.signingTeamId,
+      signingCertificateSha256: item.signingCertificateSha256,
+      notarizationTicketId: item.notarizationTicketId
+    }]
+  }))
+  /** @type {Array<Record<string, unknown>>} */
+  const inspections = packageInspection.validatePackageInspection(
+    fs.readFileSync(path.join(path.dirname(pinned.statement), "package-inspection.json")),
+    { rcSha: pinned.expectedRcSha, releaseStatement: fs.readFileSync(pinned.statement), packages: statementPackages }
   )
-  protocol.requireClosedObject(inspection, ["schemaVersion", "kind", "rcSha", "inspections"], "package inspection")
-  if (inspection.schemaVersion !== 1 || inspection.kind !== "qualification-package-inspection" || inspection.rcSha !== pinned.expectedRcSha || !Array.isArray(inspection.inspections)) {
-    throw new Error("Package inspection receipt is invalid")
-  }
-  /** @type {Array<Record<string, any>>} */
-  const inspections = inspection.inspections
+  const statementSha256 = protocol.sha256(fs.readFileSync(pinned.statement))
   const receiptRoot = path.join("/Users/Shared/InterviewCopilot/qualification-receipts", pinned.expectedRcSha)
   fs.mkdirSync(receiptRoot, { recursive: true, mode: 0o755 })
   for (const entry of pinned.matrix.entries) {
     const inspected = inspections.find((candidate) => candidate.architecture === entry.architecture)
     const scoped = results.filter((result) => result.tupleId === entry.tupleId)
-    if (!inspected || scoped.length !== 2) throw new Error(`Release receipt inputs are incomplete for ${entry.tupleId}`)
+    protocol.requireClosedObject(inspected, ["architecture", "appAsarSha256", "packageSha256", "releaseStatementSha256", "signingTeamId", "signingCertificateSha256", "notarizationTicketId"], "package inspection entry")
+    const statementPackage = pinned.statementPayload.packages.find(/** @param {Record<string, unknown>} candidate */ (candidate) => candidate.architecture === entry.architecture)
+    if (
+      !inspected || !statementPackage || scoped.length !== 2 ||
+      inspected.packageSha256 !== pinned.packageSha256[entry.architecture] ||
+      inspected.releaseStatementSha256 !== statementSha256 ||
+      inspected.signingTeamId !== statementPackage.signingTeamId ||
+      inspected.signingCertificateSha256 !== statementPackage.signingCertificateSha256 ||
+      inspected.notarizationTicketId !== statementPackage.notarizationTicketId
+    ) throw new Error(`Release receipt inputs are incomplete for ${entry.tupleId}`)
     const record = {
       schemaVersion: 1,
       kind: "capture-verification",
