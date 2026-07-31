@@ -247,8 +247,13 @@
             },
             "releaseAssurance": {
                 "id": "IC-M00-G-RELEASE",
-                "status": "ARTIFACT_APPROVED_WAITING_FINAL_ACTIVATION",
+                "status": "CLEAN_RUNNER_PASS_READY_PROTECTED_INTEGRATION",
                 "artifactRevision": "774595fdf33d1024f06a980521f64cdb95095996",
+                "route": "CLEAN_EPHEMERAL_NON_PRIVILEGED_MACOS",
+                "candidateRevision": "a8cdcbdeb49a897946dd520981d59d9a1a3813b6",
+                "evidence": "v3/interviewcopilot/release-assurance-IC-M00-clean-runner-1.json",
+                "evidenceSha256": "b7e7d0b9d5001a2bb565d9e0de41f033b5a94c36bd74624a72a922458c74ae5f",
+                "privilegedCapabilityInvoked": false,
                 "requiredBefore": [
                     "PR 155 protected integration",
                     "P01 SATISFIED",
@@ -861,5 +866,5 @@
     "privilegedBoundaryCrossed": false,
     "candidateInvoked": false
   },
-  "nextSafeAction": "Retain approved IC-M02 draft PR 2 at exact e12930fb4ea7018d829bcc8366bed9f39d799c6d until its IC-M01 dependency can be integrated under separate authority. Keep IC-M01 draft PR 1 and upstream PR 155 unmerged and unchanged; do not invoke A04, merge, deploy, or unpause legacy automation."
+  "nextSafeAction": "Reconcile and protected-integrate upstream PR 155 at exact a8cdcbdeb49a897946dd520981d59d9a1a3813b6, run focused post-integration verification, then integrate the already-approved IC-M01 and IC-M02 candidates in dependency order. Do not invoke A04, deploy, or unpause legacy automation."
 }

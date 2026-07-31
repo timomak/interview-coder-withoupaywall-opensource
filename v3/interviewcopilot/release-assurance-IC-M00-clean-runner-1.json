@@ -1,0 +1,84 @@
+{
+  "schemaVersion": 1,
+  "id": "IC-M00-G-RELEASE-CLEAN-RUNNER-1",
+  "milestoneId": "IC-M00",
+  "requirementIds": [
+    "P01"
+  ],
+  "status": "PASS_READY_PROTECTED_INTEGRATION",
+  "recordedAt": "2026-07-31T10:57:38+02:00",
+  "route": {
+    "kind": "CLEAN_EPHEMERAL_NON_PRIVILEGED_MACOS",
+    "workspace": "/tmp/interviewcopilot-p01-release.gcGQDJ/repo",
+    "cloneMode": "FRESH_NO_LOCAL_OBJECT_REUSE",
+    "privilegedCapabilityInvoked": false,
+    "legacyV1Invoked": false,
+    "a04Invoked": false
+  },
+  "source": {
+    "repository": "j4wg/interview-coder-withoupaywall-opensource",
+    "pullRequest": 155,
+    "baseRevision": "9dcb4b2d39607273a8528a24657cdb4f5bfc3412",
+    "candidateRevision": "a8cdcbdeb49a897946dd520981d59d9a1a3813b6",
+    "detachedHeadVerified": true,
+    "worktreeCleanAfterVerification": true
+  },
+  "runtime": {
+    "platform": "darwin",
+    "node": "v20.20.2"
+  },
+  "checks": [
+    {
+      "command": "npm ci",
+      "status": "PASS",
+      "installedPackageCount": 955,
+      "note": "The lockfile-installed dependency audit reported 54 inherited findings: 8 low, 13 moderate, 28 high, and 5 critical. This is retained as dependency risk and was not introduced or suppressed by this gate."
+    },
+    {
+      "command": "npm run verify:policy",
+      "status": "PASS"
+    },
+    {
+      "command": "npm run lint",
+      "status": "PASS",
+      "executableSourceCount": 80,
+      "testSourceCount": 17
+    },
+    {
+      "command": "npm run typecheck",
+      "status": "PASS",
+      "executableSourceCount": 80
+    },
+    {
+      "command": "npm run test:p01",
+      "status": "PASS",
+      "passed": 26,
+      "failed": 0
+    },
+    {
+      "command": "npm run test:unit",
+      "status": "PASS",
+      "passed": 35,
+      "failed": 0
+    },
+    {
+      "command": "npm run build",
+      "status": "PASS",
+      "asarEntryCount": 10178,
+      "outerPackageEntryCount": 107,
+      "asarSha256": "db40b85dcabaa63ab8029af1a42e70bd9e18eb0d0a00bff358835c9da6beb96e"
+    }
+  ],
+  "hostedEvidence": {
+    "provider": "GitHub",
+    "check": "CodeQL",
+    "candidateRevision": "a8cdcbdeb49a897946dd520981d59d9a1a3813b6",
+    "status": "SUCCESS"
+  },
+  "admission": {
+    "releaseAssuranceSatisfied": true,
+    "protectedIntegrationStillRequired": true,
+    "focusedPostIntegrationVerificationStillRequired": true,
+    "deploymentAuthorized": false
+  }
+}
