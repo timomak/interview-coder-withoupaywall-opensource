@@ -40,6 +40,8 @@ export interface AudioArtifactManifest {
       {
         readonly sha256: string | null
         readonly qualification: "pending-integration-build" | "qualified"
+        readonly nativeHelperSha256: string
+        readonly appleSpeechAdapterSha256: string
       }
     >
   >
@@ -84,7 +86,9 @@ export async function loadAudioArtifactManifest(
       (artifact.sha256 !== null && !isSha256(artifact.sha256)) ||
       (artifact.qualification !== "pending-integration-build" &&
         artifact.qualification !== "qualified") ||
-      (artifact.qualification === "qualified" && artifact.sha256 === null)
+      (artifact.qualification === "qualified" && artifact.sha256 === null) ||
+      !isSha256(artifact.nativeHelperSha256) ||
+      !isSha256(artifact.appleSpeechAdapterSha256)
     ) {
       throw new Error("Audio binary manifest is malformed")
     }

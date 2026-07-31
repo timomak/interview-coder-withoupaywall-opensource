@@ -57,6 +57,8 @@ const EXACT_ALLOWED_OUTER_FILES = new Set(
     "Contents/Resources/audio/models/ggml-base.en.bin",
     "Contents/Resources/audio/native/arm64/interviewcopilot-audio-helper",
     "Contents/Resources/audio/native/x64/interviewcopilot-audio-helper",
+    "Contents/Resources/audio/speech/arm64/interviewcopilot-apple-speech",
+    "Contents/Resources/audio/speech/x64/interviewcopilot-apple-speech",
     "Contents/Resources/audio/whisper/arm64/whisper-cli",
     "Contents/Resources/audio/whisper/x64/whisper-cli",
     "Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/v8_context_snapshot.arm64.bin",

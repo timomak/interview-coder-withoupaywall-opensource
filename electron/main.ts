@@ -65,7 +65,9 @@ import {
   type M07AudioPreferencesRecord
 } from "./audio/session"
 import { NativeAudioCaptureRuntime } from "./audio/native/NativeAudioCaptureRuntime"
+import { AppleSpeechTranscriber } from "./audio/transcription/AppleSpeechTranscriber"
 import { LocalWhisperTranscriber } from "./audio/transcription/LocalWhisperTranscriber"
+import { loadAudioArtifactManifest } from "./audio/transcription/artifactManifest"
 
 const isDevelopment = process.env.NODE_ENV === "development"
 
@@ -475,25 +477,30 @@ async function initializeApplication(): Promise<void> {
   const audioResourceRoot = app.isPackaged
     ? path.join(process.resourcesPath, "audio")
     : path.join(app.getAppPath(), "resources", "audio")
-  const architecture = process.arch === "x64" ? "x64" : "arm64"
-  const nativeHelperExecutable = app.isPackaged
-    ? path.join(
-        audioResourceRoot,
-        "native",
-        architecture,
-        "interviewcopilot-audio-helper"
-      )
-    : path.join(
-        app.getAppPath(),
-        "native",
-        "audio",
-        ".build",
-        `${architecture}-apple-macosx`,
-        "release",
-        "interviewcopilot-audio-helper"
-      )
+  const architecture =
+    process.arch === "x64"
+      ? "x64"
+      : process.arch === "arm64"
+        ? "arm64"
+        : undefined
+  if (!architecture) {
+    throw new Error("Native audio is unsupported on this macOS architecture")
+  }
+  const audioManifestPath = path.join(
+    audioResourceRoot,
+    "audio-artifacts-v1.json"
+  )
+  const audioManifest = await loadAudioArtifactManifest(audioManifestPath)
+  const nativeArtifacts = audioManifest.binaries[architecture]
+  const nativeHelperExecutable = path.join(
+    audioResourceRoot,
+    "native",
+    architecture,
+    "interviewcopilot-audio-helper"
+  )
   const audioRuntime = new NativeAudioCaptureRuntime({
     helperExecutable: nativeHelperExecutable,
+    helperExpectedSha256: nativeArtifacts.nativeHelperSha256,
     temporaryRoot: path.join(userData, "audio-temporary"),
     localTranscriber: new LocalWhisperTranscriber({
       executable: path.join(
@@ -503,8 +510,17 @@ async function initializeApplication(): Promise<void> {
         "whisper-cli"
       ),
       model: path.join(audioResourceRoot, "models", "ggml-base.en.bin"),
-      manifest: path.join(audioResourceRoot, "audio-artifacts-v1.json"),
+      manifest: audioManifestPath,
       architecture
+    }),
+    remoteTranscriber: new AppleSpeechTranscriber({
+      executable: path.join(
+        audioResourceRoot,
+        "speech",
+        architecture,
+        "interviewcopilot-apple-speech"
+      ),
+      expectedSha256: nativeArtifacts.appleSpeechAdapterSha256
     })
   })
   const audio = new AudioSessionController(

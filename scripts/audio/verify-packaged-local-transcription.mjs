@@ -23,6 +23,7 @@ const fixtures = JSON.parse(
 )
 const model = path.join(root, ".artifacts/audio/models/ggml-base.en.bin")
 
+/** @param {string} file */
 async function sha256(file) {
   const hash = crypto.createHash("sha256")
   const handle = await fs.open(file, "r")
@@ -44,6 +45,7 @@ if (
   throw new Error("Packaged local transcription model is not pinned")
 }
 
+/** @param {string} value */
 function normalize(value) {
   return value
     .toLocaleLowerCase("en-US")
@@ -53,6 +55,14 @@ function normalize(value) {
     .trim()
 }
 
+/**
+ * @param {"arm64" | "x64"} architecture
+ * @param {{
+ *   file: string,
+ *   sha256: string,
+ *   requiredNormalizedTokens: string[]
+ * }} fixture
+ */
 async function transcribe(architecture, fixture) {
   const executable = path.join(
     root,
@@ -93,6 +103,7 @@ async function transcribe(architecture, fixture) {
         stdio: ["ignore", "pipe", "pipe"]
       }
     )
+    /** @type {Buffer[]} */
     const chunks = []
     let stdoutBytes = 0
     let stderrBytes = 0
@@ -137,6 +148,7 @@ async function transcribe(architecture, fixture) {
   }
 }
 
+/** @type {Array<"arm64" | "x64">} */
 const architectures = process.arch === "arm64" ? ["arm64", "x64"] : ["x64"]
 let passed = 0
 for (const architecture of architectures) {

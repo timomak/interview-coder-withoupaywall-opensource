@@ -20,7 +20,7 @@ async function fixtureAdapter(
       "#!/bin/sh",
       'test "$1" = "--file"',
       'test "$2" = "' + wave + '"',
-      "printf '%s\\n' '" + output.replaceAll("'", "'\\''") + "'"
+      "printf '%s\\n' '" + output.split("'").join("'\\''") + "'"
     ].join("\n"),
     { mode: 0o700 }
   )
