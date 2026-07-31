@@ -1,0 +1,165 @@
+{
+  "schemaVersion": 1,
+  "kind": "long-horizon-paused-handoff",
+  "projectKey": "InterviewCopilot",
+  "capturedAt": "2026-07-31T16:07:17+02:00",
+  "status": "PAUSED_BY_USER_QUIESCED",
+  "controller": {
+    "threadId": "019f9ff6-e24b-7053-a2b3-fe01f8538ab4",
+    "soleControllerPreserved": true,
+    "activeWriters": [],
+    "activeReviewers": [],
+    "activeCommands": [],
+    "processReconciliation": "NO_INTERVIEWCOPILOT_TIMOCODES_VERIFICATION_CONTROLLER_OR_RELEASE_COMMAND_PROCESS"
+  },
+  "candidate": {
+    "repository": "/Users/thirdfacedev/.codex/worktrees/ic-m05/TimoCodes",
+    "branch": "codex/ic-m05-release",
+    "head": "73a64b97442260fb5bf5d533e625936a600ca185",
+    "tree": "c88cf36f37fcd1d376e679d6285c7dc0514d788a",
+    "parentFailedCandidate": "82f29cb176da496835ab08216420bd787936a09d",
+    "initialP12Candidate": "79f9eb9334933a84d8fd04814409c7124698df70",
+    "baseApprovedICM04": "9b6672464d16389b6315cbe0c17d48569714530e",
+    "worktreeStatus": "CLEAN",
+    "stagedChanges": [],
+    "unstagedChanges": [],
+    "untrackedChanges": [],
+    "remoteTracking": null,
+    "remoteBranchPresent": false,
+    "preservation": "LOCAL_COMMIT_AND_WORKTREE_RETAINED_UNCHANGED"
+  },
+  "diffInventory": {
+    "recoveryBase": "82f29cb176da496835ab08216420bd787936a09d",
+    "recoveryHead": "73a64b97442260fb5bf5d533e625936a600ca185",
+    "summary": "22 files changed, 761 insertions, 194 deletions",
+    "nameStatus": [
+      "M electron/ipcHandlers.ts",
+      "M electron/main.ts",
+      "M electron/preload.ts",
+      "M electron/qualification/artifactValidator.ts",
+      "M electron/qualification/collector.ts",
+      "M electron/qualification/liveProcedure.ts",
+      "A electron/qualification/packageInspection.ts",
+      "M package.json",
+      "M scripts/qualification/collector-write-once.test.ts",
+      "M scripts/qualification/meet-artifact-validator.test.ts",
+      "M scripts/qualification/package-mac.mjs",
+      "M scripts/qualification/qualify-meet.mjs",
+      "M scripts/qualification/release-statement-constructibility.test.ts",
+      "M scripts/qualification/verify-mac-package.mjs",
+      "M scripts/qualification/verify-release.mjs",
+      "M scripts/verification/test-manifest.json",
+      "M src/features/privacy/MeetVerification.test.tsx",
+      "M src/features/privacy/MeetVerification.tsx",
+      "M src/types/electron.d.ts",
+      "M tests/qualification/liveProcedure.e2e.test.ts",
+      "M tests/qualification/staffLivePositioning.contract.test.ts",
+      "M tests/qualification/testSupport.ts"
+    ],
+    "fullMilestoneSummaryFromICM04": "59 files changed, 36003 insertions, 962 deletions"
+  },
+  "durableEvidence": {
+    "ledgerRepository": "/Users/thirdfacedev/.codex/orchestration/TimoCodes-ledger",
+    "ledgerBranch": "orchestration/ledger",
+    "ledgerHeadBeforePauseRecord": "6f55286db530cd57e5be88aeeac219fee6afb014",
+    "ledgerTreeBeforePauseRecord": "e7791b1cba33d9c24dd788744d6d176d336d8a4c",
+    "ledgerRemoteSynchronized": true,
+    "controllerStatePath": "v3/interviewcopilot/controller-state.json",
+    "controllerStateSha256BeforePauseRecord": "f0895fdc8d0beaf9d43e3290cb5c95103f2e0fe673459d27530d615fa6177334",
+    "milestonePacket": "v3/interviewcopilot/milestone-IC-M05-packet-1.json",
+    "milestonePacketSha256": "61015fe392f5169946e1cd0b760c182185bb600fb06018ed06a82dc6d7cffcb4",
+    "remediationPacket": "v3/interviewcopilot/milestone-IC-M05-remediation-1.json",
+    "remediationPacketSha256": "b6bb1ad1f7e6eacabccb80609e62dd512b4d9802e8b69a7316f43618ed3bebeb",
+    "boundedRecoveryPacket": "v3/interviewcopilot/bounded-recovery-IC-M05-1.json",
+    "boundedRecoveryPacketSha256": "3be473cfbac0bb1c4f215b5eb22843b38bc7826815f8d1889ccdfd563f633992",
+    "boundedRecoveryResult": "v3/interviewcopilot/bounded-recovery-IC-M05-1-result.json",
+    "boundedRecoveryResultSha256": "55e18104955ad2e56040e6bdc76a1761d2bc7bcfe4a47d679161c4cbf59e321b"
+  },
+  "reviewDisposition": {
+    "status": "FAILED_TERMINAL_SECOND_MATERIAL_FAILURE",
+    "reviewedRevision": "73a64b97442260fb5bf5d533e625936a600ca185",
+    "reviewer": "/root/ic_m04_high_review",
+    "closedFindingIds": [
+      "IC-M05-B02",
+      "IC-M05-B03",
+      "IC-M05-B04",
+      "IC-M05-B05",
+      "IC-M05-B06",
+      "IC-M05-B08"
+    ],
+    "remainingFindingIds": [
+      "IC-M05-B01",
+      "IC-M05-B07",
+      "IC-M05-B09"
+    ],
+    "remainingEvidence": {
+      "IC-M05-B01": "Package verification copies signing Team ID, certificate SHA-256, and notarization ticket identity from the detached statement instead of independently deriving and comparing them from the mounted signed artifact.",
+      "IC-M05-B07": "Production collection does not invoke sealBundle, ends at awaiting-analysis-and-attestations, and does not pin the signed remote-helper digest to an expected reviewed helper digest.",
+      "IC-M05-B09": "Not every frozen provider event executes through the orchestrator; the behavioral follow-up remains unused and some corpus output remains hardcoded."
+    }
+  },
+  "gateBudgets": {
+    "completeFindingBatch": "CONSUMED_1_OF_1",
+    "consolidatedRemediation": "CONSUMED_1_OF_1",
+    "exactDeltaReview": "CONSUMED_1_OF_1",
+    "checkerAuthorizedBoundedRecovery": "CONSUMED_1_OF_1",
+    "terminalClosureReview": "CONSUMED_1_OF_1",
+    "additionalRecovery": "REMAINING_0_TERMINAL",
+    "authoritativeCompleteSuite": "UNUSED_0_OF_1_LOCKED_BY_OPEN_FINDINGS",
+    "mechanicalIntegrationGuards": "UNUSED_LOCKED",
+    "protectedIntegration": "UNUSED_LOCKED",
+    "postMergeSmoke": "UNUSED_LOCKED"
+  },
+  "verification": {
+    "targetedP12": "19_PASS_0_FAIL_0_SKIP",
+    "typecheck": "PASS_369_EXECUTABLE_FILES",
+    "lint": "PASS_369_EXECUTABLE_153_TEST_FILES",
+    "build": "PASS",
+    "packageInventory": "PASS_4660_ASAR_118_OUTER",
+    "manifestPolicy": "2_PASS_0_FAIL_MANIFEST_HASH_DRIFT_0",
+    "authoritativeRoute": "UNUSED"
+  },
+  "pullRequests": {
+    "upstream155": {
+      "url": "https://github.com/j4wg/interview-coder-withoupaywall-opensource/pull/155",
+      "state": "OPEN_READY",
+      "head": "a8cdcbdeb49a897946dd520981d59d9a1a3813b6",
+      "base": "9dcb4b2d39607273a8528a24657cdb4f5bfc3412",
+      "mergeable": true,
+      "reviewDecision": "REVIEW_REQUIRED",
+      "codeql": "SUCCESS"
+    },
+    "stackedDrafts": [
+      {"number": 1, "head": "703a37e47b4a398ed90e1c5cf4be9c5859dc0849", "base": "phase/P01-local-gates", "state": "OPEN_DRAFT_MERGEABLE"},
+      {"number": 2, "head": "e12930fb4ea7018d829bcc8366bed9f39d799c6d", "base": "codex/ic-m01-runtime-storage-session", "state": "OPEN_DRAFT_MERGEABLE"},
+      {"number": 3, "head": "72a6d2517cdfad5e2f8ed92f6c90e223dc2c2821", "base": "codex/ic-m02-live-modes", "state": "OPEN_DRAFT_MERGEABLE"},
+      {"number": 4, "head": "9b6672464d16389b6315cbe0c17d48569714530e", "base": "codex/ic-m03-audio", "state": "OPEN_DRAFT_MERGEABLE"}
+    ],
+    "protectedIntegrationBlocker": "Upstream PR 155 remains REVIEW_REQUIRED; the dependent draft stack cannot be protected-integrated while that repository review gate and IC-M05 terminal findings remain open."
+  },
+  "resources": {
+    "worktrees": [
+      "/Users/thirdfacedev/.codex/worktrees/ic-m01/TimoCodes",
+      "/Users/thirdfacedev/.codex/worktrees/ic-m02/TimoCodes",
+      "/Users/thirdfacedev/.codex/worktrees/ic-m03/TimoCodes",
+      "/Users/thirdfacedev/.codex/worktrees/ic-m04/TimoCodes",
+      "/Users/thirdfacedev/.codex/worktrees/ic-m05/TimoCodes",
+      "/Users/thirdfacedev/.codex/orchestration/TimoCodes-ledger"
+    ],
+    "legacyV1": "QUARANTINED_UNAUTHORIZED_DO_NOT_INVOKE",
+    "a04": "NOT_INVOKED",
+    "legacyAutomation": "PAUSED",
+    "signingOrPhysicalResourcesActivated": false
+  },
+  "prohibitionsWhilePaused": [
+    "no implementation command",
+    "no writer or reviewer",
+    "no authoritative suite",
+    "no integration or merge",
+    "no deployment",
+    "no A04 or privileged helper",
+    "no signing or physical Meet action",
+    "no legacy automation unpause"
+  ],
+  "nextSafeResumeAction": "Reconcile this handoff, candidate 73a64b97442260fb5bf5d533e625936a600ca185, terminal result 55e18104955ad2e56040e6bdc76a1761d2bc7bcfe4a47d679161c4cbf59e321b, repository/PR state, and absence of active work. Do not resume IC-M05-RECOVERY-01. Proceed only under explicit superseding milestone-level authority that preserves the terminal evidence and defines a new bounded plan for IC-M05-B01, IC-M05-B07, and IC-M05-B09; keep the authoritative suite unused until those findings receive exact approval."
+}
