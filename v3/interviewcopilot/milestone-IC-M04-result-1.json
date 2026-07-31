@@ -1,0 +1,95 @@
+{
+  "schemaVersion": 1,
+  "projectKey": "InterviewCopilot",
+  "milestoneId": "IC-M04",
+  "title": "Prompt Studio and durable lifecycle",
+  "requirementIds": [
+    "P10",
+    "P11",
+    "M-08",
+    "M-09"
+  ],
+  "recordedAt": "2026-07-31T14:04:50+02:00",
+  "status": "APPROVED_AWAITING_DEPENDENCY_INTEGRATION",
+  "candidate": {
+    "revision": "9b6672464d16389b6315cbe0c17d48569714530e",
+    "baseRevision": "72a6d2517cdfad5e2f8ed92f6c90e223dc2c2821",
+    "branch": "codex/ic-m04-lifecycle",
+    "remote": "fork/codex/ic-m04-lifecycle",
+    "remoteRevision": "9b6672464d16389b6315cbe0c17d48569714530e",
+    "worktree": "/Users/thirdfacedev/.codex/worktrees/ic-m04/TimoCodes",
+    "worktreeClean": true
+  },
+  "pullRequest": {
+    "repository": "timomak/interview-coder-withoupaywall-opensource",
+    "number": 4,
+    "url": "https://github.com/timomak/interview-coder-withoupaywall-opensource/pull/4",
+    "state": "OPEN_DRAFT",
+    "base": "codex/ic-m03-audio",
+    "head": "codex/ic-m04-lifecycle",
+    "baseRevision": "72a6d2517cdfad5e2f8ed92f6c90e223dc2c2821",
+    "headRevision": "9b6672464d16389b6315cbe0c17d48569714530e"
+  },
+  "outcome": {
+    "delivered": [
+      "synchronized Prompt Studio and conversational Prompt Chat with explained semantic review and built-in or user-template duplication",
+      "server-reconstructed exact-base prompt diffs, serialized compare-and-swap persistence, and deterministic task-aware instruction resolution",
+      "content-free resolution provenance while protected authority remains outside user-editable instructions",
+      "encrypted read-only History with in-memory search, explicit retention controls, crash-safe isolated deletion, and unfiltered delete-all confirmation",
+      "versioned one-session JSON or Markdown export with disclosure, structural projection, screenshot bounds, symlink and identity confinement, durable recovery, and secret-value rejection",
+      "disposable M-09 projection without mutation of canonical archives"
+    ],
+    "rollback": "Disable Prompt Studio writes and History export/deletion entry points, retain encrypted canonical archives, replay only the durable operation journal, and restore the prior accepted stacked revision.",
+    "dependency": "IC-M03 and its IC-M02, IC-M01, and upstream P01 dependencies remain stacked open drafts, so IC-M04 is approved but not integrated."
+  },
+  "verification": {
+    "toolchain": {
+      "node": "20.20.2"
+    },
+    "policy": "PASS",
+    "lint": "PASS_330_EXECUTABLE_134_TEST_FILES",
+    "typecheck": "PASS_330_EXECUTABLE_FILES",
+    "authoritativeUnit": "234_PASS_0_FAIL_0_SKIP_134_FILES_AUTHENTICATED_EXACT_SHA",
+    "testManifest": "234_NAMED_TESTS_EXECUTED_AND_ACCEPTED",
+    "audioEngine": "4_PASS_0_FAIL_0_SKIP_ARM64_X64",
+    "p10Targeted": "8_PASS_0_FAIL_0_SKIP",
+    "promptAdversarial": "3_PASS_0_FAIL_0_SKIP",
+    "p11Targeted": "9_PASS_0_FAIL_0_SKIP",
+    "historyRoundTrip": "3_PASS_0_FAIL_0_SKIP",
+    "plaintextScan": "2_PASS_0_FAIL_0_SKIP",
+    "build": "PASS",
+    "packageInventory": {
+      "status": "PASS_UNSIGNED_LOCAL_INVENTORY_NOT_RELEASE",
+      "asarEntries": 9063,
+      "outerEntries": 118,
+      "asarSha256": "fa8bc216f31832744a25b80f2f8f06884bd08b4905963b55c7bb61593b39e5fc"
+    }
+  },
+  "review": {
+    "reviewer": "/root/ic_m04_high_review",
+    "risk": "HIGH",
+    "initialReviewedRevision": "9a5236acf1051676921685b5d3df7494d69615b8",
+    "initialDisposition": "REQUEST_CHANGES_COMPLETE_BATCH_B01_THROUGH_B08",
+    "finalReviewedRevision": "9b6672464d16389b6315cbe0c17d48569714530e",
+    "finalDisposition": "APPROVE",
+    "closedFindingIds": [
+      "IC-M04-B01",
+      "IC-M04-B02",
+      "IC-M04-B03",
+      "IC-M04-B04",
+      "IC-M04-B05",
+      "IC-M04-B06",
+      "IC-M04-B07",
+      "IC-M04-B08"
+    ]
+  },
+  "boundaries": {
+    "privilegedHelperInvoked": false,
+    "a04Invoked": false,
+    "mergePerformed": false,
+    "deploymentPerformed": false,
+    "upstreamPr155Mutated": false,
+    "legacyAutomationUnpaused": false
+  },
+  "nextSafeAction": "Freeze and execute IC-M05/P12 macOS release hardening and qualification implementation from exact approved IC-M04 revision 9b6672464d16389b6315cbe0c17d48569714530e. Complete every safe non-interactive release control before surfacing only the final physical Google Meet/signing boundary."
+}

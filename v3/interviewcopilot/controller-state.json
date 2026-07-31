@@ -866,5 +866,5 @@
     "privilegedBoundaryCrossed": false,
     "candidateInvoked": false
   },
-  "nextSafeAction": "Freeze and execute IC-M04/P10-P11 from exact approved IC-M03 revision 72a6d2517cdfad5e2f8ed92f6c90e223dc2c2821. Retain stacked draft PRs 1, 2, and 3 unchanged; protected integration of upstream PR 155 remains externally repository-permission blocked. Do not invoke A04, deploy, or unpause legacy automation."
+  "nextSafeAction": "Freeze and execute IC-M05/P12 from exact approved IC-M04 revision 9b6672464d16389b6315cbe0c17d48569714530e. Retain stacked draft PRs 1, 2, 3, and 4 unchanged; complete every safe non-interactive macOS release and qualification control before surfacing only the final signing and physical Google Meet boundary. Protected integration of upstream PR 155 remains externally repository-permission blocked. Do not invoke A04, deploy, or unpause legacy automation."
 }
