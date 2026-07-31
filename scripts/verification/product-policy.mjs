@@ -257,7 +257,7 @@ export function validateIdentity(packageJson, visibleFiles) {
   }
   if (
     packageJson.build?.mac?.artifactName !==
-    "InterviewCopilot-${arch}.${ext}"
+    "InterviewCopilot-${version}-${arch}.${ext}"
   ) {
     errors.push("macOS artifact identity must be InterviewCopilot")
   }

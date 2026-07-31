@@ -85,6 +85,12 @@ const electronAPI = {
     ipcRenderer.invoke(AUDIO_PREFERENCES_UPDATE_CHANNEL, preferences),
   openAudioSystemSettings: (source: AudioSource) =>
     ipcRenderer.invoke(AUDIO_OPEN_SYSTEM_SETTINGS_CHANNEL, source),
+  getCaptureVerificationState: () =>
+    ipcRenderer.invoke("privacy:verification-state"),
+  previewDiagnostics: () =>
+    ipcRenderer.invoke("privacy:diagnostics-preview"),
+  exportDiagnostics: (preview: unknown) =>
+    ipcRenderer.invoke("privacy:diagnostics-export", preview),
   getProfileContext: () => ipcRenderer.invoke("profile:get-context"),
   getProfileBundle: () => ipcRenderer.invoke("profile:get-bundle"),
   saveProfileBundle: (bundle: unknown) =>

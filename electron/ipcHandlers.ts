@@ -58,6 +58,8 @@ import type {
   HistoryExportReceipt,
   HistoryExportRequest
 } from "../src/features/history/types"
+import type { DiagnosticPreview } from "./diagnostics/DiagnosticService"
+import type { CaptureVerificationState } from "./privacy/verificationRecord"
 
 export interface IpcHandlerDependencies {
   readonly orchestrator: InterviewOrchestrator
@@ -124,6 +126,9 @@ export interface IpcHandlerDependencies {
     preferences: AudioPreferencesV1
   ) => Promise<AudioPreferencesV1>
   readonly openAudioSystemSettings: (source: AudioSource) => Promise<void>
+  readonly previewDiagnostics: () => Promise<DiagnosticPreview>
+  readonly exportDiagnostics: (preview: DiagnosticPreview) => Promise<boolean>
+  readonly getCaptureVerificationState: () => Promise<CaptureVerificationState>
 }
 
 export function initializeIpcHandlers(
@@ -142,6 +147,18 @@ export function initializeIpcHandlers(
   ipcMain.handle(PROVIDER_DIAGNOSTICS_CHANNEL, () =>
     dependencies.diagnoseProviders()
   )
+  ipcMain.handle("privacy:verification-state", () =>
+    dependencies.getCaptureVerificationState()
+  )
+  ipcMain.handle("privacy:diagnostics-preview", () =>
+    dependencies.previewDiagnostics()
+  )
+  ipcMain.handle("privacy:diagnostics-export", (_event, value: unknown) => {
+    if (!value || typeof value !== "object") {
+      throw new Error("Diagnostic preview is malformed")
+    }
+    return dependencies.exportDiagnostics(value as DiagnosticPreview)
+  })
   ipcMain.handle(PROVIDER_CONFIGURE_CHANNEL, (_event, value: unknown) => {
     if (
       typeof value !== "object" ||

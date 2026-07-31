@@ -1,0 +1,76 @@
+{
+  "schemaVersion": 1,
+  "corpusId": "staff-live-corpus.v1",
+  "promptPolicy": {
+    "audience": "Senior/Staff+",
+    "shell": "Live",
+    "practice": false,
+    "postAnswerScore": false,
+    "principles": [
+      "state material assumptions",
+      "make trade-offs explicit",
+      "separate verified facts from unknown metrics",
+      "preserve unaffected sections on correction or follow-up"
+    ]
+  },
+  "cases": [
+    {
+      "id": "SL-CODING-01",
+      "mode": "coding",
+      "inputArtifacts": {
+        "question": "Change a multi-tenant rate limiter when the screenshot says per-user and the transcript says per-organization.",
+        "screenshotFact": "limit key = user_id",
+        "transcriptFact": "limit key = organization_id",
+        "followUp": "Explain behavior when the shared store is unavailable."
+      },
+      "providerEvents": [
+        { "sectionId": "ambiguity", "text": "The tenant key is ambiguous; confirm whether policy is per user or organization. I will assume organization until corrected." },
+        { "sectionId": "approach", "text": "Use an atomic token bucket keyed by organization, trading a shared-store round trip for cross-instance consistency." },
+        { "sectionId": "complexity", "text": "Time O(1) and space O(number of active tenant keys)." },
+        { "sectionId": "failure", "text": "On store failure, fail closed for writes, surface degraded state, and use a bounded retry; never silently issue unlimited tokens." },
+        { "sectionId": "testing", "text": "Test concurrency, clock skew, expiry, tenant isolation, store outage, and maintain the policy behind one interface." }
+      ],
+      "expectedAffectedSectionIds": ["failure"],
+      "forbiddenFields": ["practiceScore", "practiceFeedback", "postAnswerScore"],
+      "assertions": ["ambiguity", "trade-off", "time-complexity", "space-complexity", "production-failure", "testing", "maintainability"]
+    },
+    {
+      "id": "SL-SYSTEM-01",
+      "mode": "system-design",
+      "inputArtifacts": {
+        "question": "Design a global job scheduler.",
+        "constraints": ["50 million jobs/day", "three regions", "regional failover", "zero-downtime migration", "named on-call ownership", "cost ceiling is unknown"],
+        "followUp": "Deepen only regional failure handling."
+      },
+      "providerEvents": [
+        { "sectionId": "requirements", "text": "Assume 50 million jobs/day, at-least-once execution, and an unknown cost ceiling that must be confirmed." },
+        { "sectionId": "estimates", "text": "579 jobs/s average, 5,800 jobs/s at 10x peak, and 150 GB/day at 3 KB/job." },
+        { "sectionId": "architecture", "text": "Vendor-neutral API, durable job store, sharded due-time index, regional dispatchers, idempotent workers, and an event log." },
+        { "sectionId": "reliability", "text": "Use lease epochs and home-region fencing; fail a region over only after quorum confirms the prior epoch is closed." },
+        { "sectionId": "operations", "text": "Migrate with dual reads and shadow dispatch, assign Scheduler on-call ownership, budget storage/egress/compute, and confirm the cost ceiling." }
+      ],
+      "expectedAffectedSectionIds": ["reliability"],
+      "forbiddenFields": ["practiceScore", "practiceFeedback", "postAnswerScore"],
+      "assertions": ["five-sections", "2-4-unit-estimates", "assumptions", "vendor-neutral", "regional-failure", "migration", "ownership", "cost", "scoped-follow-up-hash"]
+    },
+    {
+      "id": "SL-BEHAVIORAL-01",
+      "mode": "behavioral",
+      "inputArtifacts": {
+        "question": "Tell me about influencing without authority.",
+        "verifiedDossier": ["Led an API migration across four teams", "Created a shared rollout scorecard", "No verified revenue metric"],
+        "opportunity": "Staff Engineer role emphasizing cross-team technical leadership",
+        "correction": "The migration involved three teams, not four."
+      },
+      "providerEvents": [
+        { "sectionId": "talking-points", "text": "Aligned three teams around an API migration, used a shared rollout scorecard, and adapted the plan through influence rather than reporting authority." },
+        { "sectionId": "full-answer", "text": "I led an API migration across three teams without direct authority. I built alignment around risks and a shared rollout scorecard. The organizational impact was a coordinated rollout; the dossier does not verify a revenue metric." },
+        { "sectionId": "evidence", "text": "Verified: three-team migration after correction and shared rollout scorecard. Unknown: revenue impact." },
+        { "sectionId": "follow-ups", "text": "Be ready to explain how disagreements were resolved and how rollout ownership was assigned." }
+      ],
+      "expectedAffectedSectionIds": ["talking-points", "full-answer", "evidence"],
+      "forbiddenFields": ["practiceScore", "practiceFeedback", "postAnswerScore"],
+      "assertions": ["dossier-only", "leadership", "influence", "organizational-impact", "unknown-metrics-qualitative", "concise-full-same-facts", "correction-scoped-hash"]
+    }
+  ]
+}

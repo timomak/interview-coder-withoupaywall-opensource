@@ -1170,6 +1170,96 @@
       "path": "src/features/history/crashDecision.test.tsx",
       "name": "offers explicit safe recovery without duplicate archive",
       "sha256": "d29d2aa14981ffd439d8388ed7d1cbf318e0220385038dc0e928b6fa0cb28c85"
+    },
+    {
+      "path": "electron/diagnostics/diagnosticPrivacy.test.ts",
+      "name": "previews redacted local-only diagnostic export",
+      "sha256": "5b4449a08af788f7c26285af28c3a1c1bb327decd6c4b8adf92be84e3e4f6028"
+    },
+    {
+      "path": "electron/privacy/verificationRecord.test.ts",
+      "name": "versions verifies fails and stales exact tuples",
+      "sha256": "2b21cdf94481e44c58ea4193ffe960e6a51ed5b76541e5626b30d4aea6b12047"
+    },
+    {
+      "path": "scripts/qualification/canonical-bytes.test.ts",
+      "name": "reproduces JCS bytes digests and exact signature domains",
+      "sha256": "a3d42b8631b357a50a9108122e4b457c30fa6e3d20e784f7aa6383cf31052dbe"
+    },
+    {
+      "path": "scripts/qualification/collector-write-once.test.ts",
+      "name": "rejects second writes regeneration and mutate-then-restore history",
+      "sha256": "2e3f681ea27ace239f056844ed505f17c87f74c8b829cbb3768f205b44c58a5d"
+    },
+    {
+      "path": "scripts/qualification/evidence-graph.test.ts",
+      "name": "proves the exact sixteen-node twenty-eight-edge graph is acyclic",
+      "sha256": "05aa570311c91ffcc5351f3d06606168979101cef973707ae6a74fc761accd87"
+    },
+    {
+      "path": "scripts/qualification/meet-artifact-validator.test.ts",
+      "name": "rejects incomplete cyclic final-byte-mutated untrusted or local-only evidence",
+      "sha256": "bb9929876ac68313c562f8ca921884efb512b8f496eb8b0f607cf586cce7fe00"
+    },
+    {
+      "path": "scripts/qualification/release-statement-constructibility.test.ts",
+      "name": "binds a post-build statement without changing pre-commit matrix identity",
+      "sha256": "6e5109ffa0835be5b0dafa8cb892335049f07e39f129968dac69308f7355340d"
+    },
+    {
+      "path": "scripts/qualification/schema-inventory.test.ts",
+      "name": "keeps all thirteen protocol families recursively closed",
+      "sha256": "98926dacacd62a3c49299cb1bc1693f4a9fb80516caae9de9e283f6c826e11f3"
+    },
+    {
+      "path": "scripts/qualification/trust-registry.test.ts",
+      "name": "rejects unknown revoked wrong-purpose duplicate and reused trust",
+      "sha256": "8efdeb82e95635602197166cebcbee708b765458b52c559ebb7d3ede0c7eaa51"
+    },
+    {
+      "path": "src/features/privacy/MeetVerification.test.tsx",
+      "name": "guides only qualified scopes with remote confirmation",
+      "sha256": "809f40f53a465463067d8d8384307b94aa88b3ce057eb732941cb9200535644e"
+    },
+    {
+      "path": "tests/qualification/claimPolicy.test.ts",
+      "name": "rejects unqualified privacy and platform language",
+      "sha256": "14f97416d126006e97d9023a15014409e9f708bdfc788e1125b975ad7a09aa95"
+    },
+    {
+      "path": "tests/qualification/deferredScope.test.ts",
+      "name": "keeps deferred surfaces out of launch",
+      "sha256": "878d27bc6a3873c84b3650af522aa256dbe17f104692e5d75afa452996b70675"
+    },
+    {
+      "path": "tests/qualification/macosPackagePolicy.test.ts",
+      "name": "rejects any macOS entitlement allowlist mismatch",
+      "sha256": "db14bd84279b9d54321a255f86885e4c2af9e9a87db35a86e266804f7faedfdf"
+    },
+    {
+      "path": "tests/qualification/noUsageGate.test.ts",
+      "name": "preserves the neutral frictionless tool boundary",
+      "sha256": "c2ab5f32ff48ea1ed97fa2717fa50dd14144f2ab5d46cd24e34e6dade3a3ff56"
+    },
+    {
+      "path": "tests/qualification/openSourcePrivacyPolicy.test.ts",
+      "name": "enforces free local-only product policy",
+      "sha256": "9f07e2bf9a318b4f97f22ee01ad2c0eb051b406842bb020652c4c4687d6263b2"
+    },
+    {
+      "path": "tests/qualification/packagedCaptureProtection.test.ts",
+      "name": "traces protection in the packaged app",
+      "sha256": "f258f20f6fd603411c09788ea41075794556141df5bfb994231ce881f08cf878"
+    },
+    {
+      "path": "tests/qualification/scopedRecovery.e2e.test.ts",
+      "name": "preserves session through every permission/provider failure",
+      "sha256": "60f27a7836915325a3f01049f9d9c18389343be937726d9d15cd296342c7c036"
+    },
+    {
+      "path": "tests/qualification/staffLivePositioning.contract.test.ts",
+      "name": "enforces the frozen Live-first Staff-plus corpus",
+      "sha256": "539f61dbfba9676f15f38d1965d859916965de91aae2d02a9b7056facf8f20dc"
     }
   ]
 }

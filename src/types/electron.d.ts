@@ -136,6 +136,15 @@ export interface ElectronAPI {
   openAudioSystemSettings?: (
     source: AudioSource
   ) => Promise<{ success: boolean }>
+  getCaptureVerificationState: () => Promise<
+    import("../../electron/privacy/verificationRecord").CaptureVerificationState
+  >
+  previewDiagnostics: () => Promise<
+    import("../../electron/diagnostics/DiagnosticService").DiagnosticPreview
+  >
+  exportDiagnostics: (
+    preview: import("../../electron/diagnostics/DiagnosticService").DiagnosticPreview
+  ) => Promise<boolean>
   toggleMainWindow: () => Promise<{ success: boolean }>
   getPlatform: () => NodeJS.Platform
   startUpdate: () => Promise<{ success: boolean; error?: string }>

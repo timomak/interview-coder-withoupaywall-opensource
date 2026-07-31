@@ -1,6 +1,7 @@
 import {
   app,
   BrowserWindow,
+  dialog,
   safeStorage,
   screen,
   shell,
@@ -79,6 +80,12 @@ import {
 } from "./history"
 import type { HistoryArchiveV1 } from "../src/features/history/types"
 import type { RecordRepository } from "./storage"
+import { DiagnosticService } from "./diagnostics/DiagnosticService"
+import {
+  CaptureVerificationRepository,
+  captureVerificationState,
+  type CaptureVerificationRecordV1
+} from "./privacy/verificationRecord"
 
 const isDevelopment = process.env.NODE_ENV === "development"
 
@@ -484,6 +491,15 @@ async function initializeApplication(): Promise<void> {
       "templates"
     )
   )
+  const captureVerification = new CaptureVerificationRepository(
+    new EncryptedRecordRepository<CaptureVerificationRecordV1>(
+      storagePaths,
+      keyService,
+      undefined,
+      "capture-verification"
+    )
+  )
+  const diagnosticService = new DiagnosticService()
   const historyRepository = new HistoryRepository(
     records as unknown as RecordRepository<object>,
     new EncryptedRecordRepository<HistoryArchiveV1 | object>(
@@ -752,6 +768,35 @@ async function initializeApplication(): Promise<void> {
           ? "x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone"
           : "x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture"
       ),
+    getCaptureVerificationState: async () => {
+      const record = await captureVerification.load()
+      if (!record) return "Not verified"
+      return captureVerificationState(record, {
+        ...record.tuple,
+        appSemver: app.getVersion(),
+        architecture
+      })
+    },
+    previewDiagnostics: async () =>
+      diagnosticService.preview({
+        appVersion: app.getVersion(),
+        packaged: app.isPackaged,
+        platform: process.platform,
+        architecture,
+        providerConfigured: Boolean(configHelper.loadConfig().provider),
+        captureVerification: await captureVerification.load()
+          .then((record) => record ? "record-present" : "record-absent")
+      }),
+    exportDiagnostics: async (preview) => {
+      const selection = await dialog.showSaveDialog({
+        title: "Export redacted diagnostics",
+        defaultPath: "InterviewCopilot-diagnostics.json",
+        filters: [{ name: "JSON", extensions: ["json"] }]
+      })
+      if (selection.canceled || !selection.filePath) return false
+      await diagnosticService.export(selection.filePath, preview)
+      return true
+    },
     setWindowPointerEvents: (ignore, forward) => {
       if (state.mainWindow) {
         applyPointerRouting(state.mainWindow, ignore, forward)
