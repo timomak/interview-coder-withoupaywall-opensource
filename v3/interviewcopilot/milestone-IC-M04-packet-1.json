@@ -1,0 +1,115 @@
+{
+  "schemaVersion": 1,
+  "projectKey": "InterviewCopilot",
+  "milestoneId": "IC-M04",
+  "title": "Prompt Studio and durable lifecycle",
+  "status": "FROZEN",
+  "frozenAt": "2026-07-31T12:46:00+02:00",
+  "source": {
+    "legacyPacketRevision": "P00-R9",
+    "legacyPacketCommit": "02ee6ddec78d6e4ea9e2de3c0303ffd6bc9f45bf",
+    "milestoneMap": "/Users/thirdfacedev/Documents/Codex/2026-07-28/long-horizon-supervisor/outputs/v3-maps/interviewcopilot-milestone-map.json"
+  },
+  "base": {
+    "milestone": "IC-M03",
+    "revision": "72a6d2517cdfad5e2f8ed92f6c90e223dc2c2821",
+    "branch": "codex/ic-m03-audio",
+    "pullRequest": 3
+  },
+  "requirements": [
+    "P10",
+    "P11",
+    "M-08",
+    "M-09"
+  ],
+  "outcome": "Deliver protected encrypted prompt variants and a complete encrypted session lifecycle with explicit crash recovery, Settings-only History, safe individual export, and isolated deletion.",
+  "workPackages": [
+    {
+      "id": "IC-M04-W1",
+      "title": "Prompt Studio",
+      "mutableTargets": [
+        "src/features/prompts",
+        "electron/prompts",
+        "electron/storage/template records",
+        "prompt composition and session snapshot integration"
+      ],
+      "acceptance": [
+        "P10-AC1",
+        "P10-AC2",
+        "P10-AC3",
+        "P10-AC4",
+        "P10-AC5",
+        "P10-AC6",
+        "P10-AC7",
+        "P10-AC8",
+        "M-08"
+      ]
+    },
+    {
+      "id": "IC-M04-W2",
+      "title": "Recovery, History, export, and deletion",
+      "dependsOn": [
+        "IC-M04-W1"
+      ],
+      "mutableTargets": [
+        "src/features/history",
+        "electron/history",
+        "electron/storage/history records and derived index",
+        "recovery decision and Settings integration"
+      ],
+      "acceptance": [
+        "P11-AC1",
+        "P11-AC2",
+        "P11-AC3",
+        "P11-AC4",
+        "P11-AC5",
+        "P11-AC6",
+        "P11-AC7",
+        "P11-AC8",
+        "M-09"
+      ]
+    }
+  ],
+  "protectedInvariants": [
+    "templates cannot alter typed response schemas, mode locking, provider/model/effort selection, no-fallback, tool policy, screenshot authority, or factual/synthetic boundaries",
+    "only Coding, System Design, and Behavioral variants are creatable",
+    "all template records, active selections, resolution records, session recovery, History records, indexes, screenshots, and caches remain encrypted at rest",
+    "History exists only under Settings and remains indefinitely until explicit deletion",
+    "archive open is read-only and cannot start capture, provider work, or mutate the active session",
+    "export releases only the selected session after explicit plaintext disclosure into a user-selected confined destination",
+    "deletion is confirmed, journaled, resumable, and isolated from active state, preferences, profiles, opportunities, and templates",
+    "raw audio, credentials, provider secrets, and diagnostics content are excluded from archives and exports"
+  ],
+  "deferred": [
+    "custom named modes",
+    "arbitrary schemas or renderers",
+    "template sharing or sync",
+    "tags, favorites, multi-select, bulk export",
+    "cloud History sync",
+    "automatic expiry or pruning"
+  ],
+  "verification": {
+    "targetedDuringBuild": true,
+    "authoritativeCompleteExactCandidateSuite": 1,
+    "completeReviewBatch": 1,
+    "maximumRemediationAndDeltaReview": 1,
+    "namedMinimum": {
+      "p10": 8,
+      "p11": 8
+    }
+  },
+  "risk": {
+    "tier": "HIGH",
+    "boundary": "UNTRUSTED_INSTRUCTIONS_AND_SENSITIVE_DATA_LIFECYCLE",
+    "independentReviewRequired": true
+  },
+  "rollback": "Return to the prior readable storage schema, select protected built-ins, discard only derived encrypted indexes, preserve encrypted user template/session records for compatible reopen, and preserve explicitly retained exports.",
+  "boundaries": {
+    "merge": false,
+    "deployment": false,
+    "privilegedHelper": false,
+    "a04": false,
+    "legacyAutomation": false,
+    "upstreamPr155Mutation": false
+  }
+}
