@@ -1,0 +1,74 @@
+{
+  "schemaVersion": 1,
+  "id": "IC-M03-P09-LOCAL-TRANSCRIPTION-QUALIFICATION-1",
+  "recordedAt": "2026-07-31T11:17:00+02:00",
+  "milestoneId": "IC-M03",
+  "phaseId": "P09",
+  "candidateBaseRevision": "e12930fb4ea7018d829bcc8366bed9f39d799c6d",
+  "workspace": "/tmp/interviewcopilot-p09-artifacts.QRBnPC",
+  "source": {
+    "project": "ggml-org/whisper.cpp",
+    "tag": "v1.8.6",
+    "commit": "23ee03506a91ac3d3f0071b40e66a430eebdfa1d",
+    "archiveBytes": 8846418,
+    "expectedSha256": "c8b0de473e9ec47a74bdf6104425c709261beeada8d6d7c1fec7432be701d032",
+    "observedSha256": "c8b0de473e9ec47a74bdf6104425c709261beeada8d6d7c1fec7432be701d032",
+    "status": "PASS"
+  },
+  "model": {
+    "name": "ggml-base.en.bin",
+    "repositoryRevision": "5359861c739e955e79d9a303bcbc70fb988958b1",
+    "bytes": 147964211,
+    "expectedSha256": "a03779c86df3323075f5e796cb2ce5029f00ec8869eee3fdfb897afe36c6d002",
+    "observedSha256": "a03779c86df3323075f5e796cb2ce5029f00ec8869eee3fdfb897afe36c6d002",
+    "status": "PASS"
+  },
+  "builds": [
+    {
+      "architecture": "arm64",
+      "toolchain": "AppleClang 21.0.0.21000101",
+      "cmake": "4.4.1",
+      "binarySha256": "7c0ee3d080d03df6d2dcb5e398b7e83fe7cfae74ce1122e4c55322bbf59b30a6",
+      "compileStatus": "PASS",
+      "runtimeStatus": "PASS"
+    },
+    {
+      "architecture": "x86_64",
+      "toolchain": "AppleClang 21.0.0.21000101",
+      "cmake": "4.4.1",
+      "binarySha256": "657b0b29bfbf9e4f7947af1938849d4240611aa76d7de1048e1edd547d9f18f5",
+      "compileStatus": "PASS",
+      "runtimeStatus": "NOT_RUN_ON_ARM64_HOST",
+      "supportClaim": "PENDING_X86_64_RUNTIME_QUALIFICATION"
+    }
+  ],
+  "offlineRuntime": {
+    "architecture": "arm64",
+    "networkControl": "/usr/bin/sandbox-exec profile denied network*",
+    "networkAttemptsAllowed": 0,
+    "fixtures": [
+      {
+        "source": "system",
+        "sha256": "26e9be7b23e8023352c65106e153b628400618fb07b5bb0472bb2417d4d9cdad",
+        "normalizedMarker": "system channel marker river cobalt 7",
+        "observedText": "System Channel Marker River Cobalt 7",
+        "status": "PASS"
+      },
+      {
+        "source": "microphone",
+        "sha256": "6631f597d2a73334a6d6458ebfd103003dc749b6aa1bd7cbf1e3101258754675",
+        "normalizedMarker": "microphone channel marker cedar amber 9",
+        "observedText": "Microphone channel Marker Cedar Amber 9",
+        "status": "PASS"
+      }
+    ],
+    "answerProviderCalls": 0,
+    "status": "PASS"
+  },
+  "remainingEvidence": [
+    "candidate-bound packaged resource inventory",
+    "x86_64 runtime qualification",
+    "actual device-open timing and macOS permission grant/denial",
+    "explicit Apple Speech consent/network trace"
+  ]
+}
