@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "projectKey": "InterviewCopilot",
+  "milestoneId": "IC-M05",
+  "recoveryId": "IC-M05-RECOVERY-01",
+  "recordedAt": "2026-07-31T15:37:56+02:00",
+  "status": "CHECKER_AUTHORIZED_FROZEN",
+  "failedCandidate": {
+    "revision": "82f29cb176da496835ab08216420bd787936a09d",
+    "preserveImmutable": true
+  },
+  "review": {
+    "reviewer": "/root/ic_m04_high_review",
+    "reviewType": "EXACT_B01_B09_DELTA",
+    "disposition": "CHANGES_REQUESTED",
+    "preserveUnchanged": true,
+    "closedFindingIds": [
+      "IC-M05-B03",
+      "IC-M05-B04",
+      "IC-M05-B08"
+    ],
+    "openFindingIds": [
+      "IC-M05-B01",
+      "IC-M05-B02",
+      "IC-M05-B05",
+      "IC-M05-B06",
+      "IC-M05-B07",
+      "IC-M05-B09"
+    ]
+  },
+  "reusableClosedProof": [
+    "exact release-statement releaseKeyId and signature-key contract",
+    "RFC 8785 UTF-16 property ordering and fatal malformed-UTF-8 rejection",
+    "capture protection before and after every production setBounds path",
+    "exact parent and inherited entitlement allowlists",
+    "macOS-only package declaration",
+    "local-only redacted diagnostics",
+    "claim, deferred-scope, no-usage-gate, SBOM, and vulnerability disposition"
+  ],
+  "mutableTargets": [
+    "scripts/qualification/package-mac.mjs",
+    "scripts/qualification/verify-mac-package.mjs",
+    "scripts/qualification/verify-release.mjs",
+    "electron/qualification/artifactValidator.ts",
+    "electron/qualification/collector.ts",
+    "electron/qualification/liveProcedure.ts",
+    "electron/main.ts",
+    "tests/qualification/staffLivePositioning.contract.test.ts",
+    "bounded tests, fixtures, suite registration, and manifest hashes for the six findings only"
+  ],
+  "requiredCorrection": [
+    "produce and validate the sealed package set and detached statement through the pinned package lifecycle, and make verify-release independently rerun deep package verification",
+    "enforce raw frame, marker, control, observer, video, timing, count, coverage, role-ID, acknowledgement, matrix, statement, and independent-review semantics against actual members",
+    "make the filesystem collector reject mutate-restore, enforce immutable final state, and prohibit recovery mutation after finalization",
+    "observe current Meet build independently of stored M-10 state so changes invalidate qualification",
+    "implement signed SHA-bound remote observer pairing and complete two-scope evidence collection with the 120-second interval beginning only after acknowledgement",
+    "execute and evaluate every frozen Staff-plus assertion through the real typed orchestrator, including expected affected sections and correction hash preservation"
+  ],
+  "gateOrder": [
+    "one coherent six-finding correction",
+    "targeted self-tests",
+    "same reviewer exact six-finding closure only",
+    "single authoritative suite after approval",
+    "declared mechanical integration guards"
+  ],
+  "terminalRule": "If any identical material B01/B02/B05/B06/B07/B09 finding survives the exact closure, record terminal second material failure and stop without another recovery loop.",
+  "prohibitions": {
+    "newGeneralReview": false,
+    "authoritativeSuiteBeforeClosure": false,
+    "merge": false,
+    "deploy": false,
+    "invokeA04": false,
+    "privilegedAction": false,
+    "signing": false,
+    "physicalMeetAction": false,
+    "legacyAutomation": false
+  }
+}
