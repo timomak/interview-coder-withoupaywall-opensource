@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "projectKey": "InterviewCopilot",
+  "milestoneId": "IC-M05",
+  "remediationId": "IC-M05-REM-01",
+  "recordedAt": "2026-07-31T14:52:25+02:00",
+  "status": "FROZEN_IMPLEMENTATION_AUTHORIZED",
+  "failedCandidate": "79f9eb9334933a84d8fd04814409c7124698df70",
+  "baseRevision": "9b6672464d16389b6315cbe0c17d48569714530e",
+  "reviewer": "/root/ic_m04_high_review",
+  "reviewDisposition": "CHANGES_REQUESTED_COMPLETE_BATCH",
+  "findingIds": [
+    "IC-M05-B01",
+    "IC-M05-B02",
+    "IC-M05-B03",
+    "IC-M05-B04",
+    "IC-M05-B05",
+    "IC-M05-B06",
+    "IC-M05-B07",
+    "IC-M05-B08",
+    "IC-M05-B09"
+  ],
+  "scope": [
+    "replace marker/existence release commands with pinned-checkout authoritative statement, package, evidence, review, and reuse validation",
+    "validate every closed raw/derived/collection/manifest/attestation/review schema and matrix, statement, timing, coverage, acknowledgement, package, and trust binding",
+    "match the exact detached release-statement payload and signature-key contract",
+    "implement RFC 8785-compatible canonical ordering and strict malformed-UTF-8 rejection",
+    "replace the in-memory collector with exclusive persistent write-once filesystem finalization and crash/replay controls used by qualification",
+    "wire M-10 to independently observed live commit, bundle, OS/build, Chrome, Meet, display, architecture, and package identity with actual save and Settings lookup",
+    "make Meet qualification executable with animated marker/control surfaces, enforced 120-second two-scope procedure, pairing/observer identity, and artifact collection",
+    "reapply capture protection on every production setBounds lifecycle path and test the real paths",
+    "execute the frozen Staff-plus corpus through the typed fake-provider/orchestrator and prove affected-section and correction hash preservation"
+  ],
+  "preserve": [
+    "failed candidate and complete review evidence",
+    "accepted entitlement/package/diagnostics/claims/SBOM/vulnerability work",
+    "all external signing, notarization, matrix-machine, and physical observer boundaries",
+    "stacked PRs and upstream PR 155 unchanged"
+  ],
+  "gateOrder": [
+    "one coherent remediation",
+    "targeted closure evidence",
+    "one exact B01-B09 closure review",
+    "single authoritative complete suite only after closure approval",
+    "mechanical integration guards"
+  ],
+  "prohibitions": {
+    "fabricateExternalEvidence": false,
+    "invokeA04": false,
+    "invokePrivilegedHelper": false,
+    "merge": false,
+    "deploy": false,
+    "mutateUpstreamPr155": false
+  }
+}
