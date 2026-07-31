@@ -31,6 +31,20 @@ import {
   isProfileBundle,
   type ProfileBundle
 } from "../src/features/profile/types"
+import {
+  AUDIO_COMMAND_CHANNEL,
+  AUDIO_OPEN_SYSTEM_SETTINGS_CHANNEL,
+  AUDIO_PREFERENCES_CHANNEL,
+  AUDIO_PREFERENCES_UPDATE_CHANNEL,
+  AUDIO_STATE_CHANNEL,
+  parseAudioCommand,
+  validateAudioPreferences,
+  type AudioCommandResult,
+  type AudioPreferencesV1,
+  type AudioSessionState,
+  AUDIO_SOURCES,
+  type AudioSource
+} from "../src/shared/audio"
 
 export interface IpcHandlerDependencies {
   readonly orchestrator: InterviewOrchestrator
@@ -63,6 +77,15 @@ export interface IpcHandlerDependencies {
   readonly saveProfileBundle: (bundle: ProfileBundle) => Promise<void>
   readonly importProfileMarkdown: (source: string) => Promise<string>
   readonly exportDossier: (destination: string) => Promise<void>
+  readonly getAudioSessionState: () => AudioSessionState
+  readonly dispatchAudioCommand: (
+    command: unknown
+  ) => Promise<AudioCommandResult>
+  readonly getAudioPreferences: () => Promise<AudioPreferencesV1>
+  readonly updateAudioPreferences: (
+    preferences: AudioPreferencesV1
+  ) => Promise<AudioPreferencesV1>
+  readonly openAudioSystemSettings: (source: AudioSource) => Promise<void>
 }
 
 export function initializeIpcHandlers(
@@ -117,6 +140,30 @@ export function initializeIpcHandlers(
   )
   ipcMain.handle(INTERVIEW_RECOVERY_CHANNEL, () =>
     dependencies.orchestrator.inspectRecovery()
+  )
+  ipcMain.handle(AUDIO_STATE_CHANNEL, () =>
+    dependencies.getAudioSessionState()
+  )
+  ipcMain.handle(AUDIO_COMMAND_CHANNEL, (_event, value: unknown) =>
+    dependencies.dispatchAudioCommand(parseAudioCommand(value))
+  )
+  ipcMain.handle(AUDIO_PREFERENCES_CHANNEL, () =>
+    dependencies.getAudioPreferences()
+  )
+  ipcMain.handle(
+    AUDIO_PREFERENCES_UPDATE_CHANNEL,
+    (_event, value: unknown) =>
+      dependencies.updateAudioPreferences(validateAudioPreferences(value))
+  )
+  ipcMain.handle(
+    AUDIO_OPEN_SYSTEM_SETTINGS_CHANNEL,
+    async (_event, value: unknown) => {
+      if (!AUDIO_SOURCES.includes(value as AudioSource)) {
+        throw new Error("Audio settings source is malformed")
+      }
+      await dependencies.openAudioSystemSettings(value as AudioSource)
+      return { success: true }
+    }
   )
   ipcMain.handle("profile:get-context", () =>
     dependencies.getProfileContext()

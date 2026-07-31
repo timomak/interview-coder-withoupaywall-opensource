@@ -4,6 +4,7 @@ import type {
 } from "../../src/shared/interview"
 import type { RecordRepository } from "../storage"
 import type { DeliveryState } from "./contextPolicy"
+import { audioStateForRecovery } from "../../src/shared/audio"
 
 export const M04_SCHEMA_VERSION = 1 as const
 const ACTIVE_RECORD_ID = "active-interview-session"
@@ -63,7 +64,18 @@ function validateM04(value: unknown): M04ActiveSnapshot {
   ) {
     throw new Error("M-04 snapshot is invalid")
   }
-  return candidate as M04ActiveSnapshot
+  const snapshot = candidate as M04ActiveSnapshot
+  return {
+    ...snapshot,
+    session: {
+      ...snapshot.session,
+      audio: audioStateForRecovery(
+        snapshot.session.audio,
+        snapshot.session.sessionId
+      )
+    },
+    captureActive: false
+  }
 }
 
 export class ActiveSessionRepository {
@@ -85,7 +97,11 @@ export class ActiveSessionRepository {
         schemaVersion: M04_SCHEMA_VERSION,
         migration: "M-04",
         savedAt,
-        session: { ...session, captureActive: false },
+        session: {
+          ...session,
+          captureActive: false,
+          audio: audioStateForRecovery(session.audio, session.sessionId)
+        },
         providerConversation: structuredClone(providerConversation),
         delivery: structuredClone(delivery),
         captureActive: false

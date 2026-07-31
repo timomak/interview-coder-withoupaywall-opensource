@@ -37,6 +37,10 @@ import type {
 } from "./orchestrator"
 import type { ResetArchive } from "../src/shared/interview"
 import { INTERVIEW_STATE_EVENT } from "../src/shared/interview"
+import {
+  AUDIO_STATE_EVENT,
+  createInitialAudioSessionState
+} from "../src/shared/audio"
 import { createWindowOpenHandler } from "./windowOpenPolicy"
 import { ScreenshotHelper } from "./ScreenshotHelper"
 import { ShortcutsHelper } from "./shortcuts"
@@ -55,6 +59,12 @@ import {
   type ShortcutAction,
   type ShortcutBindings
 } from "../src/shared/shell"
+import {
+  AudioPreferencesRepository,
+  AudioSessionController,
+  UnavailableAudioCaptureRuntime,
+  type M07AudioPreferencesRecord
+} from "./audio/session"
 
 const isDevelopment = process.env.NODE_ENV === "development"
 
@@ -408,6 +418,12 @@ function createOrchestrator(
     },
     onState: (session) => {
       state.mainWindow?.webContents.send(INTERVIEW_STATE_EVENT, session)
+      state.mainWindow?.webContents.send(
+        AUDIO_STATE_EVENT,
+        session.lifecycle === "active"
+          ? session.audio
+          : createInitialAudioSessionState()
+      )
     }
   })
 }
@@ -440,6 +456,19 @@ async function initializeApplication(): Promise<void> {
     executables,
     new ActiveSessionRepository(records),
     profiles
+  )
+  const audioPreferences = new AudioPreferencesRepository(
+    new EncryptedRecordRepository<M07AudioPreferencesRecord>(
+      storagePaths,
+      keyService,
+      undefined,
+      "audio"
+    )
+  )
+  const audio = new AudioSessionController(
+    orchestrator,
+    audioPreferences,
+    new UnavailableAudioCaptureRuntime()
   )
   createWindow()
   const screenshots = new ScreenshotHelper(
@@ -476,7 +505,10 @@ async function initializeApplication(): Promise<void> {
         state.mainWindow?.webContents.send("shell:shortcut", action)
         return
       case "reset":
-        void capture.reset()
+        void audio.reset(() => capture.reset())
+        return
+      case "record":
+        void audio.command({ type: "master-toggle" })
         return
       case "move-left":
         moveWindowHorizontal(-state.step)
@@ -580,6 +612,17 @@ async function initializeApplication(): Promise<void> {
     saveProfileBundle: (bundle) => profiles.save(bundle),
     importProfileMarkdown: (source) => profiles.importMarkdown(source),
     exportDossier: (destination) => profiles.exportDossier(destination),
+    getAudioSessionState: () => audio.current(),
+    dispatchAudioCommand: (command) => audio.command(command),
+    getAudioPreferences: () => audioPreferences.load(),
+    updateAudioPreferences: (preferences) =>
+      audioPreferences.save(preferences),
+    openAudioSystemSettings: (source) =>
+      shell.openExternal(
+        source === "microphone"
+          ? "x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone"
+          : "x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture"
+      ),
     setWindowPointerEvents: (ignore, forward) => {
       if (state.mainWindow) {
         applyPointerRouting(state.mainWindow, ignore, forward)
@@ -595,7 +638,7 @@ async function initializeApplication(): Promise<void> {
       applyShortcutBindings(DEFAULT_SHORTCUT_BINDINGS),
     invokeShellAction,
     diagnoseProviders: () => providerDiagnostics(executables),
-    resetInterview: () => capture.reset(),
+    resetInterview: () => audio.reset(() => capture.reset()),
     configureProvider: async (
       provider: ProviderId,
       model: string,
@@ -617,10 +660,14 @@ async function initializeApplication(): Promise<void> {
     showSettings: () =>
       state.mainWindow?.webContents.send("settings:show")
   })
+  await audio.cleanupStartup()
   await orchestrator.inspectRecovery()
   screen.on("display-removed", () => setHudState(currentHudState))
   screen.on("display-metrics-changed", () => setHudState(currentHudState))
-  app.on("before-quit", persistGeometry)
+  app.on("before-quit", () => {
+    persistGeometry()
+    void audio.shutdown()
+  })
   initAutoUpdater()
   configHelper.loadConfig()
 }
