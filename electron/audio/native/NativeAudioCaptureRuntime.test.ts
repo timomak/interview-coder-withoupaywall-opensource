@@ -231,13 +231,18 @@ describe("native audio capture runtime", () => {
   it("reports a live helper failure and removes the active buffer", async () => {
     await withRuntime(async (runtime, fixtureProcess, root) => {
       const failures: string[] = []
+      let observeFailure: (() => void) | undefined
+      const failureObserved = new Promise<void>((resolve) => {
+        observeFailure = resolve
+      })
       runtime.setFailureSink(async (source, error) => {
         failures.push(`${source}:${error.message}`)
+        observeFailure?.()
       })
       await runtime.start("system", "local")
       await fixtureProcess()?.frame("system")
       fixtureProcess()?.fail()
-      await new Promise((resolve) => setTimeout(resolve, 0))
+      await failureObserved
 
       expect(failures).toEqual(["system:fixture helper crashed"])
       expect(await readdir(root)).toEqual([])

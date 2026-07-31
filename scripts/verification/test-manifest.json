@@ -79,32 +79,32 @@
     {
       "path": "electron/audio/native/NativeAudioCaptureRuntime.test.ts",
       "name": "aborts and reaps in-flight transcription during cleanup",
-      "sha256": "3e6e9d55f6f6d8794189039475e6a1ae2e047f4ec0724bc425bb9ad30c476407"
+      "sha256": "3086f348d83ba96771392e9c28ca2781e57c832e386fd4eca60ab1f3d67caab5"
     },
     {
       "path": "electron/audio/native/NativeAudioCaptureRuntime.test.ts",
       "name": "fails closed before capture when Remote lacks the Apple adapter",
-      "sha256": "3e6e9d55f6f6d8794189039475e6a1ae2e047f4ec0724bc425bb9ad30c476407"
+      "sha256": "3086f348d83ba96771392e9c28ca2781e57c832e386fd4eca60ab1f3d67caab5"
     },
     {
       "path": "electron/audio/native/NativeAudioCaptureRuntime.test.ts",
       "name": "never creates the helper or opens capture before explicit activation",
-      "sha256": "3e6e9d55f6f6d8794189039475e6a1ae2e047f4ec0724bc425bb9ad30c476407"
+      "sha256": "3086f348d83ba96771392e9c28ca2781e57c832e386fd4eca60ab1f3d67caab5"
     },
     {
       "path": "electron/audio/native/NativeAudioCaptureRuntime.test.ts",
       "name": "preserves source provenance and removes raw bytes after finalization",
-      "sha256": "3e6e9d55f6f6d8794189039475e6a1ae2e047f4ec0724bc425bb9ad30c476407"
+      "sha256": "3086f348d83ba96771392e9c28ca2781e57c832e386fd4eca60ab1f3d67caab5"
     },
     {
       "path": "electron/audio/native/NativeAudioCaptureRuntime.test.ts",
       "name": "reports a live helper failure and removes the active buffer",
-      "sha256": "3e6e9d55f6f6d8794189039475e6a1ae2e047f4ec0724bc425bb9ad30c476407"
+      "sha256": "3086f348d83ba96771392e9c28ca2781e57c832e386fd4eca60ab1f3d67caab5"
     },
     {
       "path": "electron/audio/native/NativeAudioCaptureRuntime.test.ts",
       "name": "rolls bounded segments while capture remains active",
-      "sha256": "3e6e9d55f6f6d8794189039475e6a1ae2e047f4ec0724bc425bb9ad30c476407"
+      "sha256": "3086f348d83ba96771392e9c28ca2781e57c832e386fd4eca60ab1f3d67caab5"
     },
     {
       "path": "electron/audio/native/protocol.test.ts",
