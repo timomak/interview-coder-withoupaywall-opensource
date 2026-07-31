@@ -9,7 +9,17 @@
     {
       "path": "electron/audio/cloudFallbackConsent.test.ts",
       "name": "requires explicit Apple transcription consent",
-      "sha256": "447cb6abe2127bb8287aa61eec1c206ca573d675c211e393b54518ee9c38ae9c"
+      "sha256": "a0173970f29a980ecf800cf3ceee8bdc861873a66d50cf64ca1613612a060179"
+    },
+    {
+      "path": "electron/audio/cloudFallbackConsent.test.ts",
+      "name": "runs the reviewed Apple Speech path only after remote selection",
+      "sha256": "a0173970f29a980ecf800cf3ceee8bdc861873a66d50cf64ca1613612a060179"
+    },
+    {
+      "path": "electron/audio/explicitActivation.test.ts",
+      "name": "aborts and reaps in-flight transcription during cleanup",
+      "sha256": "95a8d4440c3a389578bd8027686d67f952f53557842acf67863ceb3acb29b698"
     },
     {
       "path": "electron/audio/explicitActivation.test.ts",
@@ -24,6 +34,16 @@
     {
       "path": "electron/audio/explicitActivation.test.ts",
       "name": "preserves source provenance and removes raw bytes after finalization",
+      "sha256": "95a8d4440c3a389578bd8027686d67f952f53557842acf67863ceb3acb29b698"
+    },
+    {
+      "path": "electron/audio/explicitActivation.test.ts",
+      "name": "reports a live helper failure and removes the active buffer",
+      "sha256": "95a8d4440c3a389578bd8027686d67f952f53557842acf67863ceb3acb29b698"
+    },
+    {
+      "path": "electron/audio/explicitActivation.test.ts",
+      "name": "rolls bounded segments while capture remains active",
       "sha256": "95a8d4440c3a389578bd8027686d67f952f53557842acf67863ceb3acb29b698"
     },
     {
@@ -58,18 +78,33 @@
     },
     {
       "path": "electron/audio/native/NativeAudioCaptureRuntime.test.ts",
+      "name": "aborts and reaps in-flight transcription during cleanup",
+      "sha256": "3e6e9d55f6f6d8794189039475e6a1ae2e047f4ec0724bc425bb9ad30c476407"
+    },
+    {
+      "path": "electron/audio/native/NativeAudioCaptureRuntime.test.ts",
       "name": "fails closed before capture when Remote lacks the Apple adapter",
-      "sha256": "8072fde7cda818dafea12a80cebce70a416f2992395c46c6c27c85da46709d69"
+      "sha256": "3e6e9d55f6f6d8794189039475e6a1ae2e047f4ec0724bc425bb9ad30c476407"
     },
     {
       "path": "electron/audio/native/NativeAudioCaptureRuntime.test.ts",
       "name": "never creates the helper or opens capture before explicit activation",
-      "sha256": "8072fde7cda818dafea12a80cebce70a416f2992395c46c6c27c85da46709d69"
+      "sha256": "3e6e9d55f6f6d8794189039475e6a1ae2e047f4ec0724bc425bb9ad30c476407"
     },
     {
       "path": "electron/audio/native/NativeAudioCaptureRuntime.test.ts",
       "name": "preserves source provenance and removes raw bytes after finalization",
-      "sha256": "8072fde7cda818dafea12a80cebce70a416f2992395c46c6c27c85da46709d69"
+      "sha256": "3e6e9d55f6f6d8794189039475e6a1ae2e047f4ec0724bc425bb9ad30c476407"
+    },
+    {
+      "path": "electron/audio/native/NativeAudioCaptureRuntime.test.ts",
+      "name": "reports a live helper failure and removes the active buffer",
+      "sha256": "3e6e9d55f6f6d8794189039475e6a1ae2e047f4ec0724bc425bb9ad30c476407"
+    },
+    {
+      "path": "electron/audio/native/NativeAudioCaptureRuntime.test.ts",
+      "name": "rolls bounded segments while capture remains active",
+      "sha256": "3e6e9d55f6f6d8794189039475e6a1ae2e047f4ec0724bc425bb9ad30c476407"
     },
     {
       "path": "electron/audio/native/protocol.test.ts",
@@ -94,6 +129,16 @@
     {
       "path": "electron/audio/permissionRecovery.test.ts",
       "name": "coordinates startup cleanup and persists crash recovery capture-off",
+      "sha256": "80189a13c859a65c35e28f0f385051a48bac90645cf2c2f73fd78180705e35d4"
+    },
+    {
+      "path": "electron/audio/permissionRecovery.test.ts",
+      "name": "disables only a source that fails live and requires its explicit retry",
+      "sha256": "80189a13c859a65c35e28f0f385051a48bac90645cf2c2f73fd78180705e35d4"
+    },
+    {
+      "path": "electron/audio/permissionRecovery.test.ts",
+      "name": "publishes partial, preparing-answer, and ready with timestamp provenance",
       "sha256": "80189a13c859a65c35e28f0f385051a48bac90645cf2c2f73fd78180705e35d4"
     },
     {
@@ -129,17 +174,27 @@
     {
       "path": "electron/audio/session/sourceStateMachine.test.ts",
       "name": "cleans runtime and archives every source off on Reset",
-      "sha256": "dd2ebfe1be717286af1b5a837a9a36c476daec807ee142e0debe8ca70e36c969"
+      "sha256": "cd94479d96e7c266bb2a41a1d7934c67bfd24cc277fe133d9faab7494740418e"
     },
     {
       "path": "electron/audio/session/sourceStateMachine.test.ts",
       "name": "controls two sources deterministically without cross-source failure",
-      "sha256": "dd2ebfe1be717286af1b5a837a9a36c476daec807ee142e0debe8ca70e36c969"
+      "sha256": "cd94479d96e7c266bb2a41a1d7934c67bfd24cc277fe133d9faab7494740418e"
     },
     {
       "path": "electron/audio/session/sourceStateMachine.test.ts",
       "name": "coordinates startup cleanup and persists crash recovery capture-off",
-      "sha256": "dd2ebfe1be717286af1b5a837a9a36c476daec807ee142e0debe8ca70e36c969"
+      "sha256": "cd94479d96e7c266bb2a41a1d7934c67bfd24cc277fe133d9faab7494740418e"
+    },
+    {
+      "path": "electron/audio/session/sourceStateMachine.test.ts",
+      "name": "disables only a source that fails live and requires its explicit retry",
+      "sha256": "cd94479d96e7c266bb2a41a1d7934c67bfd24cc277fe133d9faab7494740418e"
+    },
+    {
+      "path": "electron/audio/session/sourceStateMachine.test.ts",
+      "name": "publishes partial, preparing-answer, and ready with timestamp provenance",
+      "sha256": "cd94479d96e7c266bb2a41a1d7934c67bfd24cc277fe133d9faab7494740418e"
     },
     {
       "path": "electron/audio/sourceStateMachine.test.ts",
@@ -157,6 +212,16 @@
       "sha256": "65636981016fee378356b5e629f359bfd8718795154980b9c257468a506309f2"
     },
     {
+      "path": "electron/audio/sourceStateMachine.test.ts",
+      "name": "disables only a source that fails live and requires its explicit retry",
+      "sha256": "65636981016fee378356b5e629f359bfd8718795154980b9c257468a506309f2"
+    },
+    {
+      "path": "electron/audio/sourceStateMachine.test.ts",
+      "name": "publishes partial, preparing-answer, and ready with timestamp provenance",
+      "sha256": "65636981016fee378356b5e629f359bfd8718795154980b9c257468a506309f2"
+    },
+    {
       "path": "electron/audio/temporary/rawAudioRetention.test.ts",
       "name": "deletes the active file when a bounded append is exceeded",
       "sha256": "349c29b104da0549051591ef8cdc03e5408a935d5a2114cada4458f752ae4f60"
@@ -167,9 +232,19 @@
       "sha256": "349c29b104da0549051591ef8cdc03e5408a935d5a2114cada4458f752ae4f60"
     },
     {
+      "path": "electron/audio/transcription/AppleSpeechTranscriber.test.ts",
+      "name": "accepts only the reviewed bounded JSON result",
+      "sha256": "e6257147f2a5cea0ef22dae4034d9f588cd73c3d0d732c926a393a940eb76eb9"
+    },
+    {
+      "path": "electron/audio/transcription/AppleSpeechTranscriber.test.ts",
+      "name": "rejects unreviewed result fields and modified adapter bytes",
+      "sha256": "e6257147f2a5cea0ef22dae4034d9f588cd73c3d0d732c926a393a940eb76eb9"
+    },
+    {
       "path": "electron/audio/transcription/artifactManifest.test.ts",
       "name": "pins source model licenses checksums and both macOS architectures",
-      "sha256": "40f697e8cf711ad6825dac21ecd6f1663410aaf211a107bae24b0ef04e97a9e0"
+      "sha256": "b08418ade93685920b35e2d0256563908bbf851f469296d4e9d5e1e7f5e32a0a"
     },
     {
       "path": "electron/capture/primaryDisplayCapture.test.ts",
@@ -215,6 +290,16 @@
       "path": "electron/orchestrator/audioRouting.test.ts",
       "name": "uses finalized text in the existing conversation and never auto-answers",
       "sha256": "daf7a66bcc4aa53300b7a0c1b1bc06413ebe52559951304a09d1656b44c7ffd8"
+    },
+    {
+      "path": "electron/orchestrator/audioTranscriptRetention.test.ts",
+      "name": "removes generated transcript state from recovery without touching unrelated data",
+      "sha256": "fe1903729d324705653a4c8b29aedf93a6fa5284bc639a2f60283f8f032d862f"
+    },
+    {
+      "path": "electron/orchestrator/audioTranscriptRetention.test.ts",
+      "name": "rewrites retained recovery and strips archives when the preference becomes false",
+      "sha256": "fe1903729d324705653a4c8b29aedf93a6fa5284bc639a2f60283f8f032d862f"
     },
     {
       "path": "electron/orchestrator/behavioralFactuality.test.ts",
@@ -613,13 +698,18 @@
     },
     {
       "path": "src/features/audio/audioStatusAccessibility.test.tsx",
+      "name": "announces partial/final state and exposes exact timestamp provenance",
+      "sha256": "f405455e7ca582770748245a43985c2a1e2414af57e63c24fe090967140b379c"
+    },
+    {
+      "path": "src/features/audio/audioStatusAccessibility.test.tsx",
       "name": "names Local and Remote transcription without relying on color",
-      "sha256": "01e7e8df508bff7ef09623f7bf605e4889a7f9ec912e5e497336250b51bd6b0a"
+      "sha256": "f405455e7ca582770748245a43985c2a1e2414af57e63c24fe090967140b379c"
     },
     {
       "path": "src/features/audio/audioStatusAccessibility.test.tsx",
       "name": "renders complete accessible audio state model",
-      "sha256": "01e7e8df508bff7ef09623f7bf605e4889a7f9ec912e5e497336250b51bd6b0a"
+      "sha256": "f405455e7ca582770748245a43985c2a1e2414af57e63c24fe090967140b379c"
     },
     {
       "path": "src/features/audio/speakerAttribution.test.ts",
@@ -789,22 +879,27 @@
     {
       "path": "src/shared/audio/ipc.test.ts",
       "name": "accepts only bounded exact command shapes",
-      "sha256": "f43251d47118951631614eb9e02277e7ee0b4b467c165365f2abf835c903fa18"
+      "sha256": "5fca0f98a2cf6ab8dbf39e0191d1c483490b5d5eb9d4453f6f087550df1f8ec2"
     },
     {
       "path": "src/shared/audio/ipc.test.ts",
       "name": "keeps source defaults false and validates finalization",
-      "sha256": "f43251d47118951631614eb9e02277e7ee0b4b467c165365f2abf835c903fa18"
+      "sha256": "5fca0f98a2cf6ab8dbf39e0191d1c483490b5d5eb9d4453f6f087550df1f8ec2"
+    },
+    {
+      "path": "src/shared/audio/stateMachine.test.ts",
+      "name": "rejects a final segment that rewrites native start provenance",
+      "sha256": "876c31cd0c586bf1054fd7fde33ba8bd32bb9750fb77570573c5daa9935ccad8"
     },
     {
       "path": "src/shared/audio/stateMachine.test.ts",
       "name": "retains typed provenance through correction and question editing",
-      "sha256": "7a0b18b0aea9f4b44d26ab4e5520d76808a322be226affe8d0b2b1e9b793d353"
+      "sha256": "876c31cd0c586bf1054fd7fde33ba8bd32bb9750fb77570573c5daa9935ccad8"
     },
     {
       "path": "src/shared/audio/stateMachine.test.ts",
       "name": "starts every source off and makes master pause only when both listen",
-      "sha256": "7a0b18b0aea9f4b44d26ab4e5520d76808a322be226affe8d0b2b1e9b793d353"
+      "sha256": "876c31cd0c586bf1054fd7fde33ba8bd32bb9750fb77570573c5daa9935ccad8"
     },
     {
       "path": "tests/fixtures/behavioral/verifiedClaims.contract.test.ts",
