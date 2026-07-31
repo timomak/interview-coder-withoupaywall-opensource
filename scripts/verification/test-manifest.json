@@ -1089,17 +1089,17 @@
     {
       "path": "electron/orchestrator/instructionResolution.test.ts",
       "name": "resolves and records conflicts deterministically",
-      "sha256": "0ecc1d6a12ff5877063fd690258e39dece490ef2039082d5924b4e2f5f1aa2b8"
+      "sha256": "4d99415a8da2ac734ed9b213b5120dd839d0c99d63392f7214a1ec81908820a8"
     },
     {
       "path": "electron/orchestrator/templateSecurity.test.ts",
       "name": "rejects invariant and capability escalation",
-      "sha256": "4e0870f8f264b1c224ffaa3af62f0aef0028f43814a5f110870ef9fa4427fed1"
+      "sha256": "69e36e32d3f0a93209547ef3d445d44533d45e7b5ff066660aa2c681d899a331"
     },
     {
       "path": "electron/storage/templateMigration.test.ts",
       "name": "migrates encrypts and isolates invalid templates",
-      "sha256": "1978670b87cbc0314d7a529ad4b374d7f67d3b733d7dfdd21d76b3e19e53c512"
+      "sha256": "fc6e8454c16c295cff5f21d9d863c1217350153f2c18df5fbc744ef93372f5be"
     },
     {
       "path": "src/features/prompts/modeBoundary.test.ts",
@@ -1109,7 +1109,7 @@
     {
       "path": "src/features/prompts/synchronizedStudio.test.tsx",
       "name": "synchronizes guided and manual editing through reviewed diffs",
-      "sha256": "5ae42af2543114775ec03632ccda973685317d434a21c373e75d2a985976d328"
+      "sha256": "8a6ba1e543676af3f5dd9332e26b2dd57a92adb37d7c90a50d3488fea12c9cd6"
     },
     {
       "path": "src/features/prompts/templateContentSafety.test.tsx",
@@ -1119,22 +1119,22 @@
     {
       "path": "src/features/prompts/templateCrud.test.ts",
       "name": "protects built-ins and completes user CRUD",
-      "sha256": "1b6811d9898599c700e69842a437f8f2fd4a0e929b46d4d7b5d9d7614cbd5c8f"
+      "sha256": "02dc56fdc94335ba1c051c39dc9958841470f6ce2a98a6eb269136388a162f96"
     },
     {
       "path": "src/features/prompts/templateSnapshot.test.ts",
       "name": "locks template revision for active session",
-      "sha256": "1abb23432308e71b592e3d09670b0de29a710610f5ce2a8a4afc05ebca0c55f4"
+      "sha256": "f8559e4b7c61ea0f3c18c94d455e87ba27574bb0a907da92078b3f5d42af0031"
     },
     {
       "path": "electron/history/archiveProjection.test.ts",
       "name": "projects complete session and excludes audio",
-      "sha256": "e42368c4a29ce39980305375c10f1469fa1e8415d1f7155886df66563dc1b01c"
+      "sha256": "eace20f51573fcde76c38edc6355e18d2f00fcec3797a5567b4be488416d825f"
     },
     {
       "path": "electron/history/deletionIsolation.test.ts",
       "name": "deletes only selected archived sessions",
-      "sha256": "6264c27178ceadb28eba72e0bb277aaeb7ade3808e388fda47387aea0fd5c0f5"
+      "sha256": "c2311a47dac94afbde56039a81db4cbc00b46110ce442f9d75a3d7a7defd7755"
     },
     {
       "path": "electron/history/encryptedSearch.test.ts",
@@ -1144,17 +1144,17 @@
     {
       "path": "electron/history/exportPathSafety.test.ts",
       "name": "confines and atomically writes explicit exports",
-      "sha256": "28e568c4892fe212ccb702671d38e91152c9c33a6877eea2556b8e6f2cc90f48"
+      "sha256": "07b9925137e9f957e5159830ecc345368c30a4553ed84ff0be0d695d65195a95"
     },
     {
       "path": "electron/history/exportRoundTrip.test.ts",
       "name": "exports one safe versioned session with consent",
-      "sha256": "1c97e342f0f2c5b6a862d9796bd0dd9e1d29b01e40a46e6d06a0a48ded249aad"
+      "sha256": "8a4bcf3f83142f85b70da36faf5c8c069a2c6192ef5946d05778729118b07a15"
     },
     {
       "path": "electron/history/m09Projection.test.ts",
       "name": "rebuilds the disposable M-09 projection without changing canonical archives",
-      "sha256": "cee869dd86f9a30b2d3ea4c4bacec6cf4547deca93c25a4b02c6236c9985fc2c"
+      "sha256": "8093176cbbfb980f592e3321779925da7ff8209480125f030503d490b3b335b9"
     },
     {
       "path": "electron/history/readOnlyArchive.test.ts",
@@ -1164,7 +1164,7 @@
     {
       "path": "src/features/history/HistorySettings.test.tsx",
       "name": "exposes exact Settings-only controls and retention",
-      "sha256": "1cffb9614f0ea45fc8849279e6de7fc6b9e50b6bd8d3cce871d5d8f1ae9a7218"
+      "sha256": "0c5dd840e297638648435f2f5b9522f64d0547ff98a2fb5838a33cea2fa1bbb9"
     },
     {
       "path": "src/features/history/crashDecision.test.tsx",
