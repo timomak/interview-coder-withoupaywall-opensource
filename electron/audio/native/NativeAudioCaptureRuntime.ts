@@ -33,8 +33,10 @@ interface SourceBuffer {
   startedAt: string
   path: "local" | "remote"
   bytes: number
+  captureFirstTimestampNanos?: bigint
   firstTimestampNanos?: bigint
   lastTimestampNanos?: bigint
+  endTimestampNanos?: bigint
   lastSequence?: bigint
 }
 
@@ -290,14 +292,27 @@ export class NativeAudioCaptureRuntime implements AudioCaptureRuntime {
       throw new Error("Audio frame sequence or timestamp is invalid")
     }
     buffer.firstTimestampNanos ??= frame.timestampNanos
+    buffer.captureFirstTimestampNanos ??= frame.timestampNanos
     buffer.lastTimestampNanos = frame.timestampNanos
     buffer.lastSequence = frame.sequence
     const bytesLength = bytes.length
+    const sampleCount =
+      bytesLength / (FLOAT_BYTES * buffer.channels)
+    if (!Number.isSafeInteger(sampleCount) || sampleCount <= 0) {
+      bytes.fill(0)
+      throw new Error("Audio frame sample count is invalid")
+    }
+    const frameDurationNanos =
+      (BigInt(sampleCount) * 1_000_000_000n) /
+      BigInt(buffer.sampleRate)
+    buffer.endTimestampNanos =
+      frame.timestampNanos + frameDurationNanos
     await this.statusSink?.("speech-detected")
     await this.store.append(buffer.id, bytes)
     buffer.bytes += bytesLength
     const elapsedMs = Number(
-      (frame.timestampNanos - buffer.firstTimestampNanos) / 1_000_000n
+      (buffer.endTimestampNanos - buffer.captureFirstTimestampNanos) /
+        1_000_000n
     )
     await this.elapsedSink?.(source, elapsedMs)
     const segmentBytes =
@@ -306,7 +321,10 @@ export class NativeAudioCaptureRuntime implements AudioCaptureRuntime {
       FLOAT_BYTES *
       (this.segmentDurationMs / 1_000)
     if (buffer.bytes >= segmentBytes) {
-      const startedAt = this.timestampIso(buffer, frame.timestampNanos)
+      const startedAt = this.timestampIso(
+        buffer,
+        buffer.endTimestampNanos
+      )
       const replacement = await this.createBuffer(
         source,
         buffer.path,
@@ -314,6 +332,8 @@ export class NativeAudioCaptureRuntime implements AudioCaptureRuntime {
       )
       replacement.sampleRate = buffer.sampleRate
       replacement.channels = buffer.channels
+      replacement.captureFirstTimestampNanos =
+        buffer.captureFirstTimestampNanos
       this.buffers.set(source, replacement)
       void this.enqueueTranscription(source, buffer, true).catch((error) => {
         void this.failSource(
@@ -416,9 +436,9 @@ export class NativeAudioCaptureRuntime implements AudioCaptureRuntime {
       if (generation !== this.generation) return
       const segmentId = randomUUID()
       const finalizedAt =
-        buffer.lastTimestampNanos === undefined
+        buffer.endTimestampNanos === undefined
           ? this.now().toISOString()
-          : this.timestampIso(buffer, buffer.lastTimestampNanos)
+          : this.timestampIso(buffer, buffer.endTimestampNanos)
       const base = {
         schemaVersion: 1,
         id: segmentId,

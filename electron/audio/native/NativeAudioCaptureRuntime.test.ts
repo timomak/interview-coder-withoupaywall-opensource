@@ -173,6 +173,10 @@ describe("native audio capture runtime", () => {
   it("rolls bounded segments while capture remains active", async () => {
     await withRuntime(
       async (runtime, fixtureProcess, root, transcripts) => {
+        const elapsed: number[] = []
+        runtime.setElapsedSink(async (_source, elapsedMs) => {
+          elapsed.push(elapsedMs)
+        })
         await runtime.start("microphone", "local")
         await fixtureProcess()?.frame("microphone")
         await fixtureProcess()?.frame("microphone")
@@ -186,7 +190,8 @@ describe("native audio capture runtime", () => {
         ])
         expect(transcripts.every((segment) => segment.source === "microphone"))
           .toBe(true)
-        expect(Date.parse(transcripts[2]!.startedAt)).toBeGreaterThanOrEqual(
+        expect(elapsed).toEqual([1_000, 2_000])
+        expect(Date.parse(transcripts[2]!.startedAt)).toBeGreaterThan(
           Date.parse(transcripts[0]!.startedAt)
         )
         expect(await readdir(root)).toEqual([])
