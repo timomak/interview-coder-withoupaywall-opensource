@@ -92,7 +92,10 @@ describe("provider process boundary", () => {
       const timeoutResult = await runner.run({
         executable: stubborn.executable,
         args: [],
-        timeoutMs: 1_000,
+        // The full suite runs many process-heavy hostile probes concurrently;
+        // leave enough startup time for the fixture to install its SIGTERM
+        // handler before exercising the escalation path.
+        timeoutMs: 5_000,
         terminateGraceMs: 20,
         maximumOutputBytes: 1_000,
         maximumLineBytes: 1_000
@@ -108,5 +111,5 @@ describe("provider process boundary", () => {
       fs.rmSync(flood.directory, { recursive: true })
       fs.rmSync(stubborn.directory, { recursive: true })
     }
-  })
+  }, 10_000)
 })
