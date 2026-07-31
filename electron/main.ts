@@ -453,11 +453,6 @@ async function initializeApplication(): Promise<void> {
       "profiles"
     )
   )
-  const orchestrator = createOrchestrator(
-    executables,
-    new ActiveSessionRepository(records),
-    profiles
-  )
   const audioPreferences = new AudioPreferencesRepository(
     new EncryptedRecordRepository<M07AudioPreferencesRecord>(
       storagePaths,
@@ -465,6 +460,17 @@ async function initializeApplication(): Promise<void> {
       undefined,
       "audio"
     )
+  )
+  const orchestrator = createOrchestrator(
+    executables,
+    new ActiveSessionRepository(
+      records,
+      () =>
+        audioPreferences
+          .load()
+          .then((preferences) => preferences.transcriptRetention)
+    ),
+    profiles
   )
   const audioResourceRoot = app.isPackaged
     ? path.join(process.resourcesPath, "audio")
@@ -508,6 +514,12 @@ async function initializeApplication(): Promise<void> {
   )
   audioRuntime.setTranscriptSink((segment) => audio.ingestTranscript(segment))
   audioRuntime.setStatusSink((status) => audio.updateStatus(status))
+  audioRuntime.setFailureSink((source, error) =>
+    audio.handleRuntimeFailure(source, error)
+  )
+  audioRuntime.setElapsedSink((source, elapsedMs) =>
+    audio.updateElapsed(source, elapsedMs)
+  )
   createWindow()
   const screenshots = new ScreenshotHelper(
     new EncryptedBlobRepository(
@@ -702,9 +714,18 @@ async function initializeApplication(): Promise<void> {
   await orchestrator.inspectRecovery()
   screen.on("display-removed", () => setHudState(currentHudState))
   screen.on("display-metrics-changed", () => setHudState(currentHudState))
-  app.on("before-quit", () => {
+  let shutdownStarted = false
+  let shutdownComplete = false
+  app.on("before-quit", (event) => {
     persistGeometry()
-    void audio.shutdown()
+    if (shutdownComplete) return
+    event.preventDefault()
+    if (shutdownStarted) return
+    shutdownStarted = true
+    void audio.shutdown().finally(() => {
+      shutdownComplete = true
+      app.quit()
+    })
   })
   initAutoUpdater()
   configHelper.loadConfig()

@@ -1,4 +1,5 @@
 import { spawn, type ChildProcessWithoutNullStreams } from "node:child_process"
+import { createHash } from "node:crypto"
 import fs from "node:fs"
 import path from "node:path"
 import readline from "node:readline"
@@ -21,6 +22,7 @@ export type AudioHelperCommandInput = AudioHelperCommand extends infer Command
 
 export interface NativeAudioHelperOptions {
   readonly executable: string
+  readonly expectedSha256: string
   readonly onEvent: (event: AudioHelperEvent) => void
   readonly onFrame: (frame: NativeAudioFrame) => Promise<void> | void
   readonly onFailure: (message: string) => void
@@ -46,6 +48,14 @@ export class NativeAudioHelper {
     const metadata = fs.lstatSync(this.options.executable)
     if (!metadata.isFile() || metadata.isSymbolicLink()) {
       throw new Error("Native audio helper must be a regular file")
+    }
+    if (
+      !/^[a-f0-9]{64}$/.test(this.options.expectedSha256) ||
+      createHash("sha256")
+        .update(fs.readFileSync(this.options.executable))
+        .digest("hex") !== this.options.expectedSha256
+    ) {
+      throw new Error("Native audio helper failed checksum verification")
     }
     const child = spawn(this.options.executable, [], {
       shell: false,

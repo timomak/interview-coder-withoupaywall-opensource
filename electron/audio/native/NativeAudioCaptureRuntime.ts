@@ -57,6 +57,7 @@ export interface NativeAudioProcess {
 
 export interface NativeAudioCaptureRuntimeOptions {
   readonly helperExecutable: string
+  readonly helperExpectedSha256: string
   readonly temporaryRoot: string
   readonly localTranscriber: AudioTranscriber
   readonly remoteTranscriber?: AudioTranscriber
@@ -113,6 +114,9 @@ export class NativeAudioCaptureRuntime implements AudioCaptureRuntime {
       if (!path.isAbsolute(target)) {
         throw new Error("Native audio runtime paths must be absolute")
       }
+    }
+    if (!/^[a-f0-9]{64}$/.test(options.helperExpectedSha256)) {
+      throw new Error("Native audio helper checksum is invalid")
     }
     this.store = new EphemeralAudioStore(options.temporaryRoot)
     this.helperFactory =
@@ -225,6 +229,7 @@ export class NativeAudioCaptureRuntime implements AudioCaptureRuntime {
     if (this.helper) return this.helper
     const helper = this.helperFactory({
       executable: this.options.helperExecutable,
+      expectedSha256: this.options.helperExpectedSha256,
       onEvent: (event) => {
         void this.onEvent(event).catch((error) => {
           this.onFailure(

@@ -92,6 +92,8 @@ async function withRuntime(
   const transcripts: TranscriptSegmentV1[] = []
   const runtime = new NativeAudioCaptureRuntime({
     helperExecutable: "/tmp/interviewcopilot-fixture-audio-helper",
+    helperExpectedSha256:
+      "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
     temporaryRoot: root,
     helperFactory: (options) => {
       fixtureProcess = new FixtureAudioProcess(options)
