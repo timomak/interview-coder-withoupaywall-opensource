@@ -1,0 +1,130 @@
+{
+  "schemaVersion": 1,
+  "projectKey": "InterviewCopilot",
+  "milestoneId": "IC-M04",
+  "kind": "SINGLE_CONSOLIDATED_REMEDIATION",
+  "status": "FROZEN_IN_PROGRESS",
+  "frozenAt": "2026-07-31T13:32:00+02:00",
+  "packet": "v3/interviewcopilot/milestone-IC-M04-packet-1.json",
+  "failedCandidate": "9a5236acf1051676921685b5d3df7494d69615b8",
+  "baseRevision": "72a6d2517cdfad5e2f8ed92f6c90e223dc2c2821",
+  "review": {
+    "reviewer": "/root/ic_m04_high_review",
+    "risk": "HIGH",
+    "disposition": "CHANGES_REQUESTED",
+    "completeFindingBatch": true
+  },
+  "findings": [
+    {
+      "id": "IC-M04-B01",
+      "criteria": [
+        "P10-AC1",
+        "P10-AC2"
+      ],
+      "summary": "Guided Chat is not a specialized conversational proposal/explanation surface and user-template duplication is missing."
+    },
+    {
+      "id": "IC-M04-B02",
+      "criteria": [
+        "P10-AC1"
+      ],
+      "summary": "The repository trusts caller-supplied semantic changes instead of reconstructing the base and authorizing the exact server-computed diff."
+    },
+    {
+      "id": "IC-M04-B03",
+      "criteria": [
+        "P10-AC5"
+      ],
+      "summary": "Production resolution uses one hard-coded contender rather than actual task/applicable instruction sources and does not update the content-free session record."
+    },
+    {
+      "id": "IC-M04-B04",
+      "criteria": [
+        "P10-AC1",
+        "P10-AC5"
+      ],
+      "summary": "Review/stale-check/write is not serialized or compare-and-swap safe, permitting concurrent lost updates."
+    },
+    {
+      "id": "IC-M04-B05",
+      "criteria": [
+        "P11-AC2",
+        "P11-AC3",
+        "M-09"
+      ],
+      "summary": "Valid screenshot-heavy archives or ordinary user text mentioning raw audio can be rejected and disappear from History."
+    },
+    {
+      "id": "IC-M04-B06",
+      "criteria": [
+        "P11-AC6"
+      ],
+      "summary": "Export staging/backup state is not durably recoverable, full ancestor confinement is not verified, and hard interruption can leave plaintext or displaced destinations."
+    },
+    {
+      "id": "IC-M04-B07",
+      "criteria": [
+        "P11-AC5"
+      ],
+      "summary": "Blacklist redaction permits secret-bearing values/unknown fields and Markdown content to enter plaintext exports."
+    },
+    {
+      "id": "IC-M04-B08",
+      "criteria": [
+        "P11-AC3",
+        "P11-AC7"
+      ],
+      "summary": "Delete-all uses the filtered catalog, UI manufactures confirmation, and concurrent operations can overwrite the single journal intent."
+    }
+  ],
+  "workPackages": [
+    {
+      "id": "IC-M04-REM-W1",
+      "owner": "PROMPT_DOMAIN",
+      "findingIds": [
+        "IC-M04-B01",
+        "IC-M04-B02",
+        "IC-M04-B03",
+        "IC-M04-B04"
+      ],
+      "mutableTargets": [
+        "electron/prompts",
+        "src/features/prompts",
+        "prompt composition and session snapshot integration",
+        "P10 tests"
+      ]
+    },
+    {
+      "id": "IC-M04-REM-W2",
+      "owner": "HISTORY_DOMAIN",
+      "findingIds": [
+        "IC-M04-B05",
+        "IC-M04-B06",
+        "IC-M04-B07",
+        "IC-M04-B08"
+      ],
+      "mutableTargets": [
+        "electron/history",
+        "src/features/history",
+        "History startup/IPC integration",
+        "P11 tests"
+      ]
+    }
+  ],
+  "verification": {
+    "targetedFirst": true,
+    "completeExactCandidateSuiteAfterIntegration": true,
+    "deltaReview": {
+      "reviewer": "/root/ic_m04_high_review",
+      "scope": "IC-M04-B01 through IC-M04-B08 plus regression of previously passing criteria",
+      "maximumAttempts": 1
+    }
+  },
+  "boundaries": {
+    "additionalGeneralReview": false,
+    "additionalRemediation": false,
+    "merge": false,
+    "deployment": false,
+    "privilegedHelper": false
+  }
+}
