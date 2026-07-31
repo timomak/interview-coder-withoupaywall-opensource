@@ -55,6 +55,26 @@ export interface ElectronAPI {
   ) => Promise<{ success: boolean }>
   importProfileMarkdown: (source: string) => Promise<string>
   exportDossier: (destination: string) => Promise<{ success: boolean }>
+  getPromptCatalog: () => Promise<
+    import("../features/prompts/types").PromptCatalog
+  >
+  reviewPromptChange: (
+    draft: import("../features/prompts/types").PromptTemplateDraft
+  ) => Promise<import("../features/prompts/types").ReviewedPromptChange>
+  savePromptChange: (
+    reviewed: import("../features/prompts/types").ReviewedPromptChange
+  ) => Promise<import("../features/prompts/types").PromptCatalog>
+  deletePromptTemplate: (
+    id: string,
+    confirmedName: string
+  ) => Promise<import("../features/prompts/types").PromptCatalog>
+  selectPromptTemplate: (
+    mode: import("../shared/interview").InterviewMode,
+    id: string
+  ) => Promise<import("../features/prompts/types").PromptCatalog>
+  restoreBuiltInPrompt: (
+    mode: import("../shared/interview").InterviewMode
+  ) => Promise<import("../features/prompts/types").PromptCatalog>
   dispatchInterviewCommand: (
     command: InterviewCommand
   ) => Promise<CommandResult>

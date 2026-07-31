@@ -134,6 +134,21 @@ const SUITES = {
     "electron/audio/temporary",
     "electron/audio/rawAudioRetention.test.ts"
   ],
+  p10: [
+    "src/features/prompts/synchronizedStudio.test.tsx",
+    "src/features/prompts/templateCrud.test.ts",
+    "src/features/prompts/modeBoundary.test.ts",
+    "electron/orchestrator/templateSecurity.test.ts",
+    "electron/orchestrator/instructionResolution.test.ts",
+    "src/features/prompts/templateSnapshot.test.ts",
+    "electron/storage/templateMigration.test.ts",
+    "src/features/prompts/templateContentSafety.test.tsx"
+  ],
+  "prompt-adversarial": [
+    "electron/orchestrator/templateSecurity.test.ts",
+    "src/features/prompts/modeBoundary.test.ts",
+    "src/features/prompts/templateContentSafety.test.tsx"
+  ],
   "electron-shell": [
     "electron/window/windowVisibility.test.ts",
     "electron/window/composerVisibility.test.ts",

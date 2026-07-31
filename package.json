@@ -27,6 +27,8 @@
     "test:audio-native": "node scripts/verification/trusted-vitest-runner.mjs audio-native",
     "test:audio-engine": "npm run prepare:audio && node scripts/audio/verify-packaged-local-transcription.mjs",
     "test:audio-retention": "node scripts/verification/trusted-vitest-runner.mjs audio-retention",
+    "test:p10": "node scripts/verification/trusted-vitest-runner.mjs p10",
+    "test:prompt-adversarial": "node scripts/verification/trusted-vitest-runner.mjs prompt-adversarial",
     "test:electron-shell": "node scripts/verification/trusted-vitest-runner.mjs electron-shell && node scripts/verification/run-electron-shell-runtime.mjs",
     "prepare:audio": "node scripts/audio/prepare-packaged-audio.mjs",
     "lint": "node scripts/verification/source-inventory.mjs && eslint .",

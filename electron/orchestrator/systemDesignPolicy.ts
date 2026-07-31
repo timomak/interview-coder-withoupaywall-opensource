@@ -11,6 +11,7 @@ import type {
 import { validateArchitectureGraph } from "../../src/features/system-design/architectureSchema"
 import { validateMaterialCalculations } from "../../src/features/system-design/estimates"
 import type { BestEffortDecision } from "./responseRouting"
+import { providerTemplateEnvelope } from "../prompts"
 
 export function buildSystemDesignRequest(
   session: ActiveInterviewSession,
@@ -28,6 +29,7 @@ export function buildSystemDesignRequest(
     assumptions: bestEffort.assumptions,
     bestEffort,
     context,
+    template: providerTemplateEnvelope(session),
     contract: {
       fixedOrder: SYSTEM_DESIGN_SECTIONS,
       calculations: "2-4 unit-bearing with explicit assumptions",

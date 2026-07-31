@@ -11,6 +11,7 @@ import {
   type CodingSectionId
 } from "../../src/features/coding/types"
 import { normalizeCodingLanguage } from "../../src/features/coding/language"
+import { providerTemplateEnvelope } from "../prompts"
 
 const CODING_CONTEXT_CATEGORIES = new Set(["instructions", "transcript", "screenshot"])
 
@@ -39,6 +40,7 @@ export interface CodingProviderRequest {
   }
   readonly evidence: readonly EvidenceArtifact[]
   readonly tools: readonly never[]
+  readonly template?: ReturnType<typeof providerTemplateEnvelope>
   readonly responseContract: {
     readonly conciseFirst: true
     readonly approachBullets: "2-4"
@@ -93,6 +95,7 @@ export function buildCodingProviderRequest(input: {
     },
     evidence,
     tools: [],
+    template: providerTemplateEnvelope(input.session),
     responseContract: {
       conciseFirst: true,
       approachBullets: "2-4",

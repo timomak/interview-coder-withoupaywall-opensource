@@ -1085,6 +1085,46 @@
       "path": "tests/policy/verificationReporter.test.ts",
       "name": "suppresses companion hooks while preserving the requested npm target argv",
       "sha256": "397c77550017e77c0f004a9827dccdcdb68d5f868122642c0fc303efce99f758"
+    },
+    {
+      "path": "electron/orchestrator/instructionResolution.test.ts",
+      "name": "resolves and records conflicts deterministically",
+      "sha256": "0ecc1d6a12ff5877063fd690258e39dece490ef2039082d5924b4e2f5f1aa2b8"
+    },
+    {
+      "path": "electron/orchestrator/templateSecurity.test.ts",
+      "name": "rejects invariant and capability escalation",
+      "sha256": "4e0870f8f264b1c224ffaa3af62f0aef0028f43814a5f110870ef9fa4427fed1"
+    },
+    {
+      "path": "electron/storage/templateMigration.test.ts",
+      "name": "migrates encrypts and isolates invalid templates",
+      "sha256": "1978670b87cbc0314d7a529ad4b374d7f67d3b733d7dfdd21d76b3e19e53c512"
+    },
+    {
+      "path": "src/features/prompts/modeBoundary.test.ts",
+      "name": "limits templates to three protected core modes",
+      "sha256": "be2d7ddee7ce70c1d4e665a9a7fe6a36a70f10cd6c038f76d9e7940d42035e6b"
+    },
+    {
+      "path": "src/features/prompts/synchronizedStudio.test.tsx",
+      "name": "synchronizes guided and manual editing through reviewed diffs",
+      "sha256": "5ae42af2543114775ec03632ccda973685317d434a21c373e75d2a985976d328"
+    },
+    {
+      "path": "src/features/prompts/templateContentSafety.test.tsx",
+      "name": "renders untrusted instructions inertly",
+      "sha256": "7d7dc77aa79c5c0de123ff8885df56a9e4b0be2f6a65a990a5e46c7b6f55bebb"
+    },
+    {
+      "path": "src/features/prompts/templateCrud.test.ts",
+      "name": "protects built-ins and completes user CRUD",
+      "sha256": "1b6811d9898599c700e69842a437f8f2fd4a0e929b46d4d7b5d9d7614cbd5c8f"
+    },
+    {
+      "path": "src/features/prompts/templateSnapshot.test.ts",
+      "name": "locks template revision for active session",
+      "sha256": "1abb23432308e71b592e3d09670b0de29a710610f5ce2a8a4afc05ebca0c55f4"
     }
   ]
 }

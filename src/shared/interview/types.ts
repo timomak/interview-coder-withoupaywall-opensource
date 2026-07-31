@@ -44,6 +44,7 @@ export interface StartSnapshot {
   readonly responseMode: ResponseMode
   readonly language: string
   readonly context: readonly ContextItem[]
+  readonly template?: import("../../features/prompts/types").PromptSessionSnapshot
 }
 
 export type ArtifactKind = "transcript" | "screenshot"

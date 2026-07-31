@@ -54,6 +54,8 @@ import type {
   TranscriptSegmentV1
 } from "../../src/shared/audio"
 import { parseAudioAnalysisPayload } from "./audioAnalysis"
+import { providerTemplateEnvelope } from "../prompts"
+import type { PromptSessionSnapshot } from "../../src/features/prompts/types"
 
 export interface ProviderConversationFactory {
   create(
@@ -67,6 +69,9 @@ export interface InterviewOrchestratorOptions {
   readonly providerFactory: ProviderConversationFactory
   readonly repository: ActiveSessionRepository
   readonly authorizeStart?: (snapshot: StartSnapshot) => Promise<boolean>
+  readonly snapshotTemplate?: (
+    mode: StartSnapshot["mode"]
+  ) => Promise<PromptSessionSnapshot>
   readonly now?: () => string
   readonly id?: () => string
   readonly onState?: (state: InterviewSession) => void
@@ -334,6 +339,12 @@ export class InterviewOrchestrator {
     ) {
       throw new Error("Selected provider subscription is not ready")
     }
+    const authorizedSnapshot = this.options.snapshotTemplate
+      ? {
+          ...snapshot,
+          template: await this.options.snapshotTemplate(snapshot.mode)
+        }
+      : snapshot
     const sessionId = this.id()
     const requestedConversationId = this.id()
     const result = reduceInterviewSession(this.state, {
@@ -342,7 +353,7 @@ export class InterviewOrchestrator {
       sessionId,
       sequence: 1,
       at: this.now(),
-      snapshot
+      snapshot: authorizedSnapshot
     })
     if (!result.accepted || result.state.lifecycle !== "active") {
       throw new Error("Start transition was rejected")
@@ -624,6 +635,7 @@ export class InterviewOrchestrator {
           route,
           input,
           context: JSON.parse(serializeContextPacket(attempt.packet)),
+          template: providerTemplateEnvelope(active(this.state)),
           response: "compact"
         }),
         turn.controller.signal,
@@ -707,6 +719,7 @@ export class InterviewOrchestrator {
               sectionIds,
               input,
               context: JSON.parse(serializeContextPacket(attempt.packet)),
+              template: providerTemplateEnvelope(session),
               evidenceAuthority: resolveEvidenceAuthority(
                 session.artifacts
               ).authority,
@@ -941,6 +954,7 @@ export class InterviewOrchestrator {
             )
             .map(({ id, body }) => ({ id, body })),
           context: JSON.parse(serializeContextPacket(attempt.packet)),
+          template: providerTemplateEnvelope(session),
           contract: {
             changedSectionsOnly: true,
             requireWhatChangedPerSection: true,

@@ -93,6 +93,17 @@ const electronAPI = {
     ipcRenderer.invoke("profile:import-markdown", source),
   exportDossier: (destination: string) =>
     ipcRenderer.invoke("profile:export-dossier", destination),
+  getPromptCatalog: () => ipcRenderer.invoke("prompts:get-catalog"),
+  reviewPromptChange: (draft: unknown) =>
+    ipcRenderer.invoke("prompts:review-change", draft),
+  savePromptChange: (reviewed: unknown) =>
+    ipcRenderer.invoke("prompts:save-change", reviewed),
+  deletePromptTemplate: (id: string, confirmedName: string) =>
+    ipcRenderer.invoke("prompts:delete", { id, confirmedName }),
+  selectPromptTemplate: (mode: string, id: string) =>
+    ipcRenderer.invoke("prompts:select", { mode, id }),
+  restoreBuiltInPrompt: (mode: string) =>
+    ipcRenderer.invoke("prompts:restore-built-in", mode),
   dispatchInterviewCommand: (command: InterviewCommand) =>
     ipcRenderer.invoke(INTERVIEW_COMMAND_CHANNEL, command),
   onInterviewState: (callback: (state: InterviewSession) => void) => {

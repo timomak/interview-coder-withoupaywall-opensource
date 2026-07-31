@@ -45,6 +45,12 @@ import {
   AUDIO_SOURCES,
   type AudioSource
 } from "../src/shared/audio"
+import type {
+  PromptCatalog,
+  PromptTemplateDraft,
+  ReviewedPromptChange
+} from "../src/features/prompts/types"
+import { INTERVIEW_MODES, type InterviewMode } from "../src/shared/interview"
 
 export interface IpcHandlerDependencies {
   readonly orchestrator: InterviewOrchestrator
@@ -77,6 +83,24 @@ export interface IpcHandlerDependencies {
   readonly saveProfileBundle: (bundle: ProfileBundle) => Promise<void>
   readonly importProfileMarkdown: (source: string) => Promise<string>
   readonly exportDossier: (destination: string) => Promise<void>
+  readonly getPromptCatalog: () => Promise<PromptCatalog>
+  readonly reviewPromptChange: (
+    draft: PromptTemplateDraft
+  ) => ReviewedPromptChange
+  readonly savePromptChange: (
+    reviewed: ReviewedPromptChange
+  ) => Promise<PromptCatalog>
+  readonly deletePromptTemplate: (
+    id: string,
+    confirmedName: string
+  ) => Promise<PromptCatalog>
+  readonly selectPromptTemplate: (
+    mode: InterviewMode,
+    id: string
+  ) => Promise<PromptCatalog>
+  readonly restoreBuiltInPrompt: (
+    mode: InterviewMode
+  ) => Promise<PromptCatalog>
   readonly getAudioSessionState: () => AudioSessionState
   readonly dispatchAudioCommand: (
     command: unknown
@@ -188,6 +212,39 @@ export function initializeIpcHandlers(
     }
     await dependencies.exportDossier(value)
     return { success: true }
+  })
+  ipcMain.handle("prompts:get-catalog", () => dependencies.getPromptCatalog())
+  ipcMain.handle("prompts:review-change", (_event, value: unknown) =>
+    dependencies.reviewPromptChange(value as PromptTemplateDraft)
+  )
+  ipcMain.handle("prompts:save-change", (_event, value: unknown) =>
+    dependencies.savePromptChange(value as ReviewedPromptChange)
+  )
+  ipcMain.handle("prompts:delete", (_event, value: unknown) => {
+    if (
+      typeof value !== "object" ||
+      value === null ||
+      typeof (value as { id?: unknown }).id !== "string" ||
+      typeof (value as { confirmedName?: unknown }).confirmedName !== "string"
+    ) throw new Error("Template deletion is malformed")
+    const request = value as { id: string; confirmedName: string }
+    return dependencies.deletePromptTemplate(request.id, request.confirmedName)
+  })
+  ipcMain.handle("prompts:select", (_event, value: unknown) => {
+    if (
+      typeof value !== "object" ||
+      value === null ||
+      !INTERVIEW_MODES.includes((value as { mode?: InterviewMode }).mode as InterviewMode) ||
+      typeof (value as { id?: unknown }).id !== "string"
+    ) throw new Error("Template selection is malformed")
+    const request = value as { mode: InterviewMode; id: string }
+    return dependencies.selectPromptTemplate(request.mode, request.id)
+  })
+  ipcMain.handle("prompts:restore-built-in", (_event, value: unknown) => {
+    if (!INTERVIEW_MODES.includes(value as InterviewMode)) {
+      throw new Error("Template mode is malformed")
+    }
+    return dependencies.restoreBuiltInPrompt(value as InterviewMode)
   })
   ipcMain.handle(INTERVIEW_COMMAND_CHANNEL, (_event, command: unknown) => {
     const parsed = parseInterviewCommand(command)
