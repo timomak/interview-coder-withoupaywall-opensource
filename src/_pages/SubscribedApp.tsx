@@ -29,6 +29,12 @@ import {
 } from "../features/system-design"
 import { BehavioralResponseWorkspace } from "../features/behavioral"
 import { deriveHudState } from "../shared/shell"
+import {
+  AudioSessionPanel,
+  masterRecordPresentation,
+  useAudioSession,
+  type AudioSource
+} from "../features/audio"
 
 interface SubscribedAppProps {
   readonly config: SubscriptionConfig
@@ -61,6 +67,8 @@ export default function SubscribedApp({
   const hotKeysButton = useRef<HTMLButtonElement>(null)
   const shell = useRef<HTMLElement>(null)
   const answerRegion = useRef<HTMLDivElement>(null)
+  const audio = useAudioSession()
+  const record = masterRecordPresentation(audio.state)
   const sectionCount =
     session.lifecycle === "active" ? session.sections.length : 0
   const artifactCount =
@@ -130,8 +138,12 @@ export default function SubscribedApp({
     setSession(result.state)
   }
 
-  const submit = async (message = input) => {
-    if (mode === "coding" && !codingIntent) {
+  const submit = async (
+    message = input,
+    explicitCodingIntent?: CodingIntent
+  ) => {
+    const requestedCodingIntent = explicitCodingIntent ?? codingIntent
+    if (mode === "coding" && !requestedCodingIntent) {
       setShellStatus("Choose Analyze, Generate Code, Debug, or Follow-up.")
       return false
     }
@@ -143,7 +155,7 @@ export default function SubscribedApp({
           ? "mode-action"
           : "chat",
       input: message,
-      codingIntent: mode === "coding" ? codingIntent : undefined,
+      codingIntent: mode === "coding" ? requestedCodingIntent : undefined,
       sectionIds:
         mode === "system-design"
           ? SYSTEM_DESIGN_SECTIONS
@@ -161,13 +173,30 @@ export default function SubscribedApp({
     return result.ok
   }
 
+  const toggleAudioMaster = () => {
+    void audio.dispatch({ type: "master-toggle" })
+  }
+
+  const openAudioSystemSettings = (source: AudioSource) => {
+    const open = window.electronAPI.openAudioSystemSettings
+    if (typeof open !== "function") {
+      setShellStatus("Open macOS Privacy & Security to repair audio access.")
+      return
+    }
+    void open(source).then((result) => {
+      if (!result.success) {
+        setShellStatus("Could not open macOS Privacy & Security.")
+      }
+    })
+  }
+
   useEffect(
     () =>
       window.electronAPI.onShellShortcut((action) => {
         if (action === "composer") {
           setComposerOpen(true)
         } else if (action === "record") {
-          setShellStatus("Recording controls are ready for the audio source.")
+          toggleAudioMaster()
         } else if (action === "debug") {
           if (mode !== "coding" || session.lifecycle !== "active") {
             setShellStatus("Fix current code requires an active Coding question.")
@@ -208,7 +237,7 @@ export default function SubscribedApp({
           })
         }
       }),
-    [input, session]
+    [audio.dispatch, input, session]
   )
 
   useEffect(
@@ -239,9 +268,11 @@ export default function SubscribedApp({
         mode={mode}
         onModeChange={setMode}
         onStart={() => void start()}
-        onRecord={() =>
-          setShellStatus("Recording controls are ready for the audio source.")
-        }
+        onRecord={toggleAudioMaster}
+        recordLabel={record.label}
+        recordPressed={record.pressed}
+        recordDisabled={!audio.available}
+        recordDescription={record.description}
         onScreenshot={() =>
           void window.electronAPI.captureScreenshot().then(() => {
             setShellStatus("Screenshot staged.")
@@ -324,6 +355,20 @@ export default function SubscribedApp({
       ) : null}
       {session.lifecycle === "active" ? (
         <>
+          <AudioSessionPanel
+            mode={session.snapshot.mode}
+            state={audio.state}
+            available={audio.available}
+            error={audio.error}
+            onCommand={(command) => void audio.dispatch(command)}
+            onOpenSystemSettings={openAudioSystemSettings}
+            onAnswer={(question) =>
+              void submit(
+                question,
+                session.snapshot.mode === "coding" ? "analyze" : undefined
+              )
+            }
+          />
           <InputTray
             artifacts={session.artifacts.filter(
               (artifact) =>

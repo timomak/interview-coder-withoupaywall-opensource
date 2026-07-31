@@ -4,6 +4,7 @@ import type {
 } from "../../src/shared/interview"
 import type { RecordRepository } from "../storage"
 import type { DeliveryState } from "./contextPolicy"
+import { audioStateForRecovery } from "../../src/shared/audio"
 
 export const M04_SCHEMA_VERSION = 1 as const
 const ACTIVE_RECORD_ID = "active-interview-session"
@@ -21,6 +22,80 @@ export interface M04ActiveSnapshot {
   }
   readonly delivery: DeliveryState
   readonly captureActive: false
+}
+
+export type TranscriptRetentionPolicy = () => boolean | Promise<boolean>
+
+function transcriptArtifactIds(
+  session: ActiveInterviewSession,
+  delivery?: DeliveryState
+): ReadonlySet<string> {
+  return new Set([
+    ...session.artifacts
+      .filter((artifact) => artifact.kind === "transcript")
+      .map((artifact) => artifact.id),
+    ...(delivery?.pending?.packet.evidence ?? [])
+      .filter((artifact) => artifact.kind === "transcript")
+      .map((artifact) => artifact.id)
+  ])
+}
+
+function sessionForPersistence(
+  session: ActiveInterviewSession,
+  retainFinalizedTranscript: boolean
+): ActiveInterviewSession {
+  const recoveredAudio = audioStateForRecovery(
+    session.audio,
+    session.sessionId,
+    retainFinalizedTranscript
+  )
+  if (retainFinalizedTranscript) {
+    return { ...session, captureActive: false, audio: recoveredAudio }
+  }
+  const removedArtifactIds = transcriptArtifactIds(session)
+  return {
+    ...session,
+    captureActive: false,
+    audio: recoveredAudio,
+    artifacts: session.artifacts.filter(
+      (artifact) => artifact.kind !== "transcript"
+    ),
+    acceptedArtifactIds: session.acceptedArtifactIds.filter(
+      (artifactId) => !removedArtifactIds.has(artifactId)
+    )
+  }
+}
+
+function deliveryForPersistence(
+  delivery: DeliveryState,
+  session: ActiveInterviewSession,
+  retainFinalizedTranscript: boolean
+): DeliveryState {
+  if (retainFinalizedTranscript) return structuredClone(delivery)
+  const removedArtifactIds = transcriptArtifactIds(session, delivery)
+  const retainEvidenceId = (id: string) => !removedArtifactIds.has(id)
+  return {
+    cursor: {
+      ...delivery.cursor,
+      evidenceIds: delivery.cursor.evidenceIds.filter(retainEvidenceId)
+    },
+    pending: delivery.pending
+      ? {
+          ...delivery.pending,
+          packet: {
+            ...delivery.pending.packet,
+            evidence: delivery.pending.packet.evidence.filter(
+              (artifact) => artifact.kind !== "transcript"
+            )
+          },
+          cursorAfter: {
+            ...delivery.pending.cursorAfter,
+            evidenceIds:
+              delivery.pending.cursorAfter.evidenceIds.filter(retainEvidenceId)
+          }
+        }
+      : undefined
+  }
 }
 
 function validateM04(value: unknown): M04ActiveSnapshot {
@@ -63,15 +138,38 @@ function validateM04(value: unknown): M04ActiveSnapshot {
   ) {
     throw new Error("M-04 snapshot is invalid")
   }
-  return candidate as M04ActiveSnapshot
+  const snapshot = candidate as M04ActiveSnapshot
+  return {
+    ...snapshot,
+    session: {
+      ...snapshot.session,
+      audio: audioStateForRecovery(
+        snapshot.session.audio,
+        snapshot.session.sessionId
+      )
+    },
+    captureActive: false
+  }
 }
 
 export class ActiveSessionRepository {
   constructor(
     private readonly records: RecordRepository<
       M04ActiveSnapshot | ResetArchive
-    >
+    >,
+    private readonly retainFinalizedTranscript: TranscriptRetentionPolicy =
+      () => true
   ) {}
+
+  private async retentionEnabled(): Promise<boolean> {
+    try {
+      return (await this.retainFinalizedTranscript()) === true
+    } catch {
+      // A failed preference read cannot silently retain sensitive transcript
+      // text. Capture settings and unrelated session state remain untouched.
+      return false
+    }
+  }
 
   async save(
     session: ActiveInterviewSession,
@@ -79,15 +177,20 @@ export class ActiveSessionRepository {
     delivery: DeliveryState,
     savedAt: string
   ): Promise<void> {
+    const retainFinalizedTranscript = await this.retentionEnabled()
     await this.records.put(
       ACTIVE_RECORD_ID,
       {
         schemaVersion: M04_SCHEMA_VERSION,
         migration: "M-04",
         savedAt,
-        session: { ...session, captureActive: false },
+        session: sessionForPersistence(session, retainFinalizedTranscript),
         providerConversation: structuredClone(providerConversation),
-        delivery: structuredClone(delivery),
+        delivery: deliveryForPersistence(
+          delivery,
+          session,
+          retainFinalizedTranscript
+        ),
         captureActive: false
       },
       ACTIVE_RECORD_TYPE
@@ -96,13 +199,36 @@ export class ActiveSessionRepository {
 
   async load(): Promise<M04ActiveSnapshot | undefined> {
     const value = await this.records.get(ACTIVE_RECORD_ID, ACTIVE_RECORD_TYPE)
-    return value === undefined ? undefined : validateM04(value)
+    if (value === undefined) return undefined
+    const snapshot = validateM04(value)
+    const retainFinalizedTranscript = await this.retentionEnabled()
+    if (retainFinalizedTranscript) return snapshot
+    const retained = {
+      ...snapshot,
+      session: sessionForPersistence(snapshot.session, false),
+      delivery: deliveryForPersistence(
+        snapshot.delivery,
+        snapshot.session,
+        false
+      )
+    }
+    // Rewrite legacy/current records after the preference changes so recovery
+    // cannot leave the now-disabled transcript bytes at rest.
+    await this.records.put(ACTIVE_RECORD_ID, retained, ACTIVE_RECORD_TYPE)
+    return retained
   }
 
   async archive(archive: ResetArchive): Promise<void> {
+    const retainFinalizedTranscript = await this.retentionEnabled()
     await this.records.put(
       `archive:${archive.session.sessionId}`,
-      archive,
+      {
+        ...archive,
+        session: sessionForPersistence(
+          archive.session,
+          retainFinalizedTranscript
+        )
+      },
       ARCHIVE_RECORD_TYPE
     )
     await this.records.remove(ACTIVE_RECORD_ID)

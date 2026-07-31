@@ -8,6 +8,22 @@ import {
   ResponseSection
 } from "../../shared/interview"
 import { personalContextForMode } from "../../features/profile/routing"
+import {
+  audioStateForRecovery,
+  attributeTranscriptSpeaker,
+  correctTranscriptSpeaker,
+  createInitialAudioSessionState,
+  dismissPendingQuestion,
+  editPendingQuestion,
+  setAudioVisibleStatus,
+  setPendingQuestion,
+  setTranscriptionPath,
+  updateAudioSourceState,
+  upsertTranscriptSegment,
+  type AudioSessionState,
+  type PendingQuestion,
+  type TranscriptSegmentV1
+} from "../../shared/audio"
 
 export type RejectionReason =
   | "duplicate-event"
@@ -89,6 +105,49 @@ function updateRequestCompletion(
       )
     )
     return completed === request.completed ? request : { ...request, completed }
+  })
+}
+
+function transcriptArtifactContent(
+  segment: TranscriptSegmentV1,
+  pendingQuestion?: PendingQuestion
+): string {
+  return JSON.stringify({
+    schemaVersion: 1,
+    kind: "transcript",
+    source: segment.source,
+    speaker: segment.speaker,
+    text: segment.text,
+    startedAt: segment.startedAt,
+    finalizedAt: segment.finalizedAt,
+    revision: segment.revision,
+    pendingQuestion:
+      pendingQuestion?.segmentIds.includes(segment.id) === true
+        ? {
+            id: pendingQuestion.id,
+            text: pendingQuestion.text,
+            revision: pendingQuestion.revision
+          }
+        : undefined
+  })
+}
+
+function updateTranscriptArtifacts(
+  artifacts: readonly EvidenceArtifact[],
+  audio: AudioSessionState
+): readonly EvidenceArtifact[] {
+  return artifacts.map((artifact) => {
+    if (artifact.kind !== "transcript" || artifact.submitted) return artifact
+    const segment = audio.segments.find(
+      (candidate) => `transcript:${candidate.id}` === artifact.id
+    )
+    return segment
+      ? {
+          ...artifact,
+          finalizedAt: segment.finalizedAt ?? artifact.finalizedAt,
+          content: transcriptArtifactContent(segment, audio.pendingQuestion)
+        }
+      : artifact
   })
 }
 
@@ -500,9 +559,142 @@ function activeReduction(
         accepted: true,
         state: advance(state, event, { captureActive: event.active })
       }
+    case "audio-source-state-changed": {
+      try {
+        return {
+          accepted: true,
+          state: advance(state, event, {
+            audio: updateAudioSourceState(state.audio, event.sourceState)
+          })
+        }
+      } catch {
+        return reject(state, "invalid-transition")
+      }
+    }
+    case "audio-visible-status-changed":
+      return {
+        accepted: true,
+        state: advance(state, event, {
+          audio: setAudioVisibleStatus(state.audio, event.status)
+        })
+      }
+    case "audio-transcription-path-changed":
+      return {
+        accepted: true,
+        state: advance(state, event, {
+          audio: setTranscriptionPath(state.audio, event.path)
+        })
+      }
+    case "audio-transcript-upserted": {
+      try {
+        const prior = state.audio.segments.find(
+          (segment) => segment.id === event.segment.id
+        )
+        const audio = upsertTranscriptSegment(state.audio, event.segment)
+        const artifacts =
+          event.segment.state === "final" && prior?.state !== "final"
+            ? [
+                ...state.artifacts,
+                {
+                  id: `transcript:${event.segment.id}`,
+                  kind: "transcript" as const,
+                  finalizedAt: event.segment.finalizedAt!,
+                  content: transcriptArtifactContent(event.segment),
+                  selected: true,
+                  submitted: false
+                }
+              ]
+            : updateTranscriptArtifacts(state.artifacts, audio)
+        return {
+          accepted: true,
+          state: advance(state, event, { audio, artifacts })
+        }
+      } catch {
+        return reject(state, "invalid-transition")
+      }
+    }
+    case "audio-speaker-corrected": {
+      try {
+        const audio = correctTranscriptSpeaker(
+          state.audio,
+          event.segmentId,
+          event.label
+        )
+        return {
+          accepted: true,
+          state: advance(state, event, {
+            audio,
+            artifacts: updateTranscriptArtifacts(state.artifacts, audio)
+          })
+        }
+      } catch {
+        return reject(state, "invalid-transition")
+      }
+    }
+    case "audio-attribution-updated": {
+      try {
+        const audio = attributeTranscriptSpeaker(
+          state.audio,
+          event.segmentId,
+          event.speaker
+        )
+        return {
+          accepted: true,
+          state: advance(state, event, {
+            audio,
+            artifacts: updateTranscriptArtifacts(state.artifacts, audio)
+          })
+        }
+      } catch {
+        return reject(state, "invalid-transition")
+      }
+    }
+    case "audio-question-detected": {
+      try {
+        const audio = setPendingQuestion(state.audio, event.question)
+        return {
+          accepted: true,
+          state: advance(state, event, {
+            audio,
+            artifacts: updateTranscriptArtifacts(state.artifacts, audio)
+          })
+        }
+      } catch {
+        return reject(state, "invalid-transition")
+      }
+    }
+    case "audio-question-edited": {
+      try {
+        const audio = editPendingQuestion(state.audio, event.text)
+        return {
+          accepted: true,
+          state: advance(state, event, {
+            audio,
+            artifacts: updateTranscriptArtifacts(state.artifacts, audio)
+          })
+        }
+      } catch {
+        return reject(state, "invalid-transition")
+      }
+    }
+    case "audio-question-dismissed": {
+      try {
+        const audio = dismissPendingQuestion(state.audio)
+        return {
+          accepted: true,
+          state: advance(state, event, {
+            audio,
+            artifacts: updateTranscriptArtifacts(state.artifacts, audio)
+          })
+        }
+      } catch {
+        return reject(state, "invalid-transition")
+      }
+    }
     case "reset": {
       const archivedSession = advance(state, event, {
-        captureActive: false
+        captureActive: false,
+        audio: audioStateForRecovery(state.audio, state.sessionId)
       })
       return {
         accepted: true,
@@ -565,6 +757,7 @@ export function reduceInterviewSession(
       requests: [],
       compactExchanges: [],
       captureActive: false,
+      audio: createInitialAudioSessionState(event.sessionId),
       codingQuestions:
         event.snapshot.mode === "coding"
           ? {

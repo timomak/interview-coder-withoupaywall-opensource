@@ -30,6 +30,19 @@ import type {
   ProviderId,
   ResponseMode
 } from "../src/shared/provider"
+import {
+  AUDIO_COMMAND_CHANNEL,
+  AUDIO_OPEN_SYSTEM_SETTINGS_CHANNEL,
+  AUDIO_PREFERENCES_CHANNEL,
+  AUDIO_PREFERENCES_UPDATE_CHANNEL,
+  AUDIO_STATE_CHANNEL,
+  AUDIO_STATE_EVENT,
+  type AudioCommand,
+  type AudioCommandResult,
+  type AudioPreferencesV1,
+  type AudioSessionState,
+  type AudioSource
+} from "../src/shared/audio"
 
 const electronAPI = {
   getConfig: (): Promise<SubscriptionConfig> =>
@@ -50,6 +63,28 @@ const electronAPI = {
     ipcRenderer.invoke(INTERVIEW_STATE_CHANNEL),
   getInterviewRecovery: () =>
     ipcRenderer.invoke(INTERVIEW_RECOVERY_CHANNEL),
+  getAudioSessionState: (): Promise<AudioSessionState> =>
+    ipcRenderer.invoke(AUDIO_STATE_CHANNEL),
+  dispatchAudioCommand: (
+    command: AudioCommand
+  ): Promise<AudioCommandResult> =>
+    ipcRenderer.invoke(AUDIO_COMMAND_CHANNEL, command),
+  onAudioSessionState: (
+    callback: (state: AudioSessionState) => void
+  ) => {
+    const listener = (_event: IpcRendererEvent, state: AudioSessionState) =>
+      callback(state)
+    ipcRenderer.on(AUDIO_STATE_EVENT, listener)
+    return () => ipcRenderer.removeListener(AUDIO_STATE_EVENT, listener)
+  },
+  getAudioPreferences: (): Promise<AudioPreferencesV1> =>
+    ipcRenderer.invoke(AUDIO_PREFERENCES_CHANNEL),
+  updateAudioPreferences: (
+    preferences: AudioPreferencesV1
+  ): Promise<AudioPreferencesV1> =>
+    ipcRenderer.invoke(AUDIO_PREFERENCES_UPDATE_CHANNEL, preferences),
+  openAudioSystemSettings: (source: AudioSource) =>
+    ipcRenderer.invoke(AUDIO_OPEN_SYSTEM_SETTINGS_CHANNEL, source),
   getProfileContext: () => ipcRenderer.invoke("profile:get-context"),
   getProfileBundle: () => ipcRenderer.invoke("profile:get-bundle"),
   saveProfileBundle: (bundle: unknown) =>

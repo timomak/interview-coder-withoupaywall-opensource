@@ -23,14 +23,19 @@
     "test:system-design-fixtures": "node scripts/verification/trusted-vitest-runner.mjs system-design-fixtures",
     "test:p08": "node scripts/verification/trusted-vitest-runner.mjs p08",
     "test:behavioral-fixtures": "node scripts/verification/trusted-vitest-runner.mjs behavioral-fixtures",
+    "test:p09": "node scripts/verification/trusted-vitest-runner.mjs p09",
+    "test:audio-native": "node scripts/verification/trusted-vitest-runner.mjs audio-native",
+    "test:audio-engine": "npm run prepare:audio && node scripts/audio/verify-packaged-local-transcription.mjs",
+    "test:audio-retention": "node scripts/verification/trusted-vitest-runner.mjs audio-retention",
     "test:electron-shell": "node scripts/verification/trusted-vitest-runner.mjs electron-shell && node scripts/verification/run-electron-shell-runtime.mjs",
+    "prepare:audio": "node scripts/audio/prepare-packaged-audio.mjs",
     "lint": "node scripts/verification/source-inventory.mjs && eslint .",
     "typecheck": "node scripts/verification/typecheck-inventory.mjs && tsc -p tsconfig.electron.json --noEmit",
     "verify:node": "node scripts/verification/require-node20.mjs",
     "verify:policy": "node scripts/verification/product-policy.mjs",
     "verify:test-manifest": "node scripts/verification/test-manifest.mjs",
     "start": "cross-env NODE_ENV=development concurrently \"tsc -p tsconfig.electron.json\" \"vite\" \"wait-on -t 30000 http://localhost:54321 && electron ./dist-electron/main.js\"",
-    "build": "npm run build:runtime && npm run verify:package-inventory",
+    "build": "npm run prepare:audio && npm run build:runtime && npm run verify:package-inventory",
     "build:runtime": "cross-env NODE_ENV=production npm run clean && vite build && tsc -p tsconfig.electron.json",
     "verify:package-inventory": "node scripts/verification/build-package-inventory.mjs",
     "run-prod": "cross-env NODE_ENV=production electron ./dist-electron/main.js",
@@ -55,10 +60,30 @@
       "buildResources": "assets"
     },
     "asar": true,
+    "extraResources": [
+      {
+        "from": "resources/audio",
+        "to": "audio",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": ".artifacts/audio/models",
+        "to": "audio/models",
+        "filter": [
+          "ggml-base.en.bin"
+        ]
+      }
+    ],
     "compression": "maximum",
     "generateUpdatesFilesForAllChannels": true,
     "mac": {
       "category": "public.app-category.developer-tools",
+      "extendInfo": {
+        "NSMicrophoneUsageDescription": "InterviewCopilot records microphone audio only after you turn the microphone on for the active interview.",
+        "NSSpeechRecognitionUsageDescription": "InterviewCopilot sends finalized audio to Apple Speech only after you explicitly enable remote transcription."
+      },
       "target": [
         {
           "target": "dmg",

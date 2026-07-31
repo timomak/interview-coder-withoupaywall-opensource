@@ -3,6 +3,14 @@ import type {
   ResponseMode
 } from "../provider"
 import type { CodingIntent } from "../../features/coding/types"
+import type {
+  AudioSessionState,
+  AudioSourceSessionState,
+  AudioVisibleStatus,
+  PendingQuestion,
+  TranscriptSpeaker,
+  TranscriptSegmentV1
+} from "../audio"
 
 export const INTERVIEW_MODES = [
   "coding",
@@ -118,6 +126,7 @@ export interface ActiveInterviewSession {
   readonly requests: readonly ResponseRequest[]
   readonly compactExchanges: readonly CompactExchange[]
   readonly captureActive: boolean
+  readonly audio: AudioSessionState
   readonly codingQuestions?: CodingQuestionState
 }
 
@@ -211,6 +220,43 @@ export type InterviewSessionEvent =
   | (EventEnvelope & {
       readonly type: "capture-state-changed"
       readonly active: boolean
+    })
+  | (EventEnvelope & {
+      readonly type: "audio-source-state-changed"
+      readonly sourceState: AudioSourceSessionState
+    })
+  | (EventEnvelope & {
+      readonly type: "audio-visible-status-changed"
+      readonly status: AudioVisibleStatus
+    })
+  | (EventEnvelope & {
+      readonly type: "audio-transcription-path-changed"
+      readonly path: "local" | "remote"
+    })
+  | (EventEnvelope & {
+      readonly type: "audio-transcript-upserted"
+      readonly segment: TranscriptSegmentV1
+    })
+  | (EventEnvelope & {
+      readonly type: "audio-speaker-corrected"
+      readonly segmentId: string
+      readonly label: string
+    })
+  | (EventEnvelope & {
+      readonly type: "audio-attribution-updated"
+      readonly segmentId: string
+      readonly speaker: TranscriptSpeaker
+    })
+  | (EventEnvelope & {
+      readonly type: "audio-question-detected"
+      readonly question: PendingQuestion
+    })
+  | (EventEnvelope & {
+      readonly type: "audio-question-edited"
+      readonly text: string
+    })
+  | (EventEnvelope & {
+      readonly type: "audio-question-dismissed"
     })
   | (EventEnvelope & {
       readonly type: "coding-question-started"

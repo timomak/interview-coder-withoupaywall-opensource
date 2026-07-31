@@ -37,6 +37,10 @@ import type {
 } from "./orchestrator"
 import type { ResetArchive } from "../src/shared/interview"
 import { INTERVIEW_STATE_EVENT } from "../src/shared/interview"
+import {
+  AUDIO_STATE_EVENT,
+  createInitialAudioSessionState
+} from "../src/shared/audio"
 import { createWindowOpenHandler } from "./windowOpenPolicy"
 import { ScreenshotHelper } from "./ScreenshotHelper"
 import { ShortcutsHelper } from "./shortcuts"
@@ -55,6 +59,15 @@ import {
   type ShortcutAction,
   type ShortcutBindings
 } from "../src/shared/shell"
+import {
+  AudioPreferencesRepository,
+  AudioSessionController,
+  type M07AudioPreferencesRecord
+} from "./audio/session"
+import { NativeAudioCaptureRuntime } from "./audio/native/NativeAudioCaptureRuntime"
+import { AppleSpeechTranscriber } from "./audio/transcription/AppleSpeechTranscriber"
+import { LocalWhisperTranscriber } from "./audio/transcription/LocalWhisperTranscriber"
+import { loadAudioArtifactManifest } from "./audio/transcription/artifactManifest"
 
 const isDevelopment = process.env.NODE_ENV === "development"
 
@@ -408,6 +421,12 @@ function createOrchestrator(
     },
     onState: (session) => {
       state.mainWindow?.webContents.send(INTERVIEW_STATE_EVENT, session)
+      state.mainWindow?.webContents.send(
+        AUDIO_STATE_EVENT,
+        session.lifecycle === "active"
+          ? session.audio
+          : createInitialAudioSessionState()
+      )
     }
   })
 }
@@ -436,10 +455,86 @@ async function initializeApplication(): Promise<void> {
       "profiles"
     )
   )
+  const audioPreferences = new AudioPreferencesRepository(
+    new EncryptedRecordRepository<M07AudioPreferencesRecord>(
+      storagePaths,
+      keyService,
+      undefined,
+      "audio"
+    )
+  )
   const orchestrator = createOrchestrator(
     executables,
-    new ActiveSessionRepository(records),
+    new ActiveSessionRepository(
+      records,
+      () =>
+        audioPreferences
+          .load()
+          .then((preferences) => preferences.transcriptRetention)
+    ),
     profiles
+  )
+  const audioResourceRoot = app.isPackaged
+    ? path.join(process.resourcesPath, "audio")
+    : path.join(app.getAppPath(), "resources", "audio")
+  const architecture =
+    process.arch === "x64"
+      ? "x64"
+      : process.arch === "arm64"
+        ? "arm64"
+        : undefined
+  if (!architecture) {
+    throw new Error("Native audio is unsupported on this macOS architecture")
+  }
+  const audioManifestPath = path.join(
+    audioResourceRoot,
+    "audio-artifacts-v1.json"
+  )
+  const audioManifest = await loadAudioArtifactManifest(audioManifestPath)
+  const nativeArtifacts = audioManifest.binaries[architecture]
+  const nativeHelperExecutable = path.join(
+    audioResourceRoot,
+    "native",
+    architecture,
+    "interviewcopilot-audio-helper"
+  )
+  const audioRuntime = new NativeAudioCaptureRuntime({
+    helperExecutable: nativeHelperExecutable,
+    helperExpectedSha256: nativeArtifacts.nativeHelperSha256,
+    temporaryRoot: path.join(userData, "audio-temporary"),
+    localTranscriber: new LocalWhisperTranscriber({
+      executable: path.join(
+        audioResourceRoot,
+        "whisper",
+        architecture,
+        "whisper-cli"
+      ),
+      model: path.join(audioResourceRoot, "models", "ggml-base.en.bin"),
+      manifest: audioManifestPath,
+      architecture
+    }),
+    remoteTranscriber: new AppleSpeechTranscriber({
+      executable: path.join(
+        audioResourceRoot,
+        "speech",
+        architecture,
+        "interviewcopilot-apple-speech"
+      ),
+      expectedSha256: nativeArtifacts.appleSpeechAdapterSha256
+    })
+  })
+  const audio = new AudioSessionController(
+    orchestrator,
+    audioPreferences,
+    audioRuntime
+  )
+  audioRuntime.setTranscriptSink((segment) => audio.ingestTranscript(segment))
+  audioRuntime.setStatusSink((status) => audio.updateStatus(status))
+  audioRuntime.setFailureSink((source, error) =>
+    audio.handleRuntimeFailure(source, error)
+  )
+  audioRuntime.setElapsedSink((source, elapsedMs) =>
+    audio.updateElapsed(source, elapsedMs)
   )
   createWindow()
   const screenshots = new ScreenshotHelper(
@@ -476,7 +571,10 @@ async function initializeApplication(): Promise<void> {
         state.mainWindow?.webContents.send("shell:shortcut", action)
         return
       case "reset":
-        void capture.reset()
+        void audio.reset(() => capture.reset())
+        return
+      case "record":
+        void audio.command({ type: "master-toggle" })
         return
       case "move-left":
         moveWindowHorizontal(-state.step)
@@ -580,6 +678,17 @@ async function initializeApplication(): Promise<void> {
     saveProfileBundle: (bundle) => profiles.save(bundle),
     importProfileMarkdown: (source) => profiles.importMarkdown(source),
     exportDossier: (destination) => profiles.exportDossier(destination),
+    getAudioSessionState: () => audio.current(),
+    dispatchAudioCommand: (command) => audio.command(command),
+    getAudioPreferences: () => audioPreferences.load(),
+    updateAudioPreferences: (preferences) =>
+      audioPreferences.save(preferences),
+    openAudioSystemSettings: (source) =>
+      shell.openExternal(
+        source === "microphone"
+          ? "x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone"
+          : "x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture"
+      ),
     setWindowPointerEvents: (ignore, forward) => {
       if (state.mainWindow) {
         applyPointerRouting(state.mainWindow, ignore, forward)
@@ -595,7 +704,7 @@ async function initializeApplication(): Promise<void> {
       applyShortcutBindings(DEFAULT_SHORTCUT_BINDINGS),
     invokeShellAction,
     diagnoseProviders: () => providerDiagnostics(executables),
-    resetInterview: () => capture.reset(),
+    resetInterview: () => audio.reset(() => capture.reset()),
     configureProvider: async (
       provider: ProviderId,
       model: string,
@@ -617,10 +726,23 @@ async function initializeApplication(): Promise<void> {
     showSettings: () =>
       state.mainWindow?.webContents.send("settings:show")
   })
+  await audio.cleanupStartup()
   await orchestrator.inspectRecovery()
   screen.on("display-removed", () => setHudState(currentHudState))
   screen.on("display-metrics-changed", () => setHudState(currentHudState))
-  app.on("before-quit", persistGeometry)
+  let shutdownStarted = false
+  let shutdownComplete = false
+  app.on("before-quit", (event) => {
+    persistGeometry()
+    if (shutdownComplete) return
+    event.preventDefault()
+    if (shutdownStarted) return
+    shutdownStarted = true
+    void audio.shutdown().finally(() => {
+      shutdownComplete = true
+      app.quit()
+    })
+  })
   initAutoUpdater()
   configHelper.loadConfig()
 }

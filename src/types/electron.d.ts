@@ -16,6 +16,13 @@ import type {
   HudState
 } from "../shared/shell"
 import type { ShortcutRegistrationResult } from "../../electron/shortcuts"
+import type {
+  AudioCommand,
+  AudioCommandResult,
+  AudioPreferences,
+  AudioSessionState,
+  AudioSource
+} from "../features/audio/contracts"
 
 export interface UpdateInfo {
   version?: string
@@ -82,6 +89,20 @@ export interface ElectronAPI {
   onShellStartupWarning: (
     callback: (message: string) => void
   ) => () => void
+  getAudioSessionState: () => Promise<AudioSessionState>
+  dispatchAudioCommand: (
+    command: AudioCommand
+  ) => Promise<AudioCommandResult>
+  onAudioSessionState: (
+    callback: (state: AudioSessionState) => void
+  ) => () => void
+  getAudioPreferences: () => Promise<AudioPreferences>
+  updateAudioPreferences: (
+    preferences: AudioPreferences
+  ) => Promise<AudioPreferences>
+  openAudioSystemSettings?: (
+    source: AudioSource
+  ) => Promise<{ success: boolean }>
   toggleMainWindow: () => Promise<{ success: boolean }>
   getPlatform: () => NodeJS.Platform
   startUpdate: () => Promise<{ success: boolean; error?: string }>

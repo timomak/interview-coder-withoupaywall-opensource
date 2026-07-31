@@ -47,6 +47,13 @@ import {
   parseBehavioralProviderPayload
 } from "./behavioralPolicy"
 import type { BehavioralStory } from "../../src/features/behavioral/types"
+import type {
+  AudioSourceSessionState,
+  AudioVisibleStatus,
+  PendingQuestion,
+  TranscriptSegmentV1
+} from "../../src/shared/audio"
+import { parseAudioAnalysisPayload } from "./audioAnalysis"
 
 export interface ProviderConversationFactory {
   create(
@@ -76,6 +83,26 @@ interface ActiveTurn {
   readonly controller: AbortController
   readonly generation: number
 }
+
+export type AudioSessionMutation =
+  | {
+      readonly type: "source-state"
+      readonly sourceState: AudioSourceSessionState
+    }
+  | { readonly type: "visible-status"; readonly status: AudioVisibleStatus }
+  | {
+      readonly type: "transcription-path"
+      readonly path: "local" | "remote"
+    }
+  | { readonly type: "transcript"; readonly segment: TranscriptSegmentV1 }
+  | {
+      readonly type: "speaker-correction"
+      readonly segmentId: string
+      readonly label: string
+    }
+  | { readonly type: "question-detected"; readonly question: PendingQuestion }
+  | { readonly type: "question-edited"; readonly text: string }
+  | { readonly type: "question-dismissed" }
 
 type EventBody = InterviewSessionEvent extends infer Event
   ? Event extends InterviewSessionEvent
@@ -175,12 +202,73 @@ export class InterviewOrchestrator {
       this.generation += 1
       for (const turn of this.turns.values()) turn.controller.abort()
     }
-    const operation = this.commandTail.then(() => this.executeCommand(command))
-    this.commandTail = operation.then(
-      () => undefined,
-      () => undefined
-    )
-    return operation
+    return this.enqueue(() => this.executeCommand(command))
+  }
+
+  audioMutation(mutation: AudioSessionMutation): Promise<InterviewSession> {
+    return this.enqueue(async () => {
+      switch (mutation.type) {
+        case "source-state":
+          await this.dispatch({
+            type: "audio-source-state-changed",
+            sourceState: mutation.sourceState
+          })
+          break
+        case "visible-status":
+          await this.dispatch({
+            type: "audio-visible-status-changed",
+            status: mutation.status
+          })
+          break
+        case "transcription-path":
+          await this.dispatch({
+            type: "audio-transcription-path-changed",
+            path: mutation.path
+          })
+          break
+        case "transcript":
+          await this.dispatch({
+            type: "audio-transcript-upserted",
+            segment: mutation.segment
+          })
+          break
+        case "speaker-correction":
+          await this.dispatch({
+            type: "audio-speaker-corrected",
+            segmentId: mutation.segmentId,
+            label: mutation.label
+          })
+          break
+        case "question-detected":
+          await this.dispatch({
+            type: "audio-question-detected",
+            question: mutation.question
+          })
+          break
+        case "question-edited":
+          await this.dispatch({
+            type: "audio-question-edited",
+            text: mutation.text
+          })
+          break
+        case "question-dismissed":
+          await this.dispatch({ type: "audio-question-dismissed" })
+          break
+        default: {
+          const exhaustive: never = mutation
+          return exhaustive
+        }
+      }
+      return this.state
+    })
+  }
+
+  analyzeFinalizedTranscript(segmentIds: readonly string[]): Promise<void> {
+    return this.enqueue(() => this.performAudioAnalysis(segmentIds))
+  }
+
+  synchronizeTranscriptCorrection(segmentId: string): Promise<void> {
+    return this.enqueue(() => this.performTranscriptCorrectionSync(segmentId))
   }
 
   private async executeCommand(
@@ -939,6 +1027,130 @@ export class InterviewOrchestrator {
     }
   }
 
+  private async performAudioAnalysis(
+    requestedSegmentIds: readonly string[]
+  ): Promise<void> {
+    const session = active(this.state)
+    const segmentIds = [...new Set(requestedSegmentIds)]
+    if (
+      segmentIds.length === 0 ||
+      segmentIds.length !== requestedSegmentIds.length
+    ) {
+      throw new Error("Audio analysis requires unique finalized segments")
+    }
+    const segments = segmentIds.map((segmentId) =>
+      session.audio.segments.find(
+        (segment) => segment.id === segmentId && segment.state === "final"
+      )
+    )
+    if (segments.some((segment) => segment === undefined)) {
+      throw new Error("Audio analysis accepts finalized transcript text only")
+    }
+    const runtime = this.requireRuntime()
+    const turnId = this.id()
+    const turn = this.beginTurn(turnId)
+    try {
+      const result = await runtime.provider.runTurn(
+        JSON.stringify({
+          route: "audio-analysis",
+          operation: ["diarization", "question-detection"],
+          segments: segments.map((segment) => ({
+            id: segment!.id,
+            source: segment!.source,
+            text: segment!.text
+          })),
+          contract: {
+            output: "audio-analysis-v1",
+            answer: false,
+            tools: [] as const
+          }
+        }),
+        turn.controller.signal,
+        async () => this.acceptProviderEvent(runtime, turn)
+      )
+      if (!this.isCurrent(turn)) return
+      const failure = providerFailure(result.events)
+      if (!acceptedCompletion(result.events)) {
+        throw new Error(failure ?? "Transcript analysis was not completed")
+      }
+      const payloads = result.events
+        .filter(
+          (event): event is Extract<ProviderEvent, { type: "typed-payload" }> =>
+            event.type === "typed-payload"
+        )
+        .map((event) => parseAudioAnalysisPayload(event.payload, segmentIds))
+        .filter((payload) => payload !== undefined)
+      if (payloads.length !== 1) {
+        throw new Error("Transcript analysis must return one typed payload")
+      }
+      const payload = payloads[0]!
+      for (const attribution of payload.attributions) {
+        await this.dispatch({
+          type: "audio-attribution-updated",
+          segmentId: attribution.segmentId,
+          speaker: attribution.speaker
+        })
+      }
+      if (payload.question) {
+        await this.dispatch({
+          type: "audio-question-detected",
+          question: {
+            id: this.id(),
+            text: payload.question.text,
+            segmentIds: payload.question.segmentIds,
+            detectedAt: this.now(),
+            revision: 1
+          }
+        })
+      } else {
+        await this.dispatch({
+          type: "audio-visible-status-changed",
+          status: "ready"
+        })
+      }
+    } finally {
+      this.turns.delete(turnId)
+    }
+  }
+
+  private async performTranscriptCorrectionSync(
+    segmentId: string
+  ): Promise<void> {
+    const segment = active(this.state).audio.segments.find(
+      (candidate) => candidate.id === segmentId && candidate.state === "final"
+    )
+    if (!segment || !segment.speaker.corrected) {
+      throw new Error("Transcript correction must be durable before sync")
+    }
+    const runtime = this.requireRuntime()
+    const turnId = this.id()
+    const turn = this.beginTurn(turnId)
+    try {
+      const result = await runtime.provider.runTurn(
+        JSON.stringify({
+          route: "audio-analysis",
+          operation: "speaker-correction",
+          segment: {
+            id: segment.id,
+            source: segment.source,
+            text: segment.text,
+            speaker: segment.speaker.label
+          },
+          contract: { answer: false, tools: [] as const }
+        }),
+        turn.controller.signal,
+        async () => this.acceptProviderEvent(runtime, turn)
+      )
+      if (!this.isCurrent(turn)) return
+      const failure = providerFailure(result.events)
+      if (!acceptedCompletion(result.events)) {
+        throw new Error(failure ?? "Transcript correction was not synchronized")
+      }
+    } finally {
+      this.turns.delete(turnId)
+    }
+  }
+
   private beginTurn(turnId: string): ActiveTurn {
     if (this.turns.has(turnId)) throw new Error("Provider turn is already active")
     const turn = {
@@ -947,6 +1159,15 @@ export class InterviewOrchestrator {
     }
     this.turns.set(turnId, turn)
     return turn
+  }
+
+  private enqueue<T>(operation: () => Promise<T>): Promise<T> {
+    const pending = this.commandTail.then(operation)
+    this.commandTail = pending.then(
+      () => undefined,
+      () => undefined
+    )
+    return pending
   }
 
   private isCurrent(turn: ActiveTurn): boolean {

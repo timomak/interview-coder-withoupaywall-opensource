@@ -20,6 +20,7 @@ import type {
   TextSizePreference
 } from "../../shared/shell"
 import { ProfileSettings } from "../../features/profile"
+import { AudioSettings } from "../../features/audio"
 
 interface SettingsDialogProps {
   open?: boolean
@@ -200,6 +201,7 @@ export function SettingsDialog({
               </label>
             ))}
           </fieldset>
+          <AudioSettings disabled={isLoading} />
           <p className="text-xs text-white/50">
             Provider failures stop explicitly. InterviewCopilot never switches
             providers automatically.
