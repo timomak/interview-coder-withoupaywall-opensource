@@ -112,6 +112,27 @@ const SUITES = {
   "behavioral-fixtures": [
     "tests/fixtures/behavioral/verifiedClaims.contract.test.ts"
   ],
+  p09: [
+    "electron/audio/explicitActivation.test.ts",
+    "electron/audio/sourceStateMachine.test.ts",
+    "electron/audio/permissionRecovery.test.ts",
+    "electron/audio/localTranscription.contract.test.ts",
+    "electron/audio/cloudFallbackConsent.test.ts",
+    "electron/audio/rawAudioRetention.test.ts",
+    "src/features/audio/speakerAttribution.test.ts",
+    "src/features/audio/audioStatusAccessibility.test.tsx",
+    "electron/audio/questionDetection.test.ts",
+    "electron/audio/channelSeparation.integration.test.ts",
+    "electron/audio/modelOperationRouting.test.ts"
+  ],
+  "audio-native": [
+    "electron/audio/native",
+    "electron/audio/transcription"
+  ],
+  "audio-retention": [
+    "electron/audio/temporary",
+    "electron/audio/rawAudioRetention.test.ts"
+  ],
   "electron-shell": [
     "electron/window/windowVisibility.test.ts",
     "electron/window/composerVisibility.test.ts",
