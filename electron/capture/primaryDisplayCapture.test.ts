@@ -1,6 +1,16 @@
+import { createRequire } from "node:module"
 import { describe, expect, it, vi } from "vitest"
 import { ScreenshotHelper } from "../ScreenshotHelper"
 import type { BlobDescriptor, BlobRepository } from "../storage"
+
+const captureRuntime = createRequire(import.meta.url)(
+  "./inMemoryDesktopCapture.cjs"
+) as {
+  selectExactDisplaySource<T extends { display_id: string }>(
+    sources: readonly T[],
+    displayId: number
+  ): T
+}
 
 class MemoryBlobs implements BlobRepository {
   readonly values = new Map<string, Buffer>()
@@ -23,6 +33,19 @@ class MemoryBlobs implements BlobRepository {
 }
 
 describe("primary-display capture", () => {
+  it("fails closed instead of substituting another display source", () => {
+    const sources = [
+      { id: "screen:other", display_id: "99" },
+      { id: "screen:primary", display_id: "731" }
+    ]
+    expect(
+      captureRuntime.selectExactDisplaySource(sources, 731)
+    ).toBe(sources[1])
+    expect(() =>
+      captureRuntime.selectExactDisplaySource(sources, 404)
+    ).toThrow("no exact source for display 404")
+  })
+
   it("captures primary display and preserves visibility", async () => {
     const displayIds: Array<number | undefined> = []
     const hidden = vi.fn()

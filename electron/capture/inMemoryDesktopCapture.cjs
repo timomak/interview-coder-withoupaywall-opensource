@@ -1,6 +1,24 @@
 const { desktopCapturer, screen } = require("electron")
 
 /**
+ * @template {{ display_id: string }} T
+ * @param {readonly T[]} sources
+ * @param {number} displayId
+ * @returns {T}
+ */
+function selectExactDisplaySource(sources, displayId) {
+  const source = sources.find(
+    (candidate) => Number(candidate.display_id) === displayId
+  )
+  if (!source) {
+    throw new Error(
+      `Electron desktop capture returned no exact source for display ${displayId}`
+    )
+  }
+  return source
+}
+
+/**
  * Captures the requested display without creating a plaintext filesystem
  * artifact. The returned buffer is owned by the caller and must be cleared
  * after encrypted persistence.
@@ -19,16 +37,14 @@ async function captureDisplayInMemory(displayId) {
       height: Math.max(1, Math.round(display.size.height * display.scaleFactor))
     }
   })
-  const source =
-    sources.find((candidate) => Number(candidate.display_id) === display.id) ??
-    sources[0]
-  if (!source || source.thumbnail.isEmpty()) {
+  const source = selectExactDisplaySource(sources, display.id)
+  if (source.thumbnail.isEmpty()) {
     throw new Error("Electron desktop capture returned no primary-display pixels")
   }
   return {
     bytes: source.thumbnail.toPNG(),
-    displayId: String(display.id)
+    displayId: String(source.display_id)
   }
 }
 
-module.exports = { captureDisplayInMemory }
+module.exports = { captureDisplayInMemory, selectExactDisplaySource }
