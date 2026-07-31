@@ -23,6 +23,11 @@
     },
     {
       "path": "electron/audio/explicitActivation.test.ts",
+      "name": "cancels an adapter during asynchronous pre-spawn validation",
+      "sha256": "95a8d4440c3a389578bd8027686d67f952f53557842acf67863ceb3acb29b698"
+    },
+    {
+      "path": "electron/audio/explicitActivation.test.ts",
       "name": "fails closed before capture when Remote lacks the Apple adapter",
       "sha256": "95a8d4440c3a389578bd8027686d67f952f53557842acf67863ceb3acb29b698"
     },
