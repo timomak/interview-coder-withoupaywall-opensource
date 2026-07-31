@@ -445,6 +445,9 @@ async function initializeApplication(): Promise<void> {
         case "screenshot":
           void capture.capture()
           return
+        case "debug":
+          void capture.debugCurrentCode()
+          return
         case "submit":
           state.mainWindow?.webContents.send("shell:shortcut", action)
           return
@@ -500,6 +503,7 @@ async function initializeApplication(): Promise<void> {
     setWindowDimensions,
     toggleMainWindow,
     captureScreenshot: () => capture.capture(),
+    debugCurrentCode: () => capture.debugCurrentCode(),
     setWindowPointerEvents: (ignore, forward) =>
       state.mainWindow?.setIgnoreMouseEvents(ignore, { forward }),
     setHudState,

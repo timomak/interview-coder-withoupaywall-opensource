@@ -92,7 +92,7 @@ export function migrateLegacyConfig(
     const config = withM05aDefaults({
       schemaVersion: CONFIG_SCHEMA_VERSION,
       responseMode: "fast",
-      language: "python",
+      language: "python3",
       opacity: 1,
       migration: { id: "M-01", completedAt: "fresh-install" }
     }, "fresh-install")

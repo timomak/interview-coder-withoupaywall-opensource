@@ -59,6 +59,50 @@ export class InterviewCaptureController {
     if (!result.ok) throw new Error(result.error ?? "Evidence submission failed")
   }
 
+  async debugCurrentCode(): Promise<void> {
+    const state = this.orchestrator.current()
+    if (state.lifecycle !== "active" || state.snapshot.mode !== "coding") {
+      throw new Error("Fix current code requires an active Coding question")
+    }
+    const restoreVisibility = this.isMainWindowVisible()
+    const screenshotId = await this.screenshots.takeScreenshot(
+      this.hideMainWindow,
+      restoreVisibility ? this.showMainWindow : () => undefined
+    )
+    const artifactId = this.artifactId(screenshotId)
+    const content = await this.screenshots.getImagePreview(screenshotId)
+    if (content.length === 0) {
+      await this.screenshots.deleteScreenshot(screenshotId)
+      throw new Error("Debug screenshot could not be decrypted")
+    }
+    const staged = await this.orchestrator.command({
+      type: "stage-artifact",
+      artifact: {
+        id: artifactId,
+        kind: "screenshot",
+        finalizedAt: this.now(),
+        content
+      }
+    })
+    if (!staged.ok) {
+      await this.screenshots.deleteScreenshot(screenshotId)
+      throw new Error(staged.error ?? "Debug screenshot could not be staged")
+    }
+    const fixVersion =
+      state.sections.filter((section) => section.id.startsWith("fix-")).length + 1
+    const submitted = await this.orchestrator.command({
+      type: "submit",
+      route: "mode-action",
+      codingIntent: "debug",
+      input: "Diagnose only the implementation shown in the new screenshot.",
+      sectionIds: [`fix-${fixVersion}`],
+      artifactIds: [artifactId]
+    })
+    if (!submitted.ok) {
+      throw new Error(submitted.error ?? "Debug request failed")
+    }
+  }
+
   async reset(): Promise<Awaited<ReturnType<InterviewOrchestrator["command"]>>> {
     const result = await this.orchestrator.command({ type: "reset" })
     if (!result.ok) throw new Error(result.error ?? "Interview reset failed")

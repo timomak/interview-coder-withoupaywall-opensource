@@ -17,6 +17,8 @@
     "test:p03": "node scripts/verification/trusted-vitest-runner.mjs p03",
     "test:p04": "node scripts/verification/trusted-vitest-runner.mjs p04",
     "test:p05": "node scripts/verification/trusted-vitest-runner.mjs p05",
+    "test:p06": "node scripts/verification/trusted-vitest-runner.mjs p06",
+    "test:coding-fixtures": "node scripts/verification/trusted-vitest-runner.mjs coding-fixtures",
     "test:electron-shell": "node scripts/verification/trusted-vitest-runner.mjs electron-shell",
     "lint": "node scripts/verification/source-inventory.mjs && eslint .",
     "typecheck": "node scripts/verification/typecheck-inventory.mjs && tsc -p tsconfig.electron.json --noEmit",

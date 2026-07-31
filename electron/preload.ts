@@ -71,6 +71,7 @@ const electronAPI = {
   setHudState: (state: HudState) =>
     ipcRenderer.invoke("window:set-hud-state", state),
   captureScreenshot: () => ipcRenderer.invoke("capture:screenshot"),
+  debugCurrentCode: () => ipcRenderer.invoke("coding:debug-current"),
   getShortcutBindings: (): Promise<ShortcutBindings> =>
     ipcRenderer.invoke("shortcuts:get"),
   updateShortcutBindings: (

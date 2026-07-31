@@ -265,6 +265,49 @@ summary {
   background: var(--quiet-surface-strong);
 }
 
+.quiet-coding-workspace {
+  display: grid;
+  gap: 10px;
+}
+
+.quiet-coding-toolbar,
+.quiet-code-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.quiet-coding-toolbar button,
+.quiet-code-actions button {
+  min-height: 32px;
+  padding: 5px 9px;
+  color: #f4f7fb;
+  border: 1px solid var(--quiet-border);
+  border-radius: 8px;
+  background: var(--quiet-surface);
+}
+
+.quiet-coding-toolbar button[aria-pressed="true"] {
+  color: #06110e;
+  border-color: var(--quiet-signal);
+  background: var(--quiet-signal);
+}
+
+.quiet-coding-workspace article,
+.quiet-code-panel {
+  padding: 10px;
+  border: 1px solid var(--quiet-border);
+  border-radius: 10px;
+  background: var(--quiet-surface);
+}
+
+.quiet-code-panel pre {
+  overflow: auto;
+  max-height: 46vh;
+  margin-top: 8px;
+  white-space: pre;
+}
+
 .quiet-answer-section > button {
   width: 100%;
   padding: 8px 12px;

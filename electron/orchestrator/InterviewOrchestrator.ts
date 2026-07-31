@@ -23,6 +23,15 @@ import {
   parseProviderPayload
 } from "./responseRouting"
 import { ActiveSessionRepository, M04ActiveSnapshot } from "./sessionRepository"
+import {
+  buildCodingProviderRequest,
+  parseCodingFixCard
+} from "./codingPolicy"
+import {
+  isCodingIntent,
+  sectionsForCodingIntent,
+  type CodingIntent
+} from "../../src/features/coding/types"
 
 export interface ProviderConversationFactory {
   create(
@@ -87,6 +96,34 @@ function acceptedCompletion(events: readonly ProviderEvent[]): boolean {
   )
 }
 
+function availableSectionIds(
+  session: ActiveInterviewSession,
+  requested: readonly string[]
+): readonly string[] {
+  const existing = new Set(session.sections.map((section) => section.id))
+  if (requested.every((sectionId) => !existing.has(sectionId))) {
+    return requested
+  }
+  let version = 2
+  while (true) {
+    const versioned = requested.map((sectionId) => `${sectionId}-${version}`)
+    if (versioned.every((sectionId) => !existing.has(sectionId))) {
+      return versioned
+    }
+    version += 1
+  }
+}
+
+function validFixSection(sectionId: string, body: string): boolean {
+  if (!/^fix-[1-9]\d*$/.test(sectionId)) return false
+  try {
+    const card = parseCodingFixCard(JSON.parse(body))
+    return card?.version === Number(sectionId.slice("fix-".length))
+  } catch {
+    return false
+  }
+}
+
 export class InterviewOrchestrator {
   private state: InterviewSession = createIdleInterviewSession()
   private runtime?: ActiveRuntime
@@ -148,7 +185,9 @@ export class InterviewOrchestrator {
           await this.submit(
             command.route,
             command.input,
-            command.sectionIds
+            command.sectionIds,
+            command.codingIntent,
+            command.artifactIds
           )
           break
         case "cancel":
@@ -162,6 +201,9 @@ export class InterviewOrchestrator {
           break
         case "resume":
           await this.resume()
+          break
+        case "new-coding-question":
+          await this.newCodingQuestion(command.question)
           break
         default: {
           const exhaustive: never = command
@@ -232,15 +274,48 @@ export class InterviewOrchestrator {
     })
   }
 
+  async newCodingQuestion(question: string): Promise<void> {
+    const session = active(this.state)
+    if (session.snapshot.mode !== "coding" || !session.codingQuestions) {
+      throw new Error("New Question is available only in Coding mode")
+    }
+    await this.dispatch({
+      type: "coding-question-started",
+      branchId: this.id(),
+      question: question.trim()
+    })
+  }
+
   async submit(
     route: Extract<InterviewCommand, { type: "submit" }>["route"],
     input: string,
-    requestedSectionIds?: readonly string[]
+    requestedSectionIds?: readonly string[],
+    codingIntent?: CodingIntent,
+    requestedArtifactIds?: readonly string[]
   ): Promise<void> {
     const session = active(this.state)
-    const pending = session.artifacts
-      .filter((artifact) => artifact.selected && !artifact.submitted)
-      .map((artifact) => artifact.id)
+    if (session.snapshot.mode === "coding" && route === "mode-action") {
+      if (!isCodingIntent(codingIntent)) {
+        throw new Error("Coding requests require an explicit supported intent")
+      }
+    } else if (codingIntent !== undefined || requestedArtifactIds !== undefined) {
+      throw new Error("Coding-only submission fields crossed a mode boundary")
+    }
+    const selectedPending = session.artifacts.filter(
+      (artifact) => artifact.selected && !artifact.submitted
+    )
+    const pending = requestedArtifactIds
+      ? [...requestedArtifactIds]
+      : selectedPending.map((artifact) => artifact.id)
+    if (
+      new Set(pending).size !== pending.length ||
+      pending.some(
+        (artifactId) =>
+          !selectedPending.some((artifact) => artifact.id === artifactId)
+      )
+    ) {
+      throw new Error("Submission evidence is not selected and pending")
+    }
     if (input.trim().length === 0 && pending.length === 0) {
       throw new Error("Empty submission is not allowed")
     }
@@ -254,12 +329,20 @@ export class InterviewOrchestrator {
       await this.runCompactTurn(route, input)
       return
     }
-    const sectionIds =
+    const proposedSectionIds =
       requestedSectionIds && requestedSectionIds.length > 0
         ? [...requestedSectionIds]
+        : session.snapshot.mode === "coding" &&
+            route === "mode-action" &&
+            codingIntent
+          ? [...sectionsForCodingIntent(codingIntent)]
         : route === "correction"
           ? active(this.state).sections.map((section) => section.id)
           : ["answer"]
+    const sectionIds =
+      session.snapshot.mode === "coding" && route === "mode-action"
+        ? availableSectionIds(session, proposedSectionIds)
+        : proposedSectionIds
     const requestId = this.id()
     if (route !== "correction") {
       await this.dispatch({
@@ -268,7 +351,14 @@ export class InterviewOrchestrator {
         sectionIds
       })
     }
-    await this.runStructuredTurn(requestId, route, input, sectionIds)
+    await this.runStructuredTurn(
+      requestId,
+      route,
+      input,
+      sectionIds,
+      codingIntent,
+      requestedArtifactIds
+    )
   }
 
   async cancel(requestId: string): Promise<void> {
@@ -422,27 +512,42 @@ export class InterviewOrchestrator {
     requestId: string,
     route: "mode-action" | "correction",
     input: string,
-    sectionIds: readonly string[]
+    sectionIds: readonly string[],
+    codingIntent?: CodingIntent,
+    evidenceArtifactIds?: readonly string[]
   ): Promise<void> {
     const runtime = this.requireRuntime()
     const turn = this.beginTurn(requestId)
     const correctionPayloads: ReturnType<typeof parseProviderPayload>[] = []
     let sectionEventObserved = false
+    const typedCodingSectionIds = new Set<string>()
     try {
       const attempt = await this.prepareContext(runtime)
       const bestEffort = deriveBestEffortDecision(active(this.state), input)
+      const session = active(this.state)
+      const request =
+        session.snapshot.mode === "coding" && route === "mode-action"
+          ? buildCodingProviderRequest({
+              session,
+              intent: codingIntent,
+              requestId,
+              input,
+              evidenceArtifactIds,
+              sectionIds
+            })
+          : {
+              route,
+              requestId,
+              sectionIds,
+              input,
+              context: JSON.parse(serializeContextPacket(attempt.packet)),
+              evidenceAuthority: resolveEvidenceAuthority(
+                session.artifacts
+              ).authority,
+              bestEffort
+            }
       const result = await runtime.provider.runTurn(
-        JSON.stringify({
-          route,
-          requestId,
-          sectionIds,
-          input,
-          context: JSON.parse(serializeContextPacket(attempt.packet)),
-          evidenceAuthority: resolveEvidenceAuthority(
-            active(this.state).artifacts
-          ).authority,
-          bestEffort
-        }),
+        JSON.stringify(request),
         turn.controller.signal,
         async (event) => {
           await this.acceptProviderEvent(runtime, turn)
@@ -470,6 +575,13 @@ export class InterviewOrchestrator {
               throw new Error("Provider returned an undeclared section")
             }
             if (section.body.length > 0) {
+              if (
+                codingIntent === "debug" &&
+                !validFixSection(section.id, section.body)
+              ) {
+                throw new Error("Coding Debug returned an invalid Fix card")
+              }
+              if (codingIntent) typedCodingSectionIds.add(section.id)
               sectionEventObserved = true
               await this.dispatch({
                 type: "section-delta",
@@ -530,6 +642,12 @@ export class InterviewOrchestrator {
       }
       if (!sectionEventObserved) {
         throw new Error("Provider response did not contain usable output")
+      }
+      if (
+        codingIntent &&
+        sectionIds.some((sectionId) => !typedCodingSectionIds.has(sectionId))
+      ) {
+        throw new Error("Coding response did not satisfy its typed section contract")
       }
       const current = active(this.state)
       for (const sectionId of sectionIds) {

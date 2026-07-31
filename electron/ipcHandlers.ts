@@ -38,6 +38,7 @@ export interface IpcHandlerDependencies {
   ) => Promise<SubscriptionConfig>
   readonly resetInterview: () => Promise<CommandResult>
   readonly captureScreenshot: () => Promise<void>
+  readonly debugCurrentCode: () => Promise<void>
   readonly setWindowPointerEvents: (
     ignore: boolean,
     forward: boolean
@@ -160,6 +161,10 @@ export function initializeIpcHandlers(
   })
   ipcMain.handle("capture:screenshot", async () => {
     await dependencies.captureScreenshot()
+    return { success: true }
+  })
+  ipcMain.handle("coding:debug-current", async () => {
+    await dependencies.debugCurrentCode()
     return { success: true }
   })
   ipcMain.handle("shortcuts:get", () => dependencies.getShortcutBindings())

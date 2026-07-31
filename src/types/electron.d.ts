@@ -55,6 +55,7 @@ export interface ElectronAPI {
   ) => Promise<{ success: boolean }>
   setHudState: (state: HudState) => Promise<{ success: boolean }>
   captureScreenshot: () => Promise<{ success: boolean }>
+  debugCurrentCode: () => Promise<{ success: boolean }>
   getShortcutBindings: () => Promise<ShortcutBindings>
   updateShortcutBindings: (
     bindings: ShortcutBindings

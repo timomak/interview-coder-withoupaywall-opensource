@@ -28,6 +28,9 @@ export interface SubscriptionConfig {
     readonly m05a?: {
       readonly completedAt: string
     }
+    readonly m05b?: {
+      readonly completedAt: string
+    }
   }
   migration: {
     id: "M-01"
@@ -39,11 +42,14 @@ export interface SubscriptionConfig {
 export const DEFAULT_SUBSCRIPTION_CONFIG: SubscriptionConfig = {
   schemaVersion: CONFIG_SCHEMA_VERSION,
   responseMode: "fast",
-  language: "python",
+  language: "python3",
   opacity: 1,
   shell: DEFAULT_LIVE_SHELL_PREFERENCES,
   migrations: {
     m05a: {
+      completedAt: "fresh-install"
+    },
+    m05b: {
       completedAt: "fresh-install"
     }
   },
@@ -159,7 +165,7 @@ export function validateSubscriptionConfig(value: unknown): SubscriptionConfig {
       throw new Error("Configuration migrations are malformed")
     }
     const migrations = candidate.migrations as Record<string, unknown>
-    if (Object.keys(migrations).some((key) => key !== "m05a")) {
+    if (Object.keys(migrations).some((key) => key !== "m05a" && key !== "m05b")) {
       throw new Error("Configuration migration is unsupported")
     }
     if (migrations.m05a !== undefined) {
@@ -171,6 +177,17 @@ export function validateSubscriptionConfig(value: unknown): SubscriptionConfig {
           "string"
       ) {
         throw new Error("M-05a migration marker is malformed")
+      }
+    }
+    if (migrations.m05b !== undefined) {
+      if (
+        typeof migrations.m05b !== "object" ||
+        migrations.m05b === null ||
+        Object.keys(migrations.m05b).some((key) => key !== "completedAt") ||
+        typeof (migrations.m05b as Record<string, unknown>).completedAt !==
+          "string"
+      ) {
+        throw new Error("M-05b migration marker is malformed")
       }
     }
   }
@@ -275,10 +292,17 @@ export function withM05aDefaults(
   })()
   return {
     ...config,
+    language:
+      config.language.trim().toLowerCase() === "python"
+        ? "python3"
+        : ["go", "golang"].includes(config.language.trim().toLowerCase())
+          ? "go"
+          : config.language,
     shell,
     migrations: {
       ...config.migrations,
-      m05a: config.migrations?.m05a ?? { completedAt }
+      m05a: config.migrations?.m05a ?? { completedAt },
+      m05b: config.migrations?.m05b ?? { completedAt }
     }
   }
 }

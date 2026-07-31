@@ -18,6 +18,11 @@ import {
   InputTray,
   AnswerSections
 } from "../features/shell"
+import {
+  CodingWorkspace,
+  snapshotCodingLanguage,
+  type CodingIntent
+} from "../features/coding"
 import { deriveHudState } from "../shared/shell"
 
 interface SubscribedAppProps {
@@ -47,6 +52,7 @@ export default function SubscribedApp({
   const [hotKeysOpen, setHotKeysOpen] = useState(false)
   const [shellStatus, setShellStatus] = useState("")
   const [workspaceExpanded, setWorkspaceExpanded] = useState(false)
+  const [codingIntent, setCodingIntent] = useState<CodingIntent>()
   const hotKeysButton = useRef<HTMLButtonElement>(null)
   const shell = useRef<HTMLElement>(null)
   const sectionCount =
@@ -107,7 +113,10 @@ export default function SubscribedApp({
         provider,
         model,
         responseMode: config.responseMode,
-        language: config.language,
+        language:
+          mode === "coding"
+            ? snapshotCodingLanguage(config.language)
+            : config.language,
         context: []
       }
     })
@@ -115,13 +124,23 @@ export default function SubscribedApp({
   }
 
   const submit = async (message = input) => {
+    if (mode === "coding" && !codingIntent) {
+      setShellStatus("Choose Analyze, Generate Code, Debug, or Follow-up.")
+      return false
+    }
     const result = await window.electronAPI.dispatchInterviewCommand({
       type: "submit",
-      route: "chat",
-      input: message
+      route: mode === "coding" ? "mode-action" : "chat",
+      input: message,
+      codingIntent: mode === "coding" ? codingIntent : undefined
     })
     setSession(result.state)
-    if (result.ok) setInput("")
+    if (result.ok) {
+      setInput("")
+      setShellStatus("")
+    } else {
+      setShellStatus(result.error ?? "Request failed.")
+    }
     return result.ok
   }
 
@@ -133,7 +152,9 @@ export default function SubscribedApp({
         } else if (action === "record") {
           setShellStatus("Recording controls are ready for the audio source.")
         } else if (action === "debug") {
-          setShellStatus("Debug capture becomes available in Coding mode.")
+          if (mode !== "coding" || session.lifecycle !== "active") {
+            setShellStatus("Fix current code requires an active Coding question.")
+          }
         } else if (action === "submit" && session.lifecycle === "active") {
           void submit()
         }
@@ -246,7 +267,13 @@ export default function SubscribedApp({
       {session.lifecycle === "active" ? (
         <>
           <InputTray
-            artifacts={session.artifacts}
+            artifacts={session.artifacts.filter(
+              (artifact) =>
+                session.snapshot.mode !== "coding" ||
+                artifact.kind === "transcript" ||
+                artifact.codingBranchId ===
+                  session.codingQuestions?.currentBranchId
+            )}
             onSelectionChange={(artifactId, selected) =>
               void window.electronAPI
                 .dispatchInterviewCommand({
@@ -259,7 +286,57 @@ export default function SubscribedApp({
           />
           <ContextDetail session={session} />
           <div className="quiet-answer-region">
-            <AnswerSections sections={session.sections} />
+            {session.snapshot.mode === "coding" ? (
+              <CodingWorkspace
+                intent={codingIntent}
+                sections={session.sections.filter((section) =>
+                  session.codingQuestions?.branches
+                    .find(
+                      (branch) =>
+                        branch.id ===
+                        session.codingQuestions?.currentBranchId
+                    )
+                    ?.sectionIds.includes(section.id)
+                )}
+                onIntentChange={setCodingIntent}
+                onNewQuestion={() =>
+                  void window.electronAPI
+                    .dispatchInterviewCommand({
+                      type: "new-coding-question",
+                      question: input
+                    })
+                    .then((result) => {
+                      setSession(result.state)
+                      if (!result.ok) {
+                        setShellStatus(result.error ?? "New Question failed.")
+                        return
+                      }
+                      setCodingIntent(undefined)
+                      setInput("")
+                      setShellStatus(
+                        "New Coding question ready; interview history preserved."
+                      )
+                    })
+                }
+                onCodeAction={(action) => {
+                  if (action === "copy") {
+                    const code = session.sections.find(
+                      (section) => section.id === "code"
+                    )?.body
+                    if (code) void navigator.clipboard.writeText(code)
+                  } else if (action === "debug") {
+                    void window.electronAPI.debugCurrentCode()
+                  } else {
+                    setCodingIntent(
+                      action === "regenerate" ? "generate-code" : "follow-up"
+                    )
+                    setComposerOpen(true)
+                  }
+                }}
+              />
+            ) : (
+              <AnswerSections sections={session.sections} />
+            )}
             {session.compactExchanges.map((exchange) => (
               <article key={exchange.id} className="rounded bg-white/5 p-3">
                 <p>{exchange.prompt}</p>

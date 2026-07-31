@@ -69,6 +69,20 @@ const SUITES = {
     "src/features/shell/hudState.test.ts",
     "src/features/shell/HotKeysPanel.test.tsx"
   ],
+  p06: [
+    "src/features/coding/codingIntent.test.ts",
+    "src/features/coding/progressiveCodingAnswer.test.tsx",
+    "electron/orchestrator/codingIsolation.test.ts",
+    "src/features/coding/languageSnapshot.test.ts",
+    "tests/fixtures/coding/firstClassQuality.contract.test.ts",
+    "src/features/coding/CodePanel.test.tsx",
+    "electron/orchestrator/codingBranch.test.ts",
+    "src/features/coding/fixCurrentCode.test.ts",
+    "electron/orchestrator/codingDebugFailure.test.ts"
+  ],
+  "coding-fixtures": [
+    "tests/fixtures/coding/firstClassQuality.contract.test.ts"
+  ],
   "electron-shell": [
     "electron/window/windowVisibility.test.ts",
     "electron/window/composerVisibility.test.ts",

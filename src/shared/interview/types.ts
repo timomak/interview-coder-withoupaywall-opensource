@@ -2,6 +2,7 @@ import type {
   ProviderId,
   ResponseMode
 } from "../provider"
+import type { CodingIntent } from "../../features/coding/types"
 
 export const INTERVIEW_MODES = [
   "coding",
@@ -46,6 +47,7 @@ export interface EvidenceArtifact {
   readonly content: string
   readonly selected: boolean
   readonly submitted: boolean
+  readonly codingBranchId?: string
 }
 
 export type ContextSyncPhase = "new" | "updating" | "full" | "issue"
@@ -80,6 +82,21 @@ export interface CompactExchange {
   readonly answer: string
 }
 
+export interface CodingQuestionBranchRecord {
+  readonly id: string
+  readonly question: string
+  readonly startedAt: string
+  readonly closedAt?: string
+  readonly sectionIds: readonly string[]
+  readonly screenshotArtifactIds: readonly string[]
+}
+
+export interface CodingQuestionState {
+  readonly currentBranchId: string
+  readonly branches: readonly CodingQuestionBranchRecord[]
+  readonly chronology: readonly string[]
+}
+
 export interface ActiveInterviewSession {
   readonly schemaVersion: 1
   readonly lifecycle: "active"
@@ -101,6 +118,7 @@ export interface ActiveInterviewSession {
   readonly requests: readonly ResponseRequest[]
   readonly compactExchanges: readonly CompactExchange[]
   readonly captureActive: boolean
+  readonly codingQuestions?: CodingQuestionState
 }
 
 export interface ResetArchive {
@@ -195,6 +213,11 @@ export type InterviewSessionEvent =
       readonly active: boolean
     })
   | (EventEnvelope & {
+      readonly type: "coding-question-started"
+      readonly branchId: string
+      readonly question: string
+    })
+  | (EventEnvelope & {
       readonly type: "reset"
     })
 
@@ -217,11 +240,14 @@ export type InterviewCommand =
       readonly route: "mode-action" | "chat" | "clarification" | "correction"
       readonly input: string
       readonly sectionIds?: readonly string[]
+      readonly codingIntent?: CodingIntent
+      readonly artifactIds?: readonly string[]
     }
   | { readonly type: "cancel"; readonly requestId: string }
   | { readonly type: "continue"; readonly requestId: string }
   | { readonly type: "reset" }
   | { readonly type: "resume" }
+  | { readonly type: "new-coding-question"; readonly question: string }
 
 export interface CommandResult {
   readonly ok: boolean
