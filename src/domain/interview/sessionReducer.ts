@@ -7,6 +7,7 @@ import {
   ResponseRequest,
   ResponseSection
 } from "../../shared/interview"
+import { personalContextForMode } from "../../features/profile/routing"
 
 export type RejectionReason =
   | "duplicate-event"
@@ -509,13 +510,10 @@ export function reduceInterviewSession(
       event.sequence < 1 ? "stale-event" : "out-of-order-event"
     )
   }
-  const context =
-    event.snapshot.mode === "coding"
-      ? event.snapshot.context.filter(
-          (item) =>
-            item.category !== "profile" && item.category !== "opportunity"
-        )
-      : [...event.snapshot.context]
+  const context = personalContextForMode(
+    event.snapshot.mode,
+    event.snapshot.context
+  )
   return {
     accepted: true,
     state: {

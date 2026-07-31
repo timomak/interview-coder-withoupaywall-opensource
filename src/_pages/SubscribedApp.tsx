@@ -23,6 +23,11 @@ import {
   snapshotCodingLanguage,
   type CodingIntent
 } from "../features/coding"
+import {
+  SYSTEM_DESIGN_SECTIONS,
+  SystemDesignWorkspace
+} from "../features/system-design"
+import { BehavioralResponseWorkspace } from "../features/behavioral"
 import { deriveHudState } from "../shared/shell"
 
 interface SubscribedAppProps {
@@ -106,6 +111,7 @@ export default function SubscribedApp({
   ])
 
   const start = async () => {
+    const personalContext = await window.electronAPI.getProfileContext()
     const result = await window.electronAPI.dispatchInterviewCommand({
       type: "start",
       snapshot: {
@@ -117,7 +123,7 @@ export default function SubscribedApp({
           mode === "coding"
             ? snapshotCodingLanguage(config.language)
             : config.language,
-        context: []
+        context: personalContext
       }
     })
     setSession(result.state)
@@ -130,9 +136,19 @@ export default function SubscribedApp({
     }
     const result = await window.electronAPI.dispatchInterviewCommand({
       type: "submit",
-      route: mode === "coding" ? "mode-action" : "chat",
+      route:
+        mode === "coding" || mode === "system-design"
+          || mode === "behavioral"
+          ? "mode-action"
+          : "chat",
       input: message,
-      codingIntent: mode === "coding" ? codingIntent : undefined
+      codingIntent: mode === "coding" ? codingIntent : undefined,
+      sectionIds:
+        mode === "system-design"
+          ? SYSTEM_DESIGN_SECTIONS
+          : mode === "behavioral"
+            ? ["answer", "star", "evidence", "follow-ups"]
+            : undefined
     })
     setSession(result.state)
     if (result.ok) {
@@ -334,6 +350,20 @@ export default function SubscribedApp({
                   }
                 }}
               />
+            ) : session.snapshot.mode === "system-design" ? (
+              <SystemDesignWorkspace
+                sections={session.sections}
+                onRegenerateArchitecture={() => {
+                  setInput("Regenerate only the Architecture section.")
+                  setComposerOpen(true)
+                }}
+                onDeepenEstimates={() => {
+                  setInput("Deepen only the requested material estimates.")
+                  setComposerOpen(true)
+                }}
+              />
+            ) : session.snapshot.mode === "behavioral" ? (
+              <BehavioralResponseWorkspace sections={session.sections} />
             ) : (
               <AnswerSections sections={session.sections} />
             )}

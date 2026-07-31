@@ -29,6 +29,8 @@ import {
   InstallationKeyService,
   StoragePaths
 } from "./storage"
+import { ProfileRepository } from "./profile/ProfileRepository"
+import type { ProfileBundle } from "../src/features/profile/types"
 import type {
   M04ActiveSnapshot
 } from "./orchestrator"
@@ -410,6 +412,14 @@ async function initializeApplication(): Promise<void> {
   const records = new EncryptedRecordRepository<
     M04ActiveSnapshot | ResetArchive
   >(storagePaths, keyService)
+  const profiles = new ProfileRepository(
+    new EncryptedRecordRepository<ProfileBundle>(
+      storagePaths,
+      keyService,
+      undefined,
+      "profiles"
+    )
+  )
   const orchestrator = createOrchestrator(
     executables,
     new ActiveSessionRepository(records)
@@ -504,6 +514,41 @@ async function initializeApplication(): Promise<void> {
     toggleMainWindow,
     captureScreenshot: () => capture.capture(),
     debugCurrentCode: () => capture.debugCurrentCode(),
+    getProfileContext: async () => {
+      const bundle = await profiles.load()
+      const context = []
+      if (bundle.dossier?.status === "reviewed") {
+        context.push({
+          id: `candidate-dossier:${bundle.dossier.revision}`,
+          category: "profile" as const,
+          revision: bundle.dossier.revision,
+          content: bundle.dossier.markdown
+        })
+      }
+      const opportunity = bundle.opportunities.find(
+        (candidate) => candidate.id === bundle.activeOpportunityId
+      )
+      if (opportunity) {
+        context.push({
+          id: `opportunity:${opportunity.id}`,
+          category: "opportunity" as const,
+          revision: opportunity.revision,
+          content: opportunity.markdown
+        })
+      }
+      if (bundle.syntheticEnabled) {
+        context.push({
+          id: "synthetic-story-policy",
+          category: "instructions" as const,
+          revision: 1,
+          content: "Synthetic Behavioral drafts are enabled and must be labeled synthetic-draft."
+        })
+      }
+      return context
+    },
+    getProfileBundle: () => profiles.load(),
+    saveProfileBundle: (bundle) => profiles.save(bundle),
+    exportDossier: (destination) => profiles.exportDossier(destination),
     setWindowPointerEvents: (ignore, forward) =>
       state.mainWindow?.setIgnoreMouseEvents(ignore, { forward }),
     setHudState,

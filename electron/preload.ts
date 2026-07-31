@@ -50,6 +50,12 @@ const electronAPI = {
     ipcRenderer.invoke(INTERVIEW_STATE_CHANNEL),
   getInterviewRecovery: () =>
     ipcRenderer.invoke(INTERVIEW_RECOVERY_CHANNEL),
+  getProfileContext: () => ipcRenderer.invoke("profile:get-context"),
+  getProfileBundle: () => ipcRenderer.invoke("profile:get-bundle"),
+  saveProfileBundle: (bundle: unknown) =>
+    ipcRenderer.invoke("profile:save-bundle", bundle),
+  exportDossier: (destination: string) =>
+    ipcRenderer.invoke("profile:export-dossier", destination),
   dispatchInterviewCommand: (command: InterviewCommand) =>
     ipcRenderer.invoke(INTERVIEW_COMMAND_CHANNEL, command),
   onInterviewState: (callback: (state: InterviewSession) => void) => {

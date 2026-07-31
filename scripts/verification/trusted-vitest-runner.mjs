@@ -83,6 +83,35 @@ const SUITES = {
   "coding-fixtures": [
     "tests/fixtures/coding/firstClassQuality.contract.test.ts"
   ],
+  p07: [
+    "src/features/system-design/sectionContract.test.tsx",
+    "tests/fixtures/system-design/materialEstimates.contract.test.ts",
+    "src/features/system-design/architectureSchema.test.ts",
+    "src/features/system-design/ArchitectureView.test.tsx",
+    "electron/orchestrator/systemDesignAssumptions.test.ts",
+    "electron/orchestrator/systemDesignFollowup.test.ts",
+    "tests/fixtures/system-design/vendorNeutrality.contract.test.ts",
+    "src/features/system-design/diagramRetention.test.ts"
+  ],
+  "system-design-fixtures": [
+    "tests/fixtures/system-design/materialEstimates.contract.test.ts",
+    "tests/fixtures/system-design/vendorNeutrality.contract.test.ts"
+  ],
+  p08: [
+    "src/features/profile/candidateDossier.test.ts",
+    "electron/storage/profileEncryption.test.ts",
+    "src/features/profile/opportunitySnapshot.test.ts",
+    "electron/orchestrator/personalContextRouting.test.ts",
+    "electron/orchestrator/behavioralFactuality.test.ts",
+    "src/features/behavioral/syntheticStory.test.ts",
+    "src/features/behavioral/factParity.test.ts",
+    "tests/fixtures/behavioral/verifiedClaims.contract.test.ts",
+    "src/features/profile/markdownSafety.test.ts",
+    "src/features/behavioral/liveOnlyBoundary.test.tsx"
+  ],
+  "behavioral-fixtures": [
+    "tests/fixtures/behavioral/verifiedClaims.contract.test.ts"
+  ],
   "electron-shell": [
     "electron/window/windowVisibility.test.ts",
     "electron/window/composerVisibility.test.ts",

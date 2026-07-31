@@ -24,6 +24,11 @@ import {
 } from "../src/shared/shell"
 import type { ShortcutRegistrationResult } from "./shortcuts"
 import type { HudState } from "../src/shared/shell"
+import type { ContextItem } from "../src/shared/interview"
+import {
+  isProfileBundle,
+  type ProfileBundle
+} from "../src/features/profile/types"
 
 export interface IpcHandlerDependencies {
   readonly orchestrator: InterviewOrchestrator
@@ -50,6 +55,10 @@ export interface IpcHandlerDependencies {
   readonly resetShortcutBindings: () => ShortcutRegistrationResult
   readonly setHudState: (state: HudState) => void
   readonly closeComposer: () => void
+  readonly getProfileContext: () => Promise<readonly ContextItem[]>
+  readonly getProfileBundle: () => Promise<ProfileBundle>
+  readonly saveProfileBundle: (bundle: ProfileBundle) => Promise<void>
+  readonly exportDossier: (destination: string) => Promise<void>
 }
 
 export function initializeIpcHandlers(
@@ -105,6 +114,24 @@ export function initializeIpcHandlers(
   ipcMain.handle(INTERVIEW_RECOVERY_CHANNEL, () =>
     dependencies.orchestrator.inspectRecovery()
   )
+  ipcMain.handle("profile:get-context", () =>
+    dependencies.getProfileContext()
+  )
+  ipcMain.handle("profile:get-bundle", () =>
+    dependencies.getProfileBundle()
+  )
+  ipcMain.handle("profile:save-bundle", async (_event, value: unknown) => {
+    if (!isProfileBundle(value)) throw new Error("Profile bundle is malformed")
+    await dependencies.saveProfileBundle(value)
+    return { success: true }
+  })
+  ipcMain.handle("profile:export-dossier", async (_event, value: unknown) => {
+    if (typeof value !== "string" || value.trim().length === 0) {
+      throw new Error("Profile export destination is malformed")
+    }
+    await dependencies.exportDossier(value)
+    return { success: true }
+  })
   ipcMain.handle(INTERVIEW_COMMAND_CHANNEL, (_event, command: unknown) => {
     const parsed = parseInterviewCommand(command)
     return parsed.type === "reset"

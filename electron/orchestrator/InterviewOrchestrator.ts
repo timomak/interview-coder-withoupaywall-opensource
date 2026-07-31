@@ -27,11 +27,15 @@ import {
   buildCodingProviderRequest,
   parseCodingFixCard
 } from "./codingPolicy"
+import { buildSystemDesignRequest } from "./systemDesignPolicy"
 import {
   isCodingIntent,
   sectionsForCodingIntent,
   type CodingIntent
 } from "../../src/features/coding/types"
+import { SYSTEM_DESIGN_SECTIONS } from "../../src/features/system-design/types"
+import { BEHAVIORAL_SECTIONS } from "../../src/features/behavioral/types"
+import { buildBehavioralRequest } from "./behavioralPolicy"
 
 export interface ProviderConversationFactory {
   create(
@@ -336,6 +340,12 @@ export class InterviewOrchestrator {
             route === "mode-action" &&
             codingIntent
           ? [...sectionsForCodingIntent(codingIntent)]
+        : session.snapshot.mode === "system-design" &&
+            route === "mode-action"
+          ? [...SYSTEM_DESIGN_SECTIONS]
+        : session.snapshot.mode === "behavioral" &&
+            route === "mode-action"
+          ? [...BEHAVIORAL_SECTIONS]
         : route === "correction"
           ? active(this.state).sections.map((section) => section.id)
           : ["answer"]
@@ -520,7 +530,7 @@ export class InterviewOrchestrator {
     const turn = this.beginTurn(requestId)
     const correctionPayloads: ReturnType<typeof parseProviderPayload>[] = []
     let sectionEventObserved = false
-    const typedCodingSectionIds = new Set<string>()
+    const typedModeSectionIds = new Set<string>()
     try {
       const attempt = await this.prepareContext(runtime)
       const bestEffort = deriveBestEffortDecision(active(this.state), input)
@@ -535,6 +545,23 @@ export class InterviewOrchestrator {
               evidenceArtifactIds,
               sectionIds
             })
+          : session.snapshot.mode === "system-design" &&
+              route === "mode-action"
+            ? buildSystemDesignRequest(
+                session,
+                requestId,
+                input,
+                bestEffort.assumptions,
+                sectionIds
+              )
+          : session.snapshot.mode === "behavioral" &&
+              route === "mode-action"
+            ? buildBehavioralRequest(
+                session,
+                requestId,
+                input,
+                sectionIds
+              )
           : {
               route,
               requestId,
@@ -581,7 +608,15 @@ export class InterviewOrchestrator {
               ) {
                 throw new Error("Coding Debug returned an invalid Fix card")
               }
-              if (codingIntent) typedCodingSectionIds.add(section.id)
+              if (
+                codingIntent ||
+                (session.snapshot.mode === "system-design" &&
+                  route === "mode-action") ||
+                (session.snapshot.mode === "behavioral" &&
+                  route === "mode-action")
+              ) {
+                typedModeSectionIds.add(section.id)
+              }
               sectionEventObserved = true
               await this.dispatch({
                 type: "section-delta",
@@ -644,8 +679,12 @@ export class InterviewOrchestrator {
         throw new Error("Provider response did not contain usable output")
       }
       if (
-        codingIntent &&
-        sectionIds.some((sectionId) => !typedCodingSectionIds.has(sectionId))
+        (codingIntent ||
+          (session.snapshot.mode === "system-design" &&
+            route === "mode-action") ||
+          (session.snapshot.mode === "behavioral" &&
+            route === "mode-action")) &&
+        sectionIds.some((sectionId) => !typedModeSectionIds.has(sectionId))
       ) {
         throw new Error("Coding response did not satisfy its typed section contract")
       }

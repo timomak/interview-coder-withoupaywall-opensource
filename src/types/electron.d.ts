@@ -37,6 +37,16 @@ export interface ElectronAPI {
   }) => Promise<SubscriptionConfig>
   getInterviewState: () => Promise<InterviewSession>
   getInterviewRecovery: () => Promise<RecoveryChoice>
+  getProfileContext: () => Promise<
+    readonly import("../shared/interview").ContextItem[]
+  >
+  getProfileBundle: () => Promise<
+    import("../features/profile/types").ProfileBundle
+  >
+  saveProfileBundle: (
+    bundle: import("../features/profile/types").ProfileBundle
+  ) => Promise<{ success: boolean }>
+  exportDossier: (destination: string) => Promise<{ success: boolean }>
   dispatchInterviewCommand: (
     command: InterviewCommand
   ) => Promise<CommandResult>

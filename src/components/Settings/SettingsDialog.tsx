@@ -19,6 +19,7 @@ import type {
   LiveShellPreferences,
   TextSizePreference
 } from "../../shared/shell"
+import { ProfileSettings } from "../../features/profile"
 
 interface SettingsDialogProps {
   open?: boolean
@@ -143,6 +144,7 @@ export function SettingsDialog({
               </label>
             ))}
           </fieldset>
+          <ProfileSettings />
           <fieldset>
             <legend className="mb-2 text-sm font-medium">HUD density</legend>
             {(["compact", "comfortable"] as const).map((value) => (
