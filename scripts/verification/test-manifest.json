@@ -79,32 +79,37 @@
     {
       "path": "electron/audio/native/NativeAudioCaptureRuntime.test.ts",
       "name": "aborts and reaps in-flight transcription during cleanup",
-      "sha256": "24ac9ca0d3ff70ee559bdaa670cf3e96b68278bffab44a0853f12171cc706d83"
+      "sha256": "f37aaec11870c4444201c02b7079d8cdd41795928f19765b1a1e123c74b6c14b"
+    },
+    {
+      "path": "electron/audio/native/NativeAudioCaptureRuntime.test.ts",
+      "name": "cancels an adapter during asynchronous pre-spawn validation",
+      "sha256": "f37aaec11870c4444201c02b7079d8cdd41795928f19765b1a1e123c74b6c14b"
     },
     {
       "path": "electron/audio/native/NativeAudioCaptureRuntime.test.ts",
       "name": "fails closed before capture when Remote lacks the Apple adapter",
-      "sha256": "24ac9ca0d3ff70ee559bdaa670cf3e96b68278bffab44a0853f12171cc706d83"
+      "sha256": "f37aaec11870c4444201c02b7079d8cdd41795928f19765b1a1e123c74b6c14b"
     },
     {
       "path": "electron/audio/native/NativeAudioCaptureRuntime.test.ts",
       "name": "never creates the helper or opens capture before explicit activation",
-      "sha256": "24ac9ca0d3ff70ee559bdaa670cf3e96b68278bffab44a0853f12171cc706d83"
+      "sha256": "f37aaec11870c4444201c02b7079d8cdd41795928f19765b1a1e123c74b6c14b"
     },
     {
       "path": "electron/audio/native/NativeAudioCaptureRuntime.test.ts",
       "name": "preserves source provenance and removes raw bytes after finalization",
-      "sha256": "24ac9ca0d3ff70ee559bdaa670cf3e96b68278bffab44a0853f12171cc706d83"
+      "sha256": "f37aaec11870c4444201c02b7079d8cdd41795928f19765b1a1e123c74b6c14b"
     },
     {
       "path": "electron/audio/native/NativeAudioCaptureRuntime.test.ts",
       "name": "reports a live helper failure and removes the active buffer",
-      "sha256": "24ac9ca0d3ff70ee559bdaa670cf3e96b68278bffab44a0853f12171cc706d83"
+      "sha256": "f37aaec11870c4444201c02b7079d8cdd41795928f19765b1a1e123c74b6c14b"
     },
     {
       "path": "electron/audio/native/NativeAudioCaptureRuntime.test.ts",
       "name": "rolls bounded segments while capture remains active",
-      "sha256": "24ac9ca0d3ff70ee559bdaa670cf3e96b68278bffab44a0853f12171cc706d83"
+      "sha256": "f37aaec11870c4444201c02b7079d8cdd41795928f19765b1a1e123c74b6c14b"
     },
     {
       "path": "electron/audio/native/protocol.test.ts",
@@ -234,12 +239,22 @@
     {
       "path": "electron/audio/transcription/AppleSpeechTranscriber.test.ts",
       "name": "accepts only the reviewed bounded JSON result",
-      "sha256": "e6257147f2a5cea0ef22dae4034d9f588cd73c3d0d732c926a393a940eb76eb9"
+      "sha256": "041fce66cb675f37d4fca7f5a7f18c19a35e6ea046ab97db3e9006dd419e97be"
+    },
+    {
+      "path": "electron/audio/transcription/AppleSpeechTranscriber.test.ts",
+      "name": "does not inspect or launch local Whisper after prior cancellation",
+      "sha256": "041fce66cb675f37d4fca7f5a7f18c19a35e6ea046ab97db3e9006dd419e97be"
+    },
+    {
+      "path": "electron/audio/transcription/AppleSpeechTranscriber.test.ts",
+      "name": "does not launch the adapter when cancellation precedes preflight",
+      "sha256": "041fce66cb675f37d4fca7f5a7f18c19a35e6ea046ab97db3e9006dd419e97be"
     },
     {
       "path": "electron/audio/transcription/AppleSpeechTranscriber.test.ts",
       "name": "rejects unreviewed result fields and modified adapter bytes",
-      "sha256": "e6257147f2a5cea0ef22dae4034d9f588cd73c3d0d732c926a393a940eb76eb9"
+      "sha256": "041fce66cb675f37d4fca7f5a7f18c19a35e6ea046ab97db3e9006dd419e97be"
     },
     {
       "path": "electron/audio/transcription/artifactManifest.test.ts",

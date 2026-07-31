@@ -29,11 +29,13 @@ export class AppleSpeechTranscriber {
     waveFile: string,
     signal?: AbortSignal
   ): Promise<string> {
+    this.throwIfCancelled(signal)
     if (!path.isAbsolute(waveFile)) {
       throw new Error("Apple Speech input path must be absolute")
     }
     for (const target of [this.options.executable, waveFile]) {
       const metadata = await lstat(target)
+      this.throwIfCancelled(signal)
       if (!metadata.isFile() || metadata.isSymbolicLink()) {
         throw new Error("Apple Speech input must be a regular file")
       }
@@ -44,6 +46,7 @@ export class AppleSpeechTranscriber {
     ) {
       throw new Error("Apple Speech adapter failed checksum verification")
     }
+    this.throwIfCancelled(signal)
 
     return new Promise<string>((resolve, reject) => {
       const child = spawn(
@@ -74,6 +77,7 @@ export class AppleSpeechTranscriber {
       }
       const abort = () => child.kill("SIGTERM")
       signal?.addEventListener("abort", abort, { once: true })
+      if (signal?.aborted) abort()
       child.stdout.on("data", (chunk: Buffer) => {
         stdoutBytes += chunk.length
         if (stdoutBytes > MAX_RESULT_BYTES) {
@@ -89,7 +93,7 @@ export class AppleSpeechTranscriber {
       child.once("error", () => {
         finish({ error: new Error("Apple Speech adapter failed to launch") })
       })
-      child.once("exit", (code, exitSignal) => {
+      child.once("close", (code, exitSignal) => {
         if (signal?.aborted) {
           finish({ error: new Error("Apple Speech transcription was cancelled") })
           return
@@ -133,5 +137,11 @@ export class AppleSpeechTranscriber {
         }
       })
     })
+  }
+
+  private throwIfCancelled(signal?: AbortSignal): void {
+    if (signal?.aborted) {
+      throw new Error("Apple Speech transcription was cancelled")
+    }
   }
 }

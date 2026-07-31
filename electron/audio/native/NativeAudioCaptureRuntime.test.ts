@@ -233,6 +233,42 @@ describe("native audio capture runtime", () => {
     )
   })
 
+  it("cancels an adapter during asynchronous pre-spawn validation", async () => {
+    let validationStarted: (() => void) | undefined
+    let releaseValidation: (() => void) | undefined
+    const started = new Promise<void>((resolve) => {
+      validationStarted = resolve
+    })
+    const release = new Promise<void>((resolve) => {
+      releaseValidation = resolve
+    })
+    await withRuntime(
+      async (runtime, fixtureProcess, root) => {
+        await runtime.start("system", "local")
+        await fixtureProcess()?.frame("system")
+        const pause = runtime.pause("system")
+        await started
+        const cleanup = runtime.cleanup("reset")
+        releaseValidation?.()
+        await expect(pause).rejects.toThrow("cancelled")
+        await cleanup
+        expect(await readdir(root)).toEqual([])
+      },
+      {
+        localTranscriber: {
+          async transcribe(_waveFile, signal) {
+            validationStarted?.()
+            await release
+            if (signal?.aborted) {
+              throw new Error("Local transcription was cancelled")
+            }
+            return "must not be emitted"
+          }
+        }
+      }
+    )
+  })
+
   it("reports a live helper failure and removes the active buffer", async () => {
     await withRuntime(async (runtime, fixtureProcess, root) => {
       const failures: string[] = []

@@ -393,16 +393,21 @@ export class NativeAudioCaptureRuntime implements AudioCaptureRuntime {
     emitPartial: boolean,
     generation: number
   ): Promise<void> {
+    const controller = new AbortController()
+    this.transcriptionControllers.add(controller)
     let descriptor:
       | Awaited<ReturnType<EphemeralAudioStore["finalize"]>>
       | undefined
     try {
+      controller.signal.throwIfAborted()
       descriptor = await this.store.finalize(buffer.id)
+      controller.signal.throwIfAborted()
       if (descriptor.bytes === 0) {
         await this.store.remove(buffer.id)
         return
       }
       const raw = await readFile(descriptor.path)
+      controller.signal.throwIfAborted()
       const wave = encodeFloatWave(raw, buffer.sampleRate, buffer.channels)
       raw.fill(0)
       const handle = await open(descriptor.path, "w", 0o600)
@@ -414,6 +419,7 @@ export class NativeAudioCaptureRuntime implements AudioCaptureRuntime {
         wave.fill(0)
         await handle.close()
       }
+      controller.signal.throwIfAborted()
       await this.statusSink?.("transcribing")
       const transcriber =
         buffer.path === "remote"
@@ -422,17 +428,11 @@ export class NativeAudioCaptureRuntime implements AudioCaptureRuntime {
       if (!transcriber) {
         throw new Error("Selected transcription adapter is unavailable")
       }
-      const controller = new AbortController()
-      this.transcriptionControllers.add(controller)
-      let text: string
-      try {
-        text = await transcriber.transcribe(
-          descriptor.path,
-          controller.signal
-        )
-      } finally {
-        this.transcriptionControllers.delete(controller)
-      }
+      controller.signal.throwIfAborted()
+      const text = await transcriber.transcribe(
+        descriptor.path,
+        controller.signal
+      )
       if (generation !== this.generation) return
       const segmentId = randomUUID()
       const finalizedAt =
@@ -462,6 +462,7 @@ export class NativeAudioCaptureRuntime implements AudioCaptureRuntime {
       })
       await this.statusSink?.("ready")
     } finally {
+      this.transcriptionControllers.delete(controller)
       await this.store.remove(buffer.id)
     }
   }
