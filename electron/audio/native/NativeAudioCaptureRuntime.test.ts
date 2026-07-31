@@ -5,11 +5,15 @@ import { describe, expect, it } from "vitest"
 import type { NativeAudioHelperOptions } from "./NativeAudioHelper"
 import {
   NativeAudioCaptureRuntime,
+  type AudioTranscriber,
   type NativeAudioProcess
 } from "./NativeAudioCaptureRuntime"
+import type { TranscriptSegmentV1 } from "../../../src/shared/audio"
 
 class FixtureAudioProcess implements NativeAudioProcess {
   readonly commands: Array<Parameters<NativeAudioProcess["send"]>[0]> = []
+  private readonly sequences = new Map<"microphone" | "system", bigint>()
+  private readonly timestamps = new Map<"microphone" | "system", bigint>()
 
   constructor(private readonly options: NativeAudioHelperOptions) {}
 
@@ -42,19 +46,32 @@ class FixtureAudioProcess implements NativeAudioProcess {
     }
   }
 
-  stopProcess(): void {
+  async stopProcess(): Promise<void> {
     this.send({ type: "shutdown" })
   }
 
-  async frame(source: "microphone" | "system"): Promise<void> {
-    const samples = Buffer.alloc(16_000 * 4)
+  async frame(
+    source: "microphone" | "system",
+    seconds = 1
+  ): Promise<void> {
+    const samples = Buffer.alloc(16_000 * 4 * seconds)
     samples.writeFloatLE(0.25, 0)
+    const sequence = (this.sequences.get(source) ?? 0n) + 1n
+    const timestampNanos =
+      (this.timestamps.get(source) ?? 0n) +
+      BigInt(seconds) * 1_000_000_000n
+    this.sequences.set(source, sequence)
+    this.timestamps.set(source, timestampNanos)
     await this.options.onFrame({
       source,
-      sequence: 1n,
-      timestampNanos: 1_000_000n,
+      sequence,
+      timestampNanos,
       bytes: samples
     })
+  }
+
+  fail(message = "fixture helper crashed"): void {
+    this.options.onFailure(message)
   }
 }
 
@@ -63,12 +80,16 @@ async function withRuntime(
     runtime: NativeAudioCaptureRuntime,
     process: () => FixtureAudioProcess | undefined,
     root: string,
-    transcripts: string[]
-  ) => Promise<void>
+    transcripts: TranscriptSegmentV1[]
+  ) => Promise<void>,
+  options: {
+    readonly segmentDurationMs?: number
+    readonly localTranscriber?: AudioTranscriber
+  } = {}
 ): Promise<void> {
   const root = await mkdtemp(path.join(os.tmpdir(), "ic-audio-runtime-"))
   let fixtureProcess: FixtureAudioProcess | undefined
-  const transcripts: string[] = []
+  const transcripts: TranscriptSegmentV1[] = []
   const runtime = new NativeAudioCaptureRuntime({
     helperExecutable: "/tmp/interviewcopilot-fixture-audio-helper",
     temporaryRoot: root,
@@ -76,7 +97,8 @@ async function withRuntime(
       fixtureProcess = new FixtureAudioProcess(options)
       return fixtureProcess
     },
-    localTranscriber: {
+    segmentDurationMs: options.segmentDurationMs,
+    localTranscriber: options.localTranscriber ?? {
       async transcribe(waveFile) {
         const wave = await readFile(waveFile)
         expect(wave.subarray(0, 4).toString("ascii")).toBe("RIFF")
@@ -86,7 +108,7 @@ async function withRuntime(
     }
   })
   runtime.setTranscriptSink(async (segment) => {
-    transcripts.push(segment.text)
+    transcripts.push(segment)
   })
   try {
     await run(runtime, () => fixtureProcess, root, transcripts)
@@ -111,7 +133,24 @@ describe("native audio capture runtime", () => {
       await fixtureProcess()?.frame("system")
       await runtime.pause("system")
 
-      expect(transcripts).toEqual(["How would you partition this queue?"])
+      expect(transcripts.map(({ state, revision, text }) => ({
+        state,
+        revision,
+        text
+      }))).toEqual([
+        {
+          state: "partial",
+          revision: 1,
+          text: "How would you partition this queue?"
+        },
+        {
+          state: "final",
+          revision: 2,
+          text: "How would you partition this queue?"
+        }
+      ])
+      expect(transcripts[0]?.startedAt).toBe(transcripts[1]?.startedAt)
+      expect(transcripts[1]?.finalizedAt).toBeDefined()
       expect(fixtureProcess()?.commands).toEqual([
         { type: "start", source: "system" },
         { type: "pause", source: "system" }
@@ -126,6 +165,80 @@ describe("native audio capture runtime", () => {
         "Apple Speech"
       )
       expect(fixtureProcess()).toBeUndefined()
+    })
+  })
+
+  it("rolls bounded segments while capture remains active", async () => {
+    await withRuntime(
+      async (runtime, fixtureProcess, root, transcripts) => {
+        await runtime.start("microphone", "local")
+        await fixtureProcess()?.frame("microphone")
+        await fixtureProcess()?.frame("microphone")
+        await runtime.pause("microphone")
+
+        expect(transcripts.map((segment) => segment.state)).toEqual([
+          "partial",
+          "final",
+          "partial",
+          "final"
+        ])
+        expect(transcripts.every((segment) => segment.source === "microphone"))
+          .toBe(true)
+        expect(Date.parse(transcripts[2]!.startedAt)).toBeGreaterThanOrEqual(
+          Date.parse(transcripts[0]!.startedAt)
+        )
+        expect(await readdir(root)).toEqual([])
+      },
+      { segmentDurationMs: 1_000 }
+    )
+  })
+
+  it("aborts and reaps in-flight transcription during cleanup", async () => {
+    let transcriptionStarted: (() => void) | undefined
+    const started = new Promise<void>((resolve) => {
+      transcriptionStarted = resolve
+    })
+    await withRuntime(
+      async (runtime, fixtureProcess, root) => {
+        await runtime.start("system", "local")
+        await fixtureProcess()?.frame("system")
+        const pause = runtime.pause("system")
+        const pauseResult = expect(pause).rejects.toThrow("cancelled")
+        await started
+        await runtime.cleanup("reset")
+        await pauseResult
+        expect(await readdir(root)).toEqual([])
+      },
+      {
+        localTranscriber: {
+          transcribe(_waveFile, signal) {
+            transcriptionStarted?.()
+            return new Promise<string>((_resolve, reject) => {
+              signal?.addEventListener(
+                "abort",
+                () => reject(new Error("Local transcription was cancelled")),
+                { once: true }
+              )
+            })
+          }
+        }
+      }
+    )
+  })
+
+  it("reports a live helper failure and removes the active buffer", async () => {
+    await withRuntime(async (runtime, fixtureProcess, root) => {
+      const failures: string[] = []
+      runtime.setFailureSink(async (source, error) => {
+        failures.push(`${source}:${error.message}`)
+      })
+      await runtime.start("system", "local")
+      await fixtureProcess()?.frame("system")
+      fixtureProcess()?.fail()
+      await new Promise((resolve) => setTimeout(resolve, 0))
+
+      expect(failures).toEqual(["system:fixture helper crashed"])
+      expect(await readdir(root)).toEqual([])
     })
   })
 })

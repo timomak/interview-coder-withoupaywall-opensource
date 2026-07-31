@@ -58,6 +58,7 @@ const ALLOWED_LABELS = new Set([
   "system-design-fixtures",
   "behavioral-fixtures",
   "audio-native",
+  "audio-engine",
   "audio-retention",
   "prompt-adversarial",
   "history-roundtrip",

@@ -92,6 +92,17 @@
       "minimumPassed": 1
     },
     {
+      "label": "audio-engine",
+      "argv": [
+        "npm",
+        "run",
+        "test:audio-engine"
+      ],
+      "classification": "test",
+      "expectedExit": 0,
+      "minimumPassed": 2
+    },
+    {
       "label": "audio-retention",
       "argv": [
         "npm",

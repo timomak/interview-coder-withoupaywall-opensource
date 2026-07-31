@@ -11,6 +11,8 @@ import {
   type AudioHelperEvent
 } from "./protocol"
 
+const SHUTDOWN_TIMEOUT_MS = 5_000
+
 export type AudioHelperCommandInput = AudioHelperCommand extends infer Command
   ? Command extends AudioHelperCommand
     ? Omit<Command, "protocolVersion">
@@ -31,6 +33,8 @@ export class NativeAudioHelper {
   private shutdownRequested = false
   private shutdownCompleted = false
   private failureReported = false
+  private closePromise: Promise<void> = Promise.resolve()
+  private resolveClose: (() => void) | undefined
 
   constructor(private readonly options: NativeAudioHelperOptions) {}
 
@@ -56,6 +60,9 @@ export class NativeAudioHelper {
     this.shutdownCompleted = false
     this.failureReported = false
     this.frameTail = Promise.resolve()
+    this.closePromise = new Promise<void>((resolve) => {
+      this.resolveClose = resolve
+    })
     const lines = readline.createInterface({ input: child.stdout })
     lines.on("line", (line) => {
       try {
@@ -120,6 +127,8 @@ export class NativeAudioHelper {
             "Native audio helper exited before shutdown completed"
           )
         }
+        this.resolveClose?.()
+        this.resolveClose = undefined
       })
     })
   }
@@ -137,7 +146,7 @@ export class NativeAudioHelper {
     )
   }
 
-  stopProcess(): void {
+  async stopProcess(): Promise<void> {
     const child = this.child
     if (!child) return
     this.shutdownRequested = true
@@ -146,6 +155,18 @@ export class NativeAudioHelper {
     } finally {
       child.stdin.end()
     }
+    let timeout: ReturnType<typeof setTimeout> | undefined
+    await Promise.race([
+      this.closePromise,
+      new Promise<void>((resolve) => {
+        timeout = setTimeout(() => {
+          child.kill("SIGKILL")
+          resolve()
+        }, SHUTDOWN_TIMEOUT_MS)
+      })
+    ])
+    if (timeout) clearTimeout(timeout)
+    await this.closePromise
   }
 
   private failClosed(message: string): void {

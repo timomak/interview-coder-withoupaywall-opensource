@@ -25,6 +25,7 @@
     "test:behavioral-fixtures": "node scripts/verification/trusted-vitest-runner.mjs behavioral-fixtures",
     "test:p09": "node scripts/verification/trusted-vitest-runner.mjs p09",
     "test:audio-native": "node scripts/verification/trusted-vitest-runner.mjs audio-native",
+    "test:audio-engine": "npm run prepare:audio && node scripts/audio/verify-packaged-local-transcription.mjs",
     "test:audio-retention": "node scripts/verification/trusted-vitest-runner.mjs audio-retention",
     "test:electron-shell": "node scripts/verification/trusted-vitest-runner.mjs electron-shell && node scripts/verification/run-electron-shell-runtime.mjs",
     "prepare:audio": "node scripts/audio/prepare-packaged-audio.mjs",

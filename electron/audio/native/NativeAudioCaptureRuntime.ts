@@ -20,9 +20,11 @@ import type {
   AudioHelperEvent,
   AudioSource as NativeAudioSource
 } from "./protocol"
+import type { NativeAudioFrame } from "./frameProtocol"
 
 const COMMAND_TIMEOUT_MS = 10_000
 const FLOAT_BYTES = 4
+const DEFAULT_SEGMENT_DURATION_MS = 5_000
 
 interface SourceBuffer {
   id: string
@@ -30,6 +32,10 @@ interface SourceBuffer {
   channels: number
   startedAt: string
   path: "local" | "remote"
+  bytes: number
+  firstTimestampNanos?: bigint
+  lastTimestampNanos?: bigint
+  lastSequence?: bigint
 }
 
 interface PendingCommand {
@@ -46,7 +52,7 @@ export interface AudioTranscriber {
 export interface NativeAudioProcess {
   startProcess(): void
   send(command: Parameters<NativeAudioHelper["send"]>[0]): void
-  stopProcess(): void
+  stopProcess(): Promise<void>
 }
 
 export interface NativeAudioCaptureRuntimeOptions {
@@ -58,6 +64,7 @@ export interface NativeAudioCaptureRuntimeOptions {
     options: NativeAudioHelperOptions
   ) => NativeAudioProcess
   readonly now?: () => Date
+  readonly segmentDurationMs?: number
 }
 
 export type TranscriptSink = (
@@ -66,6 +73,16 @@ export type TranscriptSink = (
 
 export type AudioStatusSink = (
   status: "speech-detected" | "transcribing" | "ready"
+) => Promise<void>
+
+export type AudioFailureSink = (
+  source: AudioSource,
+  error: AudioCaptureError
+) => Promise<void>
+
+export type AudioElapsedSink = (
+  source: AudioSource,
+  elapsedMs: number
 ) => Promise<void>
 
 export class NativeAudioCaptureRuntime implements AudioCaptureRuntime {
@@ -78,9 +95,15 @@ export class NativeAudioCaptureRuntime implements AudioCaptureRuntime {
   private initialized?: Promise<void>
   private transcriptSink?: TranscriptSink
   private statusSink?: AudioStatusSink
+  private failureSink?: AudioFailureSink
+  private elapsedSink?: AudioElapsedSink
   private readonly buffers = new Map<AudioSource, SourceBuffer>()
   private readonly pending = new Map<AudioSource, PendingCommand>()
-  private failed?: Error
+  private readonly transcriptionTails = new Map<AudioSource, Promise<void>>()
+  private readonly transcriptionControllers = new Set<AbortController>()
+  private readonly segmentDurationMs: number
+  private generation = 0
+  private failed?: AudioCaptureError
 
   constructor(private readonly options: NativeAudioCaptureRuntimeOptions) {
     for (const target of [
@@ -96,6 +119,15 @@ export class NativeAudioCaptureRuntime implements AudioCaptureRuntime {
       options.helperFactory ??
       ((helperOptions) => new NativeAudioHelper(helperOptions))
     this.now = options.now ?? (() => new Date())
+    this.segmentDurationMs =
+      options.segmentDurationMs ?? DEFAULT_SEGMENT_DURATION_MS
+    if (
+      !Number.isSafeInteger(this.segmentDurationMs) ||
+      this.segmentDurationMs < 1_000 ||
+      this.segmentDurationMs > 30_000
+    ) {
+      throw new Error("Audio segment duration is invalid")
+    }
   }
 
   setTranscriptSink(sink: TranscriptSink): void {
@@ -106,6 +138,14 @@ export class NativeAudioCaptureRuntime implements AudioCaptureRuntime {
     this.statusSink = sink
   }
 
+  setFailureSink(sink: AudioFailureSink): void {
+    this.failureSink = sink
+  }
+
+  setElapsedSink(sink: AudioElapsedSink): void {
+    this.elapsedSink = sink
+  }
+
   async start(source: AudioSource, path: "local" | "remote"): Promise<void> {
     if (path === "remote" && !this.options.remoteTranscriber) {
       throw new AudioCaptureError(
@@ -113,18 +153,28 @@ export class NativeAudioCaptureRuntime implements AudioCaptureRuntime {
       )
     }
     await this.ensureInitialized()
+    if (this.failed && !this.helper) {
+      await this.store.cleanupAll()
+      this.failed = undefined
+    }
     this.throwIfFailed()
     const helper = this.ensureHelper()
-    await this.awaitCommand(source, "started", () => {
-      helper.send({ type: "start", source })
-    })
-    const existing = this.buffers.get(source)
-    if (!existing) {
-      throw new AudioCaptureError(
-        `Native audio helper did not publish the ${source} format`
-      )
+    const prior = this.buffers.get(source)
+    if (prior) await this.discard(source)
+    const buffer = await this.createBuffer(source, path, this.now().toISOString())
+    try {
+      await this.awaitCommand(source, "started", () => {
+        helper.send({ type: "start", source })
+      })
+      if (buffer.sampleRate === 0 || buffer.channels === 0) {
+        throw new AudioCaptureError(
+          `Native audio helper did not publish the ${source} format`
+        )
+      }
+    } catch (error) {
+      if (this.buffers.get(source) === buffer) await this.discard(source)
+      throw error
     }
-    existing.path = path
   }
 
   async pause(source: AudioSource): Promise<void> {
@@ -133,7 +183,7 @@ export class NativeAudioCaptureRuntime implements AudioCaptureRuntime {
     await this.awaitCommand(source, "paused", () => {
       helper.send({ type: "pause", source })
     })
-    await this.flush(source)
+    await this.flush(source, true)
   }
 
   async stop(source: AudioSource): Promise<void> {
@@ -142,22 +192,26 @@ export class NativeAudioCaptureRuntime implements AudioCaptureRuntime {
     await this.awaitCommand(source, "stopped", () => {
       helper.send({ type: "stop", source })
     })
-    await this.flush(source)
+    await this.flush(source, true)
   }
 
   async cleanup(reason: AudioCleanupReason): Promise<void> {
     void reason
+    this.generation += 1
     for (const pending of this.pending.values()) {
       clearTimeout(pending.timeout)
       pending.reject(new Error("Audio command was cancelled by cleanup"))
     }
     this.pending.clear()
+    for (const controller of this.transcriptionControllers) controller.abort()
+    const helper = this.helper
+    this.helper = undefined
+    if (helper) await helper.stopProcess().catch(() => undefined)
     for (const source of [...this.buffers.keys()]) {
       await this.discard(source)
     }
-    this.helper?.stopProcess()
-    this.helper = undefined
-    await this.ensureInitialized()
+    await Promise.allSettled([...this.transcriptionTails.values()])
+    this.transcriptionTails.clear()
     await this.store.cleanupAll()
     this.failed = undefined
   }
@@ -178,7 +232,7 @@ export class NativeAudioCaptureRuntime implements AudioCaptureRuntime {
           )
         })
       },
-      onFrame: (frame) => this.onFrame(frame.source, frame.bytes),
+      onFrame: (frame) => this.onFrame(frame),
       onFailure: (message) => this.onFailure(message)
     })
     helper.startProcess()
@@ -189,14 +243,13 @@ export class NativeAudioCaptureRuntime implements AudioCaptureRuntime {
   private async onEvent(event: AudioHelperEvent): Promise<void> {
     if (event.type === "started") {
       const current = this.buffers.get(event.source)
-      if (current) await this.store.remove(current.id)
-      this.buffers.set(event.source, {
-        id: await this.store.create(event.source),
-        sampleRate: event.sampleRate,
-        channels: event.channels,
-        startedAt: this.now().toISOString(),
-        path: "local"
-      })
+      if (!current) {
+        throw new AudioCaptureError(
+          `Native audio helper started ${event.source} without an armed buffer`
+        )
+      }
+      current.sampleRate = event.sampleRate
+      current.channels = event.channels
       this.settle(event.source, "started")
       return
     }
@@ -210,26 +263,111 @@ export class NativeAudioCaptureRuntime implements AudioCaptureRuntime {
         event.type === "permission-denied" ? "denied" : "unknown"
       )
       this.reject(event.source, error)
+      await this.failSource(event.source, error)
     }
   }
 
-  private async onFrame(
-    source: NativeAudioSource,
-    bytes: Buffer
-  ): Promise<void> {
+  private async onFrame(frame: NativeAudioFrame): Promise<void> {
+    const source: NativeAudioSource = frame.source
+    const bytes = frame.bytes
     const buffer = this.buffers.get(source)
-    if (!buffer) {
+    if (!buffer || buffer.sampleRate === 0 || buffer.channels === 0) {
       bytes.fill(0)
       throw new Error("Audio frame arrived before a started event")
     }
+    if (
+      (buffer.lastSequence !== undefined &&
+        frame.sequence !== buffer.lastSequence + 1n) ||
+      (buffer.lastTimestampNanos !== undefined &&
+        frame.timestampNanos <= buffer.lastTimestampNanos)
+    ) {
+      bytes.fill(0)
+      throw new Error("Audio frame sequence or timestamp is invalid")
+    }
+    buffer.firstTimestampNanos ??= frame.timestampNanos
+    buffer.lastTimestampNanos = frame.timestampNanos
+    buffer.lastSequence = frame.sequence
+    const bytesLength = bytes.length
     await this.statusSink?.("speech-detected")
     await this.store.append(buffer.id, bytes)
+    buffer.bytes += bytesLength
+    const elapsedMs = Number(
+      (frame.timestampNanos - buffer.firstTimestampNanos) / 1_000_000n
+    )
+    await this.elapsedSink?.(source, elapsedMs)
+    const segmentBytes =
+      buffer.sampleRate *
+      buffer.channels *
+      FLOAT_BYTES *
+      (this.segmentDurationMs / 1_000)
+    if (buffer.bytes >= segmentBytes) {
+      const startedAt = this.timestampIso(buffer, frame.timestampNanos)
+      const replacement = await this.createBuffer(
+        source,
+        buffer.path,
+        startedAt
+      )
+      replacement.sampleRate = buffer.sampleRate
+      replacement.channels = buffer.channels
+      this.buffers.set(source, replacement)
+      void this.enqueueTranscription(source, buffer, true).catch((error) => {
+        void this.failSource(
+          source,
+          error instanceof AudioCaptureError
+            ? error
+            : new AudioCaptureError(
+                error instanceof Error
+                  ? error.message
+                  : "Audio transcription failed"
+              )
+        )
+      })
+    }
   }
 
-  private async flush(source: AudioSource): Promise<void> {
+  private async flush(
+    source: AudioSource,
+    emitPartial: boolean
+  ): Promise<void> {
     const buffer = this.buffers.get(source)
     if (!buffer) return
     this.buffers.delete(source)
+    await this.enqueueTranscription(source, buffer, emitPartial)
+  }
+
+  private enqueueTranscription(
+    source: AudioSource,
+    buffer: SourceBuffer,
+    emitPartial: boolean
+  ): Promise<void> {
+    const generation = this.generation
+    const prior =
+      this.transcriptionTails.get(source) ?? Promise.resolve()
+    const current = prior
+      .catch(() => undefined)
+      .then(async () => {
+        if (generation !== this.generation) {
+          await this.store.remove(buffer.id)
+          return
+        }
+        await this.transcribeBuffer(source, buffer, emitPartial, generation)
+      })
+    this.transcriptionTails.set(source, current)
+    const clear = () => {
+      if (this.transcriptionTails.get(source) === current) {
+        this.transcriptionTails.delete(source)
+      }
+    }
+    void current.then(clear, clear)
+    return current
+  }
+
+  private async transcribeBuffer(
+    source: AudioSource,
+    buffer: SourceBuffer,
+    emitPartial: boolean,
+    generation: number
+  ): Promise<void> {
     let descriptor:
       | Awaited<ReturnType<EphemeralAudioStore["finalize"]>>
       | undefined
@@ -259,23 +397,73 @@ export class NativeAudioCaptureRuntime implements AudioCaptureRuntime {
       if (!transcriber) {
         throw new Error("Selected transcription adapter is unavailable")
       }
-      const text = await transcriber.transcribe(descriptor.path)
-      const finalizedAt = this.now().toISOString()
-      await this.transcriptSink?.({
+      const controller = new AbortController()
+      this.transcriptionControllers.add(controller)
+      let text: string
+      try {
+        text = await transcriber.transcribe(
+          descriptor.path,
+          controller.signal
+        )
+      } finally {
+        this.transcriptionControllers.delete(controller)
+      }
+      if (generation !== this.generation) return
+      const segmentId = randomUUID()
+      const finalizedAt =
+        buffer.lastTimestampNanos === undefined
+          ? this.now().toISOString()
+          : this.timestampIso(buffer, buffer.lastTimestampNanos)
+      const base = {
         schemaVersion: 1,
-        id: randomUUID(),
+        id: segmentId,
         source,
-        state: "final",
         text,
         startedAt: buffer.startedAt,
-        finalizedAt,
-        revision: 1,
         speaker: defaultSpeaker(source)
+      } as const
+      if (emitPartial) {
+        await this.transcriptSink?.({
+          ...base,
+          state: "partial",
+          revision: 1
+        })
+      }
+      await this.transcriptSink?.({
+        ...base,
+        state: "final",
+        finalizedAt,
+        revision: emitPartial ? 2 : 1
       })
       await this.statusSink?.("ready")
     } finally {
       await this.store.remove(buffer.id)
     }
+  }
+
+  private async createBuffer(
+    source: AudioSource,
+    selectedPath: "local" | "remote",
+    startedAt: string
+  ): Promise<SourceBuffer> {
+    const buffer: SourceBuffer = {
+      id: await this.store.create(source),
+      sampleRate: 0,
+      channels: 0,
+      startedAt,
+      path: selectedPath,
+      bytes: 0
+    }
+    this.buffers.set(source, buffer)
+    return buffer
+  }
+
+  private timestampIso(buffer: SourceBuffer, timestampNanos: bigint): string {
+    const first = buffer.firstTimestampNanos
+    if (first === undefined || timestampNanos < first) return buffer.startedAt
+    const offsetMs = Number((timestampNanos - first) / 1_000_000n)
+    const startedMs = Date.parse(buffer.startedAt)
+    return new Date(startedMs + offsetMs).toISOString()
   }
 
   private async discard(source: AudioSource): Promise<void> {
@@ -346,6 +534,20 @@ export class NativeAudioCaptureRuntime implements AudioCaptureRuntime {
     for (const source of [...this.pending.keys()]) {
       this.reject(source, this.failed)
     }
+    const helper = this.helper
+    this.helper = undefined
+    if (helper) void helper.stopProcess().catch(() => undefined)
+    for (const source of [...this.buffers.keys()]) {
+      void this.failSource(source, this.failed)
+    }
+  }
+
+  private async failSource(
+    source: AudioSource,
+    error: AudioCaptureError
+  ): Promise<void> {
+    await this.discard(source)
+    await this.failureSink?.(source, error)
   }
 
   private throwIfFailed(): void {
