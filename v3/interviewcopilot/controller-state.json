@@ -866,5 +866,5 @@
     "privilegedBoundaryCrossed": false,
     "candidateInvoked": false
   },
-  "nextSafeAction": "Reconcile and protected-integrate upstream PR 155 at exact a8cdcbdeb49a897946dd520981d59d9a1a3813b6, run focused post-integration verification, then integrate the already-approved IC-M01 and IC-M02 candidates in dependency order. Do not invoke A04, deploy, or unpause legacy automation."
+  "nextSafeAction": "Protected integration of upstream PR 155 is externally repository-permission blocked at exact a8cdcbdeb49a897946dd520981d59d9a1a3813b6. Continue dependency-ready IC-M03 product implementation on the exact approved IC-M02 stack, periodically reconcile PR 155, and integrate the approved stack immediately when the external review or repository permission gate clears. Do not invoke A04, deploy, or unpause legacy automation."
 }

@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "id": "IC-M00-PR155-INTEGRATION-ATTEMPT-1",
+  "recordedAt": "2026-07-31T10:59:00+02:00",
+  "repository": "j4wg/interview-coder-withoupaywall-opensource",
+  "pullRequest": 155,
+  "url": "https://github.com/j4wg/interview-coder-withoupaywall-opensource/pull/155",
+  "baseRevision": "9dcb4b2d39607273a8528a24657cdb4f5bfc3412",
+  "candidateRevision": "a8cdcbdeb49a897946dd520981d59d9a1a3813b6",
+  "candidateIdentityReconciled": true,
+  "codeQl": "SUCCESS",
+  "mergeable": "MERGEABLE",
+  "draftTransition": "READY_FOR_REVIEW",
+  "protectedIntegration": {
+    "status": "EXTERNAL_REPOSITORY_PERMISSION_BLOCKED",
+    "attempt": "MERGE_COMMIT_ADMIN",
+    "authenticatedPrincipal": "timomak",
+    "error": "Authenticated principal does not have permission to execute MergePullRequest.",
+    "reviewRequestAttempt": {
+      "reviewer": "j4wg",
+      "status": "PERMISSION_BLOCKED",
+      "error": "Authenticated principal does not have permission to execute RequestReviewsByLogin."
+    }
+  },
+  "productWorkMayContinue": true,
+  "p01Satisfied": false,
+  "postIntegrationVerificationPending": true,
+  "nextSafeAction": "Continue dependency-ready IC-M03 product implementation while preserving the exact approved P01/IC-M01/IC-M02 stack. Reconcile PR 155 periodically; integrate immediately when repository permission or an external required review makes it mergeable."
+}
