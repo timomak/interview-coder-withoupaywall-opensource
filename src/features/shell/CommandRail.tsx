@@ -22,6 +22,10 @@ export interface CommandRailProps {
   readonly hotKeysButtonRef?: RefObject<HTMLButtonElement>
   readonly contextLabel: string
   readonly canSubmit: boolean
+  readonly recordLabel?: "Record" | "Pause"
+  readonly recordPressed?: boolean
+  readonly recordDisabled?: boolean
+  readonly recordDescription?: string
 }
 
 export function CommandRail({
@@ -38,7 +42,11 @@ export function CommandRail({
   onWorkspace,
   hotKeysButtonRef,
   contextLabel,
-  canSubmit
+  canSubmit,
+  recordLabel = "Record",
+  recordPressed = false,
+  recordDisabled = false,
+  recordDescription = "Start or resume microphone and system audio"
 }: CommandRailProps) {
   const modeButtons = useRef<Array<HTMLButtonElement | null>>([])
 
@@ -98,8 +106,15 @@ export function CommandRail({
         </>
       ) : (
         <nav className="quiet-actions" aria-label="Live interview controls">
-          <button type="button" data-interactive onClick={onRecord}>
-            Record
+          <button
+            type="button"
+            data-interactive
+            aria-pressed={recordPressed}
+            title={recordDescription}
+            disabled={recordDisabled}
+            onClick={onRecord}
+          >
+            {recordLabel}
           </button>
           <button type="button" data-interactive onClick={onScreenshot}>
             Screenshot
