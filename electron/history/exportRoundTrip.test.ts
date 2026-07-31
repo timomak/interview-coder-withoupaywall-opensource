@@ -85,7 +85,12 @@ it("exports one safe versioned session with consent", async () => {
     const secretBearingArchive = {
       ...projected,
       session: Object.assign(structuredClone(projected.session), {
-        credentials: { accessToken: leakedCredential }
+        providerState: {
+          credentials: { accessToken: leakedCredential },
+          providerSecret: leakedCredential,
+          sessionToken: leakedCredential,
+          cookies: [leakedCredential]
+        }
       })
     }
     Object.assign(secretBearingArchive.session.snapshot.context[0], {

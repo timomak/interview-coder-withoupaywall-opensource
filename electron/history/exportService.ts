@@ -305,7 +305,8 @@ function exportProjection(archive: HistoryArchiveV1) {
   }
 }
 
-const SECRET_KEY = /(?:^|[_-])(api[-_]?key|access[-_]?token|refresh[-_]?token|client[-_]?secret|credential|password|passwd|authorization)(?:$|[_-])/i
+const SECRET_KEY =
+  /api[-_]?key|token|credential|secret|password|passwd|authorization|cookie/i
 const SECRET_SHAPE = [
   /-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/,
   /\bBearer\s+[A-Za-z0-9._~+/-]{8,}={0,2}\b/i,

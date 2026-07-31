@@ -1149,7 +1149,7 @@
     {
       "path": "electron/history/exportRoundTrip.test.ts",
       "name": "exports one safe versioned session with consent",
-      "sha256": "6454f342e27a64fba993d6fe1813a599f1cf3a2a0ed929c429be8134b733d104"
+      "sha256": "2cd222d55103da70b9b131a2042822ab4044dfb40b94e923dbf7cdb0e80b8063"
     },
     {
       "path": "electron/history/m09Projection.test.ts",
