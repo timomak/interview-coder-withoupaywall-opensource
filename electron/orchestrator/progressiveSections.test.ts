@@ -8,6 +8,7 @@ import type { StartSnapshot } from "../../src/shared/interview"
 import type { ProviderConversationFactory } from "./InterviewOrchestrator"
 import {
   TEST_SNAPSHOT,
+  createTestOrchestrator,
   createTestOrchestratorWithFactory,
   currentActive,
   reduceAccepted,
@@ -61,6 +62,78 @@ class BlockingStreamingFactory implements ProviderConversationFactory {
 }
 
 describe("progressive response sections", () => {
+  it("accepts independently final Coding sections across typed payloads", async () => {
+    const fixture = createTestOrchestrator()
+    await fixture.orchestrator.command({
+      type: "start",
+      snapshot: { ...TEST_SNAPSHOT, mode: "coding" }
+    })
+    fixture.providerFactory.queued.push({
+      selection,
+      events: [
+        {
+          type: "typed-payload",
+          sequence: 1,
+          payload: {
+            kind: "structured",
+            sections: [
+              { id: "answer", body: "Use a hash map.", complete: true },
+              {
+                id: "plan",
+                body:
+                  "- Index values in one pass.\n" +
+                  "- Return the complement match.\n" +
+                  "Trade-off: O(n) space avoids O(n²) time.\n" +
+                  "Time O(n). Space O(n).",
+                complete: true
+              }
+            ]
+          }
+        },
+        {
+          type: "typed-payload",
+          sequence: 2,
+          payload: {
+            kind: "structured",
+            sections: [
+              {
+                id: "code",
+                body:
+                  "function solve(values: number[]): number[] { return values }",
+                complete: true
+              },
+              {
+                id: "explain",
+                body: "The map resolves each complement once.",
+                complete: true
+              }
+            ]
+          }
+        },
+        { type: "completed", sequence: 3 }
+      ]
+    })
+
+    const result = await fixture.orchestrator.command({
+      type: "submit",
+      route: "mode-action",
+      input: "Solve the array problem",
+      codingIntent: "generate-code"
+    })
+    expect(result.ok).toBe(true)
+    expect(
+      currentActive(result.state).sections.map(({ id, state }) => ({
+        id,
+        state
+      }))
+    ).toEqual([
+      { id: "answer", state: "complete" },
+      { id: "plan", state: "complete" },
+      { id: "code", state: "complete" },
+      { id: "explain", state: "complete" }
+    ])
+  })
+
   it("streams stable independently final sections", () => {
     let state = startedSession()
     state = reduceAccepted(state, {

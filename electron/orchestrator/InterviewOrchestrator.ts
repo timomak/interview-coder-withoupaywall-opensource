@@ -578,7 +578,9 @@ export class InterviewOrchestrator {
     const correctionPayloads: ReturnType<typeof parseProviderPayload>[] = []
     let sectionEventObserved = false
     const typedModeSectionIds = new Set<string>()
+    const codingSections = new Map<string, string>()
     let syntheticStoryToSave: BehavioralStory | undefined
+    let behavioralBodyToPublish: string | undefined
     try {
       const attempt = await this.prepareContext(runtime)
       const bestEffort = deriveBestEffortDecision(active(this.state), input)
@@ -657,37 +659,19 @@ export class InterviewOrchestrator {
               throw new Error("Behavioral response must use one fact object")
             }
             const admitted = admitBehavioralPayload(session, behavioral)
+            if (behavioralBodyToPublish !== undefined) {
+              throw new Error("Behavioral response contained multiple fact objects")
+            }
             if (admitted.story.status === "synthetic-draft") {
               syntheticStoryToSave = admitted.story
             }
-            const body = behavioralFactBody(admitted)
-            for (const sectionId of sectionIds) {
-              typedModeSectionIds.add(sectionId)
-              sectionEventObserved = true
-              await this.dispatch({
-                type: "section-delta",
-                requestId,
-                sectionId,
-                delta: body,
-                complete: true
-              })
-            }
+            behavioralBodyToPublish = behavioralFactBody(admitted)
             return
           }
           const payload = parseProviderPayload(event.payload)
           if (!payload) return
           correctionPayloads.push(payload)
           if (route === "correction" || payload.kind !== "structured") return
-          if (codingIntent) {
-            const errors = validateCodingSections(
-              codingIntent,
-              session.snapshot.language,
-              payload.sections
-            )
-            if (errors.length > 0) {
-              throw new Error(errors.join("; "))
-            }
-          }
           if (
             session.snapshot.mode === "system-design" &&
             route === "mode-action"
@@ -701,6 +685,14 @@ export class InterviewOrchestrator {
               throw new Error("Provider returned an undeclared section")
             }
             if (section.body.length > 0) {
+              if (codingIntent) {
+                if (codingSections.has(section.id)) {
+                  throw new Error(
+                    "Coding response repeated an already delivered section"
+                  )
+                }
+                codingSections.set(section.id, section.body)
+              }
               if (
                 codingIntent === "debug" &&
                 !validFixSection(section.id, section.body)
@@ -738,9 +730,42 @@ export class InterviewOrchestrator {
         await this.contextFailed(failure ?? "Provider did not accept the turn")
         throw new Error(failure ?? "Provider did not accept the turn")
       }
-      await this.commitContext(runtime, attempt.attemptId, result.events)
+      if (codingIntent) {
+        const errors = validateCodingSections(
+          codingIntent,
+          session.snapshot.language,
+          [...codingSections].map(([id, body]) => ({ id, body }))
+        )
+        if (errors.length > 0) {
+          throw new Error(errors.join("; "))
+        }
+      }
+      if (
+        session.snapshot.mode === "behavioral" &&
+        route === "mode-action" &&
+        behavioralBodyToPublish === undefined
+      ) {
+        throw new Error("Behavioral response did not contain one fact object")
+      }
       if (syntheticStoryToSave) {
-        await this.options.saveSyntheticStory?.(syntheticStoryToSave)
+        if (!this.options.saveSyntheticStory) {
+          throw new Error("Synthetic story persistence is unavailable")
+        }
+        await this.options.saveSyntheticStory(syntheticStoryToSave)
+      }
+      await this.commitContext(runtime, attempt.attemptId, result.events)
+      if (behavioralBodyToPublish !== undefined) {
+        for (const sectionId of sectionIds) {
+          typedModeSectionIds.add(sectionId)
+          sectionEventObserved = true
+          await this.dispatch({
+            type: "section-delta",
+            requestId,
+            sectionId,
+            delta: behavioralBodyToPublish,
+            complete: true
+          })
+        }
       }
       if (route === "correction") {
         const correction = correctionPayloads.find(

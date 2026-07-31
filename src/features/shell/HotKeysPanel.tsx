@@ -85,6 +85,7 @@ export function HotKeysPanel({
         <label key={action}>
           <span>{LABELS[action]}</span>
           <input
+            aria-label={LABELS[action]}
             value={bindings[action]}
             aria-invalid={Object.values(conflicts).some((actions) =>
               actions.includes(action)
@@ -93,6 +94,13 @@ export function HotKeysPanel({
               setBindings({ ...bindings, [action]: event.target.value })
             }
           />
+          <button
+            type="button"
+            aria-label={`Run ${LABELS[action]}`}
+            onClick={() => void window.electronAPI.invokeShellAction(action)}
+          >
+            Run
+          </button>
         </label>
       ))}
       {Object.keys(conflicts).length > 0 ? (

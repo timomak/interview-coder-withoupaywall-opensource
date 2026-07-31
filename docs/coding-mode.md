@@ -10,9 +10,12 @@ complexity. Code is selectable but read-only. Its only actions are Copy,
 Regenerate, Debug, and Explain; InterviewCopilot has no editor, terminal,
 execution, or test tool.
 
-Those requirements are validated on the typed provider payload before any
-section is admitted. First-class languages also require representative
-language syntax, preventing a provider from satisfying Code with prose.
+Typed payloads may deliver independently final sections progressively—for
+example Answer and Plan before Code and Explain. Each payload is restricted to
+the declared section set, while the accumulated response must satisfy the
+complete intent contract before the turn is accepted. First-class languages
+also require representative language syntax, preventing a provider from
+satisfying Code with prose.
 
 The selected language is normalized by M-05b and snapshotted when the interview
 starts. Python means Python 3. Python 3, JavaScript/TypeScript, Java, Go, C++,

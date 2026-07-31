@@ -1,7 +1,10 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react"
 import { createRef } from "react"
 import { describe, expect, it, vi } from "vitest"
-import { DEFAULT_SHORTCUT_BINDINGS } from "../../shared/shell"
+import {
+  DEFAULT_SHORTCUT_BINDINGS,
+  SHORTCUT_ACTIONS
+} from "../../shared/shell"
 import { HotKeysPanel } from "./HotKeysPanel"
 
 describe("HotKeysPanel", () => {
@@ -43,5 +46,26 @@ describe("HotKeysPanel", () => {
     )
     expect(getShortcutBindings).toHaveBeenCalledTimes(2)
     expect(recordBinding).toHaveValue("Control+Shift+8")
+  })
+
+  it("keeps every shortcut action available as a visible control", async () => {
+    const invokeShellAction = vi.fn().mockResolvedValue({ success: true })
+    window.electronAPI = {
+      ...window.electronAPI,
+      getShortcutBindings: vi.fn().mockResolvedValue(DEFAULT_SHORTCUT_BINDINGS),
+      invokeShellAction
+    }
+    render(
+      <HotKeysPanel
+        returnFocusTo={createRef<HTMLButtonElement>()}
+        onClose={vi.fn()}
+      />
+    )
+
+    await screen.findByRole("textbox", { name: "Record" })
+    const runButtons = screen.getAllByRole("button", { name: /^Run / })
+    expect(runButtons).toHaveLength(SHORTCUT_ACTIONS.length)
+    fireEvent.click(screen.getByRole("button", { name: "Run Move window left" }))
+    expect(invokeShellAction).toHaveBeenCalledWith("move-left")
   })
 })

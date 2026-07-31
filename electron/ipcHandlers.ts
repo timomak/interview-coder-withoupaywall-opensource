@@ -19,7 +19,9 @@ import {
 } from "../src/shared/provider"
 import type { SubscriptionConfig } from "./config"
 import {
+  isShortcutAction,
   isShortcutBindings,
+  type ShortcutAction,
   type ShortcutBindings
 } from "../src/shared/shell"
 import type { ShortcutRegistrationResult } from "./shortcuts"
@@ -53,6 +55,7 @@ export interface IpcHandlerDependencies {
     bindings: ShortcutBindings
   ) => ShortcutRegistrationResult
   readonly resetShortcutBindings: () => ShortcutRegistrationResult
+  readonly invokeShellAction: (action: ShortcutAction) => void
   readonly setHudState: (state: HudState) => void
   readonly closeComposer: () => void
   readonly getProfileContext: () => Promise<readonly ContextItem[]>
@@ -211,6 +214,13 @@ export function initializeIpcHandlers(
   ipcMain.handle("shortcuts:reset", () =>
     dependencies.resetShortcutBindings()
   )
+  ipcMain.handle("shell:invoke-action", (_event, value: unknown) => {
+    if (!isShortcutAction(value)) {
+      throw new Error("Shell action is malformed")
+    }
+    dependencies.invokeShellAction(value)
+    return { success: true }
+  })
   ipcMain.handle("settings:show", () => {
     dependencies.showSettings()
     return { success: true }

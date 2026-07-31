@@ -40,7 +40,10 @@ The default map is:
 HotKeys exposes every binding and rejects duplicate or operating-system
 conflicts before committing a new map. Registration and preference persistence
 are one transaction: either the complete map is active and saved, or the prior
-map is restored. Reset all restores the documented defaults.
+map is restored. Every row also has a visible Run control, so every action
+remains available if initial global registration is unavailable. In that case
+the hidden launch is revealed with a warning instead of leaving an unreachable
+HUD. Reset all restores the documented defaults.
 
 `Control+Shift+C` records whether the HUD was hidden. Closing the composer
 returns to that exact hidden or visible origin. Plain Enter inserts a newline;
@@ -55,10 +58,11 @@ stages one encrypted artifact, and restores the exact prior visibility state.
 Region, active-window, and per-session display selection are intentionally not
 supported.
 
-The Electron-shell suite includes a real BrowserWindow runtime probe for
-visibility, content-protection invocation, pointer routing, primary-display
-matching, and geometry in addition to deterministic unit contracts. It does
-**not** qualify Google
+The Electron-shell suite includes a real BrowserWindow runtime probe that calls
+the same production shell and in-memory desktop-capture modules as the app. It
+checks visibility, content-protection invocation, pointer routing, a real PNG
+capture of the current primary display, display matching, and geometry in
+addition to deterministic unit contracts. It does **not** qualify Google
 Meet, browser-tab sharing, ScreenCaptureKit, or any other external capture
 tuple. External capture qualification remains a separate release activity.
 
@@ -66,7 +70,8 @@ tuple. External capture qualification remains a separate release activity.
 
 Compact density uses a 44px rail and 32px controls. Comfortable density uses a
 52px rail and larger spacing without hiding or changing actions. Small,
-Default, and Large change answer text only and use the same information
+Default, and Large change answer text only at exactly 13/19px, 14/21px, and
+16/24px font-size/line-height respectively, using the same information
 architecture; rail chrome keeps a stable size. Required shell text is at
 least 12px, all pointer actions have keyboard-operable controls, focus returns
 to the originating control after transient panels close, and reduced-motion

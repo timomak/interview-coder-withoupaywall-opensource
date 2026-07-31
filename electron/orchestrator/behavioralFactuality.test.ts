@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest"
+import { describe, expect, it, vi } from "vitest"
 import { buildBehavioralRequest } from "./behavioralPolicy"
 import {
   createTestOrchestrator,
@@ -150,5 +150,79 @@ describe("Behavioral factuality", () => {
     })
     expect(rejected.ok).toBe(false)
     expect(rejected.error).toContain("one fact object")
+  })
+
+  it("does not publish a synthetic answer until the reusable story is durable", async () => {
+    const saveSyntheticStory = vi
+      .fn()
+      .mockRejectedValue(new Error("profile persistence unavailable"))
+    const fixture = createTestOrchestrator(
+      undefined,
+      undefined,
+      { saveSyntheticStory }
+    )
+    await fixture.orchestrator.command({
+      type: "start",
+      snapshot: {
+        mode: "behavioral",
+        provider: "codex",
+        model: "gpt-5.4",
+        responseMode: "fast",
+        language: "typescript",
+        context: [
+          {
+            id: "synthetic-story-policy",
+            category: "instructions",
+            revision: 1,
+            content: "Synthetic drafts are enabled."
+          }
+        ]
+      }
+    })
+    fixture.providerFactory.queued.push({
+      selection: {
+        provider: "codex",
+        model: "gpt-5.4",
+        responseMode: "fast",
+        effort: "low"
+      },
+      events: [
+        {
+          type: "typed-payload",
+          sequence: 1,
+          payload: {
+            kind: "behavioral",
+            story: {
+              id: "synthetic-1",
+              title: "Draft",
+              status: "synthetic-draft",
+              claims: [
+                {
+                  id: "draft-claim",
+                  text: "A clearly labeled practice story.",
+                  provenance: "synthetic-draft",
+                  sourceRevision: 1
+                }
+              ]
+            }
+          }
+        },
+        { type: "completed", sequence: 2 }
+      ]
+    })
+
+    const result = await fixture.orchestrator.command({
+      type: "submit",
+      route: "mode-action",
+      input: "Create a practice story"
+    })
+    expect(result.ok).toBe(false)
+    expect(result.error).toContain("profile persistence unavailable")
+    expect(saveSyntheticStory).toHaveBeenCalledOnce()
+    expect(
+      currentActive(result.state).sections.every(
+        (section) => section.body.length === 0
+      )
+    ).toBe(true)
   })
 })

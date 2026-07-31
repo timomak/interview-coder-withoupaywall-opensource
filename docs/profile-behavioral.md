@@ -17,7 +17,9 @@ professional context. Coding receives neither.
 Behavioral answers use one fact object for concise talking points, STAR,
 Evidence, Follow-ups, and optional Full Answer. Verified and user-edited
 stories can reference only dossier-backed claims; missing metrics stay
-qualitative. Synthetic stories are disabled by default. Opt-in content is
-persisted only after successful provider completion and labeled
-`synthetic-draft` in every view and reuse.
+qualitative. Synthetic stories are disabled by default. After successful
+provider completion, opted-in synthetic content is persisted to the reusable
+encrypted profile before any session answer section is published. A
+persistence failure therefore cannot expose an answer that has no reusable
+story. It is labeled `synthetic-draft` in every view and reuse.
 The live mode deliberately has no Practice score, feedback, or coaching review.

@@ -11,6 +11,7 @@ import path from "node:path"
 import { initAutoUpdater } from "./autoUpdater"
 import {
   applyCaptureProtection,
+  applyPointerRouting,
   createCaptureProtectedWindow,
   revealCaptureProtectedWindow
 } from "./captureProtection"
@@ -460,46 +461,47 @@ async function initializeApplication(): Promise<void> {
     undefined,
     () => state.visible
   )
+  const invokeShellAction = (action: ShortcutAction): void => {
+    switch (action) {
+      case "visibility":
+        toggleMainWindow()
+        return
+      case "screenshot":
+        void capture.capture()
+        return
+      case "debug":
+        void capture.debugCurrentCode()
+        return
+      case "submit":
+        state.mainWindow?.webContents.send("shell:shortcut", action)
+        return
+      case "reset":
+        void capture.reset()
+        return
+      case "move-left":
+        moveWindowHorizontal(-state.step)
+        return
+      case "move-right":
+        moveWindowHorizontal(state.step)
+        return
+      case "move-up":
+        moveWindowVertical(-state.step)
+        return
+      case "move-down":
+        moveWindowVertical(state.step)
+        return
+      default:
+        if (action === "composer") {
+          const transition = composerVisibility.open(state.visible)
+          if (transition.reveal) showMainWindow()
+        }
+        state.mainWindow?.webContents.send("shell:shortcut", action)
+    }
+  }
   const configuredShortcuts =
     configHelper.loadConfig().shell?.shortcuts ?? DEFAULT_SHORTCUT_BINDINGS
   const shortcuts = new ShortcutsHelper({
-    invoke: (action: ShortcutAction) => {
-      switch (action) {
-        case "visibility":
-          toggleMainWindow()
-          return
-        case "screenshot":
-          void capture.capture()
-          return
-        case "debug":
-          void capture.debugCurrentCode()
-          return
-        case "submit":
-          state.mainWindow?.webContents.send("shell:shortcut", action)
-          return
-        case "reset":
-          void capture.reset()
-          return
-        case "move-left":
-          moveWindowHorizontal(-state.step)
-          return
-        case "move-right":
-          moveWindowHorizontal(state.step)
-          return
-        case "move-up":
-          moveWindowVertical(-state.step)
-          return
-        case "move-down":
-          moveWindowVertical(state.step)
-          return
-        default:
-          if (action === "composer") {
-            const transition = composerVisibility.open(state.visible)
-            if (transition.reveal) showMainWindow()
-          }
-          state.mainWindow?.webContents.send("shell:shortcut", action)
-      }
-    }
+    invoke: invokeShellAction
   }, configuredShortcuts)
   const initialShortcutRegistration = shortcuts.registerGlobalShortcuts()
   if (!initialShortcutRegistration.ok) {
@@ -507,7 +509,7 @@ async function initializeApplication(): Promise<void> {
       showMainWindow()
       state.mainWindow?.webContents.send(
         "shell:startup-warning",
-        `Global shortcut unavailable: ${initialShortcutRegistration.rejectedAccelerator ?? "unknown"}`
+        `Global shortcut unavailable: ${initialShortcutRegistration.rejectedAccelerator ?? "unknown"}. Every action remains available in HotKeys.`
       )
     })
   }
@@ -578,8 +580,11 @@ async function initializeApplication(): Promise<void> {
     saveProfileBundle: (bundle) => profiles.save(bundle),
     importProfileMarkdown: (source) => profiles.importMarkdown(source),
     exportDossier: (destination) => profiles.exportDossier(destination),
-    setWindowPointerEvents: (ignore, forward) =>
-      state.mainWindow?.setIgnoreMouseEvents(ignore, { forward }),
+    setWindowPointerEvents: (ignore, forward) => {
+      if (state.mainWindow) {
+        applyPointerRouting(state.mainWindow, ignore, forward)
+      }
+    },
     setHudState,
     closeComposer: () => {
       if (composerVisibility.close().hide) hideMainWindow()
@@ -588,6 +593,7 @@ async function initializeApplication(): Promise<void> {
     updateShortcutBindings: applyShortcutBindings,
     resetShortcutBindings: () =>
       applyShortcutBindings(DEFAULT_SHORTCUT_BINDINGS),
+    invokeShellAction,
     diagnoseProviders: () => providerDiagnostics(executables),
     resetInterview: () => capture.reset(),
     configureProvider: async (

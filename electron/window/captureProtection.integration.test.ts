@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest"
 import {
+  applyPointerRouting,
   createCaptureProtectedWindow,
   revealCaptureProtectedWindow
 } from "../captureProtection"
@@ -29,5 +30,29 @@ describe("capture-protected window lifecycle", () => {
       "reconfigure"
     ])
     expect(lifecycle).not.toContain("protect:false")
+  })
+
+  it("routes pointer changes through the production shell primitive", () => {
+    const calls: unknown[] = []
+    applyPointerRouting(
+      {
+        setIgnoreMouseEvents: (ignore, options) =>
+          calls.push({ ignore, forward: options?.forward })
+      },
+      true,
+      true
+    )
+    applyPointerRouting(
+      {
+        setIgnoreMouseEvents: (ignore, options) =>
+          calls.push({ ignore, forward: options?.forward })
+      },
+      false,
+      false
+    )
+    expect(calls).toEqual([
+      { ignore: true, forward: true },
+      { ignore: false, forward: false }
+    ])
   })
 })

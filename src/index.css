@@ -39,15 +39,18 @@ summary {
 }
 
 .quiet-shell[data-text-size="small"] .quiet-answer-region {
-  font-size: 0.8125rem;
+  font-size: 13px;
+  line-height: 19px;
 }
 
 .quiet-shell[data-text-size="default"] .quiet-answer-region {
-  font-size: 1rem;
+  font-size: 14px;
+  line-height: 21px;
 }
 
 .quiet-shell[data-text-size="large"] .quiet-answer-region {
-  font-size: 1.125rem;
+  font-size: 16px;
+  line-height: 24px;
 }
 
 .quiet-shell-expanded {
@@ -200,7 +203,7 @@ summary {
 
 .quiet-hotkeys label {
   display: grid;
-  grid-template-columns: minmax(160px, 1fr) minmax(180px, 1fr);
+  grid-template-columns: minmax(160px, 1fr) minmax(180px, 1fr) auto;
   gap: 8px;
   align-items: center;
   width: 100%;
@@ -212,6 +215,16 @@ summary {
   border: 1px solid var(--quiet-border);
   border-radius: 8px;
   background: var(--quiet-surface);
+}
+
+.quiet-hotkeys button {
+  min-height: 32px;
+  padding: 6px 9px;
+  color: #f4f7fb;
+  border: 1px solid var(--quiet-border);
+  border-radius: 8px;
+  background: transparent;
+  cursor: pointer;
 }
 
 .quiet-hotkeys input[aria-invalid="true"] {

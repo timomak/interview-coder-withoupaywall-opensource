@@ -19,6 +19,13 @@ export const SHORTCUT_ACTIONS = [
 export type ShortcutAction = (typeof SHORTCUT_ACTIONS)[number]
 export type ShortcutBindings = Readonly<Record<ShortcutAction, string>>
 
+export function isShortcutAction(value: unknown): value is ShortcutAction {
+  return (
+    typeof value === "string" &&
+    SHORTCUT_ACTIONS.includes(value as ShortcutAction)
+  )
+}
+
 export const DEFAULT_SHORTCUT_BINDINGS: ShortcutBindings = Object.freeze({
   visibility: "Control+Shift+H",
   record: "Control+Shift+R",

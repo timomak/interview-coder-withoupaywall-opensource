@@ -50,6 +50,7 @@ for (const field of [
   "visible",
   "contentProtectionApplied",
   "pointerRoutingApplied",
+  "capturedPng",
   "displayMatched"
 ]) {
   if (receipt[field] !== true) {

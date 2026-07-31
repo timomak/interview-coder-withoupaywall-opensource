@@ -19,7 +19,8 @@ import {
 } from "../../src/domain/interview"
 import {
   InterviewOrchestrator,
-  ProviderConversationFactory
+  ProviderConversationFactory,
+  type InterviewOrchestratorOptions
 } from "./InterviewOrchestrator"
 import {
   ActiveSessionRepository,
@@ -170,32 +171,45 @@ interface TestOrchestratorFixture<T extends ProviderConversationFactory> {
 
 function buildTestOrchestrator<T extends ProviderConversationFactory>(
   providerFactory: T,
-  records = new MemoryRecordRepository<M04ActiveSnapshot>()
+  records = new MemoryRecordRepository<M04ActiveSnapshot>(),
+  overrides: Pick<
+    InterviewOrchestratorOptions,
+    "onState" | "saveSyntheticStory"
+  > = {}
 ): TestOrchestratorFixture<T> {
   let tick = 0
   const orchestrator = new InterviewOrchestrator({
     providerFactory,
     repository: new ActiveSessionRepository(records),
     id: deterministicIds(),
-    now: () => `2026-07-30T12:00:${String(tick++).padStart(2, "0")}Z`
+    now: () => `2026-07-30T12:00:${String(tick++).padStart(2, "0")}Z`,
+    ...overrides
   })
   return { orchestrator, providerFactory, records }
 }
 
 export function createTestOrchestrator(
   providerFactory = new FakeProviderFactory(),
-  records = new MemoryRecordRepository<M04ActiveSnapshot>()
+  records = new MemoryRecordRepository<M04ActiveSnapshot>(),
+  overrides: Pick<
+    InterviewOrchestratorOptions,
+    "onState" | "saveSyntheticStory"
+  > = {}
 ): TestOrchestratorFixture<FakeProviderFactory> {
-  return buildTestOrchestrator(providerFactory, records)
+  return buildTestOrchestrator(providerFactory, records, overrides)
 }
 
 export function createTestOrchestratorWithFactory<
   T extends ProviderConversationFactory
 >(
   providerFactory: T,
-  records = new MemoryRecordRepository<M04ActiveSnapshot>()
+  records = new MemoryRecordRepository<M04ActiveSnapshot>(),
+  overrides: Pick<
+    InterviewOrchestratorOptions,
+    "onState" | "saveSyntheticStory"
+  > = {}
 ): TestOrchestratorFixture<T> {
-  return buildTestOrchestrator(providerFactory, records)
+  return buildTestOrchestrator(providerFactory, records, overrides)
 }
 
 export function startedSession(
