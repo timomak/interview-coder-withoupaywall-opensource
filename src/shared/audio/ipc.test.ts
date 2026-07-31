@@ -49,5 +49,22 @@ describe("audio IPC validation", () => {
         }
       })
     ).toThrow("finalization")
+    expect(() =>
+      validateTranscriptSegment({
+        schemaVersion: 1,
+        id: "segment-2",
+        source: "microphone",
+        state: "final",
+        text: "final",
+        startedAt: "2026-07-31T10:00:02Z",
+        finalizedAt: "2026-07-31T10:00:01Z",
+        revision: 1,
+        speaker: {
+          label: "You",
+          certainty: "default",
+          corrected: false
+        }
+      })
+    ).toThrow("timestamp provenance")
   })
 })

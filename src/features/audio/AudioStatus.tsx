@@ -16,6 +16,7 @@ function microphoneLevel(state: AudioSessionState): string {
 
 export function AudioStatus({ state }: { readonly state: AudioSessionState }) {
   const microphone = state.sources.microphone
+  const system = state.sources.system
   const level = microphoneLevel(state)
 
   return (
@@ -52,8 +53,17 @@ export function AudioStatus({ state }: { readonly state: AudioSessionState }) {
         </span>
         <span className="quiet-waveform-text">Microphone level: {level}</span>
       </div>
-      <span className="quiet-audio-elapsed">
-        Elapsed {formatElapsed(microphone.elapsedMs)}
+      <span
+        className="quiet-audio-elapsed"
+        aria-label="Microphone elapsed time"
+      >
+        Microphone {formatElapsed(microphone.elapsedMs)}
+      </span>
+      <span
+        className="quiet-audio-elapsed"
+        aria-label="System audio elapsed time"
+      >
+        System audio {formatElapsed(system.elapsedMs)}
       </span>
     </section>
   )

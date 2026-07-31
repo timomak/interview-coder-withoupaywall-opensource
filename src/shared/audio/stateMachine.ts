@@ -51,22 +51,29 @@ export function createInitialAudioSessionState(
 
 export function audioStateForRecovery(
   value: AudioSessionState | undefined,
-  sessionId: string
+  sessionId: string,
+  retainFinalizedTranscript = true
 ): AudioSessionState {
   const fallback = createInitialAudioSessionState(sessionId)
   if (!value || value.schemaVersion !== AUDIO_SCHEMA_VERSION) return fallback
+  const segments = retainFinalizedTranscript ? value.segments : []
+  const pendingQuestion = retainFinalizedTranscript
+    ? value.pendingQuestion
+    : undefined
   return {
     ...value,
     sessionId,
-    status: value.pendingQuestion
+    status: pendingQuestion
       ? "question-detected"
-      : value.segments.some((segment) => segment.state === "final")
+      : segments.some((segment) => segment.state === "final")
         ? "ready"
         : "microphone-off",
     sources: {
       microphone: initialSource("microphone"),
       system: initialSource("system")
-    }
+    },
+    segments,
+    pendingQuestion
   }
 }
 
@@ -153,10 +160,23 @@ export function upsertTranscriptSegment(
   segment: TranscriptSegmentV1
 ): AudioSessionState {
   const prior = state.segments.find((candidate) => candidate.id === segment.id)
+  const startedAt = Date.parse(segment.startedAt)
+  const finalizedAt =
+    segment.finalizedAt === undefined
+      ? undefined
+      : Date.parse(segment.finalizedAt)
+  if (
+    !Number.isFinite(startedAt) ||
+    (segment.state === "final" &&
+      (!Number.isFinite(finalizedAt) || finalizedAt! < startedAt))
+  ) {
+    throw new Error("Transcript timestamp provenance is invalid")
+  }
   if (prior) {
     if (
       prior.source !== segment.source ||
       prior.state === "final" ||
+      prior.startedAt !== segment.startedAt ||
       segment.revision !== prior.revision + 1
     ) {
       throw new Error("Transcript segment transition is invalid")

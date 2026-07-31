@@ -129,6 +129,10 @@ export class AudioSessionController {
     await this.orchestrator.audioMutation({ type: "transcript", segment })
     if (segment.state !== "final") return
     try {
+      await this.orchestrator.audioMutation({
+        type: "visible-status",
+        status: "preparing-answer"
+      })
       await this.orchestrator.analyzeFinalizedTranscript([segment.id])
     } catch (error) {
       await this.orchestrator.audioMutation({
@@ -143,6 +147,51 @@ export class AudioSessionController {
     status: "speech-detected" | "transcribing" | "preparing-answer" | "ready"
   ): Promise<void> {
     await this.orchestrator.audioMutation({ type: "visible-status", status })
+  }
+
+  async updateElapsed(source: AudioSource, elapsedMs: number): Promise<void> {
+    if (
+      this.orchestrator.current().lifecycle !== "active" ||
+      !Number.isFinite(elapsedMs) ||
+      elapsedMs < 0
+    ) {
+      return
+    }
+    const current = this.current().sources[source]
+    if (current.phase !== "starting" && current.phase !== "listening") return
+    const nextElapsed = Math.floor(elapsedMs)
+    if (nextElapsed <= current.elapsedMs) return
+    await this.setSource({ ...current, elapsedMs: nextElapsed })
+  }
+
+  async handleRuntimeFailure(
+    source: AudioSource,
+    error: unknown
+  ): Promise<void> {
+    if (this.orchestrator.current().lifecycle !== "active") return
+    const current = this.current().sources[source]
+    if (current.phase === "off") return
+    const captureError =
+      error instanceof AudioCaptureError
+        ? error
+        : new AudioCaptureError(
+            error instanceof Error ? error.message : `${source} failed`
+          )
+    if (
+      current.phase === "error" &&
+      current.error === captureError.message &&
+      current.permission === captureError.permission
+    ) {
+      return
+    }
+    await this.setSource({
+      ...current,
+      intent: "off",
+      phase: "error",
+      permission: captureError.permission,
+      explicitRetryRequired: true,
+      error: captureError.message
+    })
   }
 
   async cleanupStartup(): Promise<void> {

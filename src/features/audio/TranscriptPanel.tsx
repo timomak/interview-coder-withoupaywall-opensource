@@ -24,6 +24,13 @@ function sourceLabel(source: AudioSource): string {
   return `${sourceName(source)} channel`
 }
 
+function transcriptTime(value: string): string {
+  const parsed = new Date(value)
+  return Number.isFinite(parsed.getTime())
+    ? `${parsed.toISOString().slice(11, 19)} UTC`
+    : value
+}
+
 export function TranscriptPanel({
   segments,
   onCorrectSpeaker
@@ -46,7 +53,20 @@ export function TranscriptPanel({
             <li key={segment.id}>
               <div className="quiet-transcript-meta">
                 <span>{sourceLabel(segment.source)}</span>
-                <span>{segment.state === "partial" ? "Partial" : "Final"}</span>
+                <span
+                  role="status"
+                  aria-label={`Transcript segment ${segment.id} is ${segment.state}`}
+                >
+                  {segment.state === "partial" ? "Partial" : "Final"}
+                </span>
+                <time dateTime={segment.startedAt}>
+                  Started {transcriptTime(segment.startedAt)}
+                </time>
+                {segment.finalizedAt ? (
+                  <time dateTime={segment.finalizedAt}>
+                    Finalized {transcriptTime(segment.finalizedAt)}
+                  </time>
+                ) : null}
                 {segment.speaker.certainty === "uncertain" ? (
                   <strong>Attribution uncertain</strong>
                 ) : null}
@@ -56,6 +76,7 @@ export function TranscriptPanel({
                 <select
                   aria-label={`Speaker for segment ${segment.id}`}
                   value={speaker}
+                  disabled={segment.state !== "final"}
                   onChange={(event) =>
                     onCorrectSpeaker(segment.id, event.target.value)
                   }

@@ -14,7 +14,10 @@ import {
   AudioPreferencesRepository,
   type M07AudioPreferencesRecord
 } from "./AudioPreferencesRepository"
-import type { AudioSource } from "../../../src/shared/audio"
+import {
+  defaultSpeaker,
+  type AudioSource
+} from "../../../src/shared/audio"
 
 class FakeAudioRuntime implements AudioCaptureRuntime {
   readonly starts: AudioSource[] = []
@@ -128,5 +131,117 @@ describe("audio session source state machine", () => {
       system: { phase: "off", intent: "off" }
     })
     expect(runtime.cleanups).toEqual(["startup"])
+  })
+
+  it("disables only a source that fails live and requires its explicit retry", async () => {
+    const { orchestrator, controller, runtime } = fixture()
+    await orchestrator.start(TEST_SNAPSHOT)
+    expect((await controller.command({ type: "master-toggle" })).ok).toBe(true)
+
+    await controller.updateElapsed("microphone", 4_567)
+    await controller.handleRuntimeFailure(
+      "system",
+      new AudioCaptureError("system capture disconnected")
+    )
+
+    expect(controller.current().sources).toMatchObject({
+      microphone: { phase: "listening", elapsedMs: 4_567 },
+      system: {
+        intent: "off",
+        phase: "error",
+        explicitRetryRequired: true,
+        error: "system capture disconnected"
+      }
+    })
+    const startsBeforeRetry = runtime.starts.filter(
+      (source) => source === "system"
+    ).length
+    expect(
+      await controller.command({ type: "source-toggle", source: "system" })
+    ).toMatchObject({ ok: false })
+    expect(runtime.starts.filter((source) => source === "system")).toHaveLength(
+      startsBeforeRetry
+    )
+
+    expect(
+      await controller.command({ type: "source-retry", source: "system" })
+    ).toMatchObject({
+      ok: true,
+      state: { sources: { system: { phase: "listening" } } }
+    })
+  })
+
+  it("publishes partial, preparing-answer, and ready with timestamp provenance", async () => {
+    const statuses: string[] = []
+    const interview = createTestOrchestrator(undefined, undefined, {
+      onState: (state) => {
+        if (state.lifecycle === "active") statuses.push(state.audio.status)
+      }
+    })
+    const preferences = new AudioPreferencesRepository(
+      new MemoryRecordRepository<M07AudioPreferencesRecord>()
+    )
+    const controller = new AudioSessionController(
+      interview.orchestrator,
+      preferences,
+      new FakeAudioRuntime()
+    )
+    await interview.orchestrator.start(TEST_SNAPSHOT)
+    await controller.ingestTranscript({
+      schemaVersion: 1,
+      id: "segment-live",
+      source: "system",
+      state: "partial",
+      text: "How would",
+      startedAt: "2026-07-31T10:00:00.000Z",
+      revision: 1,
+      speaker: defaultSpeaker("system")
+    })
+    interview.providerFactory.queued.push({
+      selection: {
+        provider: "codex",
+        model: "gpt-5.4",
+        responseMode: "fast",
+        effort: "low"
+      },
+      events: [
+        {
+          type: "typed-payload",
+          sequence: 1,
+          payload: {
+            kind: "audio-analysis-v1",
+            attributions: []
+          }
+        },
+        { type: "completed", sequence: 2 }
+      ]
+    })
+    await controller.ingestTranscript({
+      schemaVersion: 1,
+      id: "segment-live",
+      source: "system",
+      state: "final",
+      text: "How would you design this?",
+      startedAt: "2026-07-31T10:00:00.000Z",
+      finalizedAt: "2026-07-31T10:00:02.000Z",
+      revision: 2,
+      speaker: defaultSpeaker("system")
+    })
+
+    expect(statuses).toEqual(
+      expect.arrayContaining(["transcribing", "preparing-answer", "ready"])
+    )
+    const state = controller.current()
+    expect(state.segments[0]).toMatchObject({
+      startedAt: "2026-07-31T10:00:00.000Z",
+      finalizedAt: "2026-07-31T10:00:02.000Z"
+    })
+    const artifact = interview.orchestrator.current()
+    expect(artifact.lifecycle).toBe("active")
+    if (artifact.lifecycle !== "active") throw new Error("session is not active")
+    expect(JSON.parse(artifact.artifacts[0].content)).toMatchObject({
+      startedAt: "2026-07-31T10:00:00.000Z",
+      finalizedAt: "2026-07-31T10:00:02.000Z"
+    })
   })
 })

@@ -118,6 +118,7 @@ function transcriptArtifactContent(
     source: segment.source,
     speaker: segment.speaker,
     text: segment.text,
+    startedAt: segment.startedAt,
     finalizedAt: segment.finalizedAt,
     revision: segment.revision,
     pendingQuestion:

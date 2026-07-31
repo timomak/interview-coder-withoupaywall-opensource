@@ -3,7 +3,7 @@ import type {
   AudioSource,
   AudioSourceSessionState
 } from "./contracts"
-import { isSourceCapturing, sourceName } from "./model"
+import { formatElapsed, isSourceCapturing, sourceName } from "./model"
 
 interface AudioSourceControlsProps {
   readonly state: AudioSessionState
@@ -19,7 +19,9 @@ function sourceStatus(source: AudioSourceSessionState): string {
     return source.error ?? "Permission required"
   }
   if (source.intent === "paused" || source.phase === "paused") return "Paused"
-  if (isSourceCapturing(source)) return "On"
+  if (isSourceCapturing(source)) {
+    return `On · ${formatElapsed(source.elapsedMs)}`
+  }
   return "Off"
 }
 

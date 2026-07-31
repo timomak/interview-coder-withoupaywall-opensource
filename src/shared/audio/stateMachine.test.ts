@@ -94,4 +94,27 @@ describe("deterministic two-source audio state", () => {
       revision: 2
     })
   })
+
+  it("rejects a final segment that rewrites native start provenance", () => {
+    let state = createInitialAudioSessionState("session-1")
+    state = upsertTranscriptSegment(state, {
+      schemaVersion: 1,
+      id: "segment-1",
+      source: "microphone",
+      state: "partial",
+      text: "Initial",
+      startedAt: "2026-07-31T10:00:00.000Z",
+      revision: 1,
+      speaker: defaultSpeaker("microphone")
+    })
+    expect(() =>
+      upsertTranscriptSegment(state, {
+        ...state.segments[0],
+        state: "final",
+        startedAt: "2026-07-31T10:00:01.000Z",
+        finalizedAt: "2026-07-31T10:00:02.000Z",
+        revision: 2
+      })
+    ).toThrow("Transcript segment transition is invalid")
+  })
 })

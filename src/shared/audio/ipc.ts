@@ -142,5 +142,17 @@ export function validateTranscriptSegment(
   ) {
     throw new Error("Transcript finalization is malformed")
   }
+  const startedAt = Date.parse(value.startedAt as string)
+  const finalizedAt =
+    value.finalizedAt === undefined
+      ? undefined
+      : Date.parse(value.finalizedAt as string)
+  if (
+    !Number.isFinite(startedAt) ||
+    (value.state === "final" &&
+      (!Number.isFinite(finalizedAt) || finalizedAt! < startedAt))
+  ) {
+    throw new Error("Transcript timestamp provenance is malformed")
+  }
   return structuredClone(value) as unknown as TranscriptSegmentV1
 }
