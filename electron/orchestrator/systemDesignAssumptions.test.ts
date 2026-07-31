@@ -8,7 +8,11 @@ describe("System Design assumptions", () => {
       startedSession(),
       "request-1",
       "Design a feed",
-      ["Assume 10M daily active users."]
+      {
+        answer: true,
+        assumptions: ["Assume 10M daily active users."],
+        clarificationSuggestions: ["traffic scale"]
+      }
     )
     expect(request.assumptions).toEqual(["Assume 10M daily active users."])
     expect(request.contract.clarificationGatesLaterSections).toBe(false)

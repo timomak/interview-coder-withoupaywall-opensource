@@ -16,6 +16,7 @@ describe("personal context routing", () => {
     const design = personalContextForMode("system-design", context)
     expect(design.map((item) => item.id)).toEqual([
       "profile-architecture",
+      "profile-personal",
       "opportunity"
     ])
   })

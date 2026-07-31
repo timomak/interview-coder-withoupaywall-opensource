@@ -14,16 +14,7 @@ export function personalContextForMode(
     )
   }
   if (mode === "system-design") {
-    return context.flatMap((item) => {
-      if (item.category !== "profile") return [item]
-      const applicable = item.content
-        .split(/\r?\n/)
-        .filter((line) =>
-          /\b(?:scale|system|architecture|reliability|data|api)\b/i.test(line)
-        )
-        .join("\n")
-      return applicable ? [{ ...item, content: applicable }] : []
-    })
+    return [...context]
   }
   return [...context]
 }

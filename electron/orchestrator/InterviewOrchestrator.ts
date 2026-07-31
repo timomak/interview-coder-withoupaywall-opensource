@@ -551,8 +551,9 @@ export class InterviewOrchestrator {
                 session,
                 requestId,
                 input,
-                bestEffort.assumptions,
-                sectionIds
+                bestEffort,
+                sectionIds,
+                JSON.parse(serializeContextPacket(attempt.packet))
               )
           : session.snapshot.mode === "behavioral" &&
               route === "mode-action"
@@ -686,7 +687,7 @@ export class InterviewOrchestrator {
             route === "mode-action")) &&
         sectionIds.some((sectionId) => !typedModeSectionIds.has(sectionId))
       ) {
-        throw new Error("Coding response did not satisfy its typed section contract")
+        throw new Error("Mode response did not satisfy its typed section contract")
       }
       const current = active(this.state)
       for (const sectionId of sectionIds) {

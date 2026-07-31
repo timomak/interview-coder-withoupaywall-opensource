@@ -4,21 +4,24 @@ import type {
   ResponseSection
 } from "../../src/shared/interview"
 import { SYSTEM_DESIGN_SECTIONS } from "../../src/features/system-design/types"
+import type { BestEffortDecision } from "./responseRouting"
 
 export function buildSystemDesignRequest(
   session: ActiveInterviewSession,
   requestId: string,
   input: string,
-  assumptions: readonly string[],
-  sectionIds: readonly string[] = SYSTEM_DESIGN_SECTIONS
+  bestEffort: BestEffortDecision,
+  sectionIds: readonly string[] = SYSTEM_DESIGN_SECTIONS,
+  context: unknown = session.snapshot.context
 ) {
   return {
     route: "system-design" as const,
     requestId,
     sectionIds,
     input,
-    assumptions,
-    context: session.snapshot.context,
+    assumptions: bestEffort.assumptions,
+    bestEffort,
+    context,
     contract: {
       fixedOrder: SYSTEM_DESIGN_SECTIONS,
       calculations: "2-4 unit-bearing with explicit assumptions",
