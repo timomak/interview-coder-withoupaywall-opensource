@@ -7,8 +7,8 @@ import type { ProviderId, ResponseMode } from "../../shared/provider"
 
 export const HISTORY_SCHEMA_VERSION = 1 as const
 export const HISTORY_MIGRATION = "M-09" as const
-export const MAX_HISTORY_SCREENSHOTS = 5
-export const MAX_HISTORY_SCREENSHOT_BYTES = 16 * 1024 * 1024
+export const MAX_HISTORY_EXPORT_SCREENSHOT_BYTES = 16 * 1024 * 1024
+export const MAX_HISTORY_EXPORT_SCREENSHOT_TOTAL_BYTES = 128 * 1024 * 1024
 
 export interface HistoryScreenshotV1 {
   readonly id: string
@@ -61,6 +61,7 @@ export interface HistoryExportRequest {
 }
 
 export interface HistoryDeleteRequest {
+  readonly scope: "selected" | "all"
   readonly sessionIds: readonly string[]
   readonly confirmed: true
 }

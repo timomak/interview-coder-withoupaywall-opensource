@@ -2,8 +2,6 @@ import type { ResetArchive } from "../../shared/interview"
 import {
   HISTORY_MIGRATION,
   HISTORY_SCHEMA_VERSION,
-  MAX_HISTORY_SCREENSHOTS,
-  MAX_HISTORY_SCREENSHOT_BYTES,
   type HistoryArchiveV1,
   type HistorySummaryV1
 } from "./types"
@@ -22,11 +20,11 @@ export function projectHistoryArchive(archive: ResetArchive): HistoryArchiveV1 {
     .filter((artifact) => artifact.kind === "screenshot")
     .map((artifact) => {
       const match = PNG_DATA_URL.exec(artifact.content)
-      if (!match) throw new Error("Archived screenshot is not a bounded PNG")
+      if (!match) throw new Error("Archived screenshot is not a PNG")
       const bytes = Buffer.from(match[1], "base64")
-      if (bytes.length === 0 || bytes.length > MAX_HISTORY_SCREENSHOT_BYTES) {
+      if (bytes.length === 0) {
         bytes.fill(0)
-        throw new Error("Archived screenshot exceeds its bound")
+        throw new Error("Archived screenshot is empty")
       }
       bytes.fill(0)
       return {
@@ -35,12 +33,58 @@ export function projectHistoryArchive(archive: ResetArchive): HistoryArchiveV1 {
         dataUrl: artifact.content
       }
     })
-  if (screenshots.length > MAX_HISTORY_SCREENSHOTS) {
-    throw new Error("Archived screenshot count exceeds its bound")
-  }
-  const serialized = JSON.stringify(archive).toLocaleLowerCase("en-US")
-  if (/raw[-_ ]?audio|audio\/wav|audio\/mpeg|application\/x-raw-audio/.test(serialized)) {
-    throw new Error("Raw audio cannot enter History")
+  const sourceSession = archive.session
+  const session = {
+    schemaVersion: sourceSession.schemaVersion,
+    lifecycle: sourceSession.lifecycle,
+    sessionId: sourceSession.sessionId,
+    sequence: sourceSession.sequence,
+    seenEventIds: structuredClone(sourceSession.seenEventIds),
+    startedAt: sourceSession.startedAt,
+    preferences: structuredClone(sourceSession.preferences),
+    reusableRecordIds: structuredClone(sourceSession.reusableRecordIds),
+    snapshot: structuredClone(sourceSession.snapshot),
+    contextPhase: sourceSession.contextPhase,
+    ...(sourceSession.contextIssue === undefined ? {} : { contextIssue: sourceSession.contextIssue }),
+    ...(sourceSession.lastSuccessfulContextUpdate === undefined
+      ? {}
+      : { lastSuccessfulContextUpdate: sourceSession.lastSuccessfulContextUpdate }),
+    ...(sourceSession.providerUsage === undefined
+      ? {}
+      : { providerUsage: structuredClone(sourceSession.providerUsage) }),
+    ...(sourceSession.providerCompaction === undefined
+      ? {}
+      : { providerCompaction: structuredClone(sourceSession.providerCompaction) }),
+    artifacts: sourceSession.artifacts
+      .filter((artifact) => artifact.kind === "transcript" || artifact.kind === "screenshot")
+      .map((artifact) => ({
+        id: artifact.id,
+        kind: artifact.kind,
+        finalizedAt: artifact.finalizedAt,
+        content: artifact.content,
+        selected: artifact.selected,
+        submitted: artifact.submitted,
+        ...(artifact.codingBranchId === undefined ? {} : { codingBranchId: artifact.codingBranchId })
+      })),
+    acceptedArtifactIds: structuredClone(sourceSession.acceptedArtifactIds),
+    sections: structuredClone(sourceSession.sections),
+    requests: structuredClone(sourceSession.requests),
+    compactExchanges: structuredClone(sourceSession.compactExchanges),
+    captureActive: sourceSession.captureActive,
+    audio: {
+      schemaVersion: sourceSession.audio.schemaVersion,
+      ...(sourceSession.audio.sessionId === undefined ? {} : { sessionId: sourceSession.audio.sessionId }),
+      status: sourceSession.audio.status,
+      sources: structuredClone(sourceSession.audio.sources),
+      segments: structuredClone(sourceSession.audio.segments),
+      ...(sourceSession.audio.pendingQuestion === undefined
+        ? {}
+        : { pendingQuestion: structuredClone(sourceSession.audio.pendingQuestion) }),
+      transcriptionPath: sourceSession.audio.transcriptionPath
+    },
+    ...(sourceSession.codingQuestions === undefined
+      ? {}
+      : { codingQuestions: structuredClone(sourceSession.codingQuestions) })
   }
   return {
     schemaVersion: HISTORY_SCHEMA_VERSION,
@@ -54,9 +98,9 @@ export function projectHistoryArchive(archive: ResetArchive): HistoryArchiveV1 {
     model: archive.session.snapshot.model,
     responseMode: archive.session.snapshot.responseMode,
     language: archive.session.snapshot.language,
-    session: structuredClone(archive.session),
+    session,
     screenshots,
-    source: structuredClone(archive),
+    source: { sealedAt: archive.sealedAt, session },
     extensions: {}
   }
 }

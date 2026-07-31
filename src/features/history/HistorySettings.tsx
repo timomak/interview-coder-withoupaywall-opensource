@@ -7,15 +7,40 @@ import type {
 
 export function HistorySettings() {
   const [catalog, setCatalog] = useState<HistoryCatalog>({ entries: [], issues: [] })
+  const [fullCatalog, setFullCatalog] = useState<HistoryCatalog>({ entries: [], issues: [] })
   const [query, setQuery] = useState("")
   const [opened, setOpened] = useState<HistoryArchiveV1>()
   const [destination, setDestination] = useState("")
   const [disclosure, setDisclosure] = useState(false)
   const [status, setStatus] = useState("")
+  const [pendingDeletion, setPendingDeletion] = useState<{
+    scope: "selected" | "all"
+    sessionIds: readonly string[]
+    label: string
+  }>()
 
-  const reload = (search = query) =>
-    window.electronAPI.searchHistory(search).then(setCatalog)
+  const reload = async (search = query) => {
+    const [all, visible] = await Promise.all([
+      window.electronAPI.listHistory(),
+      window.electronAPI.searchHistory(search)
+    ])
+    setFullCatalog(all)
+    setCatalog(visible)
+  }
   useEffect(() => { void reload("") }, [])
+
+  const confirmDeletion = async () => {
+    if (!pendingDeletion) return
+    await window.electronAPI.deleteHistory({
+      scope: pendingDeletion.scope,
+      sessionIds: pendingDeletion.sessionIds,
+      confirmed: true
+    })
+    if (pendingDeletion.scope === "all" ||
+        pendingDeletion.sessionIds.includes(opened?.sessionId ?? "")) setOpened(undefined)
+    setPendingDeletion(undefined)
+    await reload()
+  }
 
   const exportOne = async (format: HistoryExportRequest["format"]) => {
     if (!opened || !disclosure || !destination.trim()) return
@@ -49,14 +74,29 @@ export function HistorySettings() {
             <button type="button" onClick={() => void window.electronAPI.openHistory(entry.sessionId).then(setOpened)}>
               {entry.title}
             </button>
-            <button type="button" onClick={() => void window.electronAPI.deleteHistory({ sessionIds: [entry.sessionId], confirmed: true }).then(() => reload())}>Delete</button>
+            <button type="button" onClick={() => setPendingDeletion({
+              scope: "selected",
+              sessionIds: [entry.sessionId],
+              label: `Delete “${entry.title}” permanently?`
+            })}>Delete</button>
           </li>
         ))}
       </ul>
-      {catalog.entries.length > 0 ? (
-        <button type="button" onClick={() => void window.electronAPI.deleteHistory({ sessionIds: catalog.entries.map((entry) => entry.sessionId), confirmed: true }).then(() => reload())}>
+      {fullCatalog.entries.length > 0 ? (
+        <button type="button" onClick={() => setPendingDeletion({
+          scope: "all",
+          sessionIds: [],
+          label: `Delete all ${fullCatalog.entries.length} archived interviews permanently?`
+        })}>
           Delete all History
         </button>
+      ) : null}
+      {pendingDeletion ? (
+        <section role="alertdialog" aria-label="Confirm History deletion">
+          <p>{pendingDeletion.label}</p>
+          <button type="button" onClick={() => void confirmDeletion()}>Confirm permanent deletion</button>
+          <button type="button" onClick={() => setPendingDeletion(undefined)}>Cancel</button>
+        </section>
       ) : null}
       {opened ? (
         <section aria-label="Archived interview" data-read-only="true">

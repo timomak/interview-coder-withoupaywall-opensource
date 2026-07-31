@@ -12,6 +12,6 @@ it("rebuilds the disposable M-09 projection without changing canonical archives"
   const history = new HistoryRepository(canonical, projections)
   expect((await history.rebuild()).entries.map((entry) => entry.sessionId)).toEqual(["one"])
   expect(await projections.get("stale")).toBeUndefined()
-  expect((await history.open("one")).source).toMatchObject({ futureField: { preserved: true } })
+  expect((await history.open("one")).source).not.toHaveProperty("futureField")
   expect(await canonical.get("archive:one")).toEqual(archive)
 })

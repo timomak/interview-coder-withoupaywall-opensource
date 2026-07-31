@@ -1,4 +1,5 @@
 import type { RecordRepository } from "../storage"
+import { randomUUID } from "node:crypto"
 import { HISTORY_MIGRATION } from "../../src/features/history/types"
 import type { HistoryRepository } from "./HistoryRepository"
 
@@ -18,6 +19,7 @@ export interface HistoryDeleteJournalV1 {
   readonly schemaVersion: 1
   readonly migration: typeof HISTORY_MIGRATION
   readonly operation: "delete-history"
+  readonly operationId: string
   readonly targets: readonly string[]
   readonly cursor: number
   readonly startedAt: string
@@ -30,6 +32,8 @@ function validate(value: unknown): HistoryDeleteJournalV1 {
     candidate.schemaVersion !== 1 ||
     candidate.migration !== HISTORY_MIGRATION ||
     candidate.operation !== "delete-history" ||
+    typeof candidate.operationId !== "string" ||
+    candidate.operationId.length === 0 ||
     !Array.isArray(candidate.targets) ||
     candidate.targets.some((id) => typeof id !== "string" || id.length === 0) ||
     new Set(candidate.targets).size !== candidate.targets.length ||
@@ -42,6 +46,8 @@ function validate(value: unknown): HistoryDeleteJournalV1 {
 }
 
 export class HistoryDeletionJournal {
+  private tail = Promise.resolve()
+
   constructor(
     private readonly records: RecordRepository<HistoryDeleteJournalV1>,
     private readonly history: HistoryRepository,
@@ -49,14 +55,31 @@ export class HistoryDeletionJournal {
     private readonly checkpoint?: (boundary: DeleteBoundary) => void | Promise<void>
   ) {}
 
-  async delete(sessionIds: readonly string[]): Promise<void> {
-    await this.resume()
+  delete(sessionIds: readonly string[]): Promise<void> {
+    return this.exclusive(async () => {
+      await this.resumeUnlocked()
+      await this.deleteUnlocked(sessionIds)
+    })
+  }
+
+  resume(): Promise<void> {
+    return this.exclusive(() => this.resumeUnlocked())
+  }
+
+  private exclusive<T>(operation: () => Promise<T>): Promise<T> {
+    const result = this.tail.then(operation, operation)
+    this.tail = result.then(() => undefined, () => undefined)
+    return result
+  }
+
+  private async deleteUnlocked(sessionIds: readonly string[]): Promise<void> {
     const targets = [...new Set(sessionIds)]
     if (targets.length === 0) return
     const journal: HistoryDeleteJournalV1 = {
       schemaVersion: 1,
       migration: HISTORY_MIGRATION,
       operation: "delete-history",
+      operationId: randomUUID(),
       targets,
       cursor: 0,
       startedAt: this.now()
@@ -66,7 +89,7 @@ export class HistoryDeletionJournal {
     await this.run(journal)
   }
 
-  async resume(): Promise<void> {
+  private async resumeUnlocked(): Promise<void> {
     const journal = await this.records.get(JOURNAL_ID, JOURNAL_TYPE)
     if (journal) await this.run(validate(journal))
   }

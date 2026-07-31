@@ -74,7 +74,8 @@ import {
   HistoryDeletionJournal,
   HistoryExportService,
   HistoryRepository,
-  HistoryService
+  HistoryService,
+  type HistoryExportJournalV1
 } from "./history"
 import type { HistoryArchiveV1 } from "../src/features/history/types"
 import type { RecordRepository } from "./storage"
@@ -503,7 +504,14 @@ async function initializeApplication(): Promise<void> {
       ),
       historyRepository
     ),
-    new HistoryExportService()
+    new HistoryExportService(
+      new EncryptedRecordRepository<HistoryExportJournalV1>(
+        storagePaths,
+        keyService,
+        undefined,
+        "history-journals"
+      )
+    )
   )
   const orchestrator = createOrchestrator(
     executables,

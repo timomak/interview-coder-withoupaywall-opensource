@@ -278,6 +278,10 @@ export function initializeIpcHandlers(
       typeof value !== "object" ||
       value === null ||
       (value as { confirmed?: unknown }).confirmed !== true ||
+      !["selected", "all"].includes(String((value as { scope?: unknown }).scope)) ||
+      Object.keys(value).some(
+        (key) => !["scope", "sessionIds", "confirmed"].includes(key)
+      ) ||
       !Array.isArray((value as { sessionIds?: unknown }).sessionIds) ||
       !(value as { sessionIds: unknown[] }).sessionIds.every(
         (id) => typeof id === "string" && id.length > 0 && id.length <= 512

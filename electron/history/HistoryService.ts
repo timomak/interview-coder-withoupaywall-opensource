@@ -15,8 +15,9 @@ export class HistoryService {
     private readonly exports: HistoryExportService
   ) {}
 
-  recover(): Promise<void> {
-    return this.deletions.resume()
+  async recover(): Promise<void> {
+    await this.exports.recover()
+    await this.deletions.resume()
   }
 
   list(): Promise<HistoryCatalog> {
@@ -35,12 +36,15 @@ export class HistoryService {
     if (request.confirmed !== true) throw new Error("History deletion is not confirmed")
     const catalog = await this.repository.rebuild()
     const available = new Set(catalog.entries.map((entry) => entry.sessionId))
-    if (
-      request.sessionIds.length === 0 ||
-      new Set(request.sessionIds).size !== request.sessionIds.length ||
-      request.sessionIds.some((id) => !available.has(id))
-    ) throw new Error("History deletion targets are invalid")
-    await this.deletions.delete(request.sessionIds)
+    const targets = request.scope === "all" ? [...available] : request.sessionIds
+    if ((request.scope !== "all" && request.scope !== "selected") ||
+        (request.scope === "all" && request.sessionIds.length !== 0) ||
+        (request.scope === "selected" && targets.length === 0) ||
+        new Set(targets).size !== targets.length ||
+        targets.some((id) => !available.has(id))) {
+      throw new Error("History deletion targets are invalid")
+    }
+    await this.deletions.delete(targets)
     return this.repository.rebuild()
   }
 
