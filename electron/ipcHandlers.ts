@@ -18,6 +18,19 @@ import {
   type ResponseMode
 } from "../src/shared/provider"
 import type { SubscriptionConfig } from "./config"
+import {
+  isShortcutAction,
+  isShortcutBindings,
+  type ShortcutAction,
+  type ShortcutBindings
+} from "../src/shared/shell"
+import type { ShortcutRegistrationResult } from "./shortcuts"
+import type { HudState } from "../src/shared/shell"
+import type { ContextItem } from "../src/shared/interview"
+import {
+  isProfileBundle,
+  type ProfileBundle
+} from "../src/features/profile/types"
 
 export interface IpcHandlerDependencies {
   readonly orchestrator: InterviewOrchestrator
@@ -31,6 +44,25 @@ export interface IpcHandlerDependencies {
     responseMode: ResponseMode
   ) => Promise<SubscriptionConfig>
   readonly resetInterview: () => Promise<CommandResult>
+  readonly captureScreenshot: () => Promise<void>
+  readonly debugCurrentCode: () => Promise<void>
+  readonly setWindowPointerEvents: (
+    ignore: boolean,
+    forward: boolean
+  ) => void
+  readonly getShortcutBindings: () => ShortcutBindings
+  readonly updateShortcutBindings: (
+    bindings: ShortcutBindings
+  ) => ShortcutRegistrationResult
+  readonly resetShortcutBindings: () => ShortcutRegistrationResult
+  readonly invokeShellAction: (action: ShortcutAction) => void
+  readonly setHudState: (state: HudState) => void
+  readonly closeComposer: () => void
+  readonly getProfileContext: () => Promise<readonly ContextItem[]>
+  readonly getProfileBundle: () => Promise<ProfileBundle>
+  readonly saveProfileBundle: (bundle: ProfileBundle) => Promise<void>
+  readonly importProfileMarkdown: (source: string) => Promise<string>
+  readonly exportDossier: (destination: string) => Promise<void>
 }
 
 export function initializeIpcHandlers(
@@ -86,6 +118,30 @@ export function initializeIpcHandlers(
   ipcMain.handle(INTERVIEW_RECOVERY_CHANNEL, () =>
     dependencies.orchestrator.inspectRecovery()
   )
+  ipcMain.handle("profile:get-context", () =>
+    dependencies.getProfileContext()
+  )
+  ipcMain.handle("profile:get-bundle", () =>
+    dependencies.getProfileBundle()
+  )
+  ipcMain.handle("profile:save-bundle", async (_event, value: unknown) => {
+    if (!isProfileBundle(value)) throw new Error("Profile bundle is malformed")
+    await dependencies.saveProfileBundle(value)
+    return { success: true }
+  })
+  ipcMain.handle("profile:import-markdown", async (_event, value: unknown) => {
+    if (typeof value !== "string" || value.trim().length === 0) {
+      throw new Error("Profile import path is malformed")
+    }
+    return dependencies.importProfileMarkdown(value)
+  })
+  ipcMain.handle("profile:export-dossier", async (_event, value: unknown) => {
+    if (typeof value !== "string" || value.trim().length === 0) {
+      throw new Error("Profile export destination is malformed")
+    }
+    await dependencies.exportDossier(value)
+    return { success: true }
+  })
   ipcMain.handle(INTERVIEW_COMMAND_CHANNEL, (_event, command: unknown) => {
     const parsed = parseInterviewCommand(command)
     return parsed.type === "reset"
@@ -110,6 +166,59 @@ export function initializeIpcHandlers(
   )
   ipcMain.handle("window:toggle", () => {
     dependencies.toggleMainWindow()
+    return { success: true }
+  })
+  ipcMain.handle("window:set-pointer-events", (_event, value: unknown) => {
+    if (
+      typeof value !== "object" ||
+      value === null ||
+      typeof (value as { ignore?: unknown }).ignore !== "boolean" ||
+      typeof (value as { forward?: unknown }).forward !== "boolean"
+    ) {
+      throw new Error("Pointer-event routing is malformed")
+    }
+    const { ignore, forward } = value as { ignore: boolean; forward: boolean }
+    dependencies.setWindowPointerEvents(ignore, forward)
+    return { success: true }
+  })
+  ipcMain.handle("window:set-hud-state", (_event, value: unknown) => {
+    if (
+      value !== "compact-bar" &&
+      value !== "compact-answer" &&
+      value !== "expanded"
+    ) {
+      throw new Error("HUD state is malformed")
+    }
+    dependencies.setHudState(value)
+    return { success: true }
+  })
+  ipcMain.handle("shell:composer-closed", () => {
+    dependencies.closeComposer()
+    return { success: true }
+  })
+  ipcMain.handle("capture:screenshot", async () => {
+    await dependencies.captureScreenshot()
+    return { success: true }
+  })
+  ipcMain.handle("coding:debug-current", async () => {
+    await dependencies.debugCurrentCode()
+    return { success: true }
+  })
+  ipcMain.handle("shortcuts:get", () => dependencies.getShortcutBindings())
+  ipcMain.handle("shortcuts:update", (_event, value: unknown) => {
+    if (!isShortcutBindings(value)) {
+      throw new Error("Shortcut bindings are malformed")
+    }
+    return dependencies.updateShortcutBindings(value)
+  })
+  ipcMain.handle("shortcuts:reset", () =>
+    dependencies.resetShortcutBindings()
+  )
+  ipcMain.handle("shell:invoke-action", (_event, value: unknown) => {
+    if (!isShortcutAction(value)) {
+      throw new Error("Shell action is malformed")
+    }
+    dependencies.invokeShellAction(value)
     return { success: true }
   })
   ipcMain.handle("settings:show", () => {

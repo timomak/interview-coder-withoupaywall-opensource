@@ -1,21 +1,44 @@
-import { useEffect, useState } from "react"
+import { useEffect, useLayoutEffect, useRef, useState } from "react"
 import type { SubscriptionConfig } from "../../electron/config"
 import {
   createIdleInterviewSession
 } from "../domain/interview"
+import { contextStatusLabel } from "../domain/interview/contextStatus"
 import type {
   InterviewMode,
   InterviewSession,
   RecoveryChoice
 } from "../shared/interview"
 import { ContextDetail } from "../components/ContextDetail/ContextDetail"
-import { Header } from "../components/Header/Header"
+import {
+  CommandRail,
+  CompactComposer,
+  PointerRegions,
+  HotKeysPanel,
+  InputTray,
+  AnswerSections
+} from "../features/shell"
+import {
+  CodingWorkspace,
+  snapshotCodingLanguage,
+  type CodingIntent
+} from "../features/coding"
+import {
+  SYSTEM_DESIGN_SECTIONS,
+  SystemDesignWorkspace
+} from "../features/system-design"
+import { BehavioralResponseWorkspace } from "../features/behavioral"
+import { deriveHudState } from "../shared/shell"
 
 interface SubscribedAppProps {
   readonly config: SubscriptionConfig
+  readonly settingsOpen: boolean
 }
 
-export default function SubscribedApp({ config }: SubscribedAppProps) {
+export default function SubscribedApp({
+  config,
+  settingsOpen
+}: SubscribedAppProps) {
   if (!config.provider || !config.model) {
     throw new Error("SubscribedApp requires a configured provider")
   }
@@ -30,6 +53,26 @@ export default function SubscribedApp({ config }: SubscribedAppProps) {
   })
   const [mode, setMode] = useState<InterviewMode>("coding")
   const [input, setInput] = useState("")
+  const [composerOpen, setComposerOpen] = useState(false)
+  const [hotKeysOpen, setHotKeysOpen] = useState(false)
+  const [shellStatus, setShellStatus] = useState("")
+  const [workspaceExpanded, setWorkspaceExpanded] = useState(false)
+  const [codingIntent, setCodingIntent] = useState<CodingIntent>()
+  const hotKeysButton = useRef<HTMLButtonElement>(null)
+  const shell = useRef<HTMLElement>(null)
+  const answerRegion = useRef<HTMLDivElement>(null)
+  const sectionCount =
+    session.lifecycle === "active" ? session.sections.length : 0
+  const artifactCount =
+    session.lifecycle === "active" ? session.artifacts.length : 0
+  const hudState = deriveHudState({
+    settingsOpen,
+    workspaceExpanded,
+    composerOpen,
+    hotKeysOpen,
+    sectionCount,
+    artifactCount
+  })
 
   useEffect(() => {
     void window.electronAPI.getInterviewState().then(setSession)
@@ -37,7 +80,39 @@ export default function SubscribedApp({ config }: SubscribedAppProps) {
     return window.electronAPI.onInterviewState(setSession)
   }, [])
 
+  useEffect(() => {
+    void window.electronAPI.setHudState(hudState)
+  }, [hudState])
+
+  useLayoutEffect(() => {
+    if (hudState === "expanded") return
+    const frame = requestAnimationFrame(() => {
+      const surface = shell.current
+      if (!surface) return
+      const width =
+        hudState === "compact-bar"
+          ? Math.min(520, Math.max(320, surface.scrollWidth))
+          : 520
+      const height =
+        hudState === "compact-bar"
+          ? config.shell?.density === "comfortable"
+            ? 52
+            : 44
+          : Math.max(80, surface.scrollHeight)
+      void window.electronAPI.updateContentDimensions({ width, height })
+    })
+    return () => cancelAnimationFrame(frame)
+  }, [
+    composerOpen,
+    config.shell?.density,
+    hotKeysOpen,
+    hudState,
+    sectionCount,
+    artifactCount
+  ])
+
   const start = async () => {
+    const personalContext = await window.electronAPI.getProfileContext()
     const result = await window.electronAPI.dispatchInterviewCommand({
       type: "start",
       snapshot: {
@@ -45,29 +120,177 @@ export default function SubscribedApp({ config }: SubscribedAppProps) {
         provider,
         model,
         responseMode: config.responseMode,
-        language: config.language,
-        context: []
+        language:
+          mode === "coding"
+            ? snapshotCodingLanguage(config.language)
+            : config.language,
+        context: personalContext
       }
     })
     setSession(result.state)
   }
 
-  const submit = async () => {
+  const submit = async (message = input) => {
+    if (mode === "coding" && !codingIntent) {
+      setShellStatus("Choose Analyze, Generate Code, Debug, or Follow-up.")
+      return false
+    }
     const result = await window.electronAPI.dispatchInterviewCommand({
       type: "submit",
-      route: "chat",
-      input
+      route:
+        mode === "coding" || mode === "system-design"
+          || mode === "behavioral"
+          ? "mode-action"
+          : "chat",
+      input: message,
+      codingIntent: mode === "coding" ? codingIntent : undefined,
+      sectionIds:
+        mode === "system-design"
+          ? SYSTEM_DESIGN_SECTIONS
+          : mode === "behavioral"
+            ? ["answer", "star", "evidence", "follow-ups"]
+            : undefined
     })
     setSession(result.state)
-    if (result.ok) setInput("")
+    if (result.ok) {
+      setInput("")
+      setShellStatus("")
+    } else {
+      setShellStatus(result.error ?? "Request failed.")
+    }
+    return result.ok
   }
 
+  useEffect(
+    () =>
+      window.electronAPI.onShellShortcut((action) => {
+        if (action === "composer") {
+          setComposerOpen(true)
+        } else if (action === "record") {
+          setShellStatus("Recording controls are ready for the audio source.")
+        } else if (action === "debug") {
+          if (mode !== "coding" || session.lifecycle !== "active") {
+            setShellStatus("Fix current code requires an active Coding question.")
+          }
+        } else if (action === "submit" && session.lifecycle === "active") {
+          void submit()
+        } else if (
+          action === "section-previous" ||
+          action === "section-next"
+        ) {
+          const candidates = Array.from(
+            answerRegion.current?.querySelectorAll<HTMLElement>(
+              "article, [role='article']"
+            ) ?? []
+          )
+          if (candidates.length === 0) return
+          const currentIndex = Math.max(
+            0,
+            candidates.findIndex((candidate) =>
+              candidate.contains(document.activeElement)
+            )
+          )
+          const delta = action === "section-previous" ? -1 : 1
+          const next =
+            candidates[
+              (currentIndex + delta + candidates.length) % candidates.length
+            ]
+          next.tabIndex = 0
+          next.focus()
+          next.scrollIntoView({ block: "nearest" })
+        } else if (
+          action === "section-scroll-up" ||
+          action === "section-scroll-down"
+        ) {
+          answerRegion.current?.scrollBy({
+            top: action === "section-scroll-up" ? -120 : 120,
+            behavior: "smooth"
+          })
+        }
+      }),
+    [input, session]
+  )
+
+  useEffect(
+    () =>
+      window.electronAPI.onShellStartupWarning((message) => {
+        setShellStatus(message)
+      }),
+    []
+  )
+
+  useEffect(() => {
+    if (session.lifecycle === "idle" && composerOpen) {
+      setComposerOpen(false)
+      void window.electronAPI.closeComposer()
+    }
+  }, [composerOpen, session.lifecycle])
+
   return (
-    <section className="mx-auto max-w-3xl p-4">
-      <Header
+    <section
+      ref={shell}
+      className={`quiet-shell quiet-shell-${hudState}`}
+      data-density={config.shell?.density ?? "compact"}
+      data-text-size={config.shell?.textSize ?? "default"}
+    >
+      <PointerRegions />
+      <CommandRail
         session={session}
-        onOpenSettings={() => void window.electronAPI.openSettings()}
+        mode={mode}
+        onModeChange={setMode}
+        onStart={() => void start()}
+        onRecord={() =>
+          setShellStatus("Recording controls are ready for the audio source.")
+        }
+        onScreenshot={() =>
+          void window.electronAPI.captureScreenshot().then(() => {
+            setShellStatus("Screenshot staged.")
+          })
+        }
+        onChat={() => setComposerOpen(true)}
+        onSubmit={() => void submit()}
+        onHotKeys={() => setHotKeysOpen((open) => !open)}
+        hotKeysButtonRef={hotKeysButton}
+        onWorkspace={() => setWorkspaceExpanded((expanded) => !expanded)}
+        onReset={() =>
+          void window.electronAPI
+            .dispatchInterviewCommand({ type: "reset" })
+            .then((result) => setSession(result.state))
+        }
+        contextLabel={
+          session.lifecycle === "active"
+            ? contextStatusLabel(session)
+            : "New context"
+        }
+        canSubmit={
+          session.lifecycle === "active" &&
+          (input.trim().length > 0 ||
+            session.artifacts.some(
+              (artifact) => artifact.selected && !artifact.submitted
+            ))
+        }
       />
+      {hotKeysOpen ? (
+        <HotKeysPanel
+          returnFocusTo={hotKeysButton}
+          onClose={() => setHotKeysOpen(false)}
+        />
+      ) : null}
+      {composerOpen && session.lifecycle === "active" ? (
+        <CompactComposer
+          initialValue={input}
+          onDraftChange={setInput}
+          hasSelectedEvidence={session.artifacts.some(
+            (artifact) => artifact.selected && !artifact.submitted
+          )}
+          onSubmit={(message) => submit(message)}
+          onClose={() => {
+            setComposerOpen(false)
+            void window.electronAPI.closeComposer()
+          }}
+        />
+      ) : null}
+      <p className="quiet-status" role="status">{shellStatus}</p>
       {recovery.available && session.lifecycle === "idle" ? (
         <div className="my-4 rounded border border-amber-400/30 p-3">
           <p>Previous interview found. Capture remains off.</p>
@@ -99,32 +322,97 @@ export default function SubscribedApp({ config }: SubscribedAppProps) {
           </div>
         </div>
       ) : null}
-      {session.lifecycle === "idle" ? (
-        <div className="mt-6 space-y-3">
-          <label className="block text-sm">
-            Mode
-            <select
-              className="ml-2 bg-neutral-900"
-              value={mode}
-              onChange={(event) => setMode(event.target.value as InterviewMode)}
-            >
-              <option value="coding">Coding</option>
-              <option value="system-design">System design</option>
-              <option value="behavioral">Behavioral</option>
-            </select>
-          </label>
-          <button onClick={() => void start()}>Start interview</button>
-        </div>
-      ) : (
+      {session.lifecycle === "active" ? (
         <>
+          <InputTray
+            artifacts={session.artifacts.filter(
+              (artifact) =>
+                session.snapshot.mode !== "coding" ||
+                artifact.kind === "transcript" ||
+                artifact.codingBranchId ===
+                  session.codingQuestions?.currentBranchId
+            )}
+            onSelectionChange={(artifactId, selected) =>
+              void window.electronAPI
+                .dispatchInterviewCommand({
+                  type: "select-artifact",
+                  artifactId,
+                  selected
+                })
+                .then((result) => setSession(result.state))
+            }
+          />
           <ContextDetail session={session} />
-          <div className="mt-6 space-y-2">
-            {session.sections.map((section) => (
-              <article key={section.id} className="rounded border border-white/10 p-3">
-                <h2>{section.id}</h2>
-                <pre className="whitespace-pre-wrap">{section.body}</pre>
-              </article>
-            ))}
+          <div
+            ref={answerRegion}
+            className="quiet-answer-region"
+            data-interactive
+          >
+            {session.snapshot.mode === "coding" ? (
+              <CodingWorkspace
+                intent={codingIntent}
+                sections={session.sections.filter((section) =>
+                  session.codingQuestions?.branches
+                    .find(
+                      (branch) =>
+                        branch.id ===
+                        session.codingQuestions?.currentBranchId
+                    )
+                    ?.sectionIds.includes(section.id)
+                )}
+                onIntentChange={setCodingIntent}
+                onNewQuestion={() =>
+                  void window.electronAPI
+                    .dispatchInterviewCommand({
+                      type: "new-coding-question",
+                      question: input
+                    })
+                    .then((result) => {
+                      setSession(result.state)
+                      if (!result.ok) {
+                        setShellStatus(result.error ?? "New Question failed.")
+                        return
+                      }
+                      setCodingIntent(undefined)
+                      setInput("")
+                      setShellStatus(
+                        "New Coding question ready; interview history preserved."
+                      )
+                    })
+                }
+                onCodeAction={(action) => {
+                  if (action === "copy") {
+                    const code = session.sections.find(
+                      (section) => section.id === "code"
+                    )?.body
+                    if (code) void navigator.clipboard.writeText(code)
+                  } else if (action === "debug") {
+                    void window.electronAPI.debugCurrentCode()
+                  } else {
+                    setCodingIntent(
+                      action === "regenerate" ? "generate-code" : "follow-up"
+                    )
+                    setComposerOpen(true)
+                  }
+                }}
+              />
+            ) : session.snapshot.mode === "system-design" ? (
+              <SystemDesignWorkspace
+                sections={session.sections}
+                onRegenerateArchitecture={() => {
+                  setInput("Regenerate only the Architecture section.")
+                  setComposerOpen(true)
+                }}
+                onDeepenEstimates={() => {
+                  setInput("Deepen only the requested material estimates.")
+                  setComposerOpen(true)
+                }}
+              />
+            ) : session.snapshot.mode === "behavioral" ? (
+              <BehavioralResponseWorkspace sections={session.sections} />
+            ) : (
+              <AnswerSections sections={session.sections} />
+            )}
             {session.compactExchanges.map((exchange) => (
               <article key={exchange.id} className="rounded bg-white/5 p-3">
                 <p>{exchange.prompt}</p>
@@ -132,17 +420,8 @@ export default function SubscribedApp({ config }: SubscribedAppProps) {
               </article>
             ))}
           </div>
-          <div className="mt-4 flex gap-2">
-            <input
-              aria-label="Interview chat"
-              className="flex-1 bg-neutral-900 p-2"
-              value={input}
-              onChange={(event) => setInput(event.target.value)}
-            />
-            <button onClick={() => void submit()}>Send</button>
-          </div>
         </>
-      )}
+      ) : null}
     </section>
   )
 }

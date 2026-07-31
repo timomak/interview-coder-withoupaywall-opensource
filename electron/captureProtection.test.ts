@@ -42,7 +42,12 @@ describe("capture protection", () => {
     expect(mainSource).not.toContain(".setContentProtection(")
     expect(
       mainSource.match(/\.(?:focus|restore|show|showInactive)\(/g)
-    ).toEqual([".restore(", ".focus(", ".showInactive("])
+    ).toEqual([
+      ".restore(",
+      ".showInactive(",
+      ".focus(",
+      ".showInactive("
+    ])
     expect(mainSource).toMatch(
       /function focusMainWindow[\s\S]*?revealCaptureProtectedWindow[\s\S]*?protectedWindow\.focus\(\)/
     )

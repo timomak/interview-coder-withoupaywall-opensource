@@ -1,9 +1,11 @@
 import { execFile } from "node:child_process"
 import { promisify } from "node:util"
-import screenshot from "screenshot-desktop"
 import { v4 as uuidv4 } from "uuid"
 import type { BlobDescriptor, BlobRepository } from "./storage"
 import { errorMessage } from "./errorUtils"
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore -- the strict checkJs inventory validates this exact CJS module.
+import captureRuntime from "./capture/inMemoryDesktopCapture.cjs"
 
 const execFileAsync = promisify(execFile)
 const PNG_CONTENT_TYPE = "image/png"
@@ -32,8 +34,9 @@ try {
 
 export interface ScreenshotHelperOptions {
   readonly platform?: NodeJS.Platform
-  readonly capture?: () => Promise<Buffer>
+  readonly capture?: (displayId?: number) => Promise<Buffer>
   readonly captureWindowsFallback?: () => Promise<Buffer>
+  readonly primaryDisplayId?: () => number
   readonly id?: () => string
   readonly hideDelayMs?: number
   readonly showDelayMs?: number
@@ -64,12 +67,13 @@ async function captureWindowsFallback(): Promise<Buffer> {
 export class ScreenshotHelper {
   private screenshotQueue: string[] = []
   private readonly platform: NodeJS.Platform
-  private readonly capture: () => Promise<Buffer>
+  private readonly capture: (displayId?: number) => Promise<Buffer>
   private readonly windowsFallback: () => Promise<Buffer>
   private readonly id: () => string
   private readonly hideDelayMs: number
   private readonly showDelayMs: number
   private readonly maximumScreenshots: number
+  private readonly primaryDisplayId?: () => number
 
   constructor(
     private readonly blobs: BlobRepository,
@@ -77,7 +81,9 @@ export class ScreenshotHelper {
   ) {
     this.platform = options.platform ?? process.platform
     this.capture =
-      options.capture ?? (() => screenshot({ format: "png" }) as Promise<Buffer>)
+      options.capture ??
+      (async (displayId) =>
+        (await captureRuntime.captureDisplayInMemory(displayId)).bytes)
     this.windowsFallback =
       options.captureWindowsFallback ?? captureWindowsFallback
     this.id = options.id ?? uuidv4
@@ -85,6 +91,7 @@ export class ScreenshotHelper {
       options.hideDelayMs ?? (this.platform === "win32" ? 500 : 300)
     this.showDelayMs = options.showDelayMs ?? 200
     this.maximumScreenshots = options.maximumScreenshots ?? 5
+    this.primaryDisplayId = options.primaryDisplayId
   }
 
   getScreenshotQueue(): string[] {
@@ -153,7 +160,7 @@ export class ScreenshotHelper {
 
   private async captureScreenshot(): Promise<Buffer> {
     try {
-      return await this.capture()
+      return await this.capture(this.primaryDisplayId?.())
     } catch (error) {
       if (this.platform !== "win32") throw error
       return this.windowsFallback()

@@ -20,6 +20,12 @@ import {
   PROVIDER_DIAGNOSTICS_CHANNEL
 } from "../src/shared/provider"
 import type {
+  ShortcutAction,
+  ShortcutBindings,
+  HudState
+} from "../src/shared/shell"
+import type { ShortcutRegistrationResult } from "./shortcuts"
+import type {
   ProviderDiagnostics,
   ProviderId,
   ResponseMode
@@ -44,6 +50,14 @@ const electronAPI = {
     ipcRenderer.invoke(INTERVIEW_STATE_CHANNEL),
   getInterviewRecovery: () =>
     ipcRenderer.invoke(INTERVIEW_RECOVERY_CHANNEL),
+  getProfileContext: () => ipcRenderer.invoke("profile:get-context"),
+  getProfileBundle: () => ipcRenderer.invoke("profile:get-bundle"),
+  saveProfileBundle: (bundle: unknown) =>
+    ipcRenderer.invoke("profile:save-bundle", bundle),
+  importProfileMarkdown: (source: string) =>
+    ipcRenderer.invoke("profile:import-markdown", source),
+  exportDossier: (destination: string) =>
+    ipcRenderer.invoke("profile:export-dossier", destination),
   dispatchInterviewCommand: (command: InterviewCommand) =>
     ipcRenderer.invoke(INTERVIEW_COMMAND_CHANNEL, command),
   onInterviewState: (callback: (state: InterviewSession) => void) => {
@@ -60,6 +74,35 @@ const electronAPI = {
   },
   updateContentDimensions: (dimensions: { width: number; height: number }) =>
     ipcRenderer.invoke("window:update-content-dimensions", dimensions),
+  setWindowPointerEvents: (ignore: boolean, forward: boolean) =>
+    ipcRenderer.invoke("window:set-pointer-events", { ignore, forward }),
+  setHudState: (state: HudState) =>
+    ipcRenderer.invoke("window:set-hud-state", state),
+  captureScreenshot: () => ipcRenderer.invoke("capture:screenshot"),
+  debugCurrentCode: () => ipcRenderer.invoke("coding:debug-current"),
+  getShortcutBindings: (): Promise<ShortcutBindings> =>
+    ipcRenderer.invoke("shortcuts:get"),
+  updateShortcutBindings: (
+    bindings: ShortcutBindings
+  ): Promise<ShortcutRegistrationResult> =>
+    ipcRenderer.invoke("shortcuts:update", bindings),
+  resetShortcutBindings: (): Promise<ShortcutRegistrationResult> =>
+    ipcRenderer.invoke("shortcuts:reset"),
+  invokeShellAction: (action: ShortcutAction) =>
+    ipcRenderer.invoke("shell:invoke-action", action),
+  closeComposer: () => ipcRenderer.invoke("shell:composer-closed"),
+  onShellShortcut: (callback: (action: ShortcutAction) => void) => {
+    const listener = (_event: IpcRendererEvent, action: ShortcutAction) =>
+      callback(action)
+    ipcRenderer.on("shell:shortcut", listener)
+    return () => ipcRenderer.removeListener("shell:shortcut", listener)
+  },
+  onShellStartupWarning: (callback: (message: string) => void) => {
+    const listener = (_event: IpcRendererEvent, message: string) =>
+      callback(message)
+    ipcRenderer.on("shell:startup-warning", listener)
+    return () => ipcRenderer.removeListener("shell:startup-warning", listener)
+  },
   toggleMainWindow: () => ipcRenderer.invoke("window:toggle"),
   getPlatform: () => process.platform,
   startUpdate: () => ipcRenderer.invoke("start-update"),

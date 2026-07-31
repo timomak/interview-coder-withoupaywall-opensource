@@ -98,9 +98,10 @@ whether it is case-insensitive.
 
 ## Production screenshot retention
 
-Production capture acquires PNG bytes in memory. The Windows primary path and
-PowerShell fallback both return memory buffers; neither accepts a filename or
-creates a temporary PNG. The one screenshot queue stores opaque IDs backed by
+Production capture acquires PNG bytes through Electron `desktopCapturer` and
+`NativeImage.toPNG()` in memory on every supported platform. The Windows
+PowerShell fallback also returns a memory buffer; neither path accepts a
+filename or creates a temporary PNG. The one screenshot queue stores opaque IDs backed by
 `EncryptedBlobRepository` using the same installation-key service as M-04.
 Preview decrypts one blob only long enough to create the immediate typed
 submission, then clears the byte buffer. Retention expiry, exclusion, and

@@ -23,6 +23,30 @@ import {
   parseProviderPayload
 } from "./responseRouting"
 import { ActiveSessionRepository, M04ActiveSnapshot } from "./sessionRepository"
+import {
+  buildCodingProviderRequest,
+  parseCodingFixCard,
+  validateCodingSections
+} from "./codingPolicy"
+import {
+  applySystemDesignFollowup,
+  buildSystemDesignRequest,
+  validateSystemDesignSection
+} from "./systemDesignPolicy"
+import {
+  isCodingIntent,
+  sectionsForCodingIntent,
+  type CodingIntent
+} from "../../src/features/coding/types"
+import { SYSTEM_DESIGN_SECTIONS } from "../../src/features/system-design/types"
+import { BEHAVIORAL_SECTIONS } from "../../src/features/behavioral/types"
+import {
+  admitBehavioralPayload,
+  behavioralFactBody,
+  buildBehavioralRequest,
+  parseBehavioralProviderPayload
+} from "./behavioralPolicy"
+import type { BehavioralStory } from "../../src/features/behavioral/types"
 
 export interface ProviderConversationFactory {
   create(
@@ -39,6 +63,7 @@ export interface InterviewOrchestratorOptions {
   readonly now?: () => string
   readonly id?: () => string
   readonly onState?: (state: InterviewSession) => void
+  readonly saveSyntheticStory?: (story: BehavioralStory) => Promise<void>
 }
 
 interface ActiveRuntime {
@@ -85,6 +110,34 @@ function acceptedCompletion(events: readonly ProviderEvent[]): boolean {
     events.some((event) => event.type === "completed") &&
     !events.some((event) => event.type === "error")
   )
+}
+
+function availableSectionIds(
+  session: ActiveInterviewSession,
+  requested: readonly string[]
+): readonly string[] {
+  const existing = new Set(session.sections.map((section) => section.id))
+  if (requested.every((sectionId) => !existing.has(sectionId))) {
+    return requested
+  }
+  let version = 2
+  while (true) {
+    const versioned = requested.map((sectionId) => `${sectionId}-${version}`)
+    if (versioned.every((sectionId) => !existing.has(sectionId))) {
+      return versioned
+    }
+    version += 1
+  }
+}
+
+function validFixSection(sectionId: string, body: string): boolean {
+  if (!/^fix-[1-9]\d*$/.test(sectionId)) return false
+  try {
+    const card = parseCodingFixCard(JSON.parse(body))
+    return card?.version === Number(sectionId.slice("fix-".length))
+  } catch {
+    return false
+  }
 }
 
 export class InterviewOrchestrator {
@@ -148,7 +201,9 @@ export class InterviewOrchestrator {
           await this.submit(
             command.route,
             command.input,
-            command.sectionIds
+            command.sectionIds,
+            command.codingIntent,
+            command.artifactIds
           )
           break
         case "cancel":
@@ -162,6 +217,9 @@ export class InterviewOrchestrator {
           break
         case "resume":
           await this.resume()
+          break
+        case "new-coding-question":
+          await this.newCodingQuestion(command.question)
           break
         default: {
           const exhaustive: never = command
@@ -232,15 +290,52 @@ export class InterviewOrchestrator {
     })
   }
 
+  async newCodingQuestion(question: string): Promise<void> {
+    const session = active(this.state)
+    if (session.snapshot.mode !== "coding" || !session.codingQuestions) {
+      throw new Error("New Question is available only in Coding mode")
+    }
+    const normalizedQuestion = question.trim()
+    if (!normalizedQuestion) {
+      throw new Error("New Question requires the next problem statement")
+    }
+    await this.dispatch({
+      type: "coding-question-started",
+      branchId: this.id(),
+      question: normalizedQuestion
+    })
+  }
+
   async submit(
     route: Extract<InterviewCommand, { type: "submit" }>["route"],
     input: string,
-    requestedSectionIds?: readonly string[]
+    requestedSectionIds?: readonly string[],
+    codingIntent?: CodingIntent,
+    requestedArtifactIds?: readonly string[]
   ): Promise<void> {
     const session = active(this.state)
-    const pending = session.artifacts
-      .filter((artifact) => artifact.selected && !artifact.submitted)
-      .map((artifact) => artifact.id)
+    if (session.snapshot.mode === "coding" && route === "mode-action") {
+      if (!isCodingIntent(codingIntent)) {
+        throw new Error("Coding requests require an explicit supported intent")
+      }
+    } else if (codingIntent !== undefined || requestedArtifactIds !== undefined) {
+      throw new Error("Coding-only submission fields crossed a mode boundary")
+    }
+    const selectedPending = session.artifacts.filter(
+      (artifact) => artifact.selected && !artifact.submitted
+    )
+    const pending = requestedArtifactIds
+      ? [...requestedArtifactIds]
+      : selectedPending.map((artifact) => artifact.id)
+    if (
+      new Set(pending).size !== pending.length ||
+      pending.some(
+        (artifactId) =>
+          !selectedPending.some((artifact) => artifact.id === artifactId)
+      )
+    ) {
+      throw new Error("Submission evidence is not selected and pending")
+    }
     if (input.trim().length === 0 && pending.length === 0) {
       throw new Error("Empty submission is not allowed")
     }
@@ -254,12 +349,57 @@ export class InterviewOrchestrator {
       await this.runCompactTurn(route, input)
       return
     }
-    const sectionIds =
+    const proposedSectionIds =
       requestedSectionIds && requestedSectionIds.length > 0
         ? [...requestedSectionIds]
+        : session.snapshot.mode === "coding" &&
+            route === "mode-action" &&
+            codingIntent
+          ? [...sectionsForCodingIntent(codingIntent)]
+        : session.snapshot.mode === "system-design" &&
+            route === "mode-action"
+          ? [...SYSTEM_DESIGN_SECTIONS]
+        : session.snapshot.mode === "behavioral" &&
+            route === "mode-action"
+          ? [...BEHAVIORAL_SECTIONS]
         : route === "correction"
           ? active(this.state).sections.map((section) => section.id)
           : ["answer"]
+    const sectionIds =
+      session.snapshot.mode === "coding" && route === "mode-action"
+        ? availableSectionIds(session, proposedSectionIds)
+        : proposedSectionIds
+    if (
+      session.snapshot.mode === "system-design" &&
+      route === "mode-action" &&
+      SYSTEM_DESIGN_SECTIONS.every((sectionId) =>
+        session.sections.some(
+          (section) =>
+            section.id === sectionId &&
+            section.state === "complete" &&
+            section.body.length > 0
+        )
+      )
+    ) {
+      await this.runSystemDesignFollowup(input)
+      return
+    }
+    if (
+      session.snapshot.mode === "coding" &&
+      route === "mode-action" &&
+      session.codingQuestions
+    ) {
+      const currentBranch = session.codingQuestions.branches.find(
+        (branch) => branch.id === session.codingQuestions?.currentBranchId
+      )
+      if (currentBranch && currentBranch.question.trim().length === 0) {
+        await this.dispatch({
+          type: "coding-question-defined",
+          branchId: currentBranch.id,
+          question: input
+        })
+      }
+    }
     const requestId = this.id()
     if (route !== "correction") {
       await this.dispatch({
@@ -268,7 +408,14 @@ export class InterviewOrchestrator {
         sectionIds
       })
     }
-    await this.runStructuredTurn(requestId, route, input, sectionIds)
+    await this.runStructuredTurn(
+      requestId,
+      route,
+      input,
+      sectionIds,
+      codingIntent,
+      requestedArtifactIds
+    )
   }
 
   async cancel(requestId: string): Promise<void> {
@@ -422,32 +569,74 @@ export class InterviewOrchestrator {
     requestId: string,
     route: "mode-action" | "correction",
     input: string,
-    sectionIds: readonly string[]
+    sectionIds: readonly string[],
+    codingIntent?: CodingIntent,
+    evidenceArtifactIds?: readonly string[]
   ): Promise<void> {
     const runtime = this.requireRuntime()
     const turn = this.beginTurn(requestId)
     const correctionPayloads: ReturnType<typeof parseProviderPayload>[] = []
     let sectionEventObserved = false
+    const typedModeSectionIds = new Set<string>()
+    const codingSections = new Map<string, string>()
+    let syntheticStoryToSave: BehavioralStory | undefined
+    let behavioralBodyToPublish: string | undefined
     try {
       const attempt = await this.prepareContext(runtime)
       const bestEffort = deriveBestEffortDecision(active(this.state), input)
+      const session = active(this.state)
+      const request =
+        session.snapshot.mode === "coding" && route === "mode-action"
+          ? buildCodingProviderRequest({
+              session,
+              intent: codingIntent,
+              requestId,
+              input,
+              evidenceArtifactIds,
+              sectionIds
+            })
+          : session.snapshot.mode === "system-design" &&
+              route === "mode-action"
+            ? buildSystemDesignRequest(
+                session,
+                requestId,
+                input,
+                bestEffort,
+                sectionIds,
+                JSON.parse(serializeContextPacket(attempt.packet))
+              )
+          : session.snapshot.mode === "behavioral" &&
+              route === "mode-action"
+            ? buildBehavioralRequest(
+                session,
+                requestId,
+                input,
+                sectionIds
+              )
+          : {
+              route,
+              requestId,
+              sectionIds,
+              input,
+              context: JSON.parse(serializeContextPacket(attempt.packet)),
+              evidenceAuthority: resolveEvidenceAuthority(
+                session.artifacts
+              ).authority,
+              bestEffort
+            }
       const result = await runtime.provider.runTurn(
-        JSON.stringify({
-          route,
-          requestId,
-          sectionIds,
-          input,
-          context: JSON.parse(serializeContextPacket(attempt.packet)),
-          evidenceAuthority: resolveEvidenceAuthority(
-            active(this.state).artifacts
-          ).authority,
-          bestEffort
-        }),
+        JSON.stringify(request),
         turn.controller.signal,
         async (event) => {
           await this.acceptProviderEvent(runtime, turn)
           if (!this.isCurrent(turn) || turn.controller.signal.aborted) return
-          if (event.type === "text-delta" && route !== "correction") {
+          if (
+            event.type === "text-delta" &&
+            route !== "correction" &&
+            !codingIntent &&
+            session.snapshot.mode !== "system-design" &&
+            session.snapshot.mode !== "behavioral"
+          ) {
             const sectionId = sectionIds[0]
             if (sectionId && event.text.length > 0) {
               sectionEventObserved = true
@@ -461,15 +650,64 @@ export class InterviewOrchestrator {
             }
           }
           if (event.type !== "typed-payload") return
+          if (
+            session.snapshot.mode === "behavioral" &&
+            route === "mode-action"
+          ) {
+            const behavioral = parseBehavioralProviderPayload(event.payload)
+            if (!behavioral) {
+              throw new Error("Behavioral response must use one fact object")
+            }
+            const admitted = admitBehavioralPayload(session, behavioral)
+            if (behavioralBodyToPublish !== undefined) {
+              throw new Error("Behavioral response contained multiple fact objects")
+            }
+            if (admitted.story.status === "synthetic-draft") {
+              syntheticStoryToSave = admitted.story
+            }
+            behavioralBodyToPublish = behavioralFactBody(admitted)
+            return
+          }
           const payload = parseProviderPayload(event.payload)
           if (!payload) return
           correctionPayloads.push(payload)
           if (route === "correction" || payload.kind !== "structured") return
+          if (
+            session.snapshot.mode === "system-design" &&
+            route === "mode-action"
+          ) {
+            for (const section of payload.sections) {
+              validateSystemDesignSection(section.id, section.body)
+            }
+          }
           for (const section of payload.sections) {
             if (!sectionIds.includes(section.id)) {
               throw new Error("Provider returned an undeclared section")
             }
             if (section.body.length > 0) {
+              if (codingIntent) {
+                if (codingSections.has(section.id)) {
+                  throw new Error(
+                    "Coding response repeated an already delivered section"
+                  )
+                }
+                codingSections.set(section.id, section.body)
+              }
+              if (
+                codingIntent === "debug" &&
+                !validFixSection(section.id, section.body)
+              ) {
+                throw new Error("Coding Debug returned an invalid Fix card")
+              }
+              if (
+                codingIntent ||
+                (session.snapshot.mode === "system-design" &&
+                  route === "mode-action") ||
+                (session.snapshot.mode === "behavioral" &&
+                  route === "mode-action")
+              ) {
+                typedModeSectionIds.add(section.id)
+              }
               sectionEventObserved = true
               await this.dispatch({
                 type: "section-delta",
@@ -492,7 +730,43 @@ export class InterviewOrchestrator {
         await this.contextFailed(failure ?? "Provider did not accept the turn")
         throw new Error(failure ?? "Provider did not accept the turn")
       }
+      if (codingIntent) {
+        const errors = validateCodingSections(
+          codingIntent,
+          session.snapshot.language,
+          [...codingSections].map(([id, body]) => ({ id, body }))
+        )
+        if (errors.length > 0) {
+          throw new Error(errors.join("; "))
+        }
+      }
+      if (
+        session.snapshot.mode === "behavioral" &&
+        route === "mode-action" &&
+        behavioralBodyToPublish === undefined
+      ) {
+        throw new Error("Behavioral response did not contain one fact object")
+      }
+      if (syntheticStoryToSave) {
+        if (!this.options.saveSyntheticStory) {
+          throw new Error("Synthetic story persistence is unavailable")
+        }
+        await this.options.saveSyntheticStory(syntheticStoryToSave)
+      }
       await this.commitContext(runtime, attempt.attemptId, result.events)
+      if (behavioralBodyToPublish !== undefined) {
+        for (const sectionId of sectionIds) {
+          typedModeSectionIds.add(sectionId)
+          sectionEventObserved = true
+          await this.dispatch({
+            type: "section-delta",
+            requestId,
+            sectionId,
+            delta: behavioralBodyToPublish,
+            complete: true
+          })
+        }
+      }
       if (route === "correction") {
         const correction = correctionPayloads.find(
           (payload) => payload?.kind === "correction"
@@ -531,6 +805,16 @@ export class InterviewOrchestrator {
       if (!sectionEventObserved) {
         throw new Error("Provider response did not contain usable output")
       }
+      if (
+        (codingIntent ||
+          (session.snapshot.mode === "system-design" &&
+            route === "mode-action") ||
+          (session.snapshot.mode === "behavioral" &&
+            route === "mode-action")) &&
+        sectionIds.some((sectionId) => !typedModeSectionIds.has(sectionId))
+      ) {
+        throw new Error("Mode response did not satisfy its typed section contract")
+      }
       const current = active(this.state)
       for (const sectionId of sectionIds) {
         const section = current.sections.find(
@@ -546,6 +830,112 @@ export class InterviewOrchestrator {
       }
     } finally {
       this.turns.delete(requestId)
+    }
+  }
+
+  private async runSystemDesignFollowup(input: string): Promise<void> {
+    const runtime = this.requireRuntime()
+    const turnId = this.id()
+    const turn = this.beginTurn(turnId)
+    try {
+      const attempt = await this.prepareContext(runtime)
+      const session = active(this.state)
+      const result = await runtime.provider.runTurn(
+        JSON.stringify({
+          route: "system-design-followup",
+          requestId: turnId,
+          input,
+          currentSections: session.sections
+            .filter((section) =>
+              SYSTEM_DESIGN_SECTIONS.includes(
+                section.id as (typeof SYSTEM_DESIGN_SECTIONS)[number]
+              )
+            )
+            .map(({ id, body }) => ({ id, body })),
+          context: JSON.parse(serializeContextPacket(attempt.packet)),
+          contract: {
+            changedSectionsOnly: true,
+            requireWhatChangedPerSection: true,
+            preserveUnaffectedBytes: true,
+            tools: [] as const
+          }
+        }),
+        turn.controller.signal,
+        async () => this.acceptProviderEvent(runtime, turn)
+      )
+      if (!this.isCurrent(turn)) return
+      const failure = providerFailure(result.events)
+      if (!acceptedCompletion(result.events)) {
+        await this.contextFailed(
+          failure ??
+            (turn.controller.signal.aborted
+              ? "Provider turn cancelled"
+              : "Provider did not accept the turn")
+        )
+        if (!turn.controller.signal.aborted) {
+          throw new Error(failure ?? "Provider did not accept the turn")
+        }
+        return
+      }
+      const payload = result.events
+        .filter(
+          (event): event is Extract<ProviderEvent, { type: "typed-payload" }> =>
+            event.type === "typed-payload"
+        )
+        .map((event) => parseProviderPayload(event.payload))
+        .find((candidate) => candidate?.kind === "system-design-followup")
+      if (!payload || payload.kind !== "system-design-followup") {
+        throw new Error("System Design follow-up payload is invalid")
+      }
+      if (
+        payload.impactedSectionIds.length !== payload.sections.length ||
+        payload.impactedSectionIds.length !== payload.whatChanged.length ||
+        payload.impactedSectionIds.some(
+          (id, index) =>
+            payload.sections[index]?.id !== id ||
+            !SYSTEM_DESIGN_SECTIONS.includes(
+              id as (typeof SYSTEM_DESIGN_SECTIONS)[number]
+            )
+        )
+      ) {
+        throw new Error("System Design follow-up impact is incomplete")
+      }
+      for (const section of payload.sections) {
+        validateSystemDesignSection(section.id, section.body)
+      }
+      const replacements = Object.fromEntries(
+        payload.sections.map((section) => [section.id, section.body])
+      )
+      const impact = applySystemDesignFollowup(
+        session.sections,
+        payload.impactedSectionIds,
+        replacements,
+        payload.whatChanged
+      )
+      const changedSectionIds = payload.impactedSectionIds.filter(
+        (id) => impact.before[id] !== impact.after[id]
+      )
+      if (changedSectionIds.length === 0) {
+        throw new Error("System Design follow-up did not change a section")
+      }
+      await this.commitContext(runtime, attempt.attemptId, result.events)
+      await this.dispatch({
+        type: "sections-corrected",
+        replacements: Object.fromEntries(
+          changedSectionIds.map((id) => [id, replacements[id]])
+        ),
+        changedSectionIds
+      })
+      await this.dispatch({
+        type: "compact-exchange-added",
+        exchange: {
+          id: this.id(),
+          prompt: input,
+          answer: `What changed: ${payload.whatChanged.join(" ")}`
+        }
+      })
+    } finally {
+      this.turns.delete(turnId)
     }
   }
 

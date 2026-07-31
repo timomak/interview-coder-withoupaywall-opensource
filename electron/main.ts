@@ -10,6 +10,8 @@ import fs from "node:fs"
 import path from "node:path"
 import { initAutoUpdater } from "./autoUpdater"
 import {
+  applyCaptureProtection,
+  applyPointerRouting,
   createCaptureProtectedWindow,
   revealCaptureProtectedWindow
 } from "./captureProtection"
@@ -28,6 +30,8 @@ import {
   InstallationKeyService,
   StoragePaths
 } from "./storage"
+import { ProfileRepository } from "./profile/ProfileRepository"
+import type { ProfileBundle } from "../src/features/profile/types"
 import type {
   M04ActiveSnapshot
 } from "./orchestrator"
@@ -36,11 +40,21 @@ import { INTERVIEW_STATE_EVENT } from "../src/shared/interview"
 import { createWindowOpenHandler } from "./windowOpenPolicy"
 import { ScreenshotHelper } from "./ScreenshotHelper"
 import { ShortcutsHelper } from "./shortcuts"
+import { clampWindowBounds } from "./window/displayGeometry"
+import { DisplayGeometryStore } from "./window/displayGeometry"
+import { ComposerVisibilityController } from "./window/composerVisibility"
 import type {
   ProviderDiagnostics,
   ProviderId,
   ResponseMode
 } from "../src/shared/provider"
+import {
+  DEFAULT_SHORTCUT_BINDINGS,
+  DEFAULT_LIVE_SHELL_PREFERENCES,
+  type HudState,
+  type ShortcutAction,
+  type ShortcutBindings
+} from "../src/shared/shell"
 
 const isDevelopment = process.env.NODE_ENV === "development"
 
@@ -56,9 +70,82 @@ const state = {
   step: 60
 }
 
+let currentHudState: HudState = "compact-bar"
+let geometryStore = new DisplayGeometryStore()
+const composerVisibility = new ComposerVisibilityController()
+let geometryPersistTimer: NodeJS.Timeout | undefined
+
+function availableDisplayGeometry() {
+  return screen.getAllDisplays().map((display) => ({
+    id: String(display.id),
+    workArea: display.workArea
+  }))
+}
+
+function defaultBoundsFor(stateName: HudState) {
+  const config = configHelper.loadConfig()
+  const comfortable = config.shell?.density === "comfortable"
+  const height = comfortable ? 52 : 44
+  if (stateName === "compact-bar") {
+    return { x: state.currentX, y: state.currentY, width: 520, height }
+  }
+  if (stateName === "compact-answer") {
+    return { x: state.currentX, y: state.currentY, width: 520, height: 480 }
+  }
+  return { x: state.currentX, y: state.currentY, width: 760, height: 600 }
+}
+
+function rememberCurrentGeometry(): void {
+  const mainWindow = state.mainWindow
+  if (!mainWindow || mainWindow.isDestroyed()) return
+  const bounds = mainWindow.getBounds()
+  const displayId = String(screen.getDisplayMatching(bounds).id)
+  geometryStore.remember(displayId, currentHudState, bounds)
+}
+
+function persistGeometry(): void {
+  rememberCurrentGeometry()
+  const config = configHelper.loadConfig()
+  configHelper.updateConfig({
+    shell: {
+      ...(config.shell ?? DEFAULT_LIVE_SHELL_PREFERENCES),
+      geometry: geometryStore.snapshot()
+    }
+  })
+}
+
+function scheduleGeometryPersistence(): void {
+  if (geometryPersistTimer) clearTimeout(geometryPersistTimer)
+  geometryPersistTimer = setTimeout(() => {
+    geometryPersistTimer = undefined
+    persistGeometry()
+  }, 200)
+}
+
+function setHudState(nextState: HudState): void {
+  const mainWindow = state.mainWindow
+  if (!mainWindow || mainWindow.isDestroyed()) return
+  rememberCurrentGeometry()
+  currentHudState = nextState
+  const currentBounds = mainWindow.getBounds()
+  const currentDisplay = screen.getDisplayMatching(currentBounds)
+  const restored = geometryStore.resolve(
+    String(currentDisplay.id),
+    nextState,
+    defaultBoundsFor(nextState),
+    availableDisplayGeometry()
+  )
+  applyCaptureProtection(mainWindow)
+  mainWindow.setResizable(nextState === "expanded")
+  mainWindow.setMinimumSize(320, nextState === "compact-bar" ? 44 : 80)
+  mainWindow.setBounds(restored)
+  persistGeometry()
+}
+
 function focusMainWindow(mainWindow: BrowserWindow): void {
   revealCaptureProtectedWindow(mainWindow, (protectedWindow) => {
     if (protectedWindow.isMinimized()) protectedWindow.restore()
+    if (!protectedWindow.isVisible()) protectedWindow.showInactive()
     protectedWindow.focus()
   })
 }
@@ -78,10 +165,10 @@ function createWindow(): void {
   state.screenWidth = workArea.width
   state.screenHeight = workArea.height
   const options: BrowserWindowConstructorOptions = {
-    width: 800,
-    height: 600,
-    minWidth: 750,
-    minHeight: 550,
+    width: 520,
+    height: 44,
+    minWidth: 320,
+    minHeight: 44,
     x: 0,
     y: 50,
     alwaysOnTop: true,
@@ -89,6 +176,7 @@ function createWindow(): void {
     frame: false,
     transparent: true,
     fullscreenable: false,
+    resizable: false,
     hasShadow: false,
     skipTaskbar: true,
     type: "panel",
@@ -108,8 +196,7 @@ function createWindow(): void {
   )
   state.mainWindow = mainWindow
   mainWindow.once("ready-to-show", () => {
-    showMainWindowInactive(mainWindow)
-    state.visible = true
+    state.visible = false
   })
   mainWindow.on("closed", () => {
     state.mainWindow = null
@@ -119,11 +206,15 @@ function createWindow(): void {
     const [x, y] = mainWindow.getPosition()
     state.currentX = x
     state.currentY = y
+    rememberCurrentGeometry()
+    scheduleGeometryPersistence()
   })
   mainWindow.on("resize", () => {
     const [width, height] = mainWindow.getSize()
     state.windowWidth = width
     state.windowHeight = height
+    rememberCurrentGeometry()
+    scheduleGeometryPersistence()
   })
   if (isDevelopment) {
     void mainWindow.loadURL("http://localhost:54321")
@@ -165,25 +256,29 @@ function showMainWindow(): void {
 function moveWindowHorizontal(delta: number): void {
   const mainWindow = state.mainWindow
   if (!mainWindow) return
-  const minimum = -state.windowWidth / 2
-  const maximum = state.screenWidth - state.windowWidth / 2
-  state.currentX = Math.max(
-    minimum,
-    Math.min(maximum, state.currentX + delta)
+  const bounds = mainWindow.getBounds()
+  const workArea = screen.getDisplayMatching(bounds).workArea
+  const next = clampWindowBounds(
+    { ...bounds, x: bounds.x + delta },
+    workArea
   )
-  mainWindow.setPosition(Math.round(state.currentX), Math.round(state.currentY))
+  state.currentX = next.x
+  state.currentY = next.y
+  mainWindow.setBounds(next)
 }
 
 function moveWindowVertical(delta: number): void {
   const mainWindow = state.mainWindow
   if (!mainWindow) return
-  const minimum = -(state.windowHeight * 2) / 3
-  const maximum = state.screenHeight - state.windowHeight / 3
-  state.currentY = Math.max(
-    minimum,
-    Math.min(maximum, state.currentY + delta)
+  const bounds = mainWindow.getBounds()
+  const workArea = screen.getDisplayMatching(bounds).workArea
+  const next = clampWindowBounds(
+    { ...bounds, y: bounds.y + delta },
+    workArea
   )
-  mainWindow.setPosition(Math.round(state.currentX), Math.round(state.currentY))
+  state.currentX = next.x
+  state.currentY = next.y
+  mainWindow.setBounds(next)
 }
 
 function setWindowDimensions(width: number, height: number): void {
@@ -197,10 +292,22 @@ function setWindowDimensions(width: number, height: number): void {
   ) {
     return
   }
-  mainWindow.setBounds({
-    width: Math.min(Math.ceil(width), state.screenWidth),
-    height: Math.min(Math.ceil(height), state.screenHeight)
-  })
+  if (currentHudState === "expanded") return
+  const bounds = mainWindow.getBounds()
+  const workArea = screen.getDisplayMatching(bounds).workArea
+  mainWindow.setBounds(
+    clampWindowBounds(
+      {
+        ...bounds,
+        width: Math.ceil(width),
+        height: Math.min(
+          Math.ceil(height),
+          currentHudState === "compact-bar" ? 52 : workArea.height * 0.75
+        )
+      },
+      workArea
+    )
+  )
 }
 
 function executableFromEnvironment(
@@ -242,7 +349,8 @@ async function providerDiagnostics(
 
 function createOrchestrator(
   executables: ProviderExecutables,
-  repository: ActiveSessionRepository
+  repository: ActiveSessionRepository,
+  profiles: ProfileRepository
 ): InterviewOrchestrator {
   const providerRuntime = new ProviderRuntime({
     executables
@@ -285,6 +393,19 @@ function createOrchestrator(
         diagnostics.supported
       )
     },
+    saveSyntheticStory: async (story) => {
+      const bundle = await profiles.load()
+      const syntheticStories = [
+        ...(bundle.syntheticStories ?? []).filter(
+          (candidate) => candidate.id !== story.id
+        ),
+        {
+          ...story,
+          status: "synthetic-draft" as const
+        }
+      ]
+      await profiles.save({ ...bundle, syntheticStories })
+    },
     onState: (session) => {
       state.mainWindow?.webContents.send(INTERVIEW_STATE_EVENT, session)
     }
@@ -295,6 +416,10 @@ async function initializeApplication(): Promise<void> {
   const userData = path.join(app.getPath("appData"), "InterviewCopilot")
   app.setPath("userData", userData)
   const executables = providerExecutables()
+  const initialConfig = configHelper.loadConfig()
+  geometryStore = new DisplayGeometryStore(
+    initialConfig.shell?.geometry ?? {}
+  )
   const storagePaths = new StoragePaths(path.join(userData, "encrypted"))
   const keyService = new InstallationKeyService(
     storagePaths,
@@ -303,9 +428,18 @@ async function initializeApplication(): Promise<void> {
   const records = new EncryptedRecordRepository<
     M04ActiveSnapshot | ResetArchive
   >(storagePaths, keyService)
+  const profiles = new ProfileRepository(
+    new EncryptedRecordRepository<ProfileBundle>(
+      storagePaths,
+      keyService,
+      undefined,
+      "profiles"
+    )
+  )
   const orchestrator = createOrchestrator(
     executables,
-    new ActiveSessionRepository(records)
+    new ActiveSessionRepository(records),
+    profiles
   )
   createWindow()
   const screenshots = new ScreenshotHelper(
@@ -314,34 +448,152 @@ async function initializeApplication(): Promise<void> {
       keyService,
       undefined,
       "screenshots"
-    )
+    ),
+    {
+      primaryDisplayId: () => screen.getPrimaryDisplay().id
+    }
   )
   const capture = new InterviewCaptureController(
     orchestrator,
     screenshots,
     hideMainWindow,
-    showMainWindow
+    showMainWindow,
+    undefined,
+    () => state.visible
   )
+  const invokeShellAction = (action: ShortcutAction): void => {
+    switch (action) {
+      case "visibility":
+        toggleMainWindow()
+        return
+      case "screenshot":
+        void capture.capture()
+        return
+      case "debug":
+        void capture.debugCurrentCode()
+        return
+      case "submit":
+        state.mainWindow?.webContents.send("shell:shortcut", action)
+        return
+      case "reset":
+        void capture.reset()
+        return
+      case "move-left":
+        moveWindowHorizontal(-state.step)
+        return
+      case "move-right":
+        moveWindowHorizontal(state.step)
+        return
+      case "move-up":
+        moveWindowVertical(-state.step)
+        return
+      case "move-down":
+        moveWindowVertical(state.step)
+        return
+      default:
+        if (action === "composer") {
+          const transition = composerVisibility.open(state.visible)
+          if (transition.reveal) showMainWindow()
+        }
+        state.mainWindow?.webContents.send("shell:shortcut", action)
+    }
+  }
+  const configuredShortcuts =
+    configHelper.loadConfig().shell?.shortcuts ?? DEFAULT_SHORTCUT_BINDINGS
   const shortcuts = new ShortcutsHelper({
-    getMainWindow: () => state.mainWindow,
-    captureScreenshot: () => capture.capture(),
-    submitSelectedEvidence: () => capture.submitSelectedEvidence(),
-    resetInterview: async () => {
-      await capture.reset()
-    },
-    excludeLastScreenshot: () => capture.excludeLastScreenshot(),
-    isVisible: () => state.visible,
-    toggleMainWindow,
-    moveWindowLeft: () => moveWindowHorizontal(-state.step),
-    moveWindowRight: () => moveWindowHorizontal(state.step),
-    moveWindowUp: () => moveWindowVertical(-state.step),
-    moveWindowDown: () => moveWindowVertical(state.step)
-  })
-  shortcuts.registerGlobalShortcuts()
+    invoke: invokeShellAction
+  }, configuredShortcuts)
+  const initialShortcutRegistration = shortcuts.registerGlobalShortcuts()
+  if (!initialShortcutRegistration.ok) {
+    state.mainWindow?.once("ready-to-show", () => {
+      showMainWindow()
+      state.mainWindow?.webContents.send(
+        "shell:startup-warning",
+        `Global shortcut unavailable: ${initialShortcutRegistration.rejectedAccelerator ?? "unknown"}. Every action remains available in HotKeys.`
+      )
+    })
+  }
+  const applyShortcutBindings = (bindings: ShortcutBindings) => {
+    const previous = shortcuts.currentBindings()
+    const result = shortcuts.applyBindings(bindings)
+    if (result.ok) {
+      try {
+        const config = configHelper.loadConfig()
+        configHelper.updateConfig({
+          shell: {
+            ...(config.shell ?? DEFAULT_LIVE_SHELL_PREFERENCES),
+            shortcuts: result.bindings
+          }
+        })
+      } catch (error) {
+        const rollback = shortcuts.applyBindings(previous)
+        if (!rollback.ok) {
+          throw new Error("Shortcut persistence failed and rollback was unavailable")
+        }
+        throw error
+      }
+    }
+    return result
+  }
   initializeIpcHandlers({
     orchestrator,
     setWindowDimensions,
     toggleMainWindow,
+    captureScreenshot: () => capture.capture(),
+    debugCurrentCode: () => capture.debugCurrentCode(),
+    getProfileContext: async () => {
+      const bundle = await profiles.load()
+      const context = []
+      if (bundle.dossier?.status === "reviewed") {
+        context.push({
+          id: `candidate-dossier:${bundle.dossier.revision}`,
+          category: "profile" as const,
+          revision: bundle.dossier.revision,
+          content: JSON.stringify({
+            markdown: bundle.dossier.markdown,
+            claims: bundle.dossier.claims
+          })
+        })
+      }
+      const opportunity = bundle.opportunities.find(
+        (candidate) => candidate.id === bundle.activeOpportunityId
+      )
+      if (opportunity) {
+        context.push({
+          id: `opportunity:${opportunity.id}`,
+          category: "opportunity" as const,
+          revision: opportunity.revision,
+          content: opportunity.markdown
+        })
+      }
+      if (bundle.syntheticEnabled) {
+        context.push({
+          id: "synthetic-story-policy",
+          category: "instructions" as const,
+          revision: 1,
+          content: "Synthetic Behavioral drafts are enabled and must be labeled synthetic-draft."
+        })
+      }
+      return context
+    },
+    getProfileBundle: () => profiles.load(),
+    saveProfileBundle: (bundle) => profiles.save(bundle),
+    importProfileMarkdown: (source) => profiles.importMarkdown(source),
+    exportDossier: (destination) => profiles.exportDossier(destination),
+    setWindowPointerEvents: (ignore, forward) => {
+      if (state.mainWindow) {
+        applyPointerRouting(state.mainWindow, ignore, forward)
+      }
+    },
+    setHudState,
+    closeComposer: () => {
+      if (composerVisibility.close().hide) hideMainWindow()
+    },
+    getShortcutBindings: () => shortcuts.currentBindings(),
+    updateShortcutBindings: applyShortcutBindings,
+    resetShortcutBindings: () =>
+      applyShortcutBindings(DEFAULT_SHORTCUT_BINDINGS),
+    invokeShellAction,
     diagnoseProviders: () => providerDiagnostics(executables),
     resetInterview: () => capture.reset(),
     configureProvider: async (
@@ -366,6 +618,9 @@ async function initializeApplication(): Promise<void> {
       state.mainWindow?.webContents.send("settings:show")
   })
   await orchestrator.inspectRecovery()
+  screen.on("display-removed", () => setHudState(currentHudState))
+  screen.on("display-metrics-changed", () => setHudState(currentHudState))
+  app.on("before-quit", persistGeometry)
   initAutoUpdater()
   configHelper.loadConfig()
 }

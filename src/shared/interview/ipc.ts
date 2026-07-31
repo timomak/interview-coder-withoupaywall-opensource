@@ -5,6 +5,7 @@ import {
   StartSnapshot
 } from "./types"
 import { isProviderId } from "../provider"
+import { isCodingIntent } from "../../features/coding/types"
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value)
@@ -107,14 +108,26 @@ export function parseInterviewCommand(value: unknown): InterviewCommand {
       }
     case "submit":
       if (
-        !hasOnlyKeys(value, ["type", "route", "input", "sectionIds"]) ||
+        !hasOnlyKeys(value, [
+          "type",
+          "route",
+          "input",
+          "sectionIds",
+          "codingIntent",
+          "artifactIds"
+        ]) ||
         !["mode-action", "chat", "clarification", "correction"].includes(
           String(value.route)
         ) ||
         typeof value.input !== "string" ||
+        (value.codingIntent !== undefined &&
+          !isCodingIntent(value.codingIntent)) ||
         (value.sectionIds !== undefined &&
           (!Array.isArray(value.sectionIds) ||
-            !value.sectionIds.every(isString)))
+            !value.sectionIds.every(isString))) ||
+        (value.artifactIds !== undefined &&
+          (!Array.isArray(value.artifactIds) ||
+            !value.artifactIds.every(isString)))
       ) {
         break
       }
@@ -122,7 +135,12 @@ export function parseInterviewCommand(value: unknown): InterviewCommand {
         type: "submit",
         route: value.route as Extract<InterviewCommand, { type: "submit" }>["route"],
         input: value.input,
-        sectionIds: value.sectionIds as readonly string[] | undefined
+        sectionIds: value.sectionIds as readonly string[] | undefined,
+        codingIntent: value.codingIntent as Extract<
+          InterviewCommand,
+          { type: "submit" }
+        >["codingIntent"],
+        artifactIds: value.artifactIds as readonly string[] | undefined
       }
     case "cancel":
     case "continue":
@@ -137,6 +155,14 @@ export function parseInterviewCommand(value: unknown): InterviewCommand {
     case "resume":
       if (!hasOnlyKeys(value, ["type"])) break
       return { type: value.type }
+    case "new-coding-question":
+      if (
+        !hasOnlyKeys(value, ["type", "question"]) ||
+        typeof value.question !== "string"
+      ) {
+        break
+      }
+      return { type: value.type, question: value.question }
   }
   throw new Error("Malformed interview command")
 }

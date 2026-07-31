@@ -14,6 +14,12 @@ import {
 } from "../ui/dialog"
 import { Button } from "../ui/button"
 import { useToast } from "../../contexts/toast"
+import type {
+  DensityPreference,
+  LiveShellPreferences,
+  TextSizePreference
+} from "../../shared/shell"
+import { ProfileSettings } from "../../features/profile"
 
 interface SettingsDialogProps {
   open?: boolean
@@ -25,11 +31,15 @@ interface ProviderConfigBridge {
     provider?: ProviderId
     model?: string
     responseMode?: ResponseMode
+    shell?: LiveShellPreferences
   }>
   configureProvider(config: {
     provider: ProviderId
     model: string
     responseMode: ResponseMode
+  }): Promise<unknown>
+  updateConfig(config: {
+    shell: LiveShellPreferences
   }): Promise<unknown>
 }
 
@@ -44,6 +54,10 @@ export function SettingsDialog({
   )
   const [responseMode, setResponseMode] = useState<ResponseMode>("fast")
   const [isLoading, setIsLoading] = useState(false)
+  const [density, setDensity] = useState<DensityPreference>("compact")
+  const [textSize, setTextSize] = useState<TextSizePreference>("default")
+  const [shellPreferences, setShellPreferences] =
+    useState<LiveShellPreferences | null>(null)
   const { showToast } = useToast()
   const bridge = window.electronAPI as unknown as ProviderConfigBridge
 
@@ -66,6 +80,11 @@ export function SettingsDialog({
             : capabilities.models[0]
         )
         setResponseMode(config.responseMode ?? "fast")
+        if (config.shell) {
+          setShellPreferences(config.shell)
+          setDensity(config.shell.density)
+          setTextSize(config.shell.textSize)
+        }
       })
       .catch(() =>
         showToast("Settings unavailable", "Could not load provider settings", "error")
@@ -87,6 +106,11 @@ export function SettingsDialog({
     setIsLoading(true)
     try {
       await bridge.configureProvider({ provider, model, responseMode })
+      if (shellPreferences) {
+        await bridge.updateConfig({
+          shell: { ...shellPreferences, density, textSize }
+        })
+      }
       showToast("Saved", "Provider settings apply to the next interview", "success")
       changeOpen(false)
     } catch {
@@ -117,6 +141,37 @@ export function SettingsDialog({
                   onChange={() => changeProvider(candidate)}
                 />
                 {candidate === "claude-code" ? "Claude Code" : "Codex"}
+              </label>
+            ))}
+          </fieldset>
+          <ProfileSettings />
+          <fieldset>
+            <legend className="mb-2 text-sm font-medium">HUD density</legend>
+            {(["compact", "comfortable"] as const).map((value) => (
+              <label key={value} className="mr-4 inline-flex gap-2">
+                <input
+                  type="radio"
+                  checked={density === value}
+                  onChange={() => setDensity(value)}
+                />
+                {value === "compact" ? "Compact" : "Comfortable"}
+              </label>
+            ))}
+          </fieldset>
+          <fieldset>
+            <legend className="mb-2 text-sm font-medium">Text size</legend>
+            {(["small", "default", "large"] as const).map((value) => (
+              <label key={value} className="mr-4 inline-flex gap-2">
+                <input
+                  type="radio"
+                  checked={textSize === value}
+                  onChange={() => setTextSize(value)}
+                />
+                {value === "default"
+                  ? "Default"
+                  : value === "small"
+                    ? "Small"
+                    : "Large"}
               </label>
             ))}
           </fieldset>

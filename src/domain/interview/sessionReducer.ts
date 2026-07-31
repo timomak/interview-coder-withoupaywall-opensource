@@ -7,6 +7,7 @@ import {
   ResponseRequest,
   ResponseSection
 } from "../../shared/interview"
+import { personalContextForMode } from "../../features/profile/routing"
 
 export type RejectionReason =
   | "duplicate-event"
@@ -135,8 +136,33 @@ function activeReduction(
         state: advance(state, event, {
           artifacts: [
             ...state.artifacts,
-            { ...event.artifact, selected: true, submitted: false }
-          ]
+            {
+              ...event.artifact,
+              selected: true,
+              submitted: false,
+              codingBranchId:
+                event.artifact.kind === "screenshot"
+                  ? state.codingQuestions?.currentBranchId
+                  : undefined
+            }
+          ],
+          codingQuestions:
+            event.artifact.kind === "screenshot" && state.codingQuestions
+              ? {
+                  ...state.codingQuestions,
+                  branches: state.codingQuestions.branches.map((branch) =>
+                    branch.id === state.codingQuestions?.currentBranchId
+                      ? {
+                          ...branch,
+                          screenshotArtifactIds: [
+                            ...branch.screenshotArtifactIds,
+                            event.artifact.id
+                          ]
+                        }
+                      : branch
+                  )
+                }
+              : state.codingQuestions
         })
       }
     }
@@ -223,7 +249,87 @@ function activeReduction(
               body: "",
               state: "partial" as const
             }))
-          ]
+          ],
+          codingQuestions: state.codingQuestions
+            ? {
+                ...state.codingQuestions,
+                branches: state.codingQuestions.branches.map((branch) =>
+                  branch.id === state.codingQuestions?.currentBranchId
+                    ? {
+                        ...branch,
+                        sectionIds: [...branch.sectionIds, ...sectionIds]
+                      }
+                    : branch
+                )
+              }
+            : undefined
+        })
+      }
+    }
+    case "coding-question-started": {
+      if (
+        state.snapshot.mode !== "coding" ||
+        !state.codingQuestions ||
+        !event.branchId ||
+        state.codingQuestions.branches.some(
+          (branch) => branch.id === event.branchId
+        )
+      ) {
+        return reject(state, "invalid-transition")
+      }
+      return {
+        accepted: true,
+        state: advance(state, event, {
+          codingQuestions: {
+            currentBranchId: event.branchId,
+            chronology: [
+              ...state.codingQuestions.chronology,
+              event.branchId
+            ],
+            branches: [
+              ...state.codingQuestions.branches.map((branch) =>
+                branch.id === state.codingQuestions?.currentBranchId
+                  ? { ...branch, closedAt: event.at }
+                  : branch
+              ),
+              {
+                id: event.branchId,
+                question: event.question,
+                startedAt: event.at,
+                sectionIds: [],
+                screenshotArtifactIds: []
+              }
+            ]
+          }
+        })
+      }
+    }
+    case "coding-question-defined": {
+      if (
+        state.snapshot.mode !== "coding" ||
+        !state.codingQuestions ||
+        event.branchId !== state.codingQuestions.currentBranchId ||
+        event.question.trim().length === 0
+      ) {
+        return reject(state, "invalid-transition")
+      }
+      const current = state.codingQuestions.branches.find(
+        (branch) => branch.id === event.branchId
+      )
+      if (!current || current.question.trim().length > 0) {
+        return reject(state, "invalid-transition")
+      }
+      return {
+        accepted: true,
+        state: advance(state, event, {
+          codingQuestions: {
+            ...state.codingQuestions,
+            branches: state.codingQuestions.branches.map((branch) =>
+              branch.id === event.branchId
+                ? { ...branch, question: event.question.trim() }
+                : branch
+            )
+          }
         })
       }
     }
@@ -433,13 +539,10 @@ export function reduceInterviewSession(
       event.sequence < 1 ? "stale-event" : "out-of-order-event"
     )
   }
-  const context =
-    event.snapshot.mode === "coding"
-      ? event.snapshot.context.filter(
-          (item) =>
-            item.category !== "profile" && item.category !== "opportunity"
-        )
-      : [...event.snapshot.context]
+  const context = personalContextForMode(
+    event.snapshot.mode,
+    event.snapshot.context
+  )
   return {
     accepted: true,
     state: {
@@ -461,7 +564,23 @@ export function reduceInterviewSession(
       sections: [],
       requests: [],
       compactExchanges: [],
-      captureActive: false
+      captureActive: false,
+      codingQuestions:
+        event.snapshot.mode === "coding"
+          ? {
+              currentBranchId: "coding-question-1",
+              chronology: ["coding-question-1"],
+              branches: [
+                {
+                  id: "coding-question-1",
+                  question: "",
+                  startedAt: event.at,
+                  sectionIds: [],
+                  screenshotArtifactIds: []
+                }
+              ]
+            }
+          : undefined
     }
   }
 }

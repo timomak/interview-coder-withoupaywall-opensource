@@ -52,6 +52,73 @@ const SUITES = {
     "electron/orchestrator/responseRouting.test.ts",
     "electron/orchestrator/bestEffortClarification.test.ts",
     "electron/orchestrator/correctionRevision.test.ts"
+  ],
+  p05: [
+    "electron/window/windowVisibility.test.ts",
+    "electron/window/composerVisibility.test.ts",
+    "electron/window/captureProtection.integration.test.ts",
+    "electron/window/displayGeometry.test.ts",
+    "electron/config/shellPreferencesMigration.test.ts",
+    "electron/shortcuts/shortcutRegistry.test.ts",
+    "electron/capture/primaryDisplayCapture.test.ts",
+    "src/features/shell/CommandRail.test.tsx",
+    "src/features/shell/CompactComposer.test.tsx",
+    "src/features/shell/pointerRegions.test.tsx",
+    "src/features/shell/accessibility.test.tsx",
+    "src/features/shell/navigationShortcuts.test.tsx",
+    "src/features/shell/hudState.test.ts",
+    "src/features/shell/HotKeysPanel.test.tsx"
+  ],
+  p06: [
+    "src/features/coding/codingIntent.test.ts",
+    "src/features/coding/progressiveCodingAnswer.test.tsx",
+    "electron/orchestrator/codingIsolation.test.ts",
+    "src/features/coding/languageSnapshot.test.ts",
+    "tests/fixtures/coding/firstClassQuality.contract.test.ts",
+    "src/features/coding/CodePanel.test.tsx",
+    "electron/orchestrator/codingBranch.test.ts",
+    "src/features/coding/fixCurrentCode.test.ts",
+    "electron/orchestrator/codingDebugFailure.test.ts"
+  ],
+  "coding-fixtures": [
+    "tests/fixtures/coding/firstClassQuality.contract.test.ts"
+  ],
+  p07: [
+    "src/features/system-design/sectionContract.test.tsx",
+    "tests/fixtures/system-design/materialEstimates.contract.test.ts",
+    "src/features/system-design/architectureSchema.test.ts",
+    "src/features/system-design/ArchitectureView.test.tsx",
+    "electron/orchestrator/systemDesignAssumptions.test.ts",
+    "electron/orchestrator/systemDesignFollowup.test.ts",
+    "tests/fixtures/system-design/vendorNeutrality.contract.test.ts",
+    "src/features/system-design/diagramRetention.test.ts"
+  ],
+  "system-design-fixtures": [
+    "tests/fixtures/system-design/materialEstimates.contract.test.ts",
+    "tests/fixtures/system-design/vendorNeutrality.contract.test.ts"
+  ],
+  p08: [
+    "src/features/profile/candidateDossier.test.ts",
+    "electron/storage/profileEncryption.test.ts",
+    "src/features/profile/opportunitySnapshot.test.ts",
+    "electron/orchestrator/personalContextRouting.test.ts",
+    "electron/orchestrator/behavioralFactuality.test.ts",
+    "src/features/behavioral/syntheticStory.test.ts",
+    "src/features/behavioral/factParity.test.ts",
+    "tests/fixtures/behavioral/verifiedClaims.contract.test.ts",
+    "src/features/profile/markdownSafety.test.ts",
+    "src/features/behavioral/liveOnlyBoundary.test.tsx"
+  ],
+  "behavioral-fixtures": [
+    "tests/fixtures/behavioral/verifiedClaims.contract.test.ts"
+  ],
+  "electron-shell": [
+    "electron/window/windowVisibility.test.ts",
+    "electron/window/composerVisibility.test.ts",
+    "electron/window/captureProtection.integration.test.ts",
+    "electron/window/displayGeometry.test.ts",
+    "electron/shortcuts/shortcutRegistry.test.ts",
+    "electron/capture/primaryDisplayCapture.test.ts"
   ]
 }
 const RESULT_PREFIX = "VERIFICATION_COORDINATOR_RESULT "

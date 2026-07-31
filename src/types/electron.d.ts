@@ -10,6 +10,12 @@ import type {
   ProviderId,
   ResponseMode
 } from "../shared/provider"
+import type {
+  ShortcutAction,
+  ShortcutBindings,
+  HudState
+} from "../shared/shell"
+import type { ShortcutRegistrationResult } from "../../electron/shortcuts"
 
 export interface UpdateInfo {
   version?: string
@@ -31,6 +37,17 @@ export interface ElectronAPI {
   }) => Promise<SubscriptionConfig>
   getInterviewState: () => Promise<InterviewSession>
   getInterviewRecovery: () => Promise<RecoveryChoice>
+  getProfileContext: () => Promise<
+    readonly import("../shared/interview").ContextItem[]
+  >
+  getProfileBundle: () => Promise<
+    import("../features/profile/types").ProfileBundle
+  >
+  saveProfileBundle: (
+    bundle: import("../features/profile/types").ProfileBundle
+  ) => Promise<{ success: boolean }>
+  importProfileMarkdown: (source: string) => Promise<string>
+  exportDossier: (destination: string) => Promise<{ success: boolean }>
   dispatchInterviewCommand: (
     command: InterviewCommand
   ) => Promise<CommandResult>
@@ -43,6 +60,28 @@ export interface ElectronAPI {
     width: number
     height: number
   }) => Promise<void>
+  setWindowPointerEvents: (
+    ignore: boolean,
+    forward: boolean
+  ) => Promise<{ success: boolean }>
+  setHudState: (state: HudState) => Promise<{ success: boolean }>
+  captureScreenshot: () => Promise<{ success: boolean }>
+  debugCurrentCode: () => Promise<{ success: boolean }>
+  getShortcutBindings: () => Promise<ShortcutBindings>
+  updateShortcutBindings: (
+    bindings: ShortcutBindings
+  ) => Promise<ShortcutRegistrationResult>
+  resetShortcutBindings: () => Promise<ShortcutRegistrationResult>
+  invokeShellAction: (
+    action: ShortcutAction
+  ) => Promise<{ success: boolean }>
+  closeComposer: () => Promise<{ success: boolean }>
+  onShellShortcut: (
+    callback: (action: ShortcutAction) => void
+  ) => () => void
+  onShellStartupWarning: (
+    callback: (message: string) => void
+  ) => () => void
   toggleMainWindow: () => Promise<{ success: boolean }>
   getPlatform: () => NodeJS.Platform
   startUpdate: () => Promise<{ success: boolean; error?: string }>

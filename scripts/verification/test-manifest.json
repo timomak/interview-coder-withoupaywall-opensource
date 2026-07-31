@@ -425,6 +425,91 @@
       "path": "electron/orchestrator/correctionRevision.test.ts",
       "name": "applies correction-scoped revision without collateral changes",
       "sha256": "815984aa681408252263a61fa48e096d707978aa0ac13e9a7ebb316949ba5897"
+    },
+    {
+      "path": "electron/window/windowVisibility.test.ts",
+      "name": "launches hidden and restores exact HUD state",
+      "sha256": "e4309d5389fff141fff796d8d689dbab6b61d0f1d8d79b2ffa36bf9825e57829"
+    },
+    {
+      "path": "electron/window/composerVisibility.test.ts",
+      "name": "restores the exact hidden or visible origin on close",
+      "sha256": "ebe86ffd293051b046d84c512c662e4d291d166c9154c69948ea389add8b9111"
+    },
+    {
+      "path": "electron/shortcuts/shortcutRegistry.test.ts",
+      "name": "registers remaps and rolls back conflicts atomically",
+      "sha256": "8341538c01bd438ec534aae2e0c7167ae4eaca0aa9c92d1afa694f84647994e5"
+    },
+    {
+      "path": "electron/window/captureProtection.integration.test.ts",
+      "name": "protects before every show and reconfiguration",
+      "sha256": "4dc38203379b296b7fa9a96fcd52f54c8d6967eb4a8a47bdb8a3df324790182e"
+    },
+    {
+      "path": "electron/config/shellPreferencesMigration.test.ts",
+      "name": "adds safe defaults and replaces invalid additive preferences",
+      "sha256": "8a17c1aeb6bf9c1c9690b26531a2b9e3c4583fd3b2a770d461c0f9e7df8c43da"
+    },
+    {
+      "path": "src/features/shell/CommandRail.test.tsx",
+      "name": "renders exact pre-session and active controls",
+      "sha256": "628f2a191047971bd1c176b10a9b58f9750bebede14bd7cbdcf7be4cb7f48922"
+    },
+    {
+      "path": "src/features/shell/CommandRail.test.tsx",
+      "name": "supports arrow-key mode selection without hiding any mode",
+      "sha256": "628f2a191047971bd1c176b10a9b58f9750bebede14bd7cbdcf7be4cb7f48922"
+    },
+    {
+      "path": "src/features/shell/CompactComposer.test.tsx",
+      "name": "implements universal submit and focus return",
+      "sha256": "c460d79f9a2d8eeed5f002a7531df57febc1cd1dd18c5aef264978c17aa5bd6f"
+    },
+    {
+      "path": "src/features/shell/CompactComposer.test.tsx",
+      "name": "does not call the provider route without a message or evidence",
+      "sha256": "c460d79f9a2d8eeed5f002a7531df57febc1cd1dd18c5aef264978c17aa5bd6f"
+    },
+    {
+      "path": "src/features/shell/pointerRegions.test.tsx",
+      "name": "separates passthrough drag and controls",
+      "sha256": "2a8eab2f472ec4046955313e9fff80be8e8144aea7cf4bc2f0e449660cbdbb86"
+    },
+    {
+      "path": "src/features/shell/accessibility.test.tsx",
+      "name": "enforces Quiet Signal accessibility and silence invariants",
+      "sha256": "8ab34492054177c96f38fcf3df609a2310685546edd9dc83c2a034ac69c2082b"
+    },
+    {
+      "path": "electron/window/displayGeometry.test.ts",
+      "name": "restores snaps and clamps each window state",
+      "sha256": "f4b1696cfb9f4f80d3680b02a5da57d147e4368fb7e6218b92eda12ed8c5524e"
+    },
+    {
+      "path": "electron/window/displayGeometry.test.ts",
+      "name": "falls back to the nearest available display after disconnect",
+      "sha256": "f4b1696cfb9f4f80d3680b02a5da57d147e4368fb7e6218b92eda12ed8c5524e"
+    },
+    {
+      "path": "electron/capture/primaryDisplayCapture.test.ts",
+      "name": "captures primary display and preserves visibility",
+      "sha256": "2817417f972d45ff26d920c2e0cf9f3a4cb943e099b15cb7e5bdf24634b33846"
+    },
+    {
+      "path": "src/features/shell/navigationShortcuts.test.tsx",
+      "name": "separates window and answer navigation",
+      "sha256": "b32c178bc337a68836bca265474b18c863395308def076f1a3fb87f6e47ce79e"
+    },
+    {
+      "path": "src/features/shell/hudState.test.ts",
+      "name": "expands required staged evidence controls beyond the compact bar",
+      "sha256": "afe380471c6ced0b9dcce82065ed8295437caadcd90c27d198566186b0ac89de"
+    },
+    {
+      "path": "src/features/shell/HotKeysPanel.test.tsx",
+      "name": "recovers the active map when Reset all cannot persist defaults",
+      "sha256": "7832af6e5925aaf2cf276c24b36c0601d62d9d806b80c7da764d9abd4d1a4163"
     }
   ]
 }

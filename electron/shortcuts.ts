@@ -1,81 +1,82 @@
-import { globalShortcut, app, type BrowserWindow } from "electron"
-import { configHelper } from "./ConfigHelper"
+import { globalShortcut, app } from "electron"
+import {
+  DEFAULT_SHORTCUT_BINDINGS,
+  SHORTCUT_ACTIONS,
+  shortcutConflicts,
+  type ShortcutAction,
+  type ShortcutBindings
+} from "../src/shared/shell"
 
 export interface ShortcutsHelperDependencies {
-  readonly getMainWindow: () => BrowserWindow | null
-  readonly captureScreenshot: () => Promise<void>
-  readonly submitSelectedEvidence: () => Promise<void>
-  readonly resetInterview: () => Promise<void>
-  readonly excludeLastScreenshot: () => Promise<void>
-  readonly isVisible: () => boolean
-  readonly toggleMainWindow: () => void
-  readonly moveWindowLeft: () => void
-  readonly moveWindowRight: () => void
-  readonly moveWindowUp: () => void
-  readonly moveWindowDown: () => void
+  readonly invoke: (action: ShortcutAction) => void
+  readonly register?: (accelerator: string, callback: () => void) => boolean
+  readonly unregisterAll?: () => void
+}
+
+export interface ShortcutRegistrationResult {
+  readonly ok: boolean
+  readonly bindings: ShortcutBindings
+  readonly conflicts: Readonly<Record<string, readonly ShortcutAction[]>>
+  readonly rejectedAccelerator?: string
 }
 
 export class ShortcutsHelper {
-  constructor(private readonly deps: ShortcutsHelperDependencies) {}
+  private bindings: ShortcutBindings
+  private hasRegisteredBindings = false
 
-  private adjustOpacity(delta: number): void {
-    const mainWindow = this.deps.getMainWindow()
-    if (!mainWindow) return
-    const newOpacity = Math.max(
-      0.1,
-      Math.min(1, mainWindow.getOpacity() + delta)
-    )
-    mainWindow.setOpacity(newOpacity)
-    configHelper.setOpacity(newOpacity)
-    if (newOpacity > 0.1 && !this.deps.isVisible()) {
-      this.deps.toggleMainWindow()
-    }
+  constructor(
+    private readonly deps: ShortcutsHelperDependencies,
+    initialBindings: ShortcutBindings = DEFAULT_SHORTCUT_BINDINGS
+  ) {
+    this.bindings = { ...initialBindings }
   }
 
-  registerGlobalShortcuts(): void {
-    globalShortcut.register("CommandOrControl+H", () => {
-      void this.deps.captureScreenshot()
-    })
-    globalShortcut.register("CommandOrControl+Enter", () => {
-      void this.deps.submitSelectedEvidence()
-    })
-    globalShortcut.register("CommandOrControl+R", () => {
-      void this.deps.resetInterview()
-    })
-    globalShortcut.register("CommandOrControl+Left", this.deps.moveWindowLeft)
-    globalShortcut.register("CommandOrControl+Right", this.deps.moveWindowRight)
-    globalShortcut.register("CommandOrControl+Down", this.deps.moveWindowDown)
-    globalShortcut.register("CommandOrControl+Up", this.deps.moveWindowUp)
-    globalShortcut.register("CommandOrControl+B", this.deps.toggleMainWindow)
-    globalShortcut.register("CommandOrControl+Q", () => app.quit())
-    globalShortcut.register("CommandOrControl+[", () =>
-      this.adjustOpacity(-0.1)
-    )
-    globalShortcut.register("CommandOrControl+]", () =>
-      this.adjustOpacity(0.1)
-    )
-    globalShortcut.register("CommandOrControl+-", () => {
-      const mainWindow = this.deps.getMainWindow()
-      if (mainWindow) {
-        mainWindow.webContents.setZoomLevel(
-          mainWindow.webContents.getZoomLevel() - 0.5
-        )
+  currentBindings(): ShortcutBindings {
+    return { ...this.bindings }
+  }
+
+  applyBindings(next: ShortcutBindings): ShortcutRegistrationResult {
+    const conflicts = shortcutConflicts(next)
+    if (Object.keys(conflicts).length > 0) {
+      return { ok: false, bindings: this.currentBindings(), conflicts }
+    }
+
+    const previous = this.bindings
+    const register = this.deps.register ?? globalShortcut.register.bind(globalShortcut)
+    const unregisterAll =
+      this.deps.unregisterAll ?? globalShortcut.unregisterAll.bind(globalShortcut)
+    unregisterAll()
+    for (const action of SHORTCUT_ACTIONS) {
+      const accelerator = next[action]
+      if (!register(accelerator, () => this.deps.invoke(action))) {
+        unregisterAll()
+        if (this.hasRegisteredBindings) {
+          for (const previousAction of SHORTCUT_ACTIONS) {
+            const restored = register(previous[previousAction], () =>
+              this.deps.invoke(previousAction)
+            )
+            if (!restored) {
+              throw new Error("Could not restore the previous shortcut map")
+            }
+          }
+        }
+        return {
+          ok: false,
+          bindings: this.currentBindings(),
+          conflicts: {},
+          rejectedAccelerator: accelerator
+        }
       }
-    })
-    globalShortcut.register("CommandOrControl+0", () => {
-      this.deps.getMainWindow()?.webContents.setZoomLevel(0)
-    })
-    globalShortcut.register("CommandOrControl+=", () => {
-      const mainWindow = this.deps.getMainWindow()
-      if (mainWindow) {
-        mainWindow.webContents.setZoomLevel(
-          mainWindow.webContents.getZoomLevel() + 0.5
-        )
-      }
-    })
-    globalShortcut.register("CommandOrControl+L", () => {
-      void this.deps.excludeLastScreenshot()
-    })
-    app.on("will-quit", () => globalShortcut.unregisterAll())
+    }
+    this.bindings = { ...next }
+    this.hasRegisteredBindings = true
+    return { ok: true, bindings: this.currentBindings(), conflicts: {} }
+  }
+
+  registerGlobalShortcuts(): ShortcutRegistrationResult {
+    if (!this.deps.unregisterAll) {
+      app.on("will-quit", () => globalShortcut.unregisterAll())
+    }
+    return this.applyBindings(this.bindings)
   }
 }
