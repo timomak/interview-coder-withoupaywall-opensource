@@ -30,11 +30,15 @@
   "binaries": {
     "arm64": {
       "sha256": "7c0ee3d080d03df6d2dcb5e398b7e83fe7cfae74ce1122e4c55322bbf59b30a6",
-      "qualification": "qualified"
+      "qualification": "qualified",
+      "nativeHelperSha256": "7ea9bec2eb3032ad577507b269e39e8d59712e98891f0a1e7b037a76620d9402",
+      "appleSpeechAdapterSha256": "8048af1ea08db0f4ed2151f4d2ca8775a8590e50db7150b11bada2d5ec9491a5"
     },
     "x64": {
       "sha256": "657b0b29bfbf9e4f7947af1938849d4240611aa76d7de1048e1edd547d9f18f5",
-      "qualification": "qualified"
+      "qualification": "qualified",
+      "nativeHelperSha256": "56c732e78027cc4d03316487cdac98857de4c906c9991e39ce93fb54349efe81",
+      "appleSpeechAdapterSha256": "40d34251f850d940903ebc221d4ae561d1cb48db5db4d7d458ed72acf16398d1"
     }
   }
 }

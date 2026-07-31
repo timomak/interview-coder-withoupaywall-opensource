@@ -60,3 +60,35 @@ public final class FileDescriptorFrameWriter: AudioFrameSink, @unchecked Sendabl
     }
   }
 }
+
+/// Prevents a newly started native source from writing binary frames until its
+/// JSON `started` event has been synchronously written to stdout.
+public final class StartedHandshakeFrameSink: AudioFrameSink, @unchecked Sendable {
+  private let downstream: any AudioFrameSink
+  private let lock = NSLock()
+  private var admitted: Set<AudioSource> = []
+
+  public init(downstream: any AudioFrameSink) {
+    self.downstream = downstream
+  }
+
+  public func close(_ source: AudioSource) {
+    lock.lock()
+    admitted.remove(source)
+    lock.unlock()
+  }
+
+  public func admit(_ source: AudioSource) {
+    lock.lock()
+    admitted.insert(source)
+    lock.unlock()
+  }
+
+  public func write(source: AudioSource, timestampNanos: UInt64, bytes: Data) throws {
+    lock.lock()
+    let isAdmitted = admitted.contains(source)
+    lock.unlock()
+    guard isAdmitted else { return }
+    try downstream.write(source: source, timestampNanos: timestampNanos, bytes: bytes)
+  }
+}

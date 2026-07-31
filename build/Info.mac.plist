@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>NSMicrophoneUsageDescription</key>
+  <string>InterviewCopilot records microphone audio only after you turn the microphone on for the active interview.</string>
+  <key>NSSpeechRecognitionUsageDescription</key>
+  <string>InterviewCopilot sends finalized audio to Apple Speech only after you explicitly enable remote transcription.</string>
+</dict>
+</plist>

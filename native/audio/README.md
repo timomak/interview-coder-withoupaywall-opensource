@@ -9,12 +9,31 @@ audio. The process has two channels:
 Audio bytes never enter JSON, stderr, or application logs. Each binary frame
 contains protocol version, source, sequence, monotonic timestamp, and a bounded
 payload. The Electron decoder clears frame buffers after the consumer settles.
+The helper keeps each source's frame channel closed until its corresponding
+`started` event has been synchronously written, so startup callbacks cannot
+overtake the control-plane handshake.
 
 `CaptureCoordinator` constructs a source only after an explicit `start`
 command. Creating or resuming an InterviewCopilot session therefore cannot open
 a device or request permission. The real adapters use AVAudioEngine for the
 microphone and ScreenCaptureKit for system audio. Swift tests inject source
 factories and do not touch devices or permission APIs.
+
+## Apple Speech adapter
+
+`interviewcopilot-apple-speech` is the only native remote-transcription path.
+It accepts exactly `--file <absolute-wav>`, rejects symlinks, non-owner-only
+files, non-WAV inputs, and inputs larger than 32 MiB, then requests macOS Speech
+authorization in context. It emits exactly one bounded UTF-8 JSON line on
+success (`{"schemaVersion":1,"text":"..."}`) and no diagnostic or audio data
+on either output stream. Denial, unavailability, timeout, cancellation, and
+recognition failures exit nonzero. The adapter is transcription-only and has no
+answer-generation command or persistent storage.
+
+The packaged app Info.plist must merge `build/Info.mac.plist`; those microphone
+and Speech usage strings are release metadata, not entitlements. The native
+adapter must be launched only after the persisted Apple Speech setting has been
+explicitly enabled, and its binary hash must be verified before spawn.
 
 ## Local transcription supply chain
 
@@ -43,5 +62,6 @@ node native/audio/harness/verify-local-transcription.mjs \
 It verifies every checksum and runs the actual engine under a
 `sandbox-exec` profile that denies network. Synthetic fixtures establish
 offline execution and channel-marker preservation only. They do not establish
-real-device permission behavior, diarization accuracy, x86_64 runtime behavior,
-or performance on untested hardware.
+real-device permission behavior, diarization accuracy, native Intel behavior,
+or performance on native Intel hardware. The x64 whisper binary did produce
+both expected pinned marker transcripts under Rosetta with network denied.

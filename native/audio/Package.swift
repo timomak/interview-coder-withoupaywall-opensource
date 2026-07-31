@@ -7,6 +7,7 @@ let package = Package(
   products: [
     .library(name: "InterviewCopilotAudioBoundary", targets: ["InterviewCopilotAudioBoundary"]),
     .executable(name: "interviewcopilot-audio-helper", targets: ["InterviewCopilotAudioHelper"]),
+    .executable(name: "interviewcopilot-apple-speech", targets: ["InterviewCopilotAppleSpeech"]),
   ],
   targets: [
     .target(
@@ -20,6 +21,11 @@ let package = Package(
     .executableTarget(
       name: "InterviewCopilotAudioHelper",
       dependencies: ["InterviewCopilotAudioBoundary"]
+    ),
+    .executableTarget(
+      name: "InterviewCopilotAppleSpeech",
+      dependencies: ["InterviewCopilotAudioBoundary"],
+      linkerSettings: [.linkedFramework("Speech")]
     ),
     .testTarget(
       name: "InterviewCopilotAudioBoundaryTests",

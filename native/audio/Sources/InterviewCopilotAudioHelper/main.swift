@@ -75,7 +75,9 @@ struct InterviewCopilotAudioHelper {
     let configuredDescriptor =
       ProcessInfo.processInfo.environment["INTERVIEWCOPILOT_AUDIO_FRAME_FD"] ?? "3"
     guard configuredDescriptor == "3" else { Darwin.exit(2) }
-    let sink = FileDescriptorFrameWriter(descriptor: 3)
+    let sink = StartedHandshakeFrameSink(
+      downstream: FileDescriptorFrameWriter(descriptor: 3)
+    )
     let events = EventWriter()
     let coordinator = CaptureCoordinator(sink: sink) { source, sink in
       switch source {
@@ -105,11 +107,13 @@ struct InterviewCopilotAudioHelper {
       switch command.type {
       case .start:
         guard let source = command.source else { continue }
+        sink.close(source)
         do {
           let format = try await coordinator.start(source)
           await events.send(
             HelperEvent(type: "started", source: source, format: format)
           )
+          sink.admit(source)
         } catch AudioBoundaryError.permissionDenied {
           await events.send(
             HelperEvent(
@@ -125,6 +129,7 @@ struct InterviewCopilotAudioHelper {
         }
       case .pause:
         guard let source = command.source else { continue }
+        sink.close(source)
         do {
           try await coordinator.pause(source)
           await events.send(HelperEvent(type: "paused", source: source))
@@ -135,6 +140,7 @@ struct InterviewCopilotAudioHelper {
         }
       case .stop:
         guard let source = command.source else { continue }
+        sink.close(source)
         do {
           try await coordinator.stop(source)
           await events.send(HelperEvent(type: "stopped", source: source))
