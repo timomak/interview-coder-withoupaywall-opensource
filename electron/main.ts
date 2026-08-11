@@ -239,7 +239,10 @@ function scheduleGeometryPersistence(): void {
   }, 200)
 }
 
-function setHudState(nextState: HudState): void {
+function setHudState(
+  nextState: HudState,
+  preserveCurrentOrigin = true
+): void {
   const mainWindow = state.mainWindow
   if (!mainWindow || mainWindow.isDestroyed()) return
   const isStateTransition = nextState !== currentHudState
@@ -268,7 +271,7 @@ function setHudState(nextState: HudState): void {
     width: Math.max(restored.width, minimumWidth),
     height: Math.max(restored.height, minimumHeight)
   }
-  const bounds = isStateTransition
+  const bounds = isStateTransition && preserveCurrentOrigin
     ? transitionWindowBounds(
         currentBounds,
         targetBounds,
@@ -339,7 +342,7 @@ function createWindow(): void {
   mainWindow.once("ready-to-show", () => {
     state.visible = false
     if (startupHudState === "expanded") {
-      setHudState(startupHudState)
+      setHudState(startupHudState, false)
       showMainWindow()
     }
   })

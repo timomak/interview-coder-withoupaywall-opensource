@@ -26,7 +26,7 @@ describe("window visibility", () => {
       "const startupHudState = deriveStartupHudState(configHelper.loadConfig())"
     )
     expect(source).toMatch(
-      /mainWindow\.once\("ready-to-show", \(\) => \{\s*state\.visible = false\s*if \(startupHudState === "expanded"\) \{\s*setHudState\(startupHudState\)\s*showMainWindow\(\)\s*\}\s*\}\)/
+      /mainWindow\.once\("ready-to-show", \(\) => \{\s*state\.visible = false\s*if \(startupHudState === "expanded"\) \{\s*setHudState\(startupHudState, false\)\s*showMainWindow\(\)\s*\}\s*\}\)/
     )
     expect(captureSource).toContain(
       "restoreVisibility ? this.showMainWindow : () => undefined"

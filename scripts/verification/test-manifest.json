@@ -624,22 +624,27 @@
     {
       "path": "electron/window/displayGeometry.test.ts",
       "name": "falls back to the nearest available display after disconnect",
-      "sha256": "56af6e8013df1630d2c4780ab05fd24a8822475a4495cf4a08d606026e6be4f8"
+      "sha256": "b50c7dafa1ce3b1ba5c36ec2bbeb2be44b6f027353a5fb1c54270574f3f072a0"
     },
     {
       "path": "electron/window/displayGeometry.test.ts",
       "name": "restores snaps and clamps each window state",
-      "sha256": "56af6e8013df1630d2c4780ab05fd24a8822475a4495cf4a08d606026e6be4f8"
+      "sha256": "b50c7dafa1ce3b1ba5c36ec2bbeb2be44b6f027353a5fb1c54270574f3f072a0"
     },
     {
       "path": "electron/window/displayGeometry.test.ts",
       "name": "keeps the current origin when HUD state dimensions change",
-      "sha256": "56af6e8013df1630d2c4780ab05fd24a8822475a4495cf4a08d606026e6be4f8"
+      "sha256": "b50c7dafa1ce3b1ba5c36ec2bbeb2be44b6f027353a5fb1c54270574f3f072a0"
+    },
+    {
+      "path": "electron/window/displayGeometry.test.ts",
+      "name": "restores the saved origin when startup is not a live transition",
+      "sha256": "b50c7dafa1ce3b1ba5c36ec2bbeb2be44b6f027353a5fb1c54270574f3f072a0"
     },
     {
       "path": "electron/window/windowVisibility.test.ts",
       "name": "reveals onboarding and preserves configured hidden startup",
-      "sha256": "0eb68a437e066c435d5ed166fe3904910a3918d9a48f725f408ea306396186f8"
+      "sha256": "ae86e4db95da566662aa4076d7e24eda408b8ad78d3116424ca2ea35ef9429b3"
     },
     {
       "path": "electron/windowOpenPolicy.test.ts",

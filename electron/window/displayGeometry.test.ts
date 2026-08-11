@@ -63,4 +63,13 @@ describe("display geometry", () => {
       )
     ).toEqual({ x: 120, y: 80, width: 620, height: 44 })
   })
+
+  it("restores the saved origin when startup is not a live transition", () => {
+    expect(
+      clampWindowBounds(
+        { x: 540, y: 100, width: 820, height: 760 },
+        displays[1].workArea
+      )
+    ).toEqual({ x: 540, y: 100, width: 820, height: 760 })
+  })
 })
