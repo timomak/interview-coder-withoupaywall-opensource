@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 1,
+  "kind": "long-horizon-milestone-followup-candidate",
+  "projectKey": "InterviewCopilot",
+  "milestoneId": "IC-M05B",
+  "recordedAt": "2026-08-11T22:02:50+02:00",
+  "reason": "POST_APPROVAL_UI_FOLLOWUP_REQUIRES_EXACT_DELTA_REVIEW",
+  "priorApprovedRevision": "b5984c87d1e9c0653caded87e43e3e5dc722d717",
+  "priorApprovedTree": "e0084eaf02a73adcaccc704998ffcf5cbf22e974",
+  "candidate": {
+    "branch": "codex/ic-m05-release",
+    "revision": "064f7fc4cda1d041379674d5596b0ee26c3fcd1f",
+    "tree": "65f5b4f366462a80fd7f8509c75122844fa0c285",
+    "remoteRevision": "064f7fc4cda1d041379674d5596b0ee26c3fcd1f",
+    "worktree": "/Users/thirdfacedev/.codex/worktrees/ic-m05/TimoCodes",
+    "worktreeStatus": "CLEAN"
+  },
+  "delta": {
+    "commits": [
+      "cd44819 use app icon in compact rail",
+      "064f7fc fix prompt width and HUD position transitions"
+    ],
+    "files": [
+      "electron/main.ts",
+      "electron/window/displayGeometry.test.ts",
+      "electron/window/displayGeometry.ts",
+      "scripts/verification/test-manifest.json",
+      "src/assets/interviewcopilot-icon.png",
+      "src/features/shell/CommandRail.test.tsx",
+      "src/features/shell/CommandRail.tsx",
+      "src/index.css"
+    ],
+    "scope": [
+      "restore the existing icon in the compact command rail",
+      "remove the visible Prompt label and widen the prompt selector",
+      "preserve the current HUD origin when HotKeys or Settings changes window height"
+    ]
+  },
+  "reusablePreReviewEvidence": {
+    "classification": "TARGETED_OR_PREFLIGHT_ONLY_NOT_AUTHORITATIVE_FOR_THIS_CANDIDATE",
+    "unit": "154_FILES_259_PASS_0_FAIL_0_SKIP",
+    "p05": "15_FILES_24_PASS_0_FAIL_0_SKIP",
+    "typecheck": "PASS",
+    "lint": "PASS",
+    "buildAndPackageInventory": "PASS",
+    "installedAsarSha256": "a9be9e7733fd10e2248ef20f095600de2508c2d31667ce56b16114d208ac7fdc",
+    "liveGeometry": "COMPACT_AND_EXPANDED_ORIGIN_X0_Y33"
+  },
+  "review": {
+    "gateId": "IC-M05B-UI-FOLLOWUP-DELTA-01",
+    "status": "PENDING",
+    "scope": "EXACT_DELTA_ONLY_FROM_PRIOR_APPROVED_REVISION"
+  },
+  "authoritativeSuite": "UNUSED_FOR_064F7FC_PENDING_EXACT_APPROVAL",
+  "boundaries": {
+    "mergePerformed": false,
+    "deploymentPerformed": false,
+    "privilegedCapabilityInvoked": false,
+    "legacyV1Invoked": false,
+    "signingOrNotarizationPerformed": false,
+    "physicalMeetPerformed": false
+  },
+  "preservation": "All earlier approved, failed, invalidated, and exhausted candidate records remain immutable evidence and are not superseded as historical facts."
+}
