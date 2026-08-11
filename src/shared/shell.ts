@@ -48,6 +48,18 @@ export type DensityPreference = "compact" | "comfortable"
 export type TextSizePreference = "small" | "default" | "large"
 export type HudState = "compact-bar" | "compact-answer" | "expanded"
 
+export function deriveStartupHudState(config: {
+  readonly provider?: unknown
+  readonly model?: unknown
+}): HudState {
+  return typeof config.provider === "string" &&
+    config.provider.length > 0 &&
+    typeof config.model === "string" &&
+    config.model.length > 0
+    ? "compact-bar"
+    : "expanded"
+}
+
 export interface PersistedWindowBounds {
   readonly x: number
   readonly y: number

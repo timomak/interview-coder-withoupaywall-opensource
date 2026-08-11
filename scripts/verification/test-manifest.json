@@ -633,8 +633,8 @@
     },
     {
       "path": "electron/window/windowVisibility.test.ts",
-      "name": "launches hidden and restores exact HUD state",
-      "sha256": "2e9e9a0254b76f97569f1316a656ff4a413c81a04481ab2d374de7ed4e526171"
+      "name": "reveals onboarding and preserves configured hidden startup",
+      "sha256": "4045691fe27e4789d555f0899e1a0b0ad581a33309ba2491488183e5a8f302f2"
     },
     {
       "path": "electron/windowOpenPolicy.test.ts",
@@ -869,7 +869,12 @@
     {
       "path": "src/features/shell/hudState.test.ts",
       "name": "expands required staged evidence controls beyond the compact bar",
-      "sha256": "afe380471c6ced0b9dcce82065ed8295437caadcd90c27d198566186b0ac89de"
+      "sha256": "0f061ef2436692be530c7893e0aaf2e9252718019563697267dfe568d9c60fff"
+    },
+    {
+      "path": "src/features/shell/hudState.test.ts",
+      "name": "opens first-run provider setup in the expanded window",
+      "sha256": "0f061ef2436692be530c7893e0aaf2e9252718019563697267dfe568d9c60fff"
     },
     {
       "path": "src/features/shell/navigationShortcuts.test.tsx",

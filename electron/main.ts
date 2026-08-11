@@ -61,6 +61,7 @@ import type {
 import {
   DEFAULT_SHORTCUT_BINDINGS,
   DEFAULT_LIVE_SHELL_PREFERENCES,
+  deriveStartupHudState,
   type HudState,
   type ShortcutAction,
   type ShortcutBindings
@@ -277,6 +278,7 @@ function createWindow(): void {
   const workArea = screen.getPrimaryDisplay().workAreaSize
   state.screenWidth = workArea.width
   state.screenHeight = workArea.height
+  const startupHudState = deriveStartupHudState(configHelper.loadConfig())
   const options: BrowserWindowConstructorOptions = {
     width: 520,
     height: 44,
@@ -310,6 +312,10 @@ function createWindow(): void {
   state.mainWindow = mainWindow
   mainWindow.once("ready-to-show", () => {
     state.visible = false
+    if (startupHudState === "expanded") {
+      setHudState(startupHudState)
+      showMainWindow()
+    }
   })
   mainWindow.on("closed", () => {
     state.mainWindow = null
