@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 1,
+  "kind": "long-horizon-milestone-result",
+  "projectKey": "InterviewCopilot",
+  "milestoneId": "IC-M05B",
+  "recordedAt": "2026-08-11T18:07:16+02:00",
+  "status": "SAFE_SCOPE_COMPLETE_WAITING_EXTERNAL_RELEASE_AND_PROTECTED_INTEGRATION",
+  "candidate": {
+    "branch": "codex/ic-m05-release",
+    "revision": "6d72db12de8ebda93e5b193e57144e7cf3ab22c6",
+    "tree": "3d3facdfd72cf1cf1cf8deebeb70c578c3c7097f",
+    "remoteRevision": "6d72db12de8ebda93e5b193e57144e7cf3ab22c6",
+    "clean": true
+  },
+  "requirements": {
+    "IC-M05-B01": "PASS",
+    "IC-M05-B07": "PASS",
+    "IC-M05-B09": "PASS",
+    "P12RepositoryNative": "PASS",
+    "P12ExternalRelease": "WAITING_EXTERNAL"
+  },
+  "review": {
+    "completeFindingBatch": "v3/interviewcopilot/milestone-IC-M05B-review-result-1.json",
+    "remediation": "v3/interviewcopilot/milestone-IC-M05B-remediation-1.json",
+    "deltaReview": "v3/interviewcopilot/milestone-IC-M05B-delta-review-result-1.json",
+    "disposition": "APPROVE_EXACT_CANDIDATE",
+    "remainingMaterialFindings": 0
+  },
+  "authoritativeResult": {
+    "path": "v3/interviewcopilot/milestone-IC-M05B-authoritative-result-1.json",
+    "sha256": "7b9efdbab68c580767a0d5c5bb1ec75dc67341ae6a9e987b4daf97b4b596838f",
+    "status": "PASS_SAFE_REPOSITORY_NATIVE_AWAITING_EXTERNAL_RELEASE_BOUNDARIES"
+  },
+  "mechanicalIntegrationGuards": {
+    "stackBase": "9b6672464d16389b6315cbe0c17d48569714530e",
+    "stackBaseIsAncestor": true,
+    "diffCheck": "PASS",
+    "remoteHeadExact": true,
+    "worktreeClean": true
+  },
+  "pullRequest": {
+    "repository": "timomak/interview-coder-withoupaywall-opensource",
+    "number": 5,
+    "url": "https://github.com/timomak/interview-coder-withoupaywall-opensource/pull/5",
+    "state": "OPEN_DRAFT",
+    "base": "codex/ic-m04-lifecycle",
+    "baseRevision": "9b6672464d16389b6315cbe0c17d48569714530e",
+    "head": "codex/ic-m05-release",
+    "headRevision": "6d72db12de8ebda93e5b193e57144e7cf3ab22c6",
+    "mergeable": true,
+    "hostedChecks": "NONE_CONFIGURED"
+  },
+  "integrationChain": [
+    "upstream PR 155: OPEN_REVIEW_REQUIRED_CODEQL_SUCCESS",
+    "fork PR 1: OPEN_DRAFT_MERGEABLE",
+    "fork PR 2: OPEN_DRAFT_MERGEABLE",
+    "fork PR 3: OPEN_DRAFT_MERGEABLE",
+    "fork PR 4: OPEN_DRAFT_MERGEABLE",
+    "fork PR 5: OPEN_DRAFT_MERGEABLE"
+  ],
+  "boundaries": {
+    "mergePerformed": false,
+    "deploymentPerformed": false,
+    "privilegedCapabilityInvoked": false,
+    "legacyV1Invoked": false,
+    "signingOrNotarizationPerformed": false,
+    "physicalMeetPerformed": false
+  },
+  "rollback": "Close draft PR 5 and retain branch/evidence, or later revert the normal protected integration commit. Never delete immutable qualification evidence.",
+  "nextSafeAction": "Wait for the required GitHub review/integration authority on upstream PR 155 and collect the declared Developer ID, notarization, dual-architecture package, physical two-device Meet, independent-observer, and final release evidence. No additional repository implementation or verification loop is justified."
+}

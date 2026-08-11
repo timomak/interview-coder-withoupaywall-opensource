@@ -867,25 +867,28 @@
     "candidateInvoked": false
   },
   "pause": {
-    "status": "RESUMED_BY_USER_SUPERSEDING_MILESTONE_PLAN",
+    "status": "SAFE_AUTOMATED_SCOPE_COMPLETE_WAITING_EXTERNAL_BOUNDARIES",
     "capturedAt": "2026-07-31T16:07:17+02:00",
     "handoff": "v3/interviewcopilot/paused-handoff-2026-07-31.json",
-    "candidateRevision": "73a64b97442260fb5bf5d533e625936a600ca185",
-    "candidateTree": "c88cf36f37fcd1d376e679d6285c7dc0514d788a",
+    "candidateRevision": "6d72db12de8ebda93e5b193e57144e7cf3ab22c6",
+    "candidateTree": "3d3facdfd72cf1cf1cf8deebeb70c578c3c7097f",
     "activeWriters": 0,
     "activeReviewers": 0,
     "activeCommands": 0,
-    "authoritativeSuite": "UNUSED",
+    "authoritativeSuite": "PASS_SAFE_REPOSITORY_NATIVE_AUTH_02",
     "resumedAt": "2026-08-11T17:30:26+02:00",
     "resumedBy": "EXPLICIT_USER_KEEP_GOING",
     "supersedingPlan": "v3/interviewcopilot/milestone-IC-M05B-packet-1.json",
     "supersedingPlanSha256": "28f250df5f3a481690af003512e180e84f4e95ddc9428bb7a47046c6f3f98b7a",
     "historicalPausePreserved": true,
-    "remainingFindingIds": [
-      "IC-M05-B01",
-      "IC-M05-B07",
-      "IC-M05-B09"
+    "remainingFindingIds": [],
+    "completionResult": "v3/interviewcopilot/milestone-IC-M05B-result-1.json",
+    "pullRequest": 5,
+    "waitingOn": [
+      "UPSTREAM_PR_155_REQUIRED_REVIEW_AND_PROTECTED_INTEGRATION",
+      "DEVELOPER_ID_SIGNING_NOTARIZATION_AND_DUAL_ARCH_PACKAGE_EVIDENCE",
+      "PHYSICAL_TWO_DEVICE_GOOGLE_MEET_AND_INDEPENDENT_OBSERVER_EVIDENCE"
     ]
   },
-  "nextSafeAction": "Freeze the exact IC-M05B packet digest, then implement only IC-M05-B01, IC-M05-B07, and IC-M05-B09 from clean candidate 73a64b97442260fb5bf5d533e625936a600ca185. Preserve the exhausted IC-M05-RECOVERY-01 as immutable history. Run one exact IC-M05B complete finding batch before the still-unused authoritative suite."
+  "nextSafeAction": "No further autonomous repository mutation is dependency-ready. Preserve exact candidate 6d72db12de8ebda93e5b193e57144e7cf3ab22c6 and draft PR 5 while awaiting upstream PR 155 review/protected integration and the declared external signing, notarization, dual-architecture package, physical Meet, observer, and final release evidence."
 }
