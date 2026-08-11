@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "kind": "long-horizon-signing-preflight",
+  "projectKey": "InterviewCopilot",
+  "milestoneId": "IC-M05B",
+  "recordedAt": "2026-08-11T19:08:59+02:00",
+  "candidateRevision": "6d72db12de8ebda93e5b193e57144e7cf3ab22c6",
+  "candidateTree": "3d3facdfd72cf1cf1cf8deebeb70c578c3c7097f",
+  "developerId": {
+    "commonName": "Developer ID Application: Timofey Makhlay (95VVU86AA7)",
+    "teamId": "95VVU86AA7",
+    "keychainIdentitySha1": "997A1A5DDEDF5BB7B2DEABD1B6F35C6CDBFD56F9",
+    "certificateSha256": "23FC540BEDD023A4D1CF0DA573EA9DF3875CDB59A8BF429026018F5F76627E36",
+    "validFrom": "2026-03-31T14:35:48Z",
+    "validUntil": "2027-02-01T22:12:15Z",
+    "status": "VALID_EXISTING_IDENTITY_NO_DUPLICATE_CREATED"
+  },
+  "notarization": {
+    "appleAccount": "me@timofeymakhlay.com",
+    "keychainProfile": "InterviewCopilot-notary",
+    "validation": "SUCCESS_APPLE_ACCEPTED_AND_SAVED_TO_KEYCHAIN",
+    "passwordRecordedInRepositoryOrLedger": false,
+    "passwordPrintedInLogs": false
+  },
+  "scopeProtection": {
+    "loseStreakFilesTouched": false,
+    "loseStreakAppRecordsTouched": false,
+    "otherAppleCertificatesCreatedOrRevoked": false,
+    "packageOrNotarizationSubmissionPerformed": false,
+    "mergePerformed": false
+  },
+  "review": {
+    "exactCandidateStaffReview": "APPROVED",
+    "reviewRecord": "v3/interviewcopilot/milestone-IC-M05B-delta-review-result-1.json",
+    "remainingMaterialFindings": 0,
+    "duplicateReviewDispatched": false
+  },
+  "nextSafeAction": "On the user's explicit local-test request, launch the exact InterviewCopilot candidate for local acceptance without merging, signing, notarizing, publishing, or touching LoseStreak."
+}
