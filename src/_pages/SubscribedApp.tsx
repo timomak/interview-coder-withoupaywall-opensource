@@ -16,7 +16,8 @@ import {
   PointerRegions,
   HotKeysPanel,
   InputTray,
-  AnswerSections
+  AnswerSections,
+  useLocalShellShortcuts
 } from "../features/shell"
 import {
   CodingWorkspace,
@@ -148,45 +149,12 @@ export default function SubscribedApp({
     setSession(result.state)
   }
 
-  useEffect(() => {
-    const handleLocalShortcut = (event: KeyboardEvent) => {
-      if (event.repeat) return
-      const target = event.target
-      if (
-        target instanceof HTMLInputElement ||
-        target instanceof HTMLTextAreaElement ||
-        target instanceof HTMLSelectElement ||
-        (target instanceof HTMLElement && target.isContentEditable)
-      ) {
-        return
-      }
-      if (event.metaKey && !event.ctrlKey && event.key === ",") {
-        event.preventDefault()
-        void window.electronAPI.openSettings()
-      } else if (
-        !event.metaKey &&
-        !event.ctrlKey &&
-        !event.altKey &&
-        event.key === "?"
-      ) {
-        event.preventDefault()
-        setHotKeysOpen((open) => !open)
-      } else if (
-        session.lifecycle === "idle" &&
-        !(target instanceof HTMLButtonElement) &&
-        !event.metaKey &&
-        !event.ctrlKey &&
-        !event.altKey &&
-        !event.shiftKey &&
-        event.key === "Enter"
-      ) {
-        event.preventDefault()
-        void start()
-      }
-    }
-    window.addEventListener("keydown", handleLocalShortcut)
-    return () => window.removeEventListener("keydown", handleLocalShortcut)
-  }, [config.language, config.responseMode, mode, model, provider, session.lifecycle])
+  useLocalShellShortcuts({
+    lifecycle: session.lifecycle,
+    onSettings: () => void window.electronAPI.openSettings(),
+    onHotKeys: () => setHotKeysOpen((open) => !open),
+    onStart: () => void start()
+  })
 
   const submit = async (
     message = input,

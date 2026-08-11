@@ -59,7 +59,9 @@ describe("CommandRail", () => {
     expect(screen.getByRole("button", { name: "Start interview" })).toBeVisible()
     expect(screen.getByRole("button", { name: "HotKeys" })).toBeVisible()
     expect(screen.getByRole("button", { name: "Settings" })).toBeVisible()
-    expect(screen.getByText("⌘,")).toBeVisible()
+    for (const chip of ["⌘/", "⌘,", "⌘↵"]) {
+      expect(screen.getByText(chip)).toBeVisible()
+    }
     fireEvent.click(screen.getByRole("button", { name: "Settings" }))
     expect(onSettings).toHaveBeenCalledOnce()
 

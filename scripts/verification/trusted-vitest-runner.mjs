@@ -67,7 +67,8 @@ const SUITES = {
     "src/features/shell/accessibility.test.tsx",
     "src/features/shell/navigationShortcuts.test.tsx",
     "src/features/shell/hudState.test.ts",
-    "src/features/shell/HotKeysPanel.test.tsx"
+    "src/features/shell/HotKeysPanel.test.tsx",
+    "src/features/shell/useLocalShellShortcuts.test.tsx"
   ],
   p06: [
     "src/features/coding/codingIntent.test.ts",

@@ -839,12 +839,12 @@
     {
       "path": "src/features/shell/CommandRail.test.tsx",
       "name": "renders exact pre-session and active controls",
-      "sha256": "43da44527c6e5abc1776a97b331152d04f0008a5578c1efb4dec473cc9ae7b76"
+      "sha256": "6a1dc2cc86b0dbf3224ba60789930c7d6ed1d20d748cac14e8265e8c64c575f8"
     },
     {
       "path": "src/features/shell/CommandRail.test.tsx",
       "name": "selects one system prompt from the complete dropdown",
-      "sha256": "43da44527c6e5abc1776a97b331152d04f0008a5578c1efb4dec473cc9ae7b76"
+      "sha256": "6a1dc2cc86b0dbf3224ba60789930c7d6ed1d20d748cac14e8265e8c64c575f8"
     },
     {
       "path": "src/features/shell/CompactComposer.test.tsx",
@@ -875,6 +875,11 @@
       "path": "src/features/shell/hudState.test.ts",
       "name": "opens first-run provider setup in the expanded window",
       "sha256": "e1285dfd914fcc91948aeabd042933a7a728e339c0da0c43a15a147e75b012d9"
+    },
+    {
+      "path": "src/features/shell/useLocalShellShortcuts.test.tsx",
+      "name": "keeps every advertised app shortcut active from editable controls",
+      "sha256": "d978bc6a30f87d73ce980de9b62d3f0f66e5cb9f34a42608b90feb71c1aab017"
     },
     {
       "path": "src/features/shell/navigationShortcuts.test.tsx",

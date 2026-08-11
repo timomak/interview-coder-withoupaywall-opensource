@@ -86,7 +86,7 @@ export function CommandRail({
             data-interactive
             onClick={onHotKeys}
           >
-            HotKeys <ShortcutChip label="?" />
+            HotKeys <ShortcutChip label="⌘/" />
           </button>
           <button type="button" data-interactive onClick={onSettings}>
             Settings <ShortcutChip label="⌘," />
@@ -94,7 +94,7 @@ export function CommandRail({
           <button className="quiet-primary" type="button" data-interactive onClick={onStart}>
             <span aria-hidden="true">Start</span>
             <span className="sr-only">Start interview</span>
-            <ShortcutChip label="↵" />
+            <ShortcutChip label="⌘↵" />
           </button>
         </>
       ) : (
@@ -133,7 +133,7 @@ export function CommandRail({
             data-interactive
             onClick={onHotKeys}
           >
-            HotKeys <ShortcutChip label="?" />
+            HotKeys <ShortcutChip label="⌘/" />
           </button>
           <button type="button" data-interactive onClick={onSettings}>
             Settings <ShortcutChip label="⌘," />
