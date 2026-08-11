@@ -867,7 +867,7 @@
     "candidateInvoked": false
   },
   "pause": {
-    "status": "PAUSED_BY_USER_QUIESCED",
+    "status": "RESUMED_BY_USER_SUPERSEDING_MILESTONE_PLAN",
     "capturedAt": "2026-07-31T16:07:17+02:00",
     "handoff": "v3/interviewcopilot/paused-handoff-2026-07-31.json",
     "candidateRevision": "73a64b97442260fb5bf5d533e625936a600ca185",
@@ -876,11 +876,16 @@
     "activeReviewers": 0,
     "activeCommands": 0,
     "authoritativeSuite": "UNUSED",
+    "resumedAt": "2026-08-11T17:30:26+02:00",
+    "resumedBy": "EXPLICIT_USER_KEEP_GOING",
+    "supersedingPlan": "v3/interviewcopilot/milestone-IC-M05B-packet-1.json",
+    "supersedingPlanSha256": "28f250df5f3a481690af003512e180e84f4e95ddc9428bb7a47046c6f3f98b7a",
+    "historicalPausePreserved": true,
     "remainingFindingIds": [
       "IC-M05-B01",
       "IC-M05-B07",
       "IC-M05-B09"
     ]
   },
-  "nextSafeAction": "Remain PAUSED_BY_USER/QUIESCED. On an explicit future resume, reconcile v3/interviewcopilot/paused-handoff-2026-07-31.json and exact candidate 73a64b97442260fb5bf5d533e625936a600ca185 first. Do not resume the exhausted IC-M05-RECOVERY-01 or run its authoritative suite. Only explicit superseding milestone-level authority may define new work for IC-M05-B01, IC-M05-B07, and IC-M05-B09 while preserving all terminal evidence."
+  "nextSafeAction": "Freeze the exact IC-M05B packet digest, then implement only IC-M05-B01, IC-M05-B07, and IC-M05-B09 from clean candidate 73a64b97442260fb5bf5d533e625936a600ca185. Preserve the exhausted IC-M05-RECOVERY-01 as immutable history. Run one exact IC-M05B complete finding batch before the still-unused authoritative suite."
 }

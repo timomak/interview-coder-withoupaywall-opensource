@@ -1,0 +1,140 @@
+{
+  "schemaVersion": 1,
+  "kind": "long-horizon-milestone-packet",
+  "projectKey": "InterviewCopilot",
+  "milestoneId": "IC-M05B",
+  "parentMilestoneId": "IC-M05",
+  "title": "Release-admission evidence closure",
+  "frozenAt": "2026-08-11T17:30:26+02:00",
+  "authority": {
+    "kind": "EXPLICIT_USER_SUPERSEDING_MILESTONE_AUTHORITY",
+    "instruction": "keep going",
+    "receivedAt": "2026-08-11",
+    "scope": "Define and execute a genuinely new milestone-level outcome for the three surviving P12 release-admission findings while preserving the exhausted IC-M05 recovery as immutable history."
+  },
+  "base": {
+    "repository": "/Users/thirdfacedev/.codex/worktrees/ic-m05/TimoCodes",
+    "branch": "codex/ic-m05-release",
+    "revision": "73a64b97442260fb5bf5d533e625936a600ca185",
+    "tree": "c88cf36f37fcd1d376e679d6285c7dc0514d788a",
+    "approvedParentMilestoneRevision": "9b6672464d16389b6315cbe0c17d48569714530e",
+    "worktreeStatus": "CLEAN",
+    "remoteBranchPresent": false
+  },
+  "preservedHistory": {
+    "terminalRecovery": "v3/interviewcopilot/bounded-recovery-IC-M05-1-result.json",
+    "terminalRecoverySha256": "55e18104955ad2e56040e6bdc76a1761d2bc7bcfe4a47d679161c4cbf59e321b",
+    "terminalRecoveryId": "IC-M05-RECOVERY-01",
+    "terminalRecoveryStatus": "FAILED_TERMINAL_SECOND_MATERIAL_FAILURE",
+    "retryOrRelabelProhibited": true,
+    "closedFindingIds": [
+      "IC-M05-B02",
+      "IC-M05-B03",
+      "IC-M05-B04",
+      "IC-M05-B05",
+      "IC-M05-B06",
+      "IC-M05-B08"
+    ],
+    "reusableEvidence": [
+      "P12 targeted tests 19 pass, 0 fail, 0 skip at 73a64b97442260fb5bf5d533e625936a600ca185",
+      "typecheck passed across 369 executable files",
+      "lint passed across 369 executable and 153 test files",
+      "build passed",
+      "package inventory passed with 4660 asar and 118 outer files",
+      "manifest policy passed 2 tests with zero drift",
+      "deep evidence, release statement, JCS, replay, live-build, capture-protection, entitlement, diagnostics, claim, SBOM, and audit proof recorded by the terminal result"
+    ]
+  },
+  "outcome": "The exact macOS release candidate independently derives signed-package identity, provides a production-reachable and fail-closed Meet evidence sealing path bound to a reviewed remote helper, and executes every frozen Staff+ corpus provider event through the real orchestrator.",
+  "ownedRequirementIds": [
+    "P12"
+  ],
+  "openFindings": [
+    {
+      "id": "IC-M05-B01",
+      "requiredOutcome": "Package verification derives the signing Team ID, leaf signing-certificate SHA-256, and notarization/stapling identity from the mounted signed artifact and macOS security tooling, then compares those values to the detached release statement; statement values are never copied into inspection evidence.",
+      "failureMode": "Any identity that cannot be independently derived or compared fails closed before an inspection receipt is written."
+    },
+    {
+      "id": "IC-M05-B07",
+      "requiredOutcome": "The production qualification command can ingest the complete externally produced analysis and signed attestation set, call the existing sealed-bundle finalizer, and validate the finished bundle; remote observer receipts must use the exact helper digest pinned by the immutable matrix or release envelope.",
+      "failureMode": "Missing, additional, unsafe, unsigned, stale, or digest-mismatched evidence fails closed without modifying an existing run."
+    },
+    {
+      "id": "IC-M05-B09",
+      "requiredOutcome": "Every provider event in the frozen coding, system-design, and behavioral corpus is sent through the typed fake provider and real InterviewOrchestrator for its declared action; assertions evaluate resulting runtime sections and prove unaffected-section hashes remain exact.",
+      "failureMode": "Unused fixture events, hardcoded expected prose, mismatched affected sections, or provider-output bypass fails the contract test."
+    }
+  ],
+  "workPackages": [
+    {
+      "id": "IC-M05B-W1",
+      "title": "Close exact release-admission evidence gaps",
+      "mutableTargets": [
+        "scripts/qualification/verify-mac-package.mjs",
+        "scripts/qualification/qualify-meet.mjs",
+        "scripts/qualification/release-preflight.mjs",
+        "electron/main.ts",
+        "electron/ipcHandlers.ts",
+        "electron/qualification/liveProcedure.ts",
+        "electron/qualification/protocol.ts",
+        "electron/qualification/artifactValidator.ts",
+        "tests/qualification/liveProcedure.e2e.test.ts",
+        "tests/qualification/macosPackagePolicy.test.ts",
+        "tests/qualification/staffLivePositioning.contract.test.ts",
+        "tests/fixtures/qualification/staff-live-corpus.v1.json",
+        "docs/qualification/README.md",
+        "scripts/verification/test-manifest.json"
+      ]
+    }
+  ],
+  "evidenceContract": {
+    "packageIdentity": "Observed from the exact sealed DMG and its mounted app by /usr/bin/codesign, /usr/bin/security, /usr/bin/xcrun stapler, and /usr/sbin/spctl; the detached statement is comparison input only.",
+    "meetBundle": "Observed raw frames and recording plus externally produced canonical evidence and signed role attestations, admitted from a fixed run-specific inbox and finalized through QualificationCollector's write-once seal.",
+    "remoteHelper": "Expected SHA-256 is immutable release input carried by the pinned matrix entry; both signed start and stop receipts must equal it.",
+    "staffCorpus": "The committed corpus is the source; every providerEvents member must be consumed exactly once by a typed provider response or scoped follow-up/correction and evaluated from orchestrator state.",
+    "unknowns": "Real Developer ID, notarization, remote observer, recording, and physical Google Meet artifacts remain unknown until supplied by their external boundaries and may not be fabricated."
+  },
+  "reviewGates": [
+    {
+      "id": "IC-M05B-G1",
+      "role": "complete_finding_batch",
+      "risk": "HIGH",
+      "timing": "before_authoritative_complete",
+      "scope": "Exact cumulative IC-M05B diff against only IC-M05-B01, IC-M05-B07, and IC-M05-B09, including preserved closed-proof regression check.",
+      "exactShaReusable": true,
+      "budget": "ONE_COMPLETE_BATCH_PLUS_AT_MOST_ONE_CONSOLIDATED_REMEDIATION_AND_EXACT_DELTA_REVIEW"
+    },
+    {
+      "id": "IC-M05B-G2",
+      "role": "mechanical_integration_guard",
+      "timing": "integration",
+      "scope": "Exact candidate, parent, branch, PR stack, manifest, and hosted-check identity only; no new general findings.",
+      "exactShaReusable": true
+    }
+  ],
+  "verification": {
+    "targeted": [
+      "P12 qualification tests",
+      "focused package identity negative tests",
+      "production sealing and remote-helper digest mismatch tests",
+      "Staff+ corpus complete provider-event consumption test",
+      "typecheck",
+      "lint",
+      "build",
+      "package inventory and manifest policy"
+    ],
+    "authoritativeComplete": "Run the declared exact-candidate P12 authoritative suite once only after IC-M05B-G1 approval. External signing/notarization and physical two-device Meet steps may remain a final BLOCKED_EXTERNAL/BLOCKED_USER boundary, but every safe repository-native route must pass first.",
+    "authoritativeStatusAtFreeze": "UNUSED",
+    "postMergeSmoke": "Focused package-policy and qualification-manifest identity checks after protected integration."
+  },
+  "riskBoundaries": [
+    "Developer ID signing and notarization remain external and are not performed by this packet.",
+    "Physical two-device Google Meet qualification remains a user/external action and is not simulated.",
+    "No A04 or other privileged helper is invoked.",
+    "No merge, deployment, signing, notarization, or legacy automation activation is authorized."
+  ],
+  "rollback": "Reset only the local codex/ic-m05-release worktree to retained base revision 73a64b97442260fb5bf5d533e625936a600ca185 by a new revert commit if the outcome is rejected; retain all historical revisions, review evidence, external artifacts, and user-owned worktrees unchanged.",
+  "continuation": "AUTO",
+  "terminalCondition": "A material accepted IC-M05-B01, IC-M05-B07, or IC-M05-B09 failure remains after the single IC-M05B consolidated remediation and exact delta review, or every remaining route is a genuine external signing/physical-Meet boundary."
+}
