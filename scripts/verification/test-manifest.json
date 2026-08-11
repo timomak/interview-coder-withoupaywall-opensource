@@ -839,12 +839,12 @@
     {
       "path": "src/features/shell/CommandRail.test.tsx",
       "name": "renders exact pre-session and active controls",
-      "sha256": "6a1dc2cc86b0dbf3224ba60789930c7d6ed1d20d748cac14e8265e8c64c575f8"
+      "sha256": "8c753442afc4201c6c8028385614d38836b747c89fec07abd09e51e0f0ab9922"
     },
     {
       "path": "src/features/shell/CommandRail.test.tsx",
       "name": "selects one system prompt from the complete dropdown",
-      "sha256": "6a1dc2cc86b0dbf3224ba60789930c7d6ed1d20d748cac14e8265e8c64c575f8"
+      "sha256": "8c753442afc4201c6c8028385614d38836b747c89fec07abd09e51e0f0ab9922"
     },
     {
       "path": "src/features/shell/CompactComposer.test.tsx",

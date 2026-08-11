@@ -97,6 +97,14 @@ summary {
   -webkit-app-region: drag;
 }
 
+.quiet-brand-icon {
+  display: block;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  object-fit: contain;
+}
+
 [data-interactive] {
   -webkit-app-region: no-drag;
 }

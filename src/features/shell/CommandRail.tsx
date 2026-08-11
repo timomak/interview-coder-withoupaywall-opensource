@@ -1,4 +1,5 @@
 import type { RefObject } from "react"
+import appIcon from "../../assets/interviewcopilot-icon.png"
 import type { InterviewMode, InterviewSession } from "../../shared/interview"
 import type { ShortcutBindings } from "../../shared/shell"
 
@@ -56,7 +57,12 @@ export function CommandRail({
   return (
     <header className="quiet-rail" data-interactive>
       <div className="quiet-drag-pill" data-drag-root aria-label="Move InterviewCopilot">
-        <span className="quiet-brand">InterviewCopilot</span>
+        <img
+          className="quiet-brand-icon"
+          src={appIcon}
+          alt="InterviewCopilot"
+          draggable={false}
+        />
         {session.lifecycle === "active" ? (
           <span className={`quiet-mode quiet-mode-${session.snapshot.mode}`}>
             {MODES.find(({ value }) => value === session.snapshot.mode)?.label}

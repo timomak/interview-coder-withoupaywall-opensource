@@ -52,6 +52,8 @@ describe("CommandRail", () => {
   it("renders exact pre-session and active controls", () => {
     const onSettings = vi.fn()
     const { rerender } = render(<CommandRail {...props({ onSettings })} />)
+    expect(screen.getByRole("img", { name: "InterviewCopilot" })).toBeVisible()
+    expect(screen.queryByText("InterviewCopilot")).not.toBeInTheDocument()
     expect(screen.getByRole("combobox", { name: "System prompt" })).toHaveValue(
       "coding"
     )
