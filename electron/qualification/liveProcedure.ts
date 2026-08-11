@@ -110,6 +110,7 @@ export class LiveQualificationProcedure {
       payload.tupleId !== this.session.tupleId ||
       payload.pairingChallengeSha256 !== this.session.pairingChallengeSha256 ||
       payload.meetBuildId !== matrixEntry.meetBuildId || payload.receivedPresentation !== true ||
+      payload.remoteHelperSha256 !== matrixEntry.remoteHelperSha256 ||
       !/^[a-z0-9][a-z0-9-]{15,63}$/.test(String(payload.observerId)) ||
       !/^[0-9a-f]{64}$/.test(String(payload.remoteHelperSha256)) ||
       !/^[a-z0-9][a-z0-9-]{15,63}$/.test(String(payload.recordingSessionId)) ||

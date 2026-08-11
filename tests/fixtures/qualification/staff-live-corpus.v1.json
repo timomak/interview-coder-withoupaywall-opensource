@@ -70,8 +70,8 @@
         { "sectionId": "evidence", "text": "Verified: three-team migration after correction and shared rollout scorecard. Unknown: revenue impact." },
         { "sectionId": "follow-ups", "text": "Be ready to explain how disagreements were resolved and how rollout ownership was assigned." }
       ],
-      "expectedAffectedSectionIds": ["talking-points", "full-answer", "evidence"],
-      "expectedRuntimeAffectedSectionIds": ["answer", "star", "evidence"],
+      "expectedAffectedSectionIds": ["talking-points", "full-answer", "evidence", "follow-ups"],
+      "expectedRuntimeAffectedSectionIds": ["answer", "star", "evidence", "follow-ups"],
       "forbiddenFields": ["practiceScore", "practiceFeedback", "postAnswerScore"],
       "assertions": ["dossier-only", "leadership", "influence", "organizational-impact", "unknown-metrics-qualitative", "concise-full-same-facts", "correction-scoped-hash"]
     }

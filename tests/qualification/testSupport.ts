@@ -50,6 +50,7 @@ export function createTestTrust(): TestTrust {
           architecture: "arm64",
           chromeVersion: "138.0.7204.184",
           meetBuildId: "meet-web-2026-07-31",
+          remoteHelperSha256: "5".repeat(64),
           display: {
             displayId: "primary-1",
             type: "internal",

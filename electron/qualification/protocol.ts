@@ -236,7 +236,7 @@ export function validateMatrix(value: unknown): QualificationMatrix {
   for (const entry of value.entries) {
     requireClosedObject(
       entry,
-      ["tupleId", "macOSProductVersion", "macOSBuildVersion", "architecture", "chromeVersion", "meetBuildId", "display", "scopes"],
+      ["tupleId", "macOSProductVersion", "macOSBuildVersion", "architecture", "chromeVersion", "meetBuildId", "remoteHelperSha256", "display", "scopes"],
       "matrix entry"
     )
     const tupleId = String(entry.tupleId)
@@ -251,7 +251,11 @@ export function validateMatrix(value: unknown): QualificationMatrix {
     if (!/^\d+\.\d+\.\d+\.\d+$/.test(String(entry.chromeVersion))) {
       throw new Error("Chrome version must be exact")
     }
-    if (!TOKEN_PATTERN.test(String(entry.macOSBuildVersion)) || !TOKEN_PATTERN.test(String(entry.meetBuildId))) {
+    if (
+      !TOKEN_PATTERN.test(String(entry.macOSBuildVersion)) ||
+      !TOKEN_PATTERN.test(String(entry.meetBuildId)) ||
+      !SHA256_PATTERN.test(String(entry.remoteHelperSha256))
+    ) {
       throw new Error("Matrix build identifiers must be exact tokens")
     }
     if (entry.architecture !== "arm64" && entry.architecture !== "x64") {

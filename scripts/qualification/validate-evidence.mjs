@@ -15,7 +15,7 @@ const FILES = [
 function oneDirectory(directory, label) {
   if (!fs.existsSync(directory)) throw new Error(`Missing ${label}: ${directory}`)
   const names = fs.readdirSync(directory, { withFileTypes: true })
-    .filter((entry) => entry.isDirectory() && !entry.isSymbolicLink())
+    .filter((entry) => entry.isDirectory() && !entry.isSymbolicLink() && /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(entry.name))
     .map((entry) => entry.name)
   if (names.length !== 1) throw new Error(`${label} must contain exactly one immutable run`)
   return names[0]

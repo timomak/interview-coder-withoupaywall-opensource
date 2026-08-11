@@ -304,7 +304,7 @@ export function validateQualificationBundle(
       const payload = event.payload as Record<string, unknown>
       return payload.pairingChallengeSha256 !== collection.pairingChallengeSha256 || payload.receivedPresentation !== true ||
         payload.observerId !== collectionRoles.remoteObserver.roleId || payload.meetBuildId !== matrixEntry.meetBuildId ||
-        !SHA256_PATTERN.test(String(payload.remoteHelperSha256))
+        payload.remoteHelperSha256 !== matrixEntry.remoteHelperSha256
     }) ||
     observerStartPayload?.recordingSessionId !== observerStopPayload?.recordingSessionId ||
     observerStartPayload?.remoteHelperSha256 !== observerStopPayload?.remoteHelperSha256 ||
