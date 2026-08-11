@@ -5,12 +5,13 @@ import process from "node:process"
 import { spawnSync } from "node:child_process"
 
 const EXPECTED_CANDIDATE = "6d72db12de8ebda93e5b193e57144e7cf3ab22c6"
-const ATTEMPT_ID = "IC-M05B-AUTH-01"
+const ATTEMPT_ID = "IC-M05B-AUTH-02"
 const RESULT_PREFIX = "VERIFICATION_COORDINATOR_RESULT "
 const MAX_BUFFER = 128 * 1024 * 1024
 const NODE20_BIN = "/opt/homebrew/opt/node@20/bin"
 const SUITE_LABELS = [
   "install",
+  "electron-install",
   "policy",
   "lint",
   "typecheck",
@@ -94,6 +95,7 @@ const bindingHash = sha256(
   })
 )
 const npmPath = path.join(NODE20_BIN, "npm")
+const nodePath = path.join(NODE20_BIN, "node")
 const environment = {
   ...process.env,
   CI: "1",
@@ -124,7 +126,8 @@ function writeLog(label, result) {
 
 function runCommand(label, args, options = {}) {
   const started = new Date().toISOString()
-  const result = spawnSync(npmPath, args, {
+  const executable = options.executable ?? npmPath
+  const result = spawnSync(executable, args, {
     cwd: repositoryRoot,
     encoding: "utf8",
     env: { ...environment, ...(options.environment ?? {}) },
@@ -134,7 +137,7 @@ function runCommand(label, args, options = {}) {
   const logs = writeLog(label, result)
   commands.push({
     label,
-    argv: [npmPath, ...args],
+    argv: [executable, ...args],
     startedAt: started,
     completedAt: new Date().toISOString(),
     rawExit: result.status,
@@ -231,6 +234,9 @@ function runTest(label, script, minimumPassed) {
 }
 
 runCommand("install", ["ci"])
+runCommand("electron-install", ["node_modules/electron/install.js"], {
+  executable: nodePath
+})
 runCommand("policy", ["run", "verify:policy"])
 runCommand("lint", ["run", "lint"])
 runCommand("typecheck", ["run", "typecheck"])
