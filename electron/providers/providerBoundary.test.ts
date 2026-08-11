@@ -68,13 +68,31 @@ describe("provider boundary", () => {
     const claudeSubscription = await diagnoseProvider(
       "claude-code",
       "/unused/claude",
+      new DiagnosticRunner(
+        "2.1.220 (Claude Code)",
+        JSON.stringify(
+          {
+            loggedIn: true,
+            authMethod: "claude.ai",
+            apiProvider: "firstParty",
+            subscriptionType: "pro"
+          },
+          null,
+          2
+        ).split("\n")
+      )
+    )
+    const claudeTrailingOutput = await diagnoseProvider(
+      "claude-code",
+      "/unused/claude",
       new DiagnosticRunner("2.1.220 (Claude Code)", [
         JSON.stringify({
           loggedIn: true,
           authMethod: "claude.ai",
           apiProvider: "firstParty",
           subscriptionType: "pro"
-        })
+        }),
+        "unexpected trailing output"
       ])
     )
     const codexSubscription = await diagnoseProvider(
@@ -88,6 +106,7 @@ describe("provider boundary", () => {
     expect(claudeApiCredential.authenticated).toBe(false)
     expect(codexApiCredential.authenticated).toBe(false)
     expect(claudeSubscription.authenticated).toBe(true)
+    expect(claudeTrailingOutput.authenticated).toBe(false)
     expect(codexSubscription.authenticated).toBe(true)
   })
 })

@@ -504,12 +504,12 @@
     {
       "path": "electron/providers/providerBoundary.test.ts",
       "name": "accepts only explicit first-party subscription authentication",
-      "sha256": "9994666d7acd3f3706903e70298b71c6bada636c6385f8abaa1c5e8e10a9f441"
+      "sha256": "6a88860bfcddf0a04f4ba5a57aa05a529ff1365477eb68390794a7be0f40fb5e"
     },
     {
       "path": "electron/providers/providerBoundary.test.ts",
       "name": "rejects legacy providers and entitlement surfaces",
-      "sha256": "9994666d7acd3f3706903e70298b71c6bada636c6385f8abaa1c5e8e10a9f441"
+      "sha256": "6a88860bfcddf0a04f4ba5a57aa05a529ff1365477eb68390794a7be0f40fb5e"
     },
     {
       "path": "electron/providers/selectionSnapshot.test.ts",
