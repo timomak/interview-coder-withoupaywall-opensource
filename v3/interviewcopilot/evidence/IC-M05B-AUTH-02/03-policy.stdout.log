@@ -1,0 +1,5 @@
+
+> interview-copilot@1.0.19 verify:policy
+> node scripts/verification/product-policy.mjs
+
+Product policy accepted: InterviewCopilot, AGPL-3.0-or-later, subscription-only provider/session boundary, and no analytics, fingerprinting, automatic crash upload, or environment-secret logging entry points.

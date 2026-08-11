@@ -1,0 +1,5 @@
+
+> interview-copilot@1.0.19 lint
+> node scripts/verification/source-inventory.mjs && eslint .
+
+Canonical source inventory accepted: 369 executable files, 153 test files.
