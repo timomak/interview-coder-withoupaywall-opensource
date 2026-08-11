@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "kind": "long-horizon-milestone-remediation",
+  "projectKey": "InterviewCopilot",
+  "milestoneId": "IC-M05B",
+  "recordedAt": "2026-08-11T17:54:30+02:00",
+  "reviewResult": "v3/interviewcopilot/milestone-IC-M05B-review-result-1.json",
+  "reviewResultSha256": "59bf950de3a3716f98da6012ac70a2e3d70ceee8258b9ee36c8431b3577411ac",
+  "reviewedCandidate": "a2c55688de5f0e534f2641fac31c1a6f9f1fe2f5",
+  "remediatedCandidate": "6d72db12de8ebda93e5b193e57144e7cf3ab22c6",
+  "remediatedTree": "3d3facdfd72cf1cf1cf8deebeb70c578c3c7097f",
+  "findingIds": [
+    "IC-M05-B07",
+    "IC-M05-B09"
+  ],
+  "correction": {
+    "IC-M05-B07": "Recursively inventory the fixed external inbox and require the exact governed member set before reading evidence, writing the review receipt, or sealing; exercise unexpected member, hardlink, helper mismatch, and valid seal cases.",
+    "IC-M05-B09": "Restore the original frozen corpus digest, route its behavioral follow-up as a separate provider correction before the scoped correction baseline, record every fixture event's runtime-section/stage contribution, and assert every exact source text is present in that section while preserving unaffected hashes."
+  },
+  "verification": {
+    "p12": "21_PASS_0_FAIL_0_SKIP",
+    "typecheck": "PASS_369_EXECUTABLE_FILES",
+    "lint": "PASS_369_EXECUTABLE_153_TEST_FILES",
+    "policy": "PASS",
+    "build": "PASS",
+    "packageInventory": "PASS_4660_ASAR_118_OUTER_ASAR_SHA256_3d891db2ad3ac255ac6b90808f297ec82e0ca44c8e62d2dccab116caabab9a66",
+    "frozenCorpusSha256": "7de69145e6eae6e1c3a63f5b42a66784ac6ceeb004fe1b9f79f4cfaf6b3f9931"
+  },
+  "deltaReview": {
+    "reviewer": "/root/ic_m05b_high_review",
+    "status": "IN_PROGRESS",
+    "budgetAfterDispatch": 0
+  },
+  "authoritativeSuite": "UNUSED"
+}
