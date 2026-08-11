@@ -1,4 +1,5 @@
 import fs from "node:fs"
+import { PROVIDER_CAPABILITIES } from "../../src/shared/provider"
 import {
   CLAUDE_SUCCESS_BODY,
   CODEX_SUCCESS_BODY,
@@ -9,6 +10,16 @@ import { ProviderRuntime } from "./runtime"
 
 describe("selection capabilities", () => {
   it("locks explicit provider model and effort", async () => {
+    expect(PROVIDER_CAPABILITIES.codex.models).toEqual([
+      "gpt-5.6-sol",
+      "gpt-5.6-terra",
+      "gpt-5.6-luna",
+      "gpt-5.5",
+      "gpt-5.4",
+      "gpt-5.4-mini",
+      "gpt-5.3-codex-spark",
+      "gpt-5.3-codex"
+    ])
     const claude = makeFakeExecutable(
       "claude",
       CLAUDE_SUCCESS_BODY,

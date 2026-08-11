@@ -541,6 +541,10 @@ function createOrchestrator(
 }
 
 async function initializeApplication(): Promise<void> {
+  if (process.platform === "darwin") {
+    app.setActivationPolicy("accessory")
+    app.dock.hide()
+  }
   const userData = path.join(app.getPath("appData"), "InterviewCopilot")
   app.setPath("userData", userData)
   const executables = providerExecutables()

@@ -12,8 +12,16 @@ describe("window visibility", () => {
       path.join(process.cwd(), "electron/orchestrator/captureIntegration.ts"),
       "utf8"
     )
+    const packageMetadata = JSON.parse(
+      fs.readFileSync(path.join(process.cwd(), "package.json"), "utf8")
+    ) as { build?: { mac?: { extendInfo?: { LSUIElement?: boolean } } } }
 
     expect(source).toContain("show: false")
+    expect(source).toContain('app.setActivationPolicy("accessory")')
+    expect(source).toContain("app.dock.hide()")
+    expect(source).toContain("skipTaskbar: true")
+    expect(source).toContain('type: "panel"')
+    expect(packageMetadata.build?.mac?.extendInfo?.LSUIElement).toBe(true)
     expect(source).toContain(
       "const startupHudState = deriveStartupHudState(configHelper.loadConfig())"
     )

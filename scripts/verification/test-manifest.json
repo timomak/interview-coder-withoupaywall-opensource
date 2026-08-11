@@ -514,7 +514,7 @@
     {
       "path": "electron/providers/selectionSnapshot.test.ts",
       "name": "locks explicit provider model and effort",
-      "sha256": "dd3a3137319f0cb9d2835c728c2ff0690649d45c1c481ed859f7cf72d6d7a007"
+      "sha256": "72a3f514c74c9aae83405f62e23e9c8e8621bf33908c2de8d7c0e89f0d652cb2"
     },
     {
       "path": "electron/ScreenshotHelper.test.ts",
@@ -634,7 +634,7 @@
     {
       "path": "electron/window/windowVisibility.test.ts",
       "name": "reveals onboarding and preserves configured hidden startup",
-      "sha256": "4045691fe27e4789d555f0899e1a0b0ad581a33309ba2491488183e5a8f302f2"
+      "sha256": "0eb68a437e066c435d5ed166fe3904910a3918d9a48f725f408ea306396186f8"
     },
     {
       "path": "electron/windowOpenPolicy.test.ts",

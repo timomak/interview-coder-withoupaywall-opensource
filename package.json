@@ -93,6 +93,7 @@
     "mac": {
       "category": "public.app-category.developer-tools",
       "extendInfo": {
+        "LSUIElement": true,
         "NSMicrophoneUsageDescription": "InterviewCopilot records microphone audio only after you turn the microphone on for the active interview.",
         "NSSpeechRecognitionUsageDescription": "InterviewCopilot sends finalized audio to Apple Speech only after you explicitly enable remote transcription.",
         "NSScreenCaptureUsageDescription": "InterviewCopilot captures the selected display only after you explicitly stage a screenshot or run guided capture verification."
