@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "kind": "long-horizon-milestone-candidate",
+  "projectKey": "InterviewCopilot",
+  "milestoneId": "IC-M05B",
+  "recordedAt": "2026-08-11T17:46:00+02:00",
+  "packet": "v3/interviewcopilot/milestone-IC-M05B-packet-1.json",
+  "packetSha256": "28f250df5f3a481690af003512e180e84f4e95ddc9428bb7a47046c6f3f98b7a",
+  "targetAddendum": "v3/interviewcopilot/milestone-IC-M05B-target-addendum-1.json",
+  "targetAddendumSha256": "c596a9aae041ddfcd4da90f99d7560abab9e531c686d7369522ef3b2d47d5a2d",
+  "baseRevision": "73a64b97442260fb5bf5d533e625936a600ca185",
+  "candidateRevision": "a2c55688de5f0e534f2641fac31c1a6f9f1fe2f5",
+  "candidateTree": "931de814c5e3d8f59882430c6c57722f4fdd0428",
+  "branch": "codex/ic-m05-release",
+  "worktree": "/Users/thirdfacedev/.codex/worktrees/ic-m05/TimoCodes",
+  "worktreeStatus": "CLEAN",
+  "findingIds": [
+    "IC-M05-B01",
+    "IC-M05-B07",
+    "IC-M05-B09"
+  ],
+  "targetedVerification": {
+    "p12": "21_PASS_0_FAIL_0_SKIP",
+    "typecheck": "PASS_369_EXECUTABLE_FILES",
+    "lint": "PASS_369_EXECUTABLE_153_TEST_FILES",
+    "policy": "PASS",
+    "build": "PASS",
+    "packageInventory": "PASS_4660_ASAR_118_OUTER_ASAR_SHA256_3d891db2ad3ac255ac6b90808f297ec82e0ca44c8e62d2dccab116caabab9a66"
+  },
+  "review": {
+    "gateId": "IC-M05B-G1",
+    "task": "/root/ic_m05b_high_review",
+    "role": "complete_finding_batch",
+    "status": "IN_PROGRESS",
+    "exactCandidate": "a2c55688de5f0e534f2641fac31c1a6f9f1fe2f5"
+  },
+  "authoritativeSuite": "UNUSED",
+  "prohibitedBoundariesCrossed": []
+}
