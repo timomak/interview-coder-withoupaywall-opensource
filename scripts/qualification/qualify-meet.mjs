@@ -52,6 +52,29 @@ function safeRead(rootPath, relative) {
   return fs.readFileSync(target)
 }
 
+/** @param {string} rootPath */
+function externalMemberInventory(rootPath) {
+  const root = path.resolve(rootPath)
+  /** @type {string[]} */
+  const members = []
+  /** @param {string} directory */
+  const visit = (directory) => {
+    const stat = fs.lstatSync(directory)
+    if (!stat.isDirectory() || stat.isSymbolicLink() || (stat.mode & 0o022) !== 0) {
+      throw new Error("Qualification external inbox contains an unsafe directory")
+    }
+    for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
+      const candidate = path.join(directory, entry.name)
+      if (entry.isSymbolicLink()) throw new Error("Qualification external inbox contains a symbolic link")
+      if (entry.isDirectory()) visit(candidate)
+      else if (entry.isFile()) members.push(path.relative(root, candidate))
+      else throw new Error("Qualification external inbox contains an unsupported member")
+    }
+  }
+  visit(root)
+  return members.sort()
+}
+
 /** @param {string} checkoutRoot @param {string} directory */
 function ensurePrivateDirectory(checkoutRoot, directory) {
   const base = path.resolve(checkoutRoot)
@@ -103,6 +126,13 @@ export function finalizeQualificationRun(checkoutRoot, pinned, entry, scope, pro
     ...runtime.protocol.BUNDLE_MEMBER_PATHS,
     "bundle-manifest.json"
   ]
+  const expectedExternal = [
+    ...exactMembers.filter((relative) => !GENERATED_MEMBERS.has(relative)),
+    "independent-review.json"
+  ].sort()
+  if (JSON.stringify(externalMemberInventory(externalRoot)) !== JSON.stringify(expectedExternal)) {
+    throw new Error("Qualification external inbox member set is invalid")
+  }
   const files = new Map()
   const external = new Map()
   for (const relative of exactMembers) {

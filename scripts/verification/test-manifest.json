@@ -1269,17 +1269,17 @@
     {
       "path": "tests/qualification/staffLivePositioning.contract.test.ts",
       "name": "enforces the frozen Live-first Staff-plus corpus",
-      "sha256": "a25258e8b1d2a879b2ed5214f7db0d2d39c4b0cff7bfe142999ee0d40cdb1194"
+      "sha256": "4d906af21efa563c156d6ed04fda25c6409f9bbe1e127b97cc9db5dbd1d025ff"
     },
     {
       "path": "tests/qualification/liveProcedure.e2e.test.ts",
       "name": "requires signed remote start/stop, starts the clock after ack, and seals only a complete bundle",
-      "sha256": "d21a4ca8b7177b48cfb43f8802f984f38279c512a3ce90870b500b348935ea21"
+      "sha256": "99fc9c848da723d2094b599d48383c9833226fc7a111bd438fb9bfbaab7b408b"
     },
     {
       "path": "tests/qualification/liveProcedure.e2e.test.ts",
       "name": "prevalidates a fixed production inbox before sealing the raw run",
-      "sha256": "d21a4ca8b7177b48cfb43f8802f984f38279c512a3ce90870b500b348935ea21"
+      "sha256": "99fc9c848da723d2094b599d48383c9833226fc7a111bd438fb9bfbaab7b408b"
     }
   ]
 }

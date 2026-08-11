@@ -117,7 +117,20 @@ describe("executable Meet qualification procedure", () => {
     }
     const runtime = { LiveQualificationProcedure, validateQualificationBundle, protocol }
     const reviewPath = path.join(externalRoot, "independent-review.json")
-    const hostileHardlink = path.join(externalRoot, "independent-review-hardlink.json")
+    const unexpected = path.join(externalRoot, "unexpected-evidence.json")
+    fs.writeFileSync(unexpected, "not governed")
+    expect(() => finalizeQualificationRun(
+      checkout,
+      pinned,
+      entry,
+      "entire-display",
+      procedure,
+      runtime
+    )).toThrow("member set is invalid")
+    fs.unlinkSync(unexpected)
+    expect(fs.existsSync(path.join(runRoot, "collection.json"))).toBe(false)
+
+    const hostileHardlink = path.join(checkout, "independent-review-hardlink.json")
     fs.linkSync(reviewPath, hostileHardlink)
     expect(() => finalizeQualificationRun(
       checkout,

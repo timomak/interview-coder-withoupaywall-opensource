@@ -58,7 +58,7 @@ describe("Staff+ Live-first release positioning", () => {
         assertions: string[]
       }>
     }
-    expect(hash(bytes.toString("utf8"))).toBe("ca033f3ceb245d95b4f0444d1fd7f819672860cd010c3f0da1d16e7d632c338e")
+    expect(hash(bytes.toString("utf8"))).toBe("7de69145e6eae6e1c3a63f5b42a66784ac6ceeb004fe1b9f79f4cfaf6b3f9931")
     expect(fixture.schemaVersion).toBe(1)
     expect(fixture.cases.map((item) => item.id)).toEqual(["SL-CODING-01", "SL-SYSTEM-01", "SL-BEHAVIORAL-01"])
     expect(fixture.promptPolicy).toMatchObject({ audience: "Senior/Staff+", shell: "Live", practice: false, postAnswerScore: false })
@@ -66,12 +66,27 @@ describe("Staff+ Live-first release positioning", () => {
     for (const item of fixture.cases) {
       const runtime = createTestOrchestrator()
       const consumedProviderEvents = new Set<string>()
+      const contributions: Array<{
+        readonly eventSectionId: string
+        readonly runtimeSectionId: string
+        readonly stage: "before" | "after"
+        readonly text: string
+      }> = []
       const providerText = (sectionId: string): string => {
         const matches = item.providerEvents.filter((event) => event.sectionId === sectionId)
         expect(matches, `${item.id}/${sectionId} must identify one provider event`).toHaveLength(1)
         expect(consumedProviderEvents.has(sectionId), `${item.id}/${sectionId} provider event reused`).toBe(false)
         consumedProviderEvents.add(sectionId)
         return matches[0]!.text
+      }
+      const providerContribution = (
+        eventSectionId: string,
+        runtimeSectionId: string,
+        stage: "before" | "after"
+      ): string => {
+        const text = providerText(eventSectionId)
+        contributions.push({ eventSectionId, runtimeSectionId, stage, text })
+        return text
       }
       const context: ContextItem[] = [{ id: "staff-live", category: "instructions", revision: 1, content: "Answer at Senior/Staff+ level in Live mode. No Practice or post-answer scoring." }]
       if (item.mode === "behavioral") context.push({
@@ -86,14 +101,14 @@ describe("Staff+ Live-first release positioning", () => {
       let input = String(item.inputArtifacts.question)
       if (item.mode === "coding") {
         runtime.providerFactory.queued.push({ selection, events: [{ type: "typed-payload", sequence: 1, payload: { kind: "structured", sections: [
-          { id: "answer", body: providerText("ambiguity") },
-          { id: "plan", body: `- Trade-off: ${providerText("approach")}\n- ${providerText("complexity")}` },
+          { id: "answer", body: providerContribution("ambiguity", "answer", "before") },
+          { id: "plan", body: `- Trade-off: ${providerContribution("approach", "plan", "before")}\n- ${providerContribution("complexity", "plan", "before")}` },
           { id: "code", body: "export function allow(tokens: number): boolean { return tokens > 0 }" },
-          { id: "explain", body: providerText("testing") }
+          { id: "explain", body: providerContribution("testing", "explain", "before") }
         ] } }, completed] })
         await runtime.orchestrator.submit("mode-action", input, undefined, "generate-code")
       } else if (item.mode === "system-design") {
-        const estimateSource = providerText("estimates")
+        const estimateSource = providerContribution("estimates", "estimate", "before")
         const estimates = JSON.stringify([
           { name: "average", expression: "50000000/86400", result: 579, unit: "jobs/s", assumption: estimateSource },
           { name: "peak", expression: "579*10", result: 5790, unit: "jobs/s", assumption: estimateSource },
@@ -101,11 +116,11 @@ describe("Staff+ Live-first release positioning", () => {
         ])
         const graph = JSON.stringify({ nodes: [
           { id: "client", type: "client", label: "Client", detail: "submitter" },
-          { id: "scheduler", type: "service", label: "Scheduler", detail: providerText("architecture") }
+          { id: "scheduler", type: "service", label: "Scheduler", detail: providerContribution("architecture", "architecture", "before") }
         ], edges: [{ id: "submit", from: "client", to: "scheduler", label: "submit" }] })
         runtime.providerFactory.queued.push({ selection, events: [{ type: "typed-payload", sequence: 1, payload: { kind: "structured", sections: [
-          { id: "clarify", body: providerText("requirements") }, { id: "estimate", body: estimates },
-          { id: "architecture", body: graph }, { id: "data-apis", body: providerText("operations") },
+          { id: "clarify", body: providerContribution("requirements", "clarify", "before") }, { id: "estimate", body: estimates },
+          { id: "architecture", body: graph }, { id: "data-apis", body: providerContribution("operations", "data-apis", "before") },
           { id: "deep-dives-trade-offs", body: "Regional failure handling is the next focused follow-up." }
         ] } }, completed] })
         await runtime.orchestrator.submit("mode-action", input)
@@ -116,10 +131,18 @@ describe("Staff+ Live-first release positioning", () => {
         await runtime.orchestrator.submit("mode-action", input)
       }
 
+      if (item.mode === "behavioral") {
+        const followUps = providerContribution("follow-ups", "follow-ups", "before")
+        runtime.providerFactory.queued.push({ selection, events: [{ type: "typed-payload", sequence: 1, payload: {
+          kind: "correction", sections: [{ id: "follow-ups", body: followUps }]
+        } }, completed] })
+        await runtime.orchestrator.submit("correction", String(item.inputArtifacts.opportunity), ["follow-ups"])
+      }
+
       const before = currentActive(runtime.orchestrator.current())
       const beforeHashes = Object.fromEntries(before.sections.map((section) => [section.id, hash(section.body)]))
       if (item.mode === "system-design") {
-        const reliability = providerText("reliability")
+        const reliability = providerContribution("reliability", "deep-dives-trade-offs", "after")
         runtime.providerFactory.queued.push({ selection, events: [{ type: "typed-payload", sequence: 1, payload: {
           kind: "system-design-followup", impactedSectionIds: item.expectedRuntimeAffectedSectionIds,
           sections: item.expectedRuntimeAffectedSectionIds.map((id) => ({ id, body: reliability })),
@@ -129,12 +152,11 @@ describe("Staff+ Live-first release positioning", () => {
       } else {
         const replacements = item.mode === "behavioral"
           ? {
-              answer: providerText("full-answer"),
-              star: providerText("talking-points"),
-              evidence: providerText("evidence"),
-              "follow-ups": providerText("follow-ups")
+              answer: providerContribution("full-answer", "answer", "after"),
+              star: providerContribution("talking-points", "star", "after"),
+              evidence: providerContribution("evidence", "evidence", "after")
             }
-          : { explain: providerText("failure") }
+          : { explain: providerContribution("failure", "explain", "after") }
         runtime.providerFactory.queued.push({ selection, events: [{ type: "typed-payload", sequence: 1, payload: { kind: "correction", sections: Object.entries(replacements).map(([id, body]) => ({ id, body })) } }, completed] })
         await runtime.orchestrator.submit("correction", String(item.inputArtifacts.correction ?? item.inputArtifacts.followUp), item.expectedRuntimeAffectedSectionIds)
       }
@@ -147,7 +169,13 @@ describe("Staff+ Live-first release positioning", () => {
       const beforeText = before.sections.map((section) => `${section.id}\n${section.body}`).join("\n")
       const afterText = after.sections.map((section) => `${section.id}\n${section.body}`).join("\n")
       for (const assertion of item.assertions) {
-        expect(evaluateAssertion(assertion, beforeText, afterText), `${item.id}/${assertion}`).toBe(true)
+        const assertedBefore = item.mode === "behavioral" ? afterText : beforeText
+        expect(evaluateAssertion(assertion, assertedBefore, afterText), `${item.id}/${assertion}`).toBe(true)
+      }
+      for (const contribution of contributions) {
+        const snapshot = contribution.stage === "before" ? before : after
+        const body = snapshot.sections.find((section) => section.id === contribution.runtimeSectionId)?.body
+        expect(body, `${item.id}/${contribution.eventSectionId} runtime section`).toContain(contribution.text)
       }
       expect([...consumedProviderEvents].sort()).toEqual(item.providerEvents.map((event) => event.sectionId).sort())
       expect(runtime.providerFactory.queued).toHaveLength(0)
