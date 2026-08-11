@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "kind": "frozen-milestone-target-addendum",
+  "projectKey": "InterviewCopilot",
+  "milestoneId": "IC-M05B",
+  "frozenAt": "2026-08-11T17:40:18+02:00",
+  "parentPacket": "v3/interviewcopilot/milestone-IC-M05B-packet-1.json",
+  "parentPacketSha256": "28f250df5f3a481690af003512e180e84f4e95ddc9428bb7a47046c6f3f98b7a",
+  "addedMutableTarget": "scripts/qualification/validate-evidence.mjs",
+  "findingId": "IC-M05-B07",
+  "reason": "The production finalizer creates the collector's documented <runId>.collector-state sibling beside the UUID run directory. The existing authoritative validator counts that state directory as a second run and therefore cannot validate any production-sealed run. Narrow the run selector to the already-governed UUID run identity while retaining exactly-one-run enforcement.",
+  "scopeProhibitions": [
+    "No evidence semantic change",
+    "No trust or signature relaxation",
+    "No additional run accepted",
+    "No historical evidence mutation"
+  ]
+}
