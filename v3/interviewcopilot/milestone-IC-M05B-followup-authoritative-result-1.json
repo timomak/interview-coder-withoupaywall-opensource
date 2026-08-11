@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "kind": "long-horizon-followup-authoritative-result",
+  "projectKey": "InterviewCopilot",
+  "milestoneId": "IC-M05B",
+  "gateId": "IC-M05B-FOLLOWUP-AUTH-01",
+  "recordedAt": "2026-08-11T22:11:14+02:00",
+  "status": "PASS_SAFE_REPOSITORY_NATIVE_AWAITING_EXTERNAL_RELEASE_BOUNDARIES",
+  "candidate": {
+    "branch": "codex/ic-m05-release",
+    "revision": "8aa2e988fdee442c144a7dae31fb2bb6b1748c23",
+    "tree": "6650d76646f592a97f73206a9ec9279e55c6fcf5",
+    "remoteRevision": "8aa2e988fdee442c144a7dae31fb2bb6b1748c23",
+    "worktreeClean": true
+  },
+  "approval": {
+    "result": "v3/interviewcopilot/milestone-IC-M05B-followup-review-result-1.json",
+    "resultSha256": "92441683f5bfec8c723d2c51bd0e6f2a6de5f2d9ba8ac6aea2737f348d98b550",
+    "disposition": "APPROVE",
+    "remainingMaterialFindings": 0
+  },
+  "runner": {
+    "path": "v3/interviewcopilot/ic-m05b-followup-authoritative-runner.mjs",
+    "sha256": "f2cf847672c2b6dae0f1262dd2131634df82db305e987f0ac6a09f4ae7179cda",
+    "baseRunnerSha256": "4cb85351b25324fc7b6ada5a0c21f033b277ff619d1cb0ad029410618592a64b",
+    "transformedSha256": "2665ee2a2d03015e9f77bbf889b4da84a38333b1e0d83d9e7978b013598cc87f"
+  },
+  "evidence": {
+    "resultPath": "v3/interviewcopilot/evidence/IC-M05B-FOLLOWUP-AUTH-01/authoritative-result.json",
+    "resultSha256": "6bb729dd833a4a2a811b97dac53866485c6b3d36fdcd08cf653e4ff28381daf1",
+    "validatedTestResultsPath": "v3/interviewcopilot/evidence/IC-M05B-FOLLOWUP-AUTH-01/validated-test-results.json",
+    "validatedTestResultsSha256": "419c4a8965889b1f62b51e010d2cf8bfe69cc8fa8d5c61a88f3efd23236bc3fa",
+    "bindingHash": "14ecccea8ce0b71d4d78072c5b4a5edb80f809e25c10523f0d0564c5ff6d419e"
+  },
+  "authoritativeChecks": {
+    "install": "PASS_LOCKFILE_EXACT_SCRIPTS_DISABLED",
+    "electronInstall": "PASS_EXACT_LOCKFILE_ARTIFACT",
+    "policy": "PASS",
+    "lint": "PASS",
+    "typecheck": "PASS",
+    "legacy": "1_PASS_0_FAIL_0_SKIP",
+    "unit": "260_PASS_0_FAIL_0_SKIP",
+    "p12": "21_PASS_0_FAIL_0_SKIP",
+    "e2eMacos": "5_PASS_0_FAIL_0_SKIP",
+    "staffLiveCorpus": "1_PASS_0_FAIL_0_SKIP",
+    "namedTestManifest": "PASS",
+    "productionBuildAndPackageInventory": "PASS",
+    "diagnostics": "PASS_REDACTED_MANUAL_LOCAL_ONLY",
+    "candidateIdentityAfterRun": "UNCHANGED_AND_CLEAN"
+  },
+  "mechanicalIntegrationGuards": {
+    "stackBase": "9b6672464d16389b6315cbe0c17d48569714530e",
+    "stackBaseIsAncestor": true,
+    "diffCheck": "PASS",
+    "remoteHeadExact": true,
+    "pullRequest": 5,
+    "pullRequestState": "OPEN_DRAFT",
+    "pullRequestMergeable": true,
+    "hostedChecks": "NONE_CONFIGURED"
+  },
+  "integrationChain": {
+    "forkPullRequests1Through5": "OPEN_DRAFT_MERGEABLE",
+    "upstreamPullRequest155": "OPEN_REVIEW_REQUIRED_CODEQL_SUCCESS",
+    "upstreamPullRequest155Head": "a8cdcbdeb49a897946dd520981d59d9a1a3813b6"
+  },
+  "externalBoundaries": [
+    "Developer ID signing and notarization on exact arm64 and x64 packages",
+    "artifact-derived package inspection against the detached release statement",
+    "two-device physical Google Meet qualification with exact matrix keys and helper digest",
+    "independent observer evidence and final release aggregation",
+    "protected integration authority"
+  ],
+  "installedState": {
+    "application": "/Applications/InterviewCopilot.app",
+    "sourceRevision": "064f7fc4cda1d041379674d5596b0ee26c3fcd1f",
+    "asarSha256": "a9be9e7733fd10e2248ef20f095600de2508c2d31667ce56b16114d208ac7fdc",
+    "followupCandidateInstalled": false
+  },
+  "prohibitedDuringRun": {
+    "mergePerformed": false,
+    "deploymentPerformed": false,
+    "privilegedCapabilityInvoked": false,
+    "legacyV1Invoked": false,
+    "signingOrNotarizationPerformed": false,
+    "physicalMeetPerformed": false
+  },
+  "nextSafeAction": "Retain the exact draft PR and immutable evidence. The repository-native follow-up is complete; protected integration and external release boundaries remain intentionally unperformed."
+}
