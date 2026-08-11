@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "kind": "long-horizon-milestone-followup-delta-review-result",
+  "projectKey": "InterviewCopilot",
+  "milestoneId": "IC-M05B",
+  "gateId": "IC-M05B-UI-FOLLOWUP-DELTA-01",
+  "recordedAt": "2026-08-11T22:08:47+02:00",
+  "frozenCandidate": {
+    "path": "v3/interviewcopilot/milestone-IC-M05B-followup-candidate-1.json",
+    "sha256": "c88a4ab906ee3fe910a55eabf8b4adf40005dea748ab484e195af9004f148234",
+    "revision": "064f7fc4cda1d041379674d5596b0ee26c3fcd1f",
+    "tree": "65f5b4f366462a80fd7f8509c75122844fa0c285"
+  },
+  "reviewer": "/root/ui_followup_delta_review",
+  "initialReview": {
+    "disposition": "CHANGES_REQUESTED",
+    "finding": {
+      "id": "IC-M05B-UI-FOLLOWUP-DELTA-01-B01",
+      "severity": "MEDIUM",
+      "summary": "Unconfigured startup replaced persisted expanded-window origin with the synthetic BrowserWindow origin."
+    },
+    "otherScope": "APPROVED_ICON_ACCESSIBILITY_PROMPT_WIDTH_LABEL_REMOVAL_MANIFEST_PACKAGE_IMPORT_PROVIDER_PRIVACY"
+  },
+  "remediation": {
+    "revision": "8aa2e988fdee442c144a7dae31fb2bb6b1748c23",
+    "tree": "6650d76646f592a97f73206a9ec9279e55c6fcf5",
+    "scope": "Separate startup origin restoration from live origin-preserving HUD transitions and add exact coverage."
+  },
+  "closureReview": {
+    "scope": ["IC-M05B-UI-FOLLOWUP-DELTA-01-B01"],
+    "disposition": "APPROVE",
+    "findingStatus": "CLOSED",
+    "remainingMaterialFindings": [],
+    "verification": {
+      "targeted": "2_FILES_5_PASS_0_FAIL_0_SKIP",
+      "typecheck": "PASS_371_EXECUTABLE_FILES",
+      "lint": "PASS_371_EXECUTABLE_154_TEST_FILES",
+      "diffCheck": "PASS",
+      "manifestHashes": "EXACT"
+    }
+  },
+  "authoritativeSuite": "UNUSED_AT_EXACT_APPROVAL",
+  "boundariesCrossed": []
+}
