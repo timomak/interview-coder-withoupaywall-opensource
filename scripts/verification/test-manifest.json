@@ -839,12 +839,12 @@
     {
       "path": "src/features/shell/CommandRail.test.tsx",
       "name": "renders exact pre-session and active controls",
-      "sha256": "628f2a191047971bd1c176b10a9b58f9750bebede14bd7cbdcf7be4cb7f48922"
+      "sha256": "43da44527c6e5abc1776a97b331152d04f0008a5578c1efb4dec473cc9ae7b76"
     },
     {
       "path": "src/features/shell/CommandRail.test.tsx",
-      "name": "supports arrow-key mode selection without hiding any mode",
-      "sha256": "628f2a191047971bd1c176b10a9b58f9750bebede14bd7cbdcf7be4cb7f48922"
+      "name": "selects one system prompt from the complete dropdown",
+      "sha256": "43da44527c6e5abc1776a97b331152d04f0008a5578c1efb4dec473cc9ae7b76"
     },
     {
       "path": "src/features/shell/CompactComposer.test.tsx",
@@ -869,12 +869,12 @@
     {
       "path": "src/features/shell/hudState.test.ts",
       "name": "expands required staged evidence controls beyond the compact bar",
-      "sha256": "0f061ef2436692be530c7893e0aaf2e9252718019563697267dfe568d9c60fff"
+      "sha256": "e1285dfd914fcc91948aeabd042933a7a728e339c0da0c43a15a147e75b012d9"
     },
     {
       "path": "src/features/shell/hudState.test.ts",
       "name": "opens first-run provider setup in the expanded window",
-      "sha256": "0f061ef2436692be530c7893e0aaf2e9252718019563697267dfe568d9c60fff"
+      "sha256": "e1285dfd914fcc91948aeabd042933a7a728e339c0da0c43a15a147e75b012d9"
     },
     {
       "path": "src/features/shell/navigationShortcuts.test.tsx",

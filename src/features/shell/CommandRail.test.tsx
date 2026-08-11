@@ -4,6 +4,7 @@ import {
   createIdleInterviewSession,
   reduceInterviewSession
 } from "../../domain/interview"
+import { DEFAULT_SHORTCUT_BINDINGS } from "../../shared/shell"
 import { CommandRail, type CommandRailProps } from "./CommandRail"
 
 function activeSession() {
@@ -37,8 +38,10 @@ function props(overrides: Partial<CommandRailProps> = {}): CommandRailProps {
     onChat: vi.fn(),
     onSubmit: vi.fn(),
     onHotKeys: vi.fn(),
+    onSettings: vi.fn(),
     onReset: vi.fn(),
     onWorkspace: vi.fn(),
+    shortcuts: DEFAULT_SHORTCUT_BINDINGS,
     contextLabel: "Full context",
     canSubmit: true,
     ...overrides
@@ -47,18 +50,27 @@ function props(overrides: Partial<CommandRailProps> = {}): CommandRailProps {
 
 describe("CommandRail", () => {
   it("renders exact pre-session and active controls", () => {
-    const { rerender } = render(<CommandRail {...props()} />)
-    expect(screen.getAllByRole("radio")).toHaveLength(3)
+    const onSettings = vi.fn()
+    const { rerender } = render(<CommandRail {...props({ onSettings })} />)
+    expect(screen.getByRole("combobox", { name: "System prompt" })).toHaveValue(
+      "coding"
+    )
+    expect(screen.getAllByRole("option")).toHaveLength(3)
     expect(screen.getByRole("button", { name: "Start interview" })).toBeVisible()
     expect(screen.getByRole("button", { name: "HotKeys" })).toBeVisible()
+    expect(screen.getByRole("button", { name: "Settings" })).toBeVisible()
+    expect(screen.getByText("⌘,")).toBeVisible()
+    fireEvent.click(screen.getByRole("button", { name: "Settings" }))
+    expect(onSettings).toHaveBeenCalledOnce()
 
-    rerender(<CommandRail {...props({ session: activeSession() })} />)
+    rerender(<CommandRail {...props({ session: activeSession(), onSettings })} />)
     for (const name of [
       "Record",
       "Screenshot",
       "Chat",
       "Submit",
-      "HotKeys"
+      "HotKeys",
+      "Settings"
     ]) {
       expect(screen.getByRole("button", { name })).toBeVisible()
     }
@@ -66,17 +78,24 @@ describe("CommandRail", () => {
     expect(screen.getByRole("button", { name: "Workspace" })).toBeVisible()
     expect(screen.getByRole("button", { name: "Reset" })).toBeVisible()
     expect(screen.getByLabelText("Context: Full context")).toBeVisible()
+    for (const chip of ["⌃⇧R", "⌃⇧S", "⌃⇧C", "⌃⇧↵", "⌃⇧⌫"]) {
+      expect(screen.getByText(chip)).toBeVisible()
+    }
   })
 
-  it("supports arrow-key mode selection without hiding any mode", () => {
+  it("selects one system prompt from the complete dropdown", () => {
     const onModeChange = vi.fn()
     render(<CommandRail {...props({ onModeChange })} />)
 
-    fireEvent.keyDown(screen.getByRole("radio", { name: "Coding" }), {
-      key: "ArrowRight"
+    fireEvent.change(screen.getByRole("combobox", { name: "System prompt" }), {
+      target: { value: "system-design" }
     })
 
     expect(onModeChange).toHaveBeenCalledWith("system-design")
-    expect(screen.getAllByRole("radio")).toHaveLength(3)
+    expect(screen.getAllByRole("option").map((option) => option.textContent)).toEqual([
+      "Coding",
+      "System Design",
+      "Behavioral"
+    ])
   })
 })

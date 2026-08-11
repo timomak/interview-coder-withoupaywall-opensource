@@ -206,7 +206,7 @@ function defaultBoundsFor(stateName: HudState) {
   if (stateName === "compact-answer") {
     return { x: state.currentX, y: state.currentY, width: 520, height: 480 }
   }
-  return { x: state.currentX, y: state.currentY, width: 760, height: 600 }
+  return { x: state.currentX, y: state.currentY, width: 820, height: 760 }
 }
 
 function rememberCurrentGeometry(): void {
@@ -249,10 +249,31 @@ function setHudState(nextState: HudState): void {
     defaultBoundsFor(nextState),
     availableDisplayGeometry()
   )
+  const minimumWidth =
+    nextState === "expanded"
+      ? Math.min(720, currentDisplay.workArea.width)
+      : 320
+  const minimumHeight =
+    nextState === "expanded"
+      ? Math.min(680, currentDisplay.workArea.height)
+      : nextState === "compact-bar"
+        ? 44
+        : 80
+  const bounds =
+    nextState === "expanded"
+      ? clampWindowBounds(
+          {
+            ...restored,
+            width: Math.max(restored.width, minimumWidth),
+            height: Math.max(restored.height, minimumHeight)
+          },
+          currentDisplay.workArea
+        )
+      : restored
   applyCaptureProtection(mainWindow)
   mainWindow.setResizable(nextState === "expanded")
-  mainWindow.setMinimumSize(320, nextState === "compact-bar" ? 44 : 80)
-  setCaptureProtectedBounds(mainWindow, restored)
+  mainWindow.setMinimumSize(minimumWidth, minimumHeight)
+  setCaptureProtectedBounds(mainWindow, bounds)
   persistGeometry()
 }
 

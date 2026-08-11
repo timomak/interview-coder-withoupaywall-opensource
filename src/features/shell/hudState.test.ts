@@ -16,6 +16,7 @@ describe("HUD state selection", () => {
       "compact-answer"
     )
     expect(deriveHudState({ ...base, settingsOpen: true })).toBe("expanded")
+    expect(deriveHudState({ ...base, hotKeysOpen: true })).toBe("expanded")
   })
 
   it("opens first-run provider setup in the expanded window", () => {

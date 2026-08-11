@@ -29,7 +29,11 @@ import {
 } from "../features/system-design"
 import { BehavioralResponseWorkspace } from "../features/behavioral"
 import { CrashDecision } from "../features/history"
-import { deriveHudState } from "../shared/shell"
+import {
+  DEFAULT_SHORTCUT_BINDINGS,
+  deriveHudState,
+  type ShortcutBindings
+} from "../shared/shell"
 import {
   AudioSessionPanel,
   masterRecordPresentation,
@@ -62,6 +66,9 @@ export default function SubscribedApp({
   const [input, setInput] = useState("")
   const [composerOpen, setComposerOpen] = useState(false)
   const [hotKeysOpen, setHotKeysOpen] = useState(false)
+  const [shortcuts, setShortcuts] = useState<ShortcutBindings>(
+    config.shell?.shortcuts ?? DEFAULT_SHORTCUT_BINDINGS
+  )
   const [shellStatus, setShellStatus] = useState("")
   const [workspaceExpanded, setWorkspaceExpanded] = useState(false)
   const [codingIntent, setCodingIntent] = useState<CodingIntent>()
@@ -86,6 +93,7 @@ export default function SubscribedApp({
   useEffect(() => {
     void window.electronAPI.getInterviewState().then(setSession)
     void window.electronAPI.getInterviewRecovery().then(setRecovery)
+    void window.electronAPI.getShortcutBindings().then(setShortcuts)
     return window.electronAPI.onInterviewState(setSession)
   }, [])
 
@@ -100,7 +108,7 @@ export default function SubscribedApp({
       if (!surface) return
       const width =
         hudState === "compact-bar"
-          ? Math.min(760, Math.max(520, surface.scrollWidth))
+          ? Math.min(1120, Math.max(520, surface.scrollWidth))
           : 520
       const height =
         hudState === "compact-bar"
@@ -116,6 +124,7 @@ export default function SubscribedApp({
     config.shell?.density,
     hotKeysOpen,
     hudState,
+    shortcuts,
     sectionCount,
     artifactCount
   ])
@@ -138,6 +147,46 @@ export default function SubscribedApp({
     })
     setSession(result.state)
   }
+
+  useEffect(() => {
+    const handleLocalShortcut = (event: KeyboardEvent) => {
+      if (event.repeat) return
+      const target = event.target
+      if (
+        target instanceof HTMLInputElement ||
+        target instanceof HTMLTextAreaElement ||
+        target instanceof HTMLSelectElement ||
+        (target instanceof HTMLElement && target.isContentEditable)
+      ) {
+        return
+      }
+      if (event.metaKey && !event.ctrlKey && event.key === ",") {
+        event.preventDefault()
+        void window.electronAPI.openSettings()
+      } else if (
+        !event.metaKey &&
+        !event.ctrlKey &&
+        !event.altKey &&
+        event.key === "?"
+      ) {
+        event.preventDefault()
+        setHotKeysOpen((open) => !open)
+      } else if (
+        session.lifecycle === "idle" &&
+        !(target instanceof HTMLButtonElement) &&
+        !event.metaKey &&
+        !event.ctrlKey &&
+        !event.altKey &&
+        !event.shiftKey &&
+        event.key === "Enter"
+      ) {
+        event.preventDefault()
+        void start()
+      }
+    }
+    window.addEventListener("keydown", handleLocalShortcut)
+    return () => window.removeEventListener("keydown", handleLocalShortcut)
+  }, [config.language, config.responseMode, mode, model, provider, session.lifecycle])
 
   const submit = async (
     message = input,
@@ -282,6 +331,7 @@ export default function SubscribedApp({
         onChat={() => setComposerOpen(true)}
         onSubmit={() => void submit()}
         onHotKeys={() => setHotKeysOpen((open) => !open)}
+        onSettings={() => void window.electronAPI.openSettings()}
         hotKeysButtonRef={hotKeysButton}
         onWorkspace={() => setWorkspaceExpanded((expanded) => !expanded)}
         onReset={() =>
@@ -301,11 +351,13 @@ export default function SubscribedApp({
               (artifact) => artifact.selected && !artifact.submitted
             ))
         }
+        shortcuts={shortcuts}
       />
       {hotKeysOpen ? (
         <HotKeysPanel
           returnFocusTo={hotKeysButton}
           onClose={() => setHotKeysOpen(false)}
+          onBindingsChange={setShortcuts}
         />
       ) : null}
       {composerOpen && session.lifecycle === "active" ? (

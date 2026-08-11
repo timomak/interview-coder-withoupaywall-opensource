@@ -35,7 +35,7 @@ const DialogContent = React.forwardRef<
         "focus:outline-none focus-visible:ring-0",
         className
       )}
-      style={{ maxHeight: '90vh', overflow: 'auto' }}
+      style={{ maxHeight: "calc(100vh - 32px)", overflow: "auto" }}
       {...props}
     >
       {children}

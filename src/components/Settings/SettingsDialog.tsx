@@ -126,7 +126,7 @@ export function SettingsDialog({
 
   return (
     <Dialog open={open} onOpenChange={changeOpen}>
-      <DialogContent className="bg-black text-white sm:max-w-md">
+      <DialogContent className="settings-dialog bg-black text-white sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>Provider settings</DialogTitle>
           <DialogDescription className="text-white/70">

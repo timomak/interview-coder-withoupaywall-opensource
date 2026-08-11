@@ -23,6 +23,7 @@
 button,
 textarea,
 input,
+select,
 summary {
   font: inherit;
 }
@@ -101,11 +102,42 @@ summary {
 }
 
 .quiet-actions,
-.quiet-mode-selector,
 .quiet-composer-actions {
   display: flex;
   gap: 4px;
   align-items: center;
+}
+
+.quiet-prompt-select {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  min-height: 32px;
+  padding: 0 6px 0 8px;
+  color: var(--quiet-text-secondary);
+  border: 1px solid var(--quiet-border);
+  border-radius: 8px;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.quiet-prompt-select select {
+  min-height: 28px;
+  max-width: 152px;
+  padding: 3px 24px 3px 6px;
+  color: #f4f7fb;
+  border: 0;
+  border-radius: 6px;
+  background: var(--quiet-raised);
+  font-size: 13px;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.quiet-prompt-select:focus-within {
+  outline: 2px solid var(--quiet-signal);
+  outline-offset: 1px;
 }
 
 .quiet-rail button,
@@ -145,9 +177,29 @@ summary {
   color: var(--quiet-danger);
 }
 
-.quiet-mode-button[aria-checked="true"] {
-  border-color: currentColor;
-  background: var(--quiet-raised);
+.quiet-shortcut-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  min-height: 18px;
+  margin-left: 4px;
+  padding: 0 5px;
+  color: var(--quiet-text-secondary);
+  border: 1px solid rgba(183, 192, 204, 0.24);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  font-size: 10px;
+  font-weight: 650;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  vertical-align: middle;
+}
+
+.quiet-primary .quiet-shortcut-chip {
+  color: #1c1600;
+  border-color: rgba(28, 22, 0, 0.28);
+  background: rgba(28, 22, 0, 0.1);
 }
 
 .quiet-mode-coding {
@@ -467,8 +519,10 @@ summary {
 }
 
 .quiet-hotkeys {
-  width: min(520px, 100vw);
-  max-height: min(620px, 80vh);
+  width: min(700px, calc(100vw - 16px));
+  height: min(680px, calc(100vh - 60px));
+  max-height: none;
+  padding: 12px;
   overflow: auto;
 }
 
@@ -496,6 +550,11 @@ summary {
   border-radius: 8px;
   background: transparent;
   cursor: pointer;
+}
+
+.settings-dialog {
+  width: min(760px, calc(100vw - 32px));
+  height: min(720px, calc(100vh - 32px));
 }
 
 .quiet-hotkeys input[aria-invalid="true"] {

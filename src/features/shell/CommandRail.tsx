@@ -1,5 +1,6 @@
-import { useRef, type RefObject } from "react"
+import type { RefObject } from "react"
 import type { InterviewMode, InterviewSession } from "../../shared/interview"
+import type { ShortcutBindings } from "../../shared/shell"
 
 const MODES: readonly { value: InterviewMode; label: string }[] = [
   { value: "coding", label: "Coding" },
@@ -17,8 +18,10 @@ export interface CommandRailProps {
   readonly onChat: () => void
   readonly onSubmit: () => void
   readonly onHotKeys: () => void
+  readonly onSettings: () => void
   readonly onReset: () => void
   readonly onWorkspace: () => void
+  readonly shortcuts: ShortcutBindings
   readonly hotKeysButtonRef?: RefObject<HTMLButtonElement>
   readonly contextLabel: string
   readonly canSubmit: boolean
@@ -38,8 +41,10 @@ export function CommandRail({
   onChat,
   onSubmit,
   onHotKeys,
+  onSettings,
   onReset,
   onWorkspace,
+  shortcuts,
   hotKeysButtonRef,
   contextLabel,
   canSubmit,
@@ -48,14 +53,6 @@ export function CommandRail({
   recordDisabled = false,
   recordDescription = "Start or resume microphone and system audio"
 }: CommandRailProps) {
-  const modeButtons = useRef<Array<HTMLButtonElement | null>>([])
-
-  const moveMode = (currentIndex: number, direction: -1 | 1) => {
-    const nextIndex = (currentIndex + direction + MODES.length) % MODES.length
-    onModeChange(MODES[nextIndex].value)
-    modeButtons.current[nextIndex]?.focus()
-  }
-
   return (
     <header className="quiet-rail" data-interactive>
       <div className="quiet-drag-pill" data-drag-root aria-label="Move InterviewCopilot">
@@ -69,40 +66,35 @@ export function CommandRail({
 
       {session.lifecycle === "idle" ? (
         <>
-          <div className="quiet-mode-selector" role="radiogroup" aria-label="Interview mode">
-            {MODES.map((candidate, index) => (
-              <button
-                key={candidate.value}
-                ref={(button) => {
-                  modeButtons.current[index] = button
-                }}
-                type="button"
-                role="radio"
-                aria-checked={mode === candidate.value}
-                className={`quiet-mode-button quiet-mode-${candidate.value}`}
-                data-interactive
-                onClick={() => onModeChange(candidate.value)}
-                onKeyDown={(event) => {
-                  if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return
-                  event.preventDefault()
-                  moveMode(index, event.key === "ArrowLeft" ? -1 : 1)
-                }}
-              >
-                {candidate.label}
-              </button>
-            ))}
-          </div>
+          <label className="quiet-prompt-select" data-interactive>
+            <span aria-hidden="true">Prompt</span>
+            <select
+              aria-label="System prompt"
+              value={mode}
+              onChange={(event) => onModeChange(event.target.value as InterviewMode)}
+            >
+              {MODES.map((candidate) => (
+                <option key={candidate.value} value={candidate.value}>
+                  {candidate.label}
+                </option>
+              ))}
+            </select>
+          </label>
           <button
             ref={hotKeysButtonRef}
             type="button"
             data-interactive
             onClick={onHotKeys}
           >
-            HotKeys
+            HotKeys <ShortcutChip label="?" />
+          </button>
+          <button type="button" data-interactive onClick={onSettings}>
+            Settings <ShortcutChip label="⌘," />
           </button>
           <button className="quiet-primary" type="button" data-interactive onClick={onStart}>
             <span aria-hidden="true">Start</span>
             <span className="sr-only">Start interview</span>
+            <ShortcutChip label="↵" />
           </button>
         </>
       ) : (
@@ -115,13 +107,13 @@ export function CommandRail({
             disabled={recordDisabled}
             onClick={onRecord}
           >
-            {recordLabel}
+            {recordLabel} <ShortcutChip binding={shortcuts.record} />
           </button>
           <button type="button" data-interactive onClick={onScreenshot}>
-            Screenshot
+            Screenshot <ShortcutChip binding={shortcuts.screenshot} />
           </button>
           <button type="button" data-interactive onClick={onChat}>
-            Chat
+            Chat <ShortcutChip binding={shortcuts.composer} />
           </button>
           <button
             className="quiet-primary"
@@ -130,7 +122,7 @@ export function CommandRail({
             disabled={!canSubmit}
             onClick={onSubmit}
           >
-            Submit
+            Submit <ShortcutChip binding={shortcuts.submit} />
           </button>
           <span className="quiet-context" aria-label={`Context: ${contextLabel}`}>
             <span aria-hidden="true">●</span> {contextLabel}
@@ -141,7 +133,10 @@ export function CommandRail({
             data-interactive
             onClick={onHotKeys}
           >
-            HotKeys
+            HotKeys <ShortcutChip label="?" />
+          </button>
+          <button type="button" data-interactive onClick={onSettings}>
+            Settings <ShortcutChip label="⌘," />
           </button>
           <details data-interactive>
             <summary>More</summary>
@@ -149,11 +144,40 @@ export function CommandRail({
               Workspace
             </button>
             <button className="quiet-danger" type="button" data-interactive onClick={onReset}>
-              Reset
+              Reset <ShortcutChip binding={shortcuts.reset} />
             </button>
           </details>
         </nav>
       )}
     </header>
   )
+}
+
+function ShortcutChip({
+  binding,
+  label
+}: Readonly<{ binding?: string; label?: string }>) {
+  const value = label ?? formatShortcut(binding ?? "")
+  return <span className="quiet-shortcut-chip" aria-hidden="true">{value}</span>
+}
+
+function formatShortcut(binding: string): string {
+  const keys: Readonly<Record<string, string>> = {
+    control: "⌃",
+    shift: "⇧",
+    option: "⌥",
+    alt: "⌥",
+    command: "⌘",
+    meta: "⌘",
+    enter: "↵",
+    backspace: "⌫",
+    left: "←",
+    right: "→",
+    up: "↑",
+    down: "↓"
+  }
+  return binding
+    .split("+")
+    .map((part) => keys[part.trim().toLowerCase()] ?? part.trim().toUpperCase())
+    .join("")
 }

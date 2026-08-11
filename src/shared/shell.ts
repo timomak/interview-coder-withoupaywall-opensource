@@ -94,10 +94,11 @@ export interface HudStateInputs {
 }
 
 export function deriveHudState(inputs: HudStateInputs): HudState {
-  if (inputs.settingsOpen || inputs.workspaceExpanded) return "expanded"
+  if (inputs.settingsOpen || inputs.workspaceExpanded || inputs.hotKeysOpen) {
+    return "expanded"
+  }
   if (
     inputs.composerOpen ||
-    inputs.hotKeysOpen ||
     inputs.sectionCount > 0 ||
     inputs.artifactCount > 0
   ) {
