@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "kind": "long-horizon-milestone-review-result",
+  "projectKey": "InterviewCopilot",
+  "milestoneId": "IC-M05B",
+  "gateId": "IC-M05B-G1",
+  "recordedAt": "2026-08-11T17:52:00+02:00",
+  "reviewer": "/root/ic_m05b_high_review",
+  "reviewedRevision": "a2c55688de5f0e534f2641fac31c1a6f9f1fe2f5",
+  "reviewedTree": "931de814c5e3d8f59882430c6c57722f4fdd0428",
+  "baseRevision": "73a64b97442260fb5bf5d533e625936a600ca185",
+  "disposition": "CHANGES_REQUESTED",
+  "closedFindingIds": [
+    "IC-M05-B01"
+  ],
+  "openFindings": [
+    {
+      "id": "IC-M05-B07",
+      "evidence": "The run-specific external inbox is not inventoried, so an additional unexpected-evidence.json is silently ignored while the governed subset seals successfully.",
+      "requiredOutcome": "Require the inbox to contain exactly the governed external members plus independent-review.json, or explicitly admit and validate the optional bundle signature, before any review receipt or run mutation."
+    },
+    {
+      "id": "IC-M05-B09",
+      "evidence": "Calling providerText marks fixture events consumed but hardcoded coding, system-design, and behavioral values can independently satisfy aggregate assertions without binding each frozen event to its runtime section.",
+      "requiredOutcome": "Build typed payloads from the unchanged frozen corpus events and assert each event's exact contribution in its expected runtime section while retaining unaffected-section hash checks."
+    }
+  ],
+  "reproducedVerification": "P12_21_PASS_0_FAIL_0_SKIP",
+  "remediationBudget": "ONE_CONSOLIDATED_CORRECTION_REMAINING",
+  "nextGate": "IC-M05B-G1-DELTA_SAME_REVIEWER_EXACT_NEW_REVISION",
+  "authoritativeSuite": "UNUSED"
+}
