@@ -118,29 +118,19 @@ summary {
 
 .quiet-prompt-select {
   display: flex;
-  gap: 6px;
   align-items: center;
   min-height: 32px;
-  padding: 0 6px 0 8px;
-  color: var(--quiet-text-secondary);
-  border: 1px solid var(--quiet-border);
-  border-radius: 8px;
-  font-size: 11px;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
 }
 
 .quiet-prompt-select select {
-  min-height: 28px;
-  max-width: 152px;
-  padding: 3px 24px 3px 6px;
+  width: 210px;
+  min-height: 32px;
+  padding: 5px 28px 5px 10px;
   color: #f4f7fb;
-  border: 0;
-  border-radius: 6px;
+  border: 1px solid var(--quiet-border);
+  border-radius: 8px;
   background: var(--quiet-raised);
   font-size: 13px;
-  letter-spacing: normal;
-  text-transform: none;
 }
 
 .quiet-prompt-select:focus-within {

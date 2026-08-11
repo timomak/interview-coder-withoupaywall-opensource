@@ -54,6 +54,7 @@ describe("CommandRail", () => {
     const { rerender } = render(<CommandRail {...props({ onSettings })} />)
     expect(screen.getByRole("img", { name: "InterviewCopilot" })).toBeVisible()
     expect(screen.queryByText("InterviewCopilot")).not.toBeInTheDocument()
+    expect(screen.queryByText("Prompt")).not.toBeInTheDocument()
     expect(screen.getByRole("combobox", { name: "System prompt" })).toHaveValue(
       "coding"
     )

@@ -32,6 +32,17 @@ export function clampWindowBounds(
   }
 }
 
+export function transitionWindowBounds(
+  current: WindowBounds,
+  target: WindowBounds,
+  workArea: WindowBounds
+): WindowBounds {
+  return clampWindowBounds(
+    { ...target, x: current.x, y: current.y },
+    workArea
+  )
+}
+
 function distanceSquared(bounds: WindowBounds, display: DisplayGeometry): number {
   const centerX = bounds.x + bounds.width / 2
   const centerY = bounds.y + bounds.height / 2

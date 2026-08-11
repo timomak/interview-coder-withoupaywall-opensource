@@ -624,12 +624,17 @@
     {
       "path": "electron/window/displayGeometry.test.ts",
       "name": "falls back to the nearest available display after disconnect",
-      "sha256": "f4b1696cfb9f4f80d3680b02a5da57d147e4368fb7e6218b92eda12ed8c5524e"
+      "sha256": "56af6e8013df1630d2c4780ab05fd24a8822475a4495cf4a08d606026e6be4f8"
     },
     {
       "path": "electron/window/displayGeometry.test.ts",
       "name": "restores snaps and clamps each window state",
-      "sha256": "f4b1696cfb9f4f80d3680b02a5da57d147e4368fb7e6218b92eda12ed8c5524e"
+      "sha256": "56af6e8013df1630d2c4780ab05fd24a8822475a4495cf4a08d606026e6be4f8"
+    },
+    {
+      "path": "electron/window/displayGeometry.test.ts",
+      "name": "keeps the current origin when HUD state dimensions change",
+      "sha256": "56af6e8013df1630d2c4780ab05fd24a8822475a4495cf4a08d606026e6be4f8"
     },
     {
       "path": "electron/window/windowVisibility.test.ts",
@@ -839,12 +844,12 @@
     {
       "path": "src/features/shell/CommandRail.test.tsx",
       "name": "renders exact pre-session and active controls",
-      "sha256": "8c753442afc4201c6c8028385614d38836b747c89fec07abd09e51e0f0ab9922"
+      "sha256": "0a904797675c3e074fb35f00de7e9f171dbd9c696d724f5d5c96ef500f347321"
     },
     {
       "path": "src/features/shell/CommandRail.test.tsx",
       "name": "selects one system prompt from the complete dropdown",
-      "sha256": "8c753442afc4201c6c8028385614d38836b747c89fec07abd09e51e0f0ab9922"
+      "sha256": "0a904797675c3e074fb35f00de7e9f171dbd9c696d724f5d5c96ef500f347321"
     },
     {
       "path": "src/features/shell/CompactComposer.test.tsx",

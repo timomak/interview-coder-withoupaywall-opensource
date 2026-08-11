@@ -73,7 +73,6 @@ export function CommandRail({
       {session.lifecycle === "idle" ? (
         <>
           <label className="quiet-prompt-select" data-interactive>
-            <span aria-hidden="true">Prompt</span>
             <select
               aria-label="System prompt"
               value={mode}

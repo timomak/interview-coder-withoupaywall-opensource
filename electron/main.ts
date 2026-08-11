@@ -50,8 +50,11 @@ import {
 import { createWindowOpenHandler } from "./windowOpenPolicy"
 import { ScreenshotHelper } from "./ScreenshotHelper"
 import { ShortcutsHelper } from "./shortcuts"
-import { clampWindowBounds } from "./window/displayGeometry"
-import { DisplayGeometryStore } from "./window/displayGeometry"
+import {
+  clampWindowBounds,
+  DisplayGeometryStore,
+  transitionWindowBounds
+} from "./window/displayGeometry"
 import { ComposerVisibilityController } from "./window/composerVisibility"
 import type {
   ProviderDiagnostics,
@@ -239,6 +242,7 @@ function scheduleGeometryPersistence(): void {
 function setHudState(nextState: HudState): void {
   const mainWindow = state.mainWindow
   if (!mainWindow || mainWindow.isDestroyed()) return
+  const isStateTransition = nextState !== currentHudState
   rememberCurrentGeometry()
   currentHudState = nextState
   const currentBounds = mainWindow.getBounds()
@@ -259,17 +263,18 @@ function setHudState(nextState: HudState): void {
       : nextState === "compact-bar"
         ? 44
         : 80
-  const bounds =
-    nextState === "expanded"
-      ? clampWindowBounds(
-          {
-            ...restored,
-            width: Math.max(restored.width, minimumWidth),
-            height: Math.max(restored.height, minimumHeight)
-          },
-          currentDisplay.workArea
-        )
-      : restored
+  const targetBounds = {
+    ...restored,
+    width: Math.max(restored.width, minimumWidth),
+    height: Math.max(restored.height, minimumHeight)
+  }
+  const bounds = isStateTransition
+    ? transitionWindowBounds(
+        currentBounds,
+        targetBounds,
+        currentDisplay.workArea
+      )
+    : clampWindowBounds(targetBounds, currentDisplay.workArea)
   applyCaptureProtection(mainWindow)
   mainWindow.setResizable(nextState === "expanded")
   mainWindow.setMinimumSize(minimumWidth, minimumHeight)
