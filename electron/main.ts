@@ -201,7 +201,7 @@ function defaultBoundsFor(stateName: HudState) {
   const comfortable = config.shell?.density === "comfortable"
   const height = comfortable ? 52 : 44
   if (stateName === "compact-bar") {
-    return { x: state.currentX, y: state.currentY, width: 520, height }
+    return { x: state.currentX, y: state.currentY, width: 720, height }
   }
   if (stateName === "compact-answer") {
     return { x: state.currentX, y: state.currentY, width: 520, height: 480 }

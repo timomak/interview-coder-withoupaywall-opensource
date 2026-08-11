@@ -834,7 +834,7 @@
     {
       "path": "src/features/shell/accessibility.test.tsx",
       "name": "enforces Quiet Signal accessibility and silence invariants",
-      "sha256": "8ab34492054177c96f38fcf3df609a2310685546edd9dc83c2a034ac69c2082b"
+      "sha256": "decc034726011323777c4971ecdeff4d3a0ee8e86eaebacad7b649bc62122974"
     },
     {
       "path": "src/features/shell/CommandRail.test.tsx",

@@ -10,9 +10,12 @@ describe("Quiet Signal accessibility", () => {
       "utf8"
     )
 
-    expect(css).toContain("--quiet-signal: #6ee7c1")
+    expect(css).toContain("--quiet-signal: #facc15")
     expect(css).toContain("--quiet-system-design: #a78bfa")
-    expect(css).toContain("--quiet-behavioral: #f4c76b")
+    expect(css).toContain("--quiet-behavioral: #fb923c")
+    expect(css).toContain("width: max-content")
+    expect(css).toContain("white-space: nowrap")
+    expect(css).toContain(':root input[type="radio"]:checked')
     expect(css).toContain("font-size: 12px")
     expect(css).toContain("@media (prefers-reduced-motion: reduce)")
     expect(css).not.toMatch(/linear-gradient|radial-gradient/)

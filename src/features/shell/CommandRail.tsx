@@ -101,7 +101,8 @@ export function CommandRail({
             HotKeys
           </button>
           <button className="quiet-primary" type="button" data-interactive onClick={onStart}>
-            Start interview
+            <span aria-hidden="true">Start</span>
+            <span className="sr-only">Start interview</span>
           </button>
         </>
       ) : (

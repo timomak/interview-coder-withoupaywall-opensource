@@ -100,7 +100,7 @@ export default function SubscribedApp({
       if (!surface) return
       const width =
         hudState === "compact-bar"
-          ? Math.min(520, Math.max(320, surface.scrollWidth))
+          ? Math.min(760, Math.max(520, surface.scrollWidth))
           : 520
       const height =
         hudState === "compact-bar"
