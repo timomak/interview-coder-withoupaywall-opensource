@@ -867,7 +867,7 @@
     "candidateInvoked": false
   },
   "pause": {
-    "status": "WAITING_USER_LOCAL_ACCEPTANCE_TEST_REQUEST",
+    "status": "WAITING_USER_LOCAL_ACCEPTANCE_RESULT",
     "capturedAt": "2026-07-31T16:07:17+02:00",
     "handoff": "v3/interviewcopilot/paused-handoff-2026-07-31.json",
     "candidateRevision": "755e73f28d8671874270861702f4ec120bc9d7ca",
@@ -883,9 +883,18 @@
     "historicalPausePreserved": true,
     "remainingFindingIds": [],
     "completionResult": "v3/interviewcopilot/milestone-IC-M05B-setup-history-authoritative-result-1.json",
+    "localAcceptanceRelease": {
+      "path": "v3/interviewcopilot/local-acceptance-release-IC-M05B-1.json",
+      "candidateRevision": "755e73f28d8671874270861702f4ec120bc9d7ca",
+      "appPath": "/Applications/InterviewCopilot.app",
+      "version": "1.0.19",
+      "appAsarSha256": "398c9c8c64cd84c8a5d6927284bc158aab2d4eb189237ed44b2c543bdc2014d9",
+      "installedAt": "2026-08-12T13:03:30+02:00",
+      "status": "INSTALLED_AND_RUNNING_AWAITING_USER_ACCEPTANCE"
+    },
     "pullRequest": 5,
     "waitingOn": [
-      "USER_REQUEST_TO_LAUNCH_EXACT_CANDIDATE_FOR_LOCAL_ACCEPTANCE_TEST",
+      "USER_LOCAL_ACCEPTANCE_RESULT",
       "UPSTREAM_PR_155_REQUIRED_REVIEW_AND_PROTECTED_INTEGRATION",
       "DEVELOPER_ID_SIGNING_NOTARIZATION_AND_DUAL_ARCH_PACKAGE_EVIDENCE",
       "PHYSICAL_TWO_DEVICE_GOOGLE_MEET_AND_INDEPENDENT_OBSERVER_EVIDENCE"
@@ -898,5 +907,5 @@
       "loseStreakTouched": false
     }
   },
-  "nextSafeAction": "Wait for the user's explicit request to launch exact candidate 755e73f28d8671874270861702f4ec120bc9d7ca for local acceptance before merge. The Developer ID identity and InterviewCopilot-notary Keychain profile are ready; do not sign, notarize, merge, publish, or touch LoseStreak during the local test."
+  "nextSafeAction": "Wait for the user's local acceptance result for installed exact candidate 755e73f28d8671874270861702f4ec120bc9d7ca. Do not sign, notarize, merge, publish, deploy, perform physical Meet actions, or touch LoseStreak during the local test."
 }

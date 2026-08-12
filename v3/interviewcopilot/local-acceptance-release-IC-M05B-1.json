@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "kind": "long-horizon-local-acceptance-release",
+  "projectKey": "InterviewCopilot",
+  "milestoneId": "IC-M05B",
+  "recordedAt": "2026-08-12T13:03:30+02:00",
+  "status": "INSTALLED_AND_RUNNING_AWAITING_USER_ACCEPTANCE",
+  "source": {
+    "branch": "codex/ic-m05-release",
+    "revision": "755e73f28d8671874270861702f4ec120bc9d7ca",
+    "tree": "1dec041d4287257da7971b130eea4e1b78310f1d",
+    "version": "1.0.19",
+    "worktreeClean": true,
+    "reviewDisposition": "APPROVE",
+    "authoritativeResult": "v3/interviewcopilot/milestone-IC-M05B-setup-history-authoritative-result-1.json"
+  },
+  "localBuild": {
+    "architecture": "arm64",
+    "node": "v20.20.2",
+    "productionBuild": "PASS",
+    "packageInventory": "PASS",
+    "releaseCommitShaEmbedded": "755e73f28d8671874270861702f4ec120bc9d7ca",
+    "appAsarSha256": "398c9c8c64cd84c8a5d6927284bc158aab2d4eb189237ed44b2c543bdc2014d9",
+    "signature": "ADHOC_LOCAL_ONLY",
+    "codeSignatureVerification": "PASS",
+    "cdHash": "da3b001c4cbcf75ebde733dd29c01cabc20e0d32"
+  },
+  "installation": {
+    "path": "/Applications/InterviewCopilot.app",
+    "previousRevision": "064f7fc4cda1d041379674d5596b0ee26c3fcd1f",
+    "previousAppAsarSha256": "a9be9e7733fd10e2248ef20f095600de2508c2d31667ce56b16114d208ac7fdc",
+    "previousInstanceClosed": true,
+    "installedBundleVerified": true,
+    "launched": true,
+    "launchHealth": "MAIN_AND_HELPER_PROCESSES_STABLE_AFTER_STARTUP"
+  },
+  "rollback": {
+    "backupPath": "/Users/thirdfacedev/.codex/worktrees/ic-m05/TimoCodes/.artifacts/local-app-backups/InterviewCopilot-064f7fc-pre-755e73f.app",
+    "preserved": true,
+    "userDataChanged": false
+  },
+  "boundaries": {
+    "developerIdSigningPerformed": false,
+    "notarizationPerformed": false,
+    "mergePerformed": false,
+    "publishPerformed": false,
+    "deploymentPerformed": false,
+    "loseStreakTouched": false
+  },
+  "nextSafeAction": "User performs local acceptance testing of the installed exact candidate; preserve all merge, signing, notarization, publish, deployment, and physical Meet boundaries until explicit continuation."
+}
