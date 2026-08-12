@@ -870,8 +870,8 @@
     "status": "WAITING_USER_LOCAL_ACCEPTANCE_RESULT",
     "capturedAt": "2026-07-31T16:07:17+02:00",
     "handoff": "v3/interviewcopilot/paused-handoff-2026-07-31.json",
-    "candidateRevision": "f7a05255138430d834f4b7294476ff3724de13c1",
-    "candidateTree": "7812b3654a3dba4b6eaf967aac764e595b71e8b0",
+    "candidateRevision": "fd4be0e0af77f608dea1a40575d68b3373daf1c1",
+    "candidateTree": "58516bec3cb17ebd01044e519d215bc9a9e4322a",
     "activeWriters": 0,
     "activeReviewers": 0,
     "activeCommands": 0,
@@ -902,7 +902,16 @@
       "installedAt": "2026-08-12T13:17:30+02:00",
       "reviewDisposition": "CLOSED_APPROVE",
       "uiSmoke": "PASS",
-      "status": "INSTALLED_RUNNING_AWAITING_USER_ACCEPTANCE"
+      "status": "SUPERSEDED_BY_PROMPT_MENU_FIX_FD4BE0E"
+    },
+    "localAcceptancePromptMenuFix": {
+      "path": "v3/interviewcopilot/local-acceptance-fix-prompt-menu-1.json",
+      "candidateRevision": "fd4be0e0af77f608dea1a40575d68b3373daf1c1",
+      "candidateTree": "58516bec3cb17ebd01044e519d215bc9a9e4322a",
+      "appPath": "/Applications/InterviewCopilot.app",
+      "signature": "DEVELOPER_ID_APPLICATION_95VVU86AA7",
+      "reviewDisposition": "APPROVE",
+      "status": "INSTALLED_WAITING_ONE_TIME_KEYCHAIN_ADMISSION"
     },
     "pullRequest": 5,
     "waitingOn": [
@@ -919,5 +928,5 @@
       "loseStreakTouched": false
     }
   },
-  "nextSafeAction": "Wait for the user's local acceptance result for installed exact candidate f7a05255138430d834f4b7294476ff3724de13c1. Do not sign, notarize, merge, publish, deploy, perform physical Meet actions, or touch LoseStreak during the local test."
+  "nextSafeAction": "Wait for the user to enter the macOS login password and click Always Allow on the visible Safe Storage prompt, then run the packaged visual prompt-menu smoke for exact candidate fd4be0e0af77f608dea1a40575d68b3373daf1c1. Do not notarize, merge, publish, deploy, perform physical Meet actions, or touch LoseStreak."
 }

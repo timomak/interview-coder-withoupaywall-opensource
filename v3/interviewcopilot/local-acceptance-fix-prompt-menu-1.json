@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "kind": "long-horizon-local-acceptance-fix",
+  "projectKey": "InterviewCopilot",
+  "milestoneId": "IC-M05B",
+  "recordedAt": "2026-08-12T13:32:17+02:00",
+  "status": "INSTALLED_SIGNED_WAITING_ONE_TIME_KEYCHAIN_ADMISSION",
+  "defects": [
+    "System prompt retained an oversized yellow mouse-focus outline.",
+    "The native macOS prompt dropdown was narrow and visually clipped by the compact Electron panel."
+  ],
+  "candidate": {
+    "branch": "codex/ic-m05-release",
+    "revision": "fd4be0e0af77f608dea1a40575d68b3373daf1c1",
+    "tree": "58516bec3cb17ebd01044e519d215bc9a9e4322a",
+    "remoteRevision": "fd4be0e0af77f608dea1a40575d68b3373daf1c1",
+    "worktreeClean": true
+  },
+  "verification": {
+    "p05": "28_PASS_0_FAIL_0_SKIP",
+    "lint": "PASS",
+    "typecheck": "PASS",
+    "testManifestAdmission": "PASS_STATIC_EXACT_HASH",
+    "productionBuildAndPackageInventory": "PASS",
+    "independentDeltaReview": "APPROVE_EXACT_FD4BE0E"
+  },
+  "installation": {
+    "path": "/Applications/InterviewCopilot.app",
+    "version": "1.0.19",
+    "releaseCommitShaEmbedded": "fd4be0e0af77f608dea1a40575d68b3373daf1c1",
+    "appAsarSha256": "ef16791aeb108c8be2e566199c032fc74ead094bcf940fbb34afaaa644259c67",
+    "signature": "DEVELOPER_ID_APPLICATION_TIMOFEY_MAKHLAY_95VVU86AA7",
+    "codeSignatureVerification": "PASS",
+    "cdHash": "eeb85cc11770da6c42094d5c6a09476f7cbde26d",
+    "hardenedRuntime": true,
+    "notarized": false,
+    "launched": true
+  },
+  "userCheckpoint": {
+    "kind": "MACOS_KEYCHAIN_SAFE_STORAGE_ADMISSION",
+    "status": "WAITING_USER",
+    "visible": true,
+    "action": "Enter the macOS login password and click Always Allow once.",
+    "why": "The prior Safe Storage item was admitted to changing ad-hoc signatures. The stable Developer ID signature must be admitted once; later signed updates retain the same designated identity."
+  },
+  "rollback": {
+    "backupPath": "/Users/thirdfacedev/.codex/worktrees/ic-m05/TimoCodes/.artifacts/local-app-backups/InterviewCopilot-fd4be0e-adhoc-pre-signed.app",
+    "preserved": true
+  },
+  "boundaries": {
+    "mergePerformed": false,
+    "notarizationPerformed": false,
+    "publishPerformed": false,
+    "deploymentPerformed": false,
+    "loseStreakTouched": false
+  },
+  "nextSafeAction": "After the user completes the visible one-time Keychain admission, run the packaged visual prompt-menu smoke and continue local acceptance."
+}
