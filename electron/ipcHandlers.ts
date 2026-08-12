@@ -115,6 +115,7 @@ export interface IpcHandlerDependencies {
   readonly listHistory: () => Promise<HistoryCatalog>
   readonly searchHistory: (query: string) => Promise<HistoryCatalog>
   readonly openHistory: (sessionId: string) => Promise<HistoryArchiveV1>
+  readonly continueHistory: (sessionId: string) => Promise<CommandResult>
   readonly deleteHistory: (request: HistoryDeleteRequest) => Promise<HistoryCatalog>
   readonly exportHistory: (
     request: HistoryExportRequest
@@ -315,6 +316,12 @@ export function initializeIpcHandlers(
       throw new Error("History identity is malformed")
     }
     return dependencies.openHistory(value)
+  })
+  ipcMain.handle("history:continue", (_event, value: unknown) => {
+    if (typeof value !== "string" || value.length === 0 || value.length > 512) {
+      throw new Error("History identity is malformed")
+    }
+    return dependencies.continueHistory(value)
   })
   ipcMain.handle("history:delete", (_event, value: unknown) => {
     if (

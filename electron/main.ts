@@ -86,6 +86,7 @@ import {
   type HistoryExportJournalV1
 } from "./history"
 import type { HistoryArchiveV1 } from "../src/features/history/types"
+import { historyContinuationSnapshot } from "../src/features/history/model"
 import type { RecordRepository } from "./storage"
 import { DiagnosticService } from "./diagnostics/DiagnosticService"
 import {
@@ -884,6 +885,21 @@ async function initializeApplication(): Promise<void> {
     listHistory: () => history.list(),
     searchHistory: (query) => history.search(query),
     openHistory: (sessionId) => history.open(sessionId),
+    continueHistory: async (sessionId) => {
+      const archive = await history.open(sessionId)
+      const config = configHelper.loadConfig()
+      if (!config.provider || !config.model) {
+        throw new Error("Configure a provider before continuing History")
+      }
+      return orchestrator.command({
+        type: "start",
+        snapshot: historyContinuationSnapshot(archive, {
+          provider: config.provider,
+          model: config.model,
+          responseMode: config.responseMode
+        })
+      })
+    },
     deleteHistory: (request) => history.delete(request),
     exportHistory: (request) => history.export(request),
     getAudioSessionState: () => audio.current(),

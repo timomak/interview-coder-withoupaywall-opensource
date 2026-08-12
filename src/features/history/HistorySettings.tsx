@@ -5,7 +5,9 @@ import type {
   HistoryExportRequest
 } from "./types"
 
-export function HistorySettings() {
+export function HistorySettings({
+  onContinued
+}: Readonly<{ onContinued?: () => void }> = {}) {
   const [catalog, setCatalog] = useState<HistoryCatalog>({ entries: [], issues: [] })
   const [fullCatalog, setFullCatalog] = useState<HistoryCatalog>({ entries: [], issues: [] })
   const [query, setQuery] = useState("")
@@ -58,10 +60,26 @@ export function HistorySettings() {
     }
   }
 
+  const continueSession = async () => {
+    if (!opened) return
+    const result = await window.electronAPI.continueHistory(opened.sessionId)
+    if (!result.ok) {
+      setStatus(result.error ?? "Could not continue this session.")
+      return
+    }
+    setStatus("Continued in a new live session with the archived conversation attached.")
+    onContinued?.()
+  }
+
   return (
     <section aria-label="History" className="space-y-3">
       <h3 className="text-sm font-medium">History</h3>
-      <p className="text-xs text-white/60">Encrypted sessions remain until you explicitly delete them.</p>
+      <p className="text-xs text-white/60">
+        Search encrypted past interviews, inspect them, or continue one in a
+        new live session. Continuing keeps the archive unchanged and attaches
+        its transcript and answers as initial context. Past interviews remain
+        until you explicitly delete them, and stay encrypted in storage.
+      </p>
       <label className="block text-sm">Search History
         <input aria-label="Search History" value={query} onChange={(event) => {
           setQuery(event.target.value)
@@ -99,9 +117,12 @@ export function HistorySettings() {
         </section>
       ) : null}
       {opened ? (
-        <section aria-label="Archived interview" data-read-only="true">
+        <section aria-label="Archived interview">
           <h4>{opened.mode} interview</h4>
           <p>{opened.startedAt} – {opened.sealedAt}</p>
+          <button type="button" onClick={() => void continueSession()}>
+            Continue this session
+          </button>
           {opened.session.sections.map((section) => <article key={section.id}>{section.body}</article>)}
           <label className="block text-sm">Explicit export destination
             <input value={destination} onChange={(event) => setDestination(event.target.value)} className="w-full rounded bg-black p-2" />

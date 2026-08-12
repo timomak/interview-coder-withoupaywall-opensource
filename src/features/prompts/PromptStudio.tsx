@@ -163,8 +163,13 @@ export function PromptStudio() {
   }
 
   return (
-    <section aria-label="Prompt Studio" className="space-y-3 border-t border-white/10 pt-3">
-      <h3 className="text-sm font-medium">Prompt Studio</h3>
+    <section aria-label="Prompts" className="space-y-3">
+      <h3 className="text-sm font-medium">Prompts</h3>
+      <p className="text-xs text-white/60">
+        Choose a mode, select a prompt to edit or duplicate, change its name
+        and instructions, then review and save the change. Built-in prompts
+        stay protected; duplicate one to customize it.
+      </p>
       <label className="block text-sm">
         Core mode
         <select
@@ -180,7 +185,8 @@ export function PromptStudio() {
         {templates.map((template) => (
           <li key={template.id}>
             <button type="button" onClick={() => edit(template)}>
-              {template.name} {template.kind === "built-in" ? "(built-in)" : ""}
+              {template.kind === "built-in" ? "View" : "Edit"} {template.name}{" "}
+              {template.kind === "built-in" ? "(built-in)" : ""}
             </button>
             <button type="button" className="ml-2" onClick={() => duplicate(template)}>
               Duplicate
@@ -219,7 +225,7 @@ export function PromptStudio() {
         />
       </label>
       <label className="block text-sm">
-        Manage instructions
+        Instructions sent to the provider
         <textarea
           aria-label="Template instructions"
           disabled={base?.kind === "built-in" && draftId === base.id}

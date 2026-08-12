@@ -153,7 +153,8 @@ export default function SubscribedApp({
     lifecycle: session.lifecycle,
     onSettings: () => void window.electronAPI.openSettings(),
     onHotKeys: () => setHotKeysOpen((open) => !open),
-    onStart: () => void start()
+    onStart: () => void start(),
+    onQuit: () => void window.electronAPI.quitApplication()
   })
 
   const submit = async (
@@ -219,8 +220,9 @@ export default function SubscribedApp({
           if (mode !== "coding" || session.lifecycle !== "active") {
             setShellStatus("Fix current code requires an active Coding question.")
           }
-        } else if (action === "submit" && session.lifecycle === "active") {
-          void submit()
+        } else if (action === "submit") {
+          if (session.lifecycle === "idle") void start()
+          else void submit()
         } else if (
           action === "section-previous" ||
           action === "section-next"

@@ -570,6 +570,34 @@ summary:focus {
   height: min(720px, calc(100vh - 32px));
 }
 
+.settings-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  border-bottom: 1px solid var(--quiet-border);
+  padding-bottom: 10px;
+}
+
+.settings-tabs button {
+  min-height: 34px;
+  padding: 6px 10px;
+  color: var(--quiet-text-secondary);
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+}
+
+.settings-tabs button[aria-selected="true"] {
+  color: #1c1600;
+  border-color: var(--quiet-signal);
+  background: var(--quiet-signal);
+}
+
+.settings-body {
+  min-height: 0;
+  overflow: auto;
+}
+
 .quiet-hotkeys input[aria-invalid="true"] {
   border-color: var(--quiet-danger);
 }

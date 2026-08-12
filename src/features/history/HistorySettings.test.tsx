@@ -26,21 +26,30 @@ it("exposes exact Settings-only controls and retention", async () => {
     Promise.resolve({ entries: query ? [first] : [first, second], issues: [] })
   )
   const deleteHistory = vi.fn().mockResolvedValue({ entries: [], issues: [] })
+  const continueHistory = vi.fn().mockResolvedValue({
+    ok: true,
+    state: archive.session
+  })
+  const onContinued = vi.fn()
   Object.assign(window, {
     electronAPI: {
       listHistory,
       searchHistory,
       openHistory: vi.fn().mockResolvedValue(archive),
+      continueHistory,
       deleteHistory,
       exportHistory: vi.fn()
     }
   })
-  render(<HistorySettings />)
+  render(<HistorySettings onContinued={onContinued} />)
   expect(await screen.findByText("Design a service")).toBeVisible()
   expect(screen.getByText(/remain until you explicitly delete/i)).toBeVisible()
   fireEvent.click(screen.getByText("Design a service"))
   expect(await screen.findByRole("region", { name: "Archived interview" }))
-    .toHaveAttribute("data-read-only", "true")
+    .toBeVisible()
+  fireEvent.click(screen.getByRole("button", { name: "Continue this session" }))
+  await waitFor(() => expect(continueHistory).toHaveBeenCalledWith(archive.sessionId))
+  expect(onContinued).toHaveBeenCalledOnce()
 
   fireEvent.click(screen.getAllByRole("button", { name: "Delete" })[0])
   expect(deleteHistory).not.toHaveBeenCalled()

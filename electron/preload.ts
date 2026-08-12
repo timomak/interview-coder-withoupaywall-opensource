@@ -121,6 +121,8 @@ const electronAPI = {
   listHistory: () => ipcRenderer.invoke("history:list"),
   searchHistory: (query: string) => ipcRenderer.invoke("history:search", query),
   openHistory: (sessionId: string) => ipcRenderer.invoke("history:open", sessionId),
+  continueHistory: (sessionId: string) =>
+    ipcRenderer.invoke("history:continue", sessionId),
   deleteHistory: (request: unknown) => ipcRenderer.invoke("history:delete", request),
   exportHistory: (request: unknown) => ipcRenderer.invoke("history:export", request),
   dispatchInterviewCommand: (command: InterviewCommand) =>

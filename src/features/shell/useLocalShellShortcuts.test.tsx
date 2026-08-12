@@ -7,13 +7,15 @@ describe("local shell shortcuts", () => {
     const onSettings = vi.fn()
     const onHotKeys = vi.fn()
     const onStart = vi.fn()
+    const onQuit = vi.fn()
 
     function Harness() {
       useLocalShellShortcuts({
         lifecycle: "idle",
         onSettings,
         onHotKeys,
-        onStart
+        onStart,
+        onQuit
       })
       return <input aria-label="Focused editor" />
     }
@@ -22,12 +24,14 @@ describe("local shell shortcuts", () => {
     const editor = screen.getByRole("textbox", { name: "Focused editor" })
     editor.focus()
 
-    fireEvent.keyDown(editor, { key: ",", metaKey: true })
-    fireEvent.keyDown(editor, { key: "/", metaKey: true })
-    fireEvent.keyDown(editor, { key: "Enter", metaKey: true })
+    fireEvent.keyDown(editor, { key: ",", ctrlKey: true, shiftKey: true })
+    fireEvent.keyDown(editor, { key: "/", ctrlKey: true, shiftKey: true })
+    fireEvent.keyDown(editor, { key: "Enter", ctrlKey: true, shiftKey: true })
+    fireEvent.keyDown(editor, { key: "q", ctrlKey: true, shiftKey: true })
 
     expect(onSettings).toHaveBeenCalledOnce()
     expect(onHotKeys).toHaveBeenCalledOnce()
     expect(onStart).toHaveBeenCalledOnce()
+    expect(onQuit).toHaveBeenCalledOnce()
   })
 })

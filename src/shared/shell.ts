@@ -19,6 +19,10 @@ export const SHORTCUT_ACTIONS = [
 export type ShortcutAction = (typeof SHORTCUT_ACTIONS)[number]
 export type ShortcutBindings = Readonly<Record<ShortcutAction, string>>
 
+export function isControlShiftShortcut(value: string): boolean {
+  return /^Control\+Shift\+[^+]+$/.test(value.trim())
+}
+
 export function isShortcutAction(value: unknown): value is ShortcutAction {
   return (
     typeof value === "string" &&
@@ -37,10 +41,10 @@ export const DEFAULT_SHORTCUT_BINDINGS: ShortcutBindings = Object.freeze({
   "move-right": "Control+Shift+Right",
   "move-up": "Control+Shift+Up",
   "move-down": "Control+Shift+Down",
-  "section-previous": "Control+Option+Left",
-  "section-next": "Control+Option+Right",
-  "section-scroll-up": "Control+Option+Up",
-  "section-scroll-down": "Control+Option+Down",
+  "section-previous": "Control+Shift+J",
+  "section-next": "Control+Shift+K",
+  "section-scroll-up": "Control+Shift+PageUp",
+  "section-scroll-down": "Control+Shift+PageDown",
   reset: "Control+Shift+Backspace"
 })
 
@@ -132,7 +136,7 @@ export function isShortcutBindings(value: unknown): value is ShortcutBindings {
     SHORTCUT_ACTIONS.every(
       (action) =>
         typeof candidate[action] === "string" &&
-        String(candidate[action]).trim().length > 0
+        isControlShiftShortcut(String(candidate[action]))
     )
   )
 }

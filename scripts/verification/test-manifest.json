@@ -294,7 +294,12 @@
     {
       "path": "electron/config/shellPreferencesMigration.test.ts",
       "name": "adds safe defaults and replaces invalid additive preferences",
-      "sha256": "c24f60bd6884f1d618757e386b2d79b95d6efcd5419581c55e59d62cfc31dbb5"
+      "sha256": "780248a86e3f8e88c3865664c13047a5cad4a8932d413a7e731c934466600fcd"
+    },
+    {
+      "path": "electron/config/shellPreferencesMigration.test.ts",
+      "name": "moves legacy Option navigation defaults to Control Shift",
+      "sha256": "780248a86e3f8e88c3865664c13047a5cad4a8932d413a7e731c934466600fcd"
     },
     {
       "path": "electron/orchestrator/audioRouting.test.ts",
@@ -829,7 +834,12 @@
     {
       "path": "src/features/profile/opportunitySnapshot.test.ts",
       "name": "isolates named opportunities across sessions",
-      "sha256": "06bf2cc75007334870fb7d04eb847eebce6b9f19ae40cd66b7d4b22fb8a0c9b6"
+      "sha256": "e94b3523d60f2f6cbdb2888fff4683bb4cccf80184fe852c5287c9e0b4a122d6"
+    },
+    {
+      "path": "src/features/profile/opportunitySnapshot.test.ts",
+      "name": "duplicates a saved context without linking future edits",
+      "sha256": "e94b3523d60f2f6cbdb2888fff4683bb4cccf80184fe852c5287c9e0b4a122d6"
     },
     {
       "path": "src/features/repositoryDiscovery.test.js",
@@ -849,12 +859,12 @@
     {
       "path": "src/features/shell/CommandRail.test.tsx",
       "name": "renders exact pre-session and active controls",
-      "sha256": "a30ccee97bf8efd2e5a85d1f11a1f5868e468604104b042e358dedbc65699e49"
+      "sha256": "6baf1dc3c4dd093282be00c45d1e3955126075eec41c6ab8c15341378135defb"
     },
     {
       "path": "src/features/shell/CommandRail.test.tsx",
       "name": "selects one system prompt from the complete dropdown",
-      "sha256": "a30ccee97bf8efd2e5a85d1f11a1f5868e468604104b042e358dedbc65699e49"
+      "sha256": "6baf1dc3c4dd093282be00c45d1e3955126075eec41c6ab8c15341378135defb"
     },
     {
       "path": "src/features/shell/CompactComposer.test.tsx",
@@ -869,12 +879,17 @@
     {
       "path": "src/features/shell/HotKeysPanel.test.tsx",
       "name": "keeps every shortcut action available as a visible control",
-      "sha256": "550a68cc11d3fcc980113632ba077fec61365ed06d1da176271adbcc4f2b3a80"
+      "sha256": "4309caea111f568427e9218c5c4c7d4b03559924508967bf34cb3e569e30b331"
     },
     {
       "path": "src/features/shell/HotKeysPanel.test.tsx",
       "name": "recovers the active map when Reset all cannot persist defaults",
-      "sha256": "550a68cc11d3fcc980113632ba077fec61365ed06d1da176271adbcc4f2b3a80"
+      "sha256": "4309caea111f568427e9218c5c4c7d4b03559924508967bf34cb3e569e30b331"
+    },
+    {
+      "path": "src/features/shell/HotKeysPanel.test.tsx",
+      "name": "does not allow Command or Option shortcuts to be saved",
+      "sha256": "4309caea111f568427e9218c5c4c7d4b03559924508967bf34cb3e569e30b331"
     },
     {
       "path": "src/features/shell/hudState.test.ts",
@@ -889,7 +904,7 @@
     {
       "path": "src/features/shell/useLocalShellShortcuts.test.tsx",
       "name": "keeps every advertised app shortcut active from editable controls",
-      "sha256": "d978bc6a30f87d73ce980de9b62d3f0f66e5cb9f34a42608b90feb71c1aab017"
+      "sha256": "86e4a69d71ed8af693026c5308ac8196cf164e11a5b382801a36aa0f58cf8383"
     },
     {
       "path": "src/features/shell/navigationShortcuts.test.tsx",
@@ -1154,7 +1169,7 @@
     {
       "path": "electron/history/archiveProjection.test.ts",
       "name": "projects complete session and excludes audio",
-      "sha256": "eace20f51573fcde76c38edc6355e18d2f00fcec3797a5567b4be488416d825f"
+      "sha256": "a2bd699d4d2cba0b6672ccc1d2699974acdbbabbbb89200554357dfe11457b73"
     },
     {
       "path": "electron/history/deletionIsolation.test.ts",
@@ -1189,7 +1204,7 @@
     {
       "path": "src/features/history/HistorySettings.test.tsx",
       "name": "exposes exact Settings-only controls and retention",
-      "sha256": "0c5dd840e297638648435f2f5b9522f64d0547ff98a2fb5838a33cea2fa1bbb9"
+      "sha256": "f4b3c436bc6771ad64db2f9a1d9744227aaf937e855487041a890d0df156f15a"
     },
     {
       "path": "src/features/history/crashDecision.test.tsx",

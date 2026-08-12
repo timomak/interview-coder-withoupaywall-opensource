@@ -68,4 +68,25 @@ describe("HotKeysPanel", () => {
     fireEvent.click(screen.getByRole("button", { name: "Run Move window left" }))
     expect(invokeShellAction).toHaveBeenCalledWith("move-left")
   })
+
+  it("does not allow Command or Option shortcuts to be saved", async () => {
+    window.electronAPI = {
+      ...window.electronAPI,
+      getShortcutBindings: vi.fn().mockResolvedValue(DEFAULT_SHORTCUT_BINDINGS)
+    }
+    render(
+      <HotKeysPanel
+        returnFocusTo={createRef<HTMLButtonElement>()}
+        onClose={vi.fn()}
+      />
+    )
+
+    const recordBinding = await screen.findByRole("textbox", { name: "Record" })
+    fireEvent.change(recordBinding, { target: { value: "Command+Q" } })
+
+    expect(
+      screen.getByText("Shortcuts must use the Control+Shift+Key format.")
+    ).toBeVisible()
+    expect(screen.getByRole("button", { name: "Save" })).toBeDisabled()
+  })
 })

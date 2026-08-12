@@ -5,12 +5,15 @@ import {
   isProviderId
 } from "../../src/shared/provider"
 import {
+  DEFAULT_SHORTCUT_BINDINGS,
   DEFAULT_LIVE_SHELL_PREFERENCES,
   SHORTCUT_ACTIONS,
+  isControlShiftShortcut,
   shortcutConflicts,
   type HudState,
   type LiveShellPreferences,
   type PersistedWindowBounds,
+  type ShortcutAction,
   type ShortcutBindings
 } from "../../src/shared/shell"
 
@@ -259,7 +262,7 @@ function validateLiveShellPreferences(value: unknown): LiveShellPreferences {
     SHORTCUT_ACTIONS.some(
       (action) =>
         typeof shortcuts[action] !== "string" ||
-        String(shortcuts[action]).trim().length === 0
+        !isControlShiftShortcut(String(shortcuts[action]))
     )
   ) {
     throw new Error("Live-shell shortcut preferences are malformed")
@@ -304,7 +307,7 @@ export function withM05aDefaults(
   } catch {
     // Invalid pre-M-05a values deliberately fall back to safe defaults.
   }
-  const shell = (() => {
+  const validatedShell = (() => {
     try {
       return config.shell
         ? validateLiveShellPreferences(config.shell)
@@ -313,6 +316,29 @@ export function withM05aDefaults(
       return DEFAULT_LIVE_SHELL_PREFERENCES
     }
   })()
+  const legacyNavigationBindings: Readonly<Partial<ShortcutBindings>> = {
+    "section-previous": "Control+Option+Left",
+    "section-next": "Control+Option+Right",
+    "section-scroll-up": "Control+Option+Up",
+    "section-scroll-down": "Control+Option+Down"
+  }
+  const shell = {
+    ...validatedShell,
+    shortcuts: Object.freeze({
+      ...validatedShell.shortcuts,
+      ...Object.fromEntries(
+        Object.entries(legacyNavigationBindings)
+          .filter(
+            ([action, legacy]) =>
+              validatedShell.shortcuts[action as ShortcutAction] === legacy
+          )
+          .map(([action]) => [
+            action,
+            DEFAULT_SHORTCUT_BINDINGS[action as ShortcutAction]
+          ])
+      )
+    }) as ShortcutBindings
+  }
   return {
     ...config,
     language:

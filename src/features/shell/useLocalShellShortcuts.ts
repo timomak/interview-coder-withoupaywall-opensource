@@ -6,17 +6,25 @@ interface LocalShellShortcutOptions {
   readonly onSettings: () => void
   readonly onHotKeys: () => void
   readonly onStart: () => void
+  readonly onQuit: () => void
 }
 
 export function useLocalShellShortcuts({
   lifecycle,
   onSettings,
   onHotKeys,
-  onStart
+  onStart,
+  onQuit
 }: LocalShellShortcutOptions): void {
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.repeat || !event.metaKey || event.ctrlKey || event.altKey) return
+      if (
+        event.repeat ||
+        !event.ctrlKey ||
+        !event.shiftKey ||
+        event.metaKey ||
+        event.altKey
+      ) return
 
       if (event.key === ",") {
         event.preventDefault()
@@ -27,10 +35,13 @@ export function useLocalShellShortcuts({
       } else if (event.key === "Enter" && lifecycle === "idle") {
         event.preventDefault()
         onStart()
+      } else if (event.key.toLowerCase() === "q") {
+        event.preventDefault()
+        onQuit()
       }
     }
 
     window.addEventListener("keydown", handleKeyDown)
     return () => window.removeEventListener("keydown", handleKeyDown)
-  }, [lifecycle, onHotKeys, onSettings, onStart])
+  }, [lifecycle, onHotKeys, onQuit, onSettings, onStart])
 }

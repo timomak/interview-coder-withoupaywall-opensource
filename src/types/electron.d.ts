@@ -82,6 +82,7 @@ export interface ElectronAPI {
   openHistory: (
     sessionId: string
   ) => Promise<import("../features/history/types").HistoryArchiveV1>
+  continueHistory: (sessionId: string) => Promise<CommandResult>
   deleteHistory: (
     request: import("../features/history/types").HistoryDeleteRequest
   ) => Promise<import("../features/history/types").HistoryCatalog>

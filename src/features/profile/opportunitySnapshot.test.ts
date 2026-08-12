@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest"
 import {
   activateOpportunity,
+  duplicateOpportunity,
   saveOpportunity,
   snapshotOpportunity
 } from "./opportunities"
@@ -33,5 +34,29 @@ describe("opportunity snapshots", () => {
     expect(bundle.activeOpportunityId).toBe("alpha")
     expect(activeSnapshot?.markdown).toBe("Distributed systems role")
     expect(snapshotOpportunity(bundle)?.markdown).toBe("Edited after Start")
+  })
+
+  it("duplicates a saved context without linking future edits", () => {
+    const original = saveOpportunity(
+      { schemaVersion: 1, opportunities: [] },
+      {
+        id: "alpha",
+        name: "Alpha",
+        revision: 3,
+        markdown: "Original context",
+        provenance: "manual-edit"
+      }
+    )
+    const duplicated = duplicateOpportunity(original, "alpha", "alpha-copy")
+    expect(duplicated.activeOpportunityId).toBe("alpha-copy")
+    expect(duplicated.opportunities).toEqual([
+      original.opportunities[0],
+      expect.objectContaining({
+        id: "alpha-copy",
+        name: "Alpha copy",
+        revision: 1,
+        markdown: "Original context"
+      })
+    ])
   })
 })

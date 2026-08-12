@@ -30,6 +30,16 @@ interface SettingsDialogProps {
   onOpenChange?: (open: boolean) => void
 }
 
+const SETTINGS_SECTIONS = [
+  ["general", "General"],
+  ["contexts", "Contexts"],
+  ["prompts", "Prompts"],
+  ["history", "History"],
+  ["audio-privacy", "Audio & Privacy"]
+] as const
+
+type SettingsSection = (typeof SETTINGS_SECTIONS)[number][0]
+
 interface ProviderConfigBridge {
   getConfig(): Promise<{
     provider?: ProviderId
@@ -62,6 +72,7 @@ export function SettingsDialog({
   const [textSize, setTextSize] = useState<TextSizePreference>("default")
   const [shellPreferences, setShellPreferences] =
     useState<LiveShellPreferences | null>(null)
+  const [section, setSection] = useState<SettingsSection>("general")
   const { showToast } = useToast()
   const bridge = window.electronAPI as unknown as ProviderConfigBridge
 
@@ -128,30 +139,53 @@ export function SettingsDialog({
     <Dialog open={open} onOpenChange={changeOpen}>
       <DialogContent className="settings-dialog bg-black text-white sm:max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Provider settings</DialogTitle>
+          <DialogTitle>InterviewCopilot settings</DialogTitle>
           <DialogDescription className="text-white/70">
-            Choose the signed-in CLI subscription used by your next interview.
-            Active interviews keep their original snapshot.
+            Configure providers, reusable context, prompts, past sessions,
+            audio, and privacy in one place.
           </DialogDescription>
         </DialogHeader>
-        <div className="space-y-4 py-4">
-          <fieldset>
-            <legend className="mb-2 text-sm font-medium">Provider</legend>
-            {(["claude-code", "codex"] as const).map((candidate) => (
-              <label key={candidate} className="mr-4 inline-flex gap-2">
-                <input
-                  type="radio"
-                  checked={provider === candidate}
-                  onChange={() => changeProvider(candidate)}
-                />
-                {candidate === "claude-code" ? "Claude Code" : "Codex"}
-              </label>
-            ))}
-          </fieldset>
-          <ProfileSettings />
-          <PromptStudio />
-          <HistorySettings />
-          <MeetVerification />
+        <nav
+          className="settings-tabs"
+          aria-label="Settings sections"
+          role="tablist"
+        >
+          {SETTINGS_SECTIONS.map(([id, label]) => (
+            <button
+              key={id}
+              type="button"
+              role="tab"
+              aria-selected={section === id}
+              onClick={() => setSection(id)}
+            >
+              {label}
+            </button>
+          ))}
+        </nav>
+        <div
+          className="settings-body space-y-4 py-4"
+          role="tabpanel"
+          aria-label={`${SETTINGS_SECTIONS.find(([id]) => id === section)?.[1]} settings`}
+        >
+          {section === "general" ? (
+            <>
+              <p className="text-xs text-white/60">
+                Choose the signed-in CLI subscription used by the next
+                interview. Active interviews keep their original snapshot.
+              </p>
+              <fieldset>
+                <legend className="mb-2 text-sm font-medium">Provider</legend>
+                {(["claude-code", "codex"] as const).map((candidate) => (
+                  <label key={candidate} className="mr-4 inline-flex gap-2">
+                    <input
+                      type="radio"
+                      checked={provider === candidate}
+                      onChange={() => changeProvider(candidate)}
+                    />
+                    {candidate === "claude-code" ? "Claude Code" : "Codex"}
+                  </label>
+                ))}
+              </fieldset>
           <fieldset>
             <legend className="mb-2 text-sm font-medium">HUD density</legend>
             {(["compact", "comfortable"] as const).map((value) => (
@@ -207,19 +241,33 @@ export function SettingsDialog({
               </label>
             ))}
           </fieldset>
-          <AudioSettings disabled={isLoading} />
           <p className="text-xs text-white/50">
             Provider failures stop explicitly. InterviewCopilot never switches
             providers automatically.
           </p>
+            </>
+          ) : null}
+          {section === "contexts" ? <ProfileSettings /> : null}
+          {section === "prompts" ? <PromptStudio /> : null}
+          {section === "history" ? (
+            <HistorySettings onContinued={() => changeOpen(false)} />
+          ) : null}
+          {section === "audio-privacy" ? (
+            <>
+              <AudioSettings disabled={isLoading} />
+              <MeetVerification />
+            </>
+          ) : null}
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => changeOpen(false)}>
-            Cancel
+            Close
           </Button>
-          <Button disabled={isLoading} onClick={save}>
-            {isLoading ? "Saving…" : "Save"}
-          </Button>
+          {section === "general" ? (
+            <Button disabled={isLoading} onClick={save}>
+              {isLoading ? "Saving…" : "Save general settings"}
+            </Button>
+          ) : null}
         </DialogFooter>
       </DialogContent>
     </Dialog>
