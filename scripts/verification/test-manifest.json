@@ -844,17 +844,17 @@
     {
       "path": "src/features/shell/accessibility.test.tsx",
       "name": "enforces Quiet Signal accessibility and silence invariants",
-      "sha256": "decc034726011323777c4971ecdeff4d3a0ee8e86eaebacad7b649bc62122974"
+      "sha256": "0609ed5b91ce8ac9cf0e7f7246259d55f24ed64ecf8d5a87a90168389cf64abd"
     },
     {
       "path": "src/features/shell/CommandRail.test.tsx",
       "name": "renders exact pre-session and active controls",
-      "sha256": "0a904797675c3e074fb35f00de7e9f171dbd9c696d724f5d5c96ef500f347321"
+      "sha256": "a30ccee97bf8efd2e5a85d1f11a1f5868e468604104b042e358dedbc65699e49"
     },
     {
       "path": "src/features/shell/CommandRail.test.tsx",
       "name": "selects one system prompt from the complete dropdown",
-      "sha256": "0a904797675c3e074fb35f00de7e9f171dbd9c696d724f5d5c96ef500f347321"
+      "sha256": "a30ccee97bf8efd2e5a85d1f11a1f5868e468604104b042e358dedbc65699e49"
     },
     {
       "path": "src/features/shell/CompactComposer.test.tsx",

@@ -1006,7 +1006,8 @@ async function initializeApplication(): Promise<void> {
       return configHelper.updateConfig({ provider, model, responseMode })
     },
     showSettings: () =>
-      state.mainWindow?.webContents.send("settings:show")
+      state.mainWindow?.webContents.send("settings:show"),
+    quitApplication: () => app.quit()
   })
   await audio.cleanupStartup()
   await history.recover()

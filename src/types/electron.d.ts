@@ -95,6 +95,7 @@ export interface ElectronAPI {
     callback: (state: InterviewSession) => void
   ) => () => void
   openSettings: () => Promise<{ success: boolean }>
+  quitApplication: () => Promise<{ success: boolean }>
   onShowSettings: (callback: () => void) => () => void
   updateContentDimensions: (dimensions: {
     width: number

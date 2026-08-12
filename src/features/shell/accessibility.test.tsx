@@ -11,6 +11,9 @@ describe("Quiet Signal accessibility", () => {
     )
 
     expect(css).toContain("--quiet-signal: #facc15")
+    expect(css).toContain("user-select: none")
+    expect(css).toContain("button.quiet-primary:not(:disabled):hover")
+    expect(css).toContain("background: #fde047")
     expect(css).toContain("--quiet-system-design: #a78bfa")
     expect(css).toContain("--quiet-behavioral: #fb923c")
     expect(css).toContain("width: max-content")

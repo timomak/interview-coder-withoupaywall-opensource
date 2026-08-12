@@ -39,6 +39,7 @@ function props(overrides: Partial<CommandRailProps> = {}): CommandRailProps {
     onSubmit: vi.fn(),
     onHotKeys: vi.fn(),
     onSettings: vi.fn(),
+    onQuit: vi.fn(),
     onReset: vi.fn(),
     onWorkspace: vi.fn(),
     shortcuts: DEFAULT_SHORTCUT_BINDINGS,
@@ -51,7 +52,8 @@ function props(overrides: Partial<CommandRailProps> = {}): CommandRailProps {
 describe("CommandRail", () => {
   it("renders exact pre-session and active controls", () => {
     const onSettings = vi.fn()
-    const { rerender } = render(<CommandRail {...props({ onSettings })} />)
+    const onQuit = vi.fn()
+    const { rerender } = render(<CommandRail {...props({ onSettings, onQuit })} />)
     expect(screen.getByRole("img", { name: "InterviewCopilot" })).toBeVisible()
     expect(screen.queryByText("InterviewCopilot")).not.toBeInTheDocument()
     expect(screen.queryByText("Prompt")).not.toBeInTheDocument()
@@ -62,20 +64,24 @@ describe("CommandRail", () => {
     expect(screen.getByRole("button", { name: "Start interview" })).toBeVisible()
     expect(screen.getByRole("button", { name: "HotKeys" })).toBeVisible()
     expect(screen.getByRole("button", { name: "Settings" })).toBeVisible()
-    for (const chip of ["⌘/", "⌘,", "⌘↵"]) {
+    expect(screen.getByRole("button", { name: "Quit" })).toBeVisible()
+    for (const chip of ["⌘/", "⌘,", "⌘↵", "⌘Q"]) {
       expect(screen.getByText(chip)).toBeVisible()
     }
     fireEvent.click(screen.getByRole("button", { name: "Settings" }))
     expect(onSettings).toHaveBeenCalledOnce()
+    fireEvent.click(screen.getByRole("button", { name: "Quit" }))
+    expect(onQuit).toHaveBeenCalledOnce()
 
-    rerender(<CommandRail {...props({ session: activeSession(), onSettings })} />)
+    rerender(<CommandRail {...props({ session: activeSession(), onSettings, onQuit })} />)
     for (const name of [
       "Record",
       "Screenshot",
       "Chat",
       "Submit",
       "HotKeys",
-      "Settings"
+      "Settings",
+      "Quit"
     ]) {
       expect(screen.getByRole("button", { name })).toBeVisible()
     }

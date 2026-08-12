@@ -20,6 +20,7 @@ export interface CommandRailProps {
   readonly onSubmit: () => void
   readonly onHotKeys: () => void
   readonly onSettings: () => void
+  readonly onQuit: () => void
   readonly onReset: () => void
   readonly onWorkspace: () => void
   readonly shortcuts: ShortcutBindings
@@ -43,6 +44,7 @@ export function CommandRail({
   onSubmit,
   onHotKeys,
   onSettings,
+  onQuit,
   onReset,
   onWorkspace,
   shortcuts,
@@ -101,6 +103,9 @@ export function CommandRail({
             <span className="sr-only">Start interview</span>
             <ShortcutChip label="⌘↵" />
           </button>
+          <button className="quiet-danger" type="button" data-interactive onClick={onQuit}>
+            Quit <ShortcutChip label="⌘Q" />
+          </button>
         </>
       ) : (
         <nav className="quiet-actions" aria-label="Live interview controls">
@@ -142,6 +147,9 @@ export function CommandRail({
           </button>
           <button type="button" data-interactive onClick={onSettings}>
             Settings <ShortcutChip label="⌘," />
+          </button>
+          <button className="quiet-danger" type="button" data-interactive onClick={onQuit}>
+            Quit <ShortcutChip label="⌘Q" />
           </button>
           <details data-interactive>
             <summary>More</summary>

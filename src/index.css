@@ -28,6 +28,16 @@ summary {
   font: inherit;
 }
 
+button,
+summary {
+  -webkit-user-select: none;
+}
+
+button:focus,
+summary:focus {
+  outline: none;
+}
+
 .quiet-shell {
   min-height: 100vh;
   color: #f4f7fb;
@@ -152,12 +162,15 @@ summary {
 }
 
 .quiet-rail button:hover,
-.quiet-rail button:focus-visible,
-.quiet-composer button:hover,
-.quiet-composer button:focus-visible {
+.quiet-composer button:hover {
   background: var(--quiet-hover);
-  outline: 2px solid var(--quiet-signal);
-  outline-offset: 1px;
+}
+
+.quiet-rail button:focus-visible,
+.quiet-rail summary:focus-visible,
+.quiet-composer button:focus-visible {
+  border-color: var(--quiet-signal);
+  box-shadow: 0 0 0 2px rgba(250, 204, 21, 0.42);
 }
 
 .quiet-rail .quiet-primary,
@@ -326,12 +339,14 @@ summary {
 }
 
 .quiet-audio-panel button:hover,
-.quiet-audio-panel button:focus-visible,
-.quiet-audio-settings button:hover,
-.quiet-audio-settings button:focus-visible {
+.quiet-audio-settings button:hover {
   background: var(--quiet-hover);
-  outline: 2px solid var(--quiet-signal);
-  outline-offset: 1px;
+}
+
+.quiet-audio-panel button:focus-visible,
+.quiet-audio-settings button:focus-visible {
+  border-color: var(--quiet-signal);
+  box-shadow: 0 0 0 2px rgba(250, 204, 21, 0.42);
 }
 
 .quiet-audio-panel button[aria-pressed="true"],
@@ -677,6 +692,18 @@ summary {
 .quiet-answer-body pre {
   margin: 0;
   white-space: pre-wrap;
+}
+
+button.quiet-primary {
+  color: #1c1600;
+  background: var(--quiet-signal);
+}
+
+button.quiet-primary:not(:disabled):hover,
+button.quiet-primary:not(:disabled):focus-visible {
+  color: #171100;
+  border-color: #fde047;
+  background: #fde047;
 }
 
 @media (prefers-reduced-motion: reduce) {

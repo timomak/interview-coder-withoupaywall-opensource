@@ -132,6 +132,7 @@ const electronAPI = {
     return () => ipcRenderer.removeListener(INTERVIEW_STATE_EVENT, listener)
   },
   openSettings: () => ipcRenderer.invoke("settings:show"),
+  quitApplication: () => ipcRenderer.invoke("application:quit"),
   onShowSettings: (callback: () => void) => {
     const listener = () => callback()
     ipcRenderer.on("settings:show", listener)

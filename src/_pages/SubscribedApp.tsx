@@ -300,6 +300,7 @@ export default function SubscribedApp({
         onSubmit={() => void submit()}
         onHotKeys={() => setHotKeysOpen((open) => !open)}
         onSettings={() => void window.electronAPI.openSettings()}
+        onQuit={() => void window.electronAPI.quitApplication()}
         hotKeysButtonRef={hotKeysButton}
         onWorkspace={() => setWorkspaceExpanded((expanded) => !expanded)}
         onReset={() =>

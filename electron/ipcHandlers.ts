@@ -67,6 +67,7 @@ export interface IpcHandlerDependencies {
   readonly setWindowDimensions: (width: number, height: number) => void
   readonly toggleMainWindow: () => void
   readonly showSettings: () => void
+  readonly quitApplication: () => void
   readonly diagnoseProviders: () => Promise<readonly ProviderDiagnostics[]>
   readonly configureProvider: (
     provider: ProviderId,
@@ -437,6 +438,10 @@ export function initializeIpcHandlers(
   })
   ipcMain.handle("settings:show", () => {
     dependencies.showSettings()
+    return { success: true }
+  })
+  ipcMain.handle("application:quit", () => {
+    dependencies.quitApplication()
     return { success: true }
   })
 }
