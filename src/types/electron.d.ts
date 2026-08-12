@@ -82,6 +82,7 @@ export interface ElectronAPI {
   openHistory: (
     sessionId: string
   ) => Promise<import("../features/history/types").HistoryArchiveV1>
+  continueHistory: (sessionId: string) => Promise<CommandResult>
   deleteHistory: (
     request: import("../features/history/types").HistoryDeleteRequest
   ) => Promise<import("../features/history/types").HistoryCatalog>
@@ -95,6 +96,7 @@ export interface ElectronAPI {
     callback: (state: InterviewSession) => void
   ) => () => void
   openSettings: () => Promise<{ success: boolean }>
+  quitApplication: () => Promise<{ success: boolean }>
   onShowSettings: (callback: () => void) => () => void
   updateContentDimensions: (dimensions: {
     width: number
@@ -136,6 +138,24 @@ export interface ElectronAPI {
   openAudioSystemSettings?: (
     source: AudioSource
   ) => Promise<{ success: boolean }>
+  getCaptureVerificationState: () => Promise<
+    import("../../electron/privacy/verificationRecord").CaptureVerificationState
+  >
+  beginMeetQualification: (
+    scope: import("../../electron/privacy/verificationRecord").CaptureScope
+  ) => Promise<import("../../electron/qualification/liveProcedure").LiveProcedureSession>
+  sampleMeetQualification: (markerFrame: number, controlFrame: number) => Promise<void>
+  acknowledgeMeetObserver: (receipt: import("../../electron/qualification/liveProcedure").RemoteObserverReceipt) => Promise<void>
+  completeMeetQualification: (value: {
+    stopReceipt: import("../../electron/qualification/liveProcedure").RemoteObserverReceipt
+    recordingPath: string
+  }) => Promise<{ runId: string; rawRoot: string; state: "awaiting-analysis-and-attestations" }>
+  previewDiagnostics: () => Promise<
+    import("../../electron/diagnostics/DiagnosticService").DiagnosticPreview
+  >
+  exportDiagnostics: (
+    preview: import("../../electron/diagnostics/DiagnosticService").DiagnosticPreview
+  ) => Promise<boolean>
   toggleMainWindow: () => Promise<{ success: boolean }>
   getPlatform: () => NodeJS.Platform
   startUpdate: () => Promise<{ success: boolean; error?: string }>

@@ -5,12 +5,15 @@ import {
   isProviderId
 } from "../../src/shared/provider"
 import {
+  DEFAULT_SHORTCUT_BINDINGS,
   DEFAULT_LIVE_SHELL_PREFERENCES,
   SHORTCUT_ACTIONS,
+  isControlShiftShortcut,
   shortcutConflicts,
   type HudState,
   type LiveShellPreferences,
   type PersistedWindowBounds,
+  type ShortcutAction,
   type ShortcutBindings
 } from "../../src/shared/shell"
 
@@ -259,7 +262,7 @@ function validateLiveShellPreferences(value: unknown): LiveShellPreferences {
     SHORTCUT_ACTIONS.some(
       (action) =>
         typeof shortcuts[action] !== "string" ||
-        String(shortcuts[action]).trim().length === 0
+        !isControlShiftShortcut(String(shortcuts[action]))
     )
   ) {
     throw new Error("Live-shell shortcut preferences are malformed")
@@ -329,4 +332,30 @@ export function withM05aDefaults(
       m06: config.migrations?.m06 ?? { completedAt }
     }
   }
+}
+
+const LEGACY_NAVIGATION_BINDINGS: Readonly<
+  Partial<Record<ShortcutAction, string>>
+> = Object.freeze({
+  "section-previous": "Control+Option+Left",
+  "section-next": "Control+Option+Right",
+  "section-scroll-up": "Control+Option+Up",
+  "section-scroll-down": "Control+Option+Down"
+})
+
+export function migrateLegacyShellShortcuts(value: unknown): unknown {
+  if (typeof value !== "object" || value === null) return value
+  const shell = value as Record<string, unknown>
+  if (typeof shell.shortcuts !== "object" || shell.shortcuts === null) {
+    return value
+  }
+  const shortcuts = shell.shortcuts as Record<string, unknown>
+  let changed = false
+  const migrated = { ...shortcuts }
+  for (const [action, legacy] of Object.entries(LEGACY_NAVIGATION_BINDINGS)) {
+    if (migrated[action] !== legacy) continue
+    migrated[action] = DEFAULT_SHORTCUT_BINDINGS[action as ShortcutAction]
+    changed = true
+  }
+  return changed ? { ...shell, shortcuts: migrated } : value
 }

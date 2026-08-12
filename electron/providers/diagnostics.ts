@@ -11,9 +11,8 @@ function subscriptionAuthentication(
   stderr: string
 ): boolean {
   if (provider === "claude-code") {
-    if (stdoutLines.length !== 1) return false
     try {
-      const value = JSON.parse(stdoutLines[0]) as Record<string, unknown>
+      const value = JSON.parse(stdoutLines.join("\n")) as Record<string, unknown>
       return (
         value.loggedIn === true &&
         value.authMethod === "claude.ai" &&

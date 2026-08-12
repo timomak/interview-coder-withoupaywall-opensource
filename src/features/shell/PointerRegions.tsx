@@ -1,7 +1,20 @@
 import { useEffect } from "react"
 
-export function PointerRegions() {
+interface PointerRegionsProps {
+  readonly forceInteractive?: boolean
+}
+
+export function PointerRegions({
+  forceInteractive = false
+}: PointerRegionsProps) {
   useEffect(() => {
+    if (forceInteractive) {
+      void window.electronAPI.setWindowPointerEvents(false, false)
+      return () => {
+        void window.electronAPI.setWindowPointerEvents(false, false)
+      }
+    }
+
     let ignoring = false
     const route = (event: PointerEvent) => {
       const target = event.target instanceof Element ? event.target : null
@@ -16,7 +29,7 @@ export function PointerRegions() {
       document.removeEventListener("pointerover", route, true)
       void window.electronAPI.setWindowPointerEvents(false, false)
     }
-  }, [])
+  }, [forceInteractive])
 
   return null
 }

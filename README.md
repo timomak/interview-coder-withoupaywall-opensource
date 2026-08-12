@@ -1,7 +1,7 @@
 # InterviewCopilot
 
-InterviewCopilot is an AGPL-licensed desktop application for technical
-interview practice. The current codebase includes an Electron application and
+InterviewCopilot is an AGPL-licensed, Live-first macOS desktop application for
+Senior and Staff+ technical interviews. The current codebase includes an Electron application and
 an inherited Create React App renderer retained for regression coverage.
 
 ## Supported development runtime
@@ -85,10 +85,16 @@ computed properties, without treating comments or inert strings as execution.
 Electron windows apply `setContentProtection(true)` through one centralized
 helper before their first reveal and again before every later reveal.
 Renderer-initiated child windows are denied; the existing allowlisted HTTP(S)
-links are delegated to the operating system instead. This unit protection does not prove capture privacy. Capture behavior depends on the operating system,
-capture application, application version, hardware, and display topology. No
-external capture-resistance or undetectability claim is made by the P01 unit
-tests. Release claims require separate, explicit qualification.
+links are delegated to the operating system instead. This unit protection does not prove capture privacy.
+The release supports a claim only for an exact macOS,
+architecture, Chrome, Google Meet, display, package, and sharing-scope tuple that
+passed the documented two-device remote qualification. A changed tuple shows
+**Retest required**. Browser-tab sharing and other meeting applications are not
+qualified.
+
+Diagnostics are local-only, redact interview content and credentials, show a
+preview, and export only after a manual choice. Nothing is transmitted
+automatically. See [release qualification](docs/macos-release/RELEASE.md).
 
 The production build packages an unsigned application directory and inspects
 its actual `app.asar`. Only compiled renderer/Electron output, runtime
@@ -96,10 +102,9 @@ dependencies, and package metadata may be present; raw project source,
 test/spec files, verification scripts, and source maps are rejected. Existing
 explicit runtime resources remain outside the asar.
 
-Configuration and screenshots handled by the existing application may contain
-sensitive information. Do not attach secrets, configuration files, screenshots,
-or raw interview content to bug reports. P01 adds policy rails but does not add
-encrypted persistence; that work belongs to a later phase.
+Configuration, screenshots, transcripts, and History are encrypted at rest and
+may still contain sensitive information after decryption. Do not attach secrets,
+configuration files, screenshots, or raw interview content to bug reports.
 
 ## License
 

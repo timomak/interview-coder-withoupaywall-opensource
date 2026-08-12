@@ -58,12 +58,16 @@ import type {
   HistoryExportReceipt,
   HistoryExportRequest
 } from "../src/features/history/types"
+import type { DiagnosticPreview } from "./diagnostics/DiagnosticService"
+import type { CaptureVerificationState } from "./privacy/verificationRecord"
+import type { LiveProcedureSession } from "./qualification/liveProcedure"
 
 export interface IpcHandlerDependencies {
   readonly orchestrator: InterviewOrchestrator
   readonly setWindowDimensions: (width: number, height: number) => void
   readonly toggleMainWindow: () => void
   readonly showSettings: () => void
+  readonly quitApplication: () => void
   readonly diagnoseProviders: () => Promise<readonly ProviderDiagnostics[]>
   readonly configureProvider: (
     provider: ProviderId,
@@ -111,6 +115,7 @@ export interface IpcHandlerDependencies {
   readonly listHistory: () => Promise<HistoryCatalog>
   readonly searchHistory: (query: string) => Promise<HistoryCatalog>
   readonly openHistory: (sessionId: string) => Promise<HistoryArchiveV1>
+  readonly continueHistory: (sessionId: string) => Promise<CommandResult>
   readonly deleteHistory: (request: HistoryDeleteRequest) => Promise<HistoryCatalog>
   readonly exportHistory: (
     request: HistoryExportRequest
@@ -124,6 +129,17 @@ export interface IpcHandlerDependencies {
     preferences: AudioPreferencesV1
   ) => Promise<AudioPreferencesV1>
   readonly openAudioSystemSettings: (source: AudioSource) => Promise<void>
+  readonly previewDiagnostics: () => Promise<DiagnosticPreview>
+  readonly exportDiagnostics: (preview: DiagnosticPreview) => Promise<boolean>
+  readonly getCaptureVerificationState: () => Promise<CaptureVerificationState>
+  readonly beginMeetQualification: (scope: "entire-display" | "specific-window") => LiveProcedureSession
+  readonly sampleMeetQualification: (markerFrame: number, controlFrame: number) => void
+  readonly acknowledgeMeetObserver: (receipt: unknown) => void
+  readonly completeMeetQualification: (value: unknown) => {
+    readonly runId: string
+    readonly rawRoot: string
+    readonly state: "awaiting-analysis-and-attestations"
+  }
 }
 
 export function initializeIpcHandlers(
@@ -142,6 +158,34 @@ export function initializeIpcHandlers(
   ipcMain.handle(PROVIDER_DIAGNOSTICS_CHANNEL, () =>
     dependencies.diagnoseProviders()
   )
+  ipcMain.handle("privacy:verification-state", () =>
+    dependencies.getCaptureVerificationState()
+  )
+  ipcMain.handle("privacy:qualification-begin", (_event, scope: unknown) => {
+    if (scope !== "entire-display" && scope !== "specific-window") throw new Error("Qualification scope is invalid")
+    return dependencies.beginMeetQualification(scope)
+  })
+  ipcMain.handle("privacy:qualification-sample", (_event, value: unknown) => {
+    if (!value || typeof value !== "object") throw new Error("Qualification sample is invalid")
+    const sample = value as { markerFrame?: unknown; controlFrame?: unknown }
+    if (!Number.isSafeInteger(sample.markerFrame) || !Number.isSafeInteger(sample.controlFrame)) throw new Error("Qualification sample is invalid")
+    dependencies.sampleMeetQualification(sample.markerFrame as number, sample.controlFrame as number)
+  })
+  ipcMain.handle("privacy:qualification-observer", (_event, value: unknown) =>
+    dependencies.acknowledgeMeetObserver(value)
+  )
+  ipcMain.handle("privacy:qualification-complete", (_event, value: unknown) =>
+    dependencies.completeMeetQualification(value)
+  )
+  ipcMain.handle("privacy:diagnostics-preview", () =>
+    dependencies.previewDiagnostics()
+  )
+  ipcMain.handle("privacy:diagnostics-export", (_event, value: unknown) => {
+    if (!value || typeof value !== "object") {
+      throw new Error("Diagnostic preview is malformed")
+    }
+    return dependencies.exportDiagnostics(value as DiagnosticPreview)
+  })
   ipcMain.handle(PROVIDER_CONFIGURE_CHANNEL, (_event, value: unknown) => {
     if (
       typeof value !== "object" ||
@@ -273,6 +317,12 @@ export function initializeIpcHandlers(
     }
     return dependencies.openHistory(value)
   })
+  ipcMain.handle("history:continue", (_event, value: unknown) => {
+    if (typeof value !== "string" || value.length === 0 || value.length > 512) {
+      throw new Error("History identity is malformed")
+    }
+    return dependencies.continueHistory(value)
+  })
   ipcMain.handle("history:delete", (_event, value: unknown) => {
     if (
       typeof value !== "object" ||
@@ -395,6 +445,10 @@ export function initializeIpcHandlers(
   })
   ipcMain.handle("settings:show", () => {
     dependencies.showSettings()
+    return { success: true }
+  })
+  ipcMain.handle("application:quit", () => {
+    dependencies.quitApplication()
     return { success: true }
   })
 }

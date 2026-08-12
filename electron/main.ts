@@ -1,6 +1,7 @@
 import {
   app,
   BrowserWindow,
+  dialog,
   safeStorage,
   screen,
   shell,
@@ -8,12 +9,15 @@ import {
 } from "electron"
 import fs from "node:fs"
 import path from "node:path"
+import crypto from "node:crypto"
+import { execFileSync } from "node:child_process"
 import { initAutoUpdater } from "./autoUpdater"
 import {
   applyCaptureProtection,
   applyPointerRouting,
   createCaptureProtectedWindow,
-  revealCaptureProtectedWindow
+  revealCaptureProtectedWindow,
+  setCaptureProtectedBounds
 } from "./captureProtection"
 import { configHelper } from "./ConfigHelper"
 import { initializeIpcHandlers } from "./ipcHandlers"
@@ -46,8 +50,11 @@ import {
 import { createWindowOpenHandler } from "./windowOpenPolicy"
 import { ScreenshotHelper } from "./ScreenshotHelper"
 import { ShortcutsHelper } from "./shortcuts"
-import { clampWindowBounds } from "./window/displayGeometry"
-import { DisplayGeometryStore } from "./window/displayGeometry"
+import {
+  clampWindowBounds,
+  DisplayGeometryStore,
+  transitionWindowBounds
+} from "./window/displayGeometry"
 import { ComposerVisibilityController } from "./window/composerVisibility"
 import type {
   ProviderDiagnostics,
@@ -57,6 +64,7 @@ import type {
 import {
   DEFAULT_SHORTCUT_BINDINGS,
   DEFAULT_LIVE_SHELL_PREFERENCES,
+  deriveStartupHudState,
   type HudState,
   type ShortcutAction,
   type ShortcutBindings
@@ -78,9 +86,95 @@ import {
   type HistoryExportJournalV1
 } from "./history"
 import type { HistoryArchiveV1 } from "../src/features/history/types"
+import { historyContinuationSnapshot } from "../src/features/history/model"
 import type { RecordRepository } from "./storage"
+import { DiagnosticService } from "./diagnostics/DiagnosticService"
+import {
+  CaptureVerificationRepository,
+  captureVerificationState,
+  validateCaptureVerificationRecord,
+  type CaptureTupleV1,
+  type CaptureVerificationRecordV1
+} from "./privacy/verificationRecord"
+import { LiveQualificationProcedure } from "./qualification/liveProcedure"
+import { parseCanonicalJson, validateMatrix } from "./qualification/protocol"
 
 const isDevelopment = process.env.NODE_ENV === "development"
+let observedMeetBuildId: string | undefined
+
+function sha256File(file: string): string {
+  return crypto.createHash("sha256").update(fs.readFileSync(file)).digest("hex")
+}
+
+function releaseCommitSha(): string | undefined {
+  try {
+    const metadata = JSON.parse(fs.readFileSync(path.join(app.getAppPath(), "package.json"), "utf8"))
+    return /^[0-9a-f]{40}$/.test(metadata.releaseCommitSha) ? metadata.releaseCommitSha : undefined
+  } catch { return undefined }
+}
+
+function observedCaptureTuple(): CaptureTupleV1 | undefined {
+  try {
+    const commit = releaseCommitSha()
+    const asar = path.join(process.resourcesPath, "app.asar")
+    const primary = screen.getPrimaryDisplay()
+    const product = execFileSync("/usr/bin/sw_vers", ["-productVersion"], { encoding: "utf8" }).trim()
+    const build = execFileSync("/usr/bin/sw_vers", ["-buildVersion"], { encoding: "utf8" }).trim()
+    const chrome = execFileSync(
+      "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+      ["--version"],
+      { encoding: "utf8" }
+    ).match(/([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)/)?.[1]
+    if (!commit || !fs.existsSync(asar) || !chrome) return undefined
+    return {
+      appSemver: app.getVersion(),
+      appCommitSha: commit,
+      appBundleSha256: sha256File(asar),
+      macOSProductVersion: product,
+      macOSBuildVersion: build,
+      architecture: process.arch === "arm64" ? "arm64" : "x64",
+      chromeVersion: chrome,
+      // A historical receipt cannot establish the currently served Meet web
+      // build. Outside an active signed observer session this remains unknown,
+      // which deliberately forces Retest required instead of copying history.
+      meetBuildId: observedMeetBuildId ?? "unobserved-current-meet-build",
+      display: {
+        displayId: String(primary.id),
+        type: primary.internal ? "internal" : "external",
+        pixelWidth: Math.round(primary.size.width * primary.scaleFactor),
+        pixelHeight: Math.round(primary.size.height * primary.scaleFactor),
+        scaleFactor: String(primary.scaleFactor)
+      }
+    }
+  } catch { return undefined }
+}
+
+async function importRootQualificationReceipt(
+  repository: CaptureVerificationRepository
+): Promise<void> {
+  const commit = releaseCommitSha()
+  if (!commit) return
+  const receipt = path.join(
+    "/Users/Shared/InterviewCopilot/qualification-receipts",
+    commit
+  )
+  if (!fs.existsSync(receipt)) return
+  for (const entry of fs.readdirSync(receipt).filter((name) => /^capture-verification-[A-Za-z0-9._-]+\.json$/.test(name))) {
+    const candidate = path.join(receipt, entry)
+    const stat = fs.lstatSync(candidate)
+    if (!stat.isFile() || stat.isSymbolicLink() || stat.uid !== 0 || (stat.mode & 0o022) !== 0) {
+      throw new Error("Capture verification receipt ownership is invalid")
+    }
+    const record = JSON.parse(fs.readFileSync(candidate, "utf8")) as CaptureVerificationRecordV1
+    validateCaptureVerificationRecord(record)
+    if (record.tuple.appCommitSha !== commit) throw new Error("Capture receipt commit does not match packaged app")
+    const current = observedCaptureTuple()
+    if (current && captureVerificationState(record, current) === "Verified") {
+      await repository.save(record)
+      return
+    }
+  }
+}
 
 const state = {
   mainWindow: null as BrowserWindow | null,
@@ -111,12 +205,12 @@ function defaultBoundsFor(stateName: HudState) {
   const comfortable = config.shell?.density === "comfortable"
   const height = comfortable ? 52 : 44
   if (stateName === "compact-bar") {
-    return { x: state.currentX, y: state.currentY, width: 520, height }
+    return { x: state.currentX, y: state.currentY, width: 720, height }
   }
   if (stateName === "compact-answer") {
     return { x: state.currentX, y: state.currentY, width: 520, height: 480 }
   }
-  return { x: state.currentX, y: state.currentY, width: 760, height: 600 }
+  return { x: state.currentX, y: state.currentY, width: 820, height: 760 }
 }
 
 function rememberCurrentGeometry(): void {
@@ -146,9 +240,13 @@ function scheduleGeometryPersistence(): void {
   }, 200)
 }
 
-function setHudState(nextState: HudState): void {
+function setHudState(
+  nextState: HudState,
+  preserveCurrentOrigin = true
+): void {
   const mainWindow = state.mainWindow
   if (!mainWindow || mainWindow.isDestroyed()) return
+  const isStateTransition = nextState !== currentHudState
   rememberCurrentGeometry()
   currentHudState = nextState
   const currentBounds = mainWindow.getBounds()
@@ -159,10 +257,32 @@ function setHudState(nextState: HudState): void {
     defaultBoundsFor(nextState),
     availableDisplayGeometry()
   )
+  const minimumWidth =
+    nextState === "expanded"
+      ? Math.min(720, currentDisplay.workArea.width)
+      : 320
+  const minimumHeight =
+    nextState === "expanded"
+      ? Math.min(680, currentDisplay.workArea.height)
+      : nextState === "compact-bar"
+        ? 44
+        : 80
+  const targetBounds = {
+    ...restored,
+    width: Math.max(restored.width, minimumWidth),
+    height: Math.max(restored.height, minimumHeight)
+  }
+  const bounds = isStateTransition && preserveCurrentOrigin
+    ? transitionWindowBounds(
+        currentBounds,
+        targetBounds,
+        currentDisplay.workArea
+      )
+    : clampWindowBounds(targetBounds, currentDisplay.workArea)
   applyCaptureProtection(mainWindow)
   mainWindow.setResizable(nextState === "expanded")
-  mainWindow.setMinimumSize(320, nextState === "compact-bar" ? 44 : 80)
-  mainWindow.setBounds(restored)
+  mainWindow.setMinimumSize(minimumWidth, minimumHeight)
+  setCaptureProtectedBounds(mainWindow, bounds)
   persistGeometry()
 }
 
@@ -188,6 +308,7 @@ function createWindow(): void {
   const workArea = screen.getPrimaryDisplay().workAreaSize
   state.screenWidth = workArea.width
   state.screenHeight = workArea.height
+  const startupHudState = deriveStartupHudState(configHelper.loadConfig())
   const options: BrowserWindowConstructorOptions = {
     width: 520,
     height: 44,
@@ -221,6 +342,10 @@ function createWindow(): void {
   state.mainWindow = mainWindow
   mainWindow.once("ready-to-show", () => {
     state.visible = false
+    if (startupHudState === "expanded") {
+      setHudState(startupHudState, false)
+      showMainWindow()
+    }
   })
   mainWindow.on("closed", () => {
     state.mainWindow = null
@@ -288,7 +413,7 @@ function moveWindowHorizontal(delta: number): void {
   )
   state.currentX = next.x
   state.currentY = next.y
-  mainWindow.setBounds(next)
+  setCaptureProtectedBounds(mainWindow, next)
 }
 
 function moveWindowVertical(delta: number): void {
@@ -302,7 +427,7 @@ function moveWindowVertical(delta: number): void {
   )
   state.currentX = next.x
   state.currentY = next.y
-  mainWindow.setBounds(next)
+  setCaptureProtectedBounds(mainWindow, next)
 }
 
 function setWindowDimensions(width: number, height: number): void {
@@ -319,7 +444,8 @@ function setWindowDimensions(width: number, height: number): void {
   if (currentHudState === "expanded") return
   const bounds = mainWindow.getBounds()
   const workArea = screen.getDisplayMatching(bounds).workArea
-  mainWindow.setBounds(
+  setCaptureProtectedBounds(
+    mainWindow,
     clampWindowBounds(
       {
         ...bounds,
@@ -445,6 +571,10 @@ function createOrchestrator(
 }
 
 async function initializeApplication(): Promise<void> {
+  if (process.platform === "darwin") {
+    app.setActivationPolicy("accessory")
+    app.dock.hide()
+  }
   const userData = path.join(app.getPath("appData"), "InterviewCopilot")
   app.setPath("userData", userData)
   const executables = providerExecutables()
@@ -484,6 +614,16 @@ async function initializeApplication(): Promise<void> {
       "templates"
     )
   )
+  const captureVerification = new CaptureVerificationRepository(
+    new EncryptedRecordRepository<CaptureVerificationRecordV1>(
+      storagePaths,
+      keyService,
+      undefined,
+      "capture-verification"
+    )
+  )
+  const diagnosticService = new DiagnosticService()
+  let liveQualification: LiveQualificationProcedure | undefined
   const historyRepository = new HistoryRepository(
     records as unknown as RecordRepository<object>,
     new EncryptedRecordRepository<HistoryArchiveV1 | object>(
@@ -588,6 +728,12 @@ async function initializeApplication(): Promise<void> {
     audio.updateElapsed(source, elapsedMs)
   )
   createWindow()
+  if (process.argv.includes("--qualification-collect") && state.mainWindow) {
+    state.mainWindow.webContents.once("did-finish-load", () => {
+      showMainWindow()
+      state.mainWindow?.webContents.send("settings:show")
+    })
+  }
   const screenshots = new ScreenshotHelper(
     new EncryptedBlobRepository(
       storagePaths,
@@ -739,6 +885,21 @@ async function initializeApplication(): Promise<void> {
     listHistory: () => history.list(),
     searchHistory: (query) => history.search(query),
     openHistory: (sessionId) => history.open(sessionId),
+    continueHistory: async (sessionId) => {
+      const archive = await history.open(sessionId)
+      const config = configHelper.loadConfig()
+      if (!config.provider || !config.model) {
+        throw new Error("Configure a provider before continuing History")
+      }
+      return orchestrator.command({
+        type: "start",
+        snapshot: historyContinuationSnapshot(archive, {
+          provider: config.provider,
+          model: config.model,
+          responseMode: config.responseMode
+        })
+      })
+    },
     deleteHistory: (request) => history.delete(request),
     exportHistory: (request) => history.export(request),
     getAudioSessionState: () => audio.current(),
@@ -752,6 +913,80 @@ async function initializeApplication(): Promise<void> {
           ? "x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone"
           : "x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture"
       ),
+    getCaptureVerificationState: async () => {
+      await importRootQualificationReceipt(captureVerification)
+      const record = await captureVerification.load()
+      if (!record) return "Not verified"
+      const current = observedCaptureTuple()
+      return current ? captureVerificationState(record, current) : "Retest required"
+    },
+    beginMeetQualification: (scope) => {
+      if (!process.argv.includes("--qualification-collect")) {
+        throw new Error("Meet qualification must be launched by the pinned release command")
+      }
+      const root = process.env.INTERVIEWCOPILOT_QUALIFICATION_ROOT
+      const matrixRevision = process.env.INTERVIEWCOPILOT_QUALIFICATION_MATRIX
+      const tupleId = process.env.INTERVIEWCOPILOT_QUALIFICATION_TUPLE
+      const expectedScope = process.env.INTERVIEWCOPILOT_QUALIFICATION_SCOPE
+      const matrixJson = process.env.INTERVIEWCOPILOT_QUALIFICATION_MATRIX_JSON
+      if (!root || !matrixRevision || !tupleId || !matrixJson || expectedScope !== scope) {
+        throw new Error("Pinned qualification identity is missing or disagrees")
+      }
+      const procedure = scope === "entire-display" ? "M01" : "M02"
+      liveQualification = new LiveQualificationProcedure(
+        path.join(root, matrixRevision, tupleId, procedure),
+        validateMatrix(parseCanonicalJson(matrixJson))
+      )
+      return liveQualification.begin(scope, matrixRevision, tupleId)
+    },
+    sampleMeetQualification: (markerFrame, controlFrame) => {
+      if (!liveQualification) throw new Error("Meet qualification is not active")
+      liveQualification.sample(markerFrame, controlFrame)
+    },
+    acknowledgeMeetObserver: (value) => {
+      if (!liveQualification || !value || typeof value !== "object") {
+        throw new Error("Meet qualification is not active")
+      }
+      const observed = liveQualification.acknowledgeObserver(value as { payload: unknown; signature: unknown })
+      observedMeetBuildId = observed.meetBuildId
+    },
+    completeMeetQualification: (value) => {
+      if (!liveQualification) throw new Error("Meet qualification is not active")
+      if (!value || typeof value !== "object") throw new Error("Remote stop receipt is malformed")
+      const input = value as Record<string, unknown>
+      const recordingPath = path.resolve(String(input.recordingPath ?? ""))
+      const root = path.resolve(String(process.env.INTERVIEWCOPILOT_QUALIFICATION_ROOT ?? ""))
+      const inbox = path.join(root, "remote-inbox")
+      if (!recordingPath.startsWith(`${inbox}${path.sep}`)) throw new Error("Remote recording must come from the fixed inbox")
+      const stat = fs.lstatSync(recordingPath)
+      if (!stat.isFile() || stat.isSymbolicLink() || stat.nlink !== 1) throw new Error("Remote recording input is unsafe")
+      const result = liveQualification.finishRaw(
+        input.stopReceipt as { payload: unknown; signature: unknown },
+        fs.readFileSync(recordingPath)
+      )
+      liveQualification = undefined
+      return result
+    },
+    previewDiagnostics: async () =>
+      diagnosticService.preview({
+        appVersion: app.getVersion(),
+        packaged: app.isPackaged,
+        platform: process.platform,
+        architecture,
+        providerConfigured: Boolean(configHelper.loadConfig().provider),
+        captureVerification: await captureVerification.load()
+          .then((record) => record ? "record-present" : "record-absent")
+      }),
+    exportDiagnostics: async (preview) => {
+      const selection = await dialog.showSaveDialog({
+        title: "Export redacted diagnostics",
+        defaultPath: "InterviewCopilot-diagnostics.json",
+        filters: [{ name: "JSON", extensions: ["json"] }]
+      })
+      if (selection.canceled || !selection.filePath) return false
+      await diagnosticService.export(selection.filePath, preview)
+      return true
+    },
     setWindowPointerEvents: (ignore, forward) => {
       if (state.mainWindow) {
         applyPointerRouting(state.mainWindow, ignore, forward)
@@ -787,7 +1022,8 @@ async function initializeApplication(): Promise<void> {
       return configHelper.updateConfig({ provider, model, responseMode })
     },
     showSettings: () =>
-      state.mainWindow?.webContents.send("settings:show")
+      state.mainWindow?.webContents.send("settings:show"),
+    quitApplication: () => app.quit()
   })
   await audio.cleanupStartup()
   await history.recover()

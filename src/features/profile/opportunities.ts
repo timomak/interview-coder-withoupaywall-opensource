@@ -39,6 +39,30 @@ export function activateOpportunity(
   return { ...bundle, activeOpportunityId: opportunityId }
 }
 
+export function duplicateOpportunity(
+  bundle: ProfileBundle,
+  opportunityId: string,
+  duplicateId: string
+): ProfileBundle {
+  const source = bundle.opportunities.find(
+    (opportunity) => opportunity.id === opportunityId
+  )
+  if (!source) throw new Error("Unknown opportunity")
+  if (!duplicateId || bundle.opportunities.some(({ id }) => id === duplicateId)) {
+    throw new Error("Duplicate context identity is invalid")
+  }
+  return activateOpportunity(
+    saveOpportunity(bundle, {
+      ...source,
+      id: duplicateId,
+      name: `${source.name} copy`,
+      revision: 1,
+      provenance: "manual-edit"
+    }),
+    duplicateId
+  )
+}
+
 export function snapshotOpportunity(
   bundle: ProfileBundle
 ): OpportunityContext | undefined {

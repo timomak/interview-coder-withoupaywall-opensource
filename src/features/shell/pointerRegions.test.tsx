@@ -30,4 +30,42 @@ describe("pointer regions", () => {
     unmount()
     expect(setWindowPointerEvents).toHaveBeenLastCalledWith(false, false)
   })
+
+  it("suspends click-through for a modal settings surface", () => {
+    const setWindowPointerEvents = vi.fn(() => Promise.resolve({ success: true }))
+    Object.defineProperty(window, "electronAPI", {
+      configurable: true,
+      value: { setWindowPointerEvents }
+    })
+    const { container, rerender } = render(
+      <>
+        <PointerRegions />
+        <div data-testid="transparent" />
+      </>
+    )
+
+    fireEvent.pointerOver(container.querySelector("[data-testid=transparent]")!)
+    expect(setWindowPointerEvents).toHaveBeenLastCalledWith(true, true)
+
+    rerender(
+      <>
+        <PointerRegions forceInteractive />
+        <div data-testid="transparent" />
+      </>
+    )
+    expect(setWindowPointerEvents).toHaveBeenLastCalledWith(false, false)
+
+    setWindowPointerEvents.mockClear()
+    fireEvent.pointerOver(container.querySelector("[data-testid=transparent]")!)
+    expect(setWindowPointerEvents).not.toHaveBeenCalled()
+
+    rerender(
+      <>
+        <PointerRegions />
+        <div data-testid="transparent" />
+      </>
+    )
+    fireEvent.pointerOver(container.querySelector("[data-testid=transparent]")!)
+    expect(setWindowPointerEvents).toHaveBeenLastCalledWith(true, true)
+  })
 })

@@ -25,7 +25,16 @@ export const PROVIDER_CAPABILITIES: Readonly<
     protocol: "codex-app-server-jsonrpc@2",
     minimumCliVersion: "0.144.0",
     maximumCliVersionExclusive: "0.145.0",
-    models: Object.freeze(["gpt-5.3-codex", "gpt-5.4"]),
+    models: Object.freeze([
+      "gpt-5.6-sol",
+      "gpt-5.6-terra",
+      "gpt-5.6-luna",
+      "gpt-5.5",
+      "gpt-5.4",
+      "gpt-5.4-mini",
+      "gpt-5.3-codex-spark",
+      "gpt-5.3-codex"
+    ]),
     responseModes: Object.freeze({
       fast: "low",
       reasoning: "high"

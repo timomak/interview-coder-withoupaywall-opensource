@@ -16,7 +16,8 @@ import {
   PointerRegions,
   HotKeysPanel,
   InputTray,
-  AnswerSections
+  AnswerSections,
+  useLocalShellShortcuts
 } from "../features/shell"
 import {
   CodingWorkspace,
@@ -29,7 +30,11 @@ import {
 } from "../features/system-design"
 import { BehavioralResponseWorkspace } from "../features/behavioral"
 import { CrashDecision } from "../features/history"
-import { deriveHudState } from "../shared/shell"
+import {
+  DEFAULT_SHORTCUT_BINDINGS,
+  deriveHudState,
+  type ShortcutBindings
+} from "../shared/shell"
 import {
   AudioSessionPanel,
   masterRecordPresentation,
@@ -59,9 +64,13 @@ export default function SubscribedApp({
     captureActive: false
   })
   const [mode, setMode] = useState<InterviewMode>("coding")
+  const [promptMenuOpen, setPromptMenuOpen] = useState(false)
   const [input, setInput] = useState("")
   const [composerOpen, setComposerOpen] = useState(false)
   const [hotKeysOpen, setHotKeysOpen] = useState(false)
+  const [shortcuts, setShortcuts] = useState<ShortcutBindings>(
+    config.shell?.shortcuts ?? DEFAULT_SHORTCUT_BINDINGS
+  )
   const [shellStatus, setShellStatus] = useState("")
   const [workspaceExpanded, setWorkspaceExpanded] = useState(false)
   const [codingIntent, setCodingIntent] = useState<CodingIntent>()
@@ -74,7 +83,7 @@ export default function SubscribedApp({
     session.lifecycle === "active" ? session.sections.length : 0
   const artifactCount =
     session.lifecycle === "active" ? session.artifacts.length : 0
-  const hudState = deriveHudState({
+  const baseHudState = deriveHudState({
     settingsOpen,
     workspaceExpanded,
     composerOpen,
@@ -82,10 +91,17 @@ export default function SubscribedApp({
     sectionCount,
     artifactCount
   })
+  const hudState =
+    baseHudState === "expanded"
+      ? baseHudState
+      : promptMenuOpen
+        ? "compact-answer"
+        : baseHudState
 
   useEffect(() => {
     void window.electronAPI.getInterviewState().then(setSession)
     void window.electronAPI.getInterviewRecovery().then(setRecovery)
+    void window.electronAPI.getShortcutBindings().then(setShortcuts)
     return window.electronAPI.onInterviewState(setSession)
   }, [])
 
@@ -98,12 +114,14 @@ export default function SubscribedApp({
     const frame = requestAnimationFrame(() => {
       const surface = shell.current
       if (!surface) return
-      const width =
-        hudState === "compact-bar"
-          ? Math.min(520, Math.max(320, surface.scrollWidth))
+      const width = promptMenuOpen
+        ? Math.min(1120, Math.max(720, surface.scrollWidth))
+        : hudState === "compact-bar"
+          ? Math.min(1120, Math.max(520, surface.scrollWidth))
           : 520
-      const height =
-        hudState === "compact-bar"
+      const height = promptMenuOpen
+        ? 188
+        : hudState === "compact-bar"
           ? config.shell?.density === "comfortable"
             ? 52
             : 44
@@ -116,6 +134,8 @@ export default function SubscribedApp({
     config.shell?.density,
     hotKeysOpen,
     hudState,
+    promptMenuOpen,
+    shortcuts,
     sectionCount,
     artifactCount
   ])
@@ -138,6 +158,14 @@ export default function SubscribedApp({
     })
     setSession(result.state)
   }
+
+  useLocalShellShortcuts({
+    lifecycle: session.lifecycle,
+    onSettings: () => void window.electronAPI.openSettings(),
+    onHotKeys: () => setHotKeysOpen((open) => !open),
+    onStart: () => void start(),
+    onQuit: () => void window.electronAPI.quitApplication()
+  })
 
   const submit = async (
     message = input,
@@ -202,8 +230,9 @@ export default function SubscribedApp({
           if (mode !== "coding" || session.lifecycle !== "active") {
             setShellStatus("Fix current code requires an active Coding question.")
           }
-        } else if (action === "submit" && session.lifecycle === "active") {
-          void submit()
+        } else if (action === "submit") {
+          if (session.lifecycle === "idle") void start()
+          else void submit()
         } else if (
           action === "section-previous" ||
           action === "section-next"
@@ -263,11 +292,13 @@ export default function SubscribedApp({
       data-density={config.shell?.density ?? "compact"}
       data-text-size={config.shell?.textSize ?? "default"}
     >
-      <PointerRegions />
+      <PointerRegions forceInteractive={settingsOpen} />
       <CommandRail
         session={session}
         mode={mode}
         onModeChange={setMode}
+        promptMenuOpen={promptMenuOpen}
+        onPromptMenuOpenChange={setPromptMenuOpen}
         onStart={() => void start()}
         onRecord={toggleAudioMaster}
         recordLabel={record.label}
@@ -282,6 +313,8 @@ export default function SubscribedApp({
         onChat={() => setComposerOpen(true)}
         onSubmit={() => void submit()}
         onHotKeys={() => setHotKeysOpen((open) => !open)}
+        onSettings={() => void window.electronAPI.openSettings()}
+        onQuit={() => void window.electronAPI.quitApplication()}
         hotKeysButtonRef={hotKeysButton}
         onWorkspace={() => setWorkspaceExpanded((expanded) => !expanded)}
         onReset={() =>
@@ -301,11 +334,13 @@ export default function SubscribedApp({
               (artifact) => artifact.selected && !artifact.submitted
             ))
         }
+        shortcuts={shortcuts}
       />
       {hotKeysOpen ? (
         <HotKeysPanel
           returnFocusTo={hotKeysButton}
           onClose={() => setHotKeysOpen(false)}
+          onBindingsChange={setShortcuts}
         />
       ) : null}
       {composerOpen && session.lifecycle === "active" ? (

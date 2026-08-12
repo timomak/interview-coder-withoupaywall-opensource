@@ -67,7 +67,8 @@ const SUITES = {
     "src/features/shell/accessibility.test.tsx",
     "src/features/shell/navigationShortcuts.test.tsx",
     "src/features/shell/hudState.test.ts",
-    "src/features/shell/HotKeysPanel.test.tsx"
+    "src/features/shell/HotKeysPanel.test.tsx",
+    "src/features/shell/useLocalShellShortcuts.test.tsx"
   ],
   p06: [
     "src/features/coding/codingIntent.test.ts",
@@ -168,6 +169,36 @@ const SUITES = {
   "plaintext-scan": [
     "electron/history/encryptedSearch.test.ts",
     "electron/storage/plaintextLeak.test.ts"
+  ],
+  p12: [
+    "tests/qualification/macosPackagePolicy.test.ts",
+    "tests/qualification/packagedCaptureProtection.test.ts",
+    "tests/qualification/liveProcedure.e2e.test.ts",
+    "src/features/privacy/MeetVerification.test.tsx",
+    "electron/privacy/verificationRecord.test.ts",
+    "scripts/qualification/meet-artifact-validator.test.ts",
+    "electron/diagnostics/diagnosticPrivacy.test.ts",
+    "tests/qualification/scopedRecovery.e2e.test.ts",
+    "tests/qualification/claimPolicy.test.ts",
+    "tests/qualification/openSourcePrivacyPolicy.test.ts",
+    "tests/qualification/deferredScope.test.ts",
+    "tests/qualification/staffLivePositioning.contract.test.ts",
+    "tests/qualification/noUsageGate.test.ts",
+    "scripts/qualification/schema-inventory.test.ts",
+    "scripts/qualification/canonical-bytes.test.ts",
+    "scripts/qualification/trust-registry.test.ts",
+    "scripts/qualification/evidence-graph.test.ts",
+    "scripts/qualification/collector-write-once.test.ts",
+    "scripts/qualification/release-statement-constructibility.test.ts"
+  ],
+  "e2e-macos": [
+    "tests/qualification/packagedCaptureProtection.test.ts",
+    "tests/qualification/liveProcedure.e2e.test.ts",
+    "src/features/privacy/MeetVerification.test.tsx",
+    "tests/qualification/scopedRecovery.e2e.test.ts"
+  ],
+  "staff-live-corpus": [
+    "tests/qualification/staffLivePositioning.contract.test.ts"
   ],
   "electron-shell": [
     "electron/window/windowVisibility.test.ts",

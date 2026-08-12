@@ -5,6 +5,7 @@ import {
 } from "./markdown"
 import {
   activateOpportunity,
+  duplicateOpportunity,
   saveOpportunity
 } from "./opportunities"
 import type { ProfileBundle } from "./types"
@@ -36,6 +37,7 @@ export function ProfileSettings() {
   const [guidedAnswer, setGuidedAnswer] = useState("")
   const [opportunityName, setOpportunityName] = useState("")
   const [opportunityMarkdown, setOpportunityMarkdown] = useState("")
+  const [editingOpportunityId, setEditingOpportunityId] = useState<string>()
   const [exportPath, setExportPath] = useState("")
   const [importPath, setImportPath] = useState("")
   const [status, setStatus] = useState("")
@@ -112,7 +114,8 @@ export function ProfileSettings() {
   const addOpportunity = async () => {
     const name = opportunityName.trim()
     if (!name || !opportunityMarkdown.trim()) return
-    const id = name.normalize("NFC").toLowerCase().replace(/[^a-z0-9]+/g, "-")
+    const id = editingOpportunityId ??
+      `${name.normalize("NFC").toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${crypto.randomUUID().slice(0, 8)}`
     const saved = saveOpportunity(bundle, {
       id,
       name,
@@ -127,12 +130,46 @@ export function ProfileSettings() {
     setBundle(next)
     setOpportunityName("")
     setOpportunityMarkdown("")
-    setStatus("Opportunity saved and selected for the next interview.")
+    setEditingOpportunityId(undefined)
+    setStatus("Context saved and selected for the next interview.")
+  }
+
+  const editActiveContext = () => {
+    const selected = bundle.opportunities.find(
+      ({ id }) => id === bundle.activeOpportunityId
+    )
+    if (!selected) return
+    setEditingOpportunityId(selected.id)
+    setOpportunityName(selected.name)
+    setOpportunityMarkdown(selected.markdown)
+    setStatus(`Editing “${selected.name}”.`)
+  }
+
+  const duplicateActiveContext = async () => {
+    if (!bundle.activeOpportunityId) return
+    const next = duplicateOpportunity(
+      bundle,
+      bundle.activeOpportunityId,
+      `context-${crypto.randomUUID()}`
+    )
+    await window.electronAPI.saveProfileBundle(next)
+    setBundle(next)
+    const copy = next.opportunities.find(
+      ({ id }) => id === next.activeOpportunityId
+    )
+    setEditingOpportunityId(copy?.id)
+    setOpportunityName(copy?.name ?? "")
+    setOpportunityMarkdown(copy?.markdown ?? "")
+    setStatus("Context duplicated. Edit the copy, then save it.")
   }
 
   return (
-    <section className="space-y-3" aria-label="Candidate context">
-      <h3 className="text-sm font-medium">Candidate dossier</h3>
+    <section className="space-y-3" aria-label="Saved interview contexts">
+      <h3 className="text-sm font-medium">Reusable candidate profile</h3>
+      <p className="text-xs text-white/60">
+        Save facts about your background once. Reviewed profile content is added
+        to future System Design and Behavioral interviews.
+      </p>
       <textarea
         aria-label="Candidate Markdown"
         value={markdown}
@@ -208,21 +245,67 @@ export function ProfileSettings() {
       >
         Import Markdown
       </button>
-      <h3 className="text-sm font-medium">Opportunity</h3>
+      <h3 className="border-t border-white/10 pt-3 text-sm font-medium">
+        Saved interview contexts
+      </h3>
+      <p className="text-xs text-white/60">
+        Keep role, company, job description, interviewer, and interview goals
+        together. Select one context before starting an interview.
+      </p>
+      {bundle.opportunities.length > 0 ? (
+        <>
+          <label className="block text-sm">
+            Context for the next interview
+            <select
+              value={bundle.activeOpportunityId ?? ""}
+              onChange={(event) => {
+                const next = activateOpportunity(bundle, event.target.value)
+                setBundle(next)
+                void window.electronAPI.saveProfileBundle(next)
+              }}
+              className="mt-1 w-full rounded bg-black p-2"
+            >
+              {bundle.opportunities.map((opportunity) => (
+                <option key={opportunity.id} value={opportunity.id}>
+                  {opportunity.name}
+                </option>
+              ))}
+            </select>
+          </label>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              disabled={!bundle.activeOpportunityId}
+              onClick={editActiveContext}
+            >
+              Edit selected
+            </button>
+            <button
+              type="button"
+              disabled={!bundle.activeOpportunityId}
+              onClick={() => void duplicateActiveContext()}
+            >
+              Duplicate selected
+            </button>
+          </div>
+        </>
+      ) : null}
       <input
-        aria-label="Opportunity name"
+        aria-label="Context name"
+        placeholder="Context name, e.g. Acme Staff Engineer"
         value={opportunityName}
         onChange={(event) => setOpportunityName(event.target.value)}
         className="w-full rounded bg-black p-2"
       />
       <textarea
-        aria-label="Opportunity Markdown"
+        aria-label="Initial interview context"
+        placeholder="Paste the job description, company notes, interviewer details, goals, and constraints."
         value={opportunityMarkdown}
         onChange={(event) => setOpportunityMarkdown(event.target.value)}
         className="w-full rounded bg-black p-2"
       />
       <button type="button" onClick={() => void addOpportunity()}>
-        Save and select opportunity
+        {editingOpportunityId ? "Save context changes" : "Save as new context"}
       </button>
       <label className="flex gap-2 text-sm">
         <input
@@ -244,26 +327,6 @@ export function ProfileSettings() {
         />
         Allow visibly labeled synthetic drafts
       </label>
-      {bundle.opportunities.length > 0 ? (
-        <label className="block text-sm">
-          Active opportunity
-          <select
-            value={bundle.activeOpportunityId ?? ""}
-            onChange={(event) => {
-              const next = activateOpportunity(bundle, event.target.value)
-              setBundle(next)
-              void window.electronAPI.saveProfileBundle(next)
-            }}
-            className="w-full rounded bg-black p-2"
-          >
-            {bundle.opportunities.map((opportunity) => (
-              <option key={opportunity.id} value={opportunity.id}>
-                {opportunity.name}
-              </option>
-            ))}
-          </select>
-        </label>
-      ) : null}
       <label className="block text-sm">
         Explicit Markdown export path
         <input

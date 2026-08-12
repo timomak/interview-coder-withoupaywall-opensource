@@ -85,6 +85,20 @@ const electronAPI = {
     ipcRenderer.invoke(AUDIO_PREFERENCES_UPDATE_CHANNEL, preferences),
   openAudioSystemSettings: (source: AudioSource) =>
     ipcRenderer.invoke(AUDIO_OPEN_SYSTEM_SETTINGS_CHANNEL, source),
+  getCaptureVerificationState: () =>
+    ipcRenderer.invoke("privacy:verification-state"),
+  beginMeetQualification: (scope: "entire-display" | "specific-window") =>
+    ipcRenderer.invoke("privacy:qualification-begin", scope),
+  sampleMeetQualification: (markerFrame: number, controlFrame: number) =>
+    ipcRenderer.invoke("privacy:qualification-sample", { markerFrame, controlFrame }),
+  acknowledgeMeetObserver: (receipt: unknown) =>
+    ipcRenderer.invoke("privacy:qualification-observer", receipt),
+  completeMeetQualification: (value: unknown) =>
+    ipcRenderer.invoke("privacy:qualification-complete", value),
+  previewDiagnostics: () =>
+    ipcRenderer.invoke("privacy:diagnostics-preview"),
+  exportDiagnostics: (preview: unknown) =>
+    ipcRenderer.invoke("privacy:diagnostics-export", preview),
   getProfileContext: () => ipcRenderer.invoke("profile:get-context"),
   getProfileBundle: () => ipcRenderer.invoke("profile:get-bundle"),
   saveProfileBundle: (bundle: unknown) =>
@@ -107,6 +121,8 @@ const electronAPI = {
   listHistory: () => ipcRenderer.invoke("history:list"),
   searchHistory: (query: string) => ipcRenderer.invoke("history:search", query),
   openHistory: (sessionId: string) => ipcRenderer.invoke("history:open", sessionId),
+  continueHistory: (sessionId: string) =>
+    ipcRenderer.invoke("history:continue", sessionId),
   deleteHistory: (request: unknown) => ipcRenderer.invoke("history:delete", request),
   exportHistory: (request: unknown) => ipcRenderer.invoke("history:export", request),
   dispatchInterviewCommand: (command: InterviewCommand) =>
@@ -118,6 +134,7 @@ const electronAPI = {
     return () => ipcRenderer.removeListener(INTERVIEW_STATE_EVENT, listener)
   },
   openSettings: () => ipcRenderer.invoke("settings:show"),
+  quitApplication: () => ipcRenderer.invoke("application:quit"),
   onShowSettings: (callback: () => void) => {
     const listener = () => callback()
     ipcRenderer.on("settings:show", listener)

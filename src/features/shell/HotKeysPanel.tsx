@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState, type RefObject } from "react"
 import {
   DEFAULT_SHORTCUT_BINDINGS,
   SHORTCUT_ACTIONS,
+  isControlShiftShortcut,
   shortcutConflicts,
   type ShortcutAction,
   type ShortcutBindings
@@ -28,27 +29,37 @@ const LABELS: Readonly<Record<ShortcutAction, string>> = {
 export interface HotKeysPanelProps {
   readonly returnFocusTo: RefObject<HTMLButtonElement>
   readonly onClose: () => void
+  readonly onBindingsChange?: (bindings: ShortcutBindings) => void
 }
 
 export function HotKeysPanel({
   returnFocusTo,
-  onClose
+  onClose,
+  onBindingsChange
 }: HotKeysPanelProps) {
   const [bindings, setBindings] = useState<ShortcutBindings>(
     DEFAULT_SHORTCUT_BINDINGS
   )
   const [status, setStatus] = useState("")
   const conflicts = useMemo(() => shortcutConflicts(bindings), [bindings])
+  const invalidActions = useMemo(
+    () => SHORTCUT_ACTIONS.filter((action) => !isControlShiftShortcut(bindings[action])),
+    [bindings]
+  )
 
   useEffect(() => {
-    void window.electronAPI.getShortcutBindings().then(setBindings)
+    void window.electronAPI.getShortcutBindings().then((next) => {
+      setBindings(next)
+      onBindingsChange?.(next)
+    })
     return () => returnFocusTo.current?.focus()
-  }, [returnFocusTo])
+  }, [onBindingsChange, returnFocusTo])
 
   const save = async () => {
     try {
       const result = await window.electronAPI.updateShortcutBindings(bindings)
       setBindings(result.bindings)
+      onBindingsChange?.(result.bindings)
       setStatus(
         result.ok
           ? "Shortcuts saved."
@@ -57,7 +68,9 @@ export function HotKeysPanel({
             : "Resolve shortcut conflicts before saving."
       )
     } catch {
-      setBindings(await window.electronAPI.getShortcutBindings())
+      const active = await window.electronAPI.getShortcutBindings()
+      setBindings(active)
+      onBindingsChange?.(active)
       setStatus("Shortcuts were not changed because preferences could not be saved.")
     }
   }
@@ -66,11 +79,14 @@ export function HotKeysPanel({
     try {
       const result = await window.electronAPI.resetShortcutBindings()
       setBindings(result.bindings)
+      onBindingsChange?.(result.bindings)
       setStatus(
         result.ok ? "Default shortcuts restored." : "Defaults unavailable."
       )
     } catch {
-      setBindings(await window.electronAPI.getShortcutBindings())
+      const active = await window.electronAPI.getShortcutBindings()
+      setBindings(active)
+      onBindingsChange?.(active)
       setStatus("Defaults were not restored because preferences could not be saved.")
     }
   }
@@ -81,15 +97,19 @@ export function HotKeysPanel({
         <h2>HotKeys</h2>
         <button type="button" onClick={onClose}>Close</button>
       </div>
+      <p className="quiet-help">
+        Every global shortcut starts with Control+Shift. Edit only the final key.
+      </p>
       {SHORTCUT_ACTIONS.map((action) => (
         <label key={action}>
           <span>{LABELS[action]}</span>
           <input
             aria-label={LABELS[action]}
             value={bindings[action]}
-            aria-invalid={Object.values(conflicts).some((actions) =>
-              actions.includes(action)
-            )}
+            aria-invalid={
+              invalidActions.includes(action) ||
+              Object.values(conflicts).some((actions) => actions.includes(action))
+            }
             onChange={(event) =>
               setBindings({ ...bindings, [action]: event.target.value })
             }
@@ -108,11 +128,16 @@ export function HotKeysPanel({
           Each shortcut must be unique.
         </p>
       ) : null}
+      {invalidActions.length > 0 ? (
+        <p className="quiet-error" role="alert">
+          Shortcuts must use the Control+Shift+Key format.
+        </p>
+      ) : null}
       <div className="quiet-composer-actions">
         <button
           className="quiet-primary"
           type="button"
-          disabled={Object.keys(conflicts).length > 0}
+          disabled={Object.keys(conflicts).length > 0 || invalidActions.length > 0}
           onClick={() => void save()}
         >
           Save

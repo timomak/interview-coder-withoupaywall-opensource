@@ -9,14 +9,32 @@ describe("Quiet Signal accessibility", () => {
       path.join(process.cwd(), "src/features/shell/CommandRail.tsx"),
       "utf8"
     )
+    const settings = fs.readFileSync(
+      path.join(process.cwd(), "src/components/Settings/SettingsDialog.tsx"),
+      "utf8"
+    )
+    const contexts = fs.readFileSync(
+      path.join(process.cwd(), "src/features/profile/ProfileSettings.tsx"),
+      "utf8"
+    )
 
-    expect(css).toContain("--quiet-signal: #6ee7c1")
+    expect(css).toContain("--quiet-signal: #facc15")
+    expect(css).toContain("user-select: none")
+    expect(css).toContain("button.quiet-primary:not(:disabled):hover")
+    expect(css).toContain("button:focus-visible")
+    expect(css).toContain("outline: 2px solid var(--quiet-signal)")
+    expect(css).toContain("background: #fde047")
     expect(css).toContain("--quiet-system-design: #a78bfa")
-    expect(css).toContain("--quiet-behavioral: #f4c76b")
+    expect(css).toContain("--quiet-behavioral: #fb923c")
+    expect(css).toContain("width: max-content")
+    expect(css).toContain("white-space: nowrap")
+    expect(css).toContain(':root input[type="radio"]:checked')
     expect(css).toContain("font-size: 12px")
     expect(css).toContain("@media (prefers-reduced-motion: reduce)")
     expect(css).not.toMatch(/linear-gradient|radial-gradient/)
     expect(shell).toContain('aria-label="Live interview controls"')
     expect(shell).not.toMatch(/\b(?:Audio|speechSynthesis|vibrate)\s*\(/)
+    expect(settings).toContain('role="tab"')
+    expect(contexts).toContain("Edit selected")
   })
 })

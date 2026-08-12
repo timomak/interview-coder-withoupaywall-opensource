@@ -19,6 +19,10 @@ export const SHORTCUT_ACTIONS = [
 export type ShortcutAction = (typeof SHORTCUT_ACTIONS)[number]
 export type ShortcutBindings = Readonly<Record<ShortcutAction, string>>
 
+export function isControlShiftShortcut(value: string): boolean {
+  return /^Control\+Shift\+[^+]+$/.test(value.trim())
+}
+
 export function isShortcutAction(value: unknown): value is ShortcutAction {
   return (
     typeof value === "string" &&
@@ -37,16 +41,28 @@ export const DEFAULT_SHORTCUT_BINDINGS: ShortcutBindings = Object.freeze({
   "move-right": "Control+Shift+Right",
   "move-up": "Control+Shift+Up",
   "move-down": "Control+Shift+Down",
-  "section-previous": "Control+Option+Left",
-  "section-next": "Control+Option+Right",
-  "section-scroll-up": "Control+Option+Up",
-  "section-scroll-down": "Control+Option+Down",
+  "section-previous": "Control+Shift+J",
+  "section-next": "Control+Shift+K",
+  "section-scroll-up": "Control+Shift+PageUp",
+  "section-scroll-down": "Control+Shift+PageDown",
   reset: "Control+Shift+Backspace"
 })
 
 export type DensityPreference = "compact" | "comfortable"
 export type TextSizePreference = "small" | "default" | "large"
 export type HudState = "compact-bar" | "compact-answer" | "expanded"
+
+export function deriveStartupHudState(config: {
+  readonly provider?: unknown
+  readonly model?: unknown
+}): HudState {
+  return typeof config.provider === "string" &&
+    config.provider.length > 0 &&
+    typeof config.model === "string" &&
+    config.model.length > 0
+    ? "compact-bar"
+    : "expanded"
+}
 
 export interface PersistedWindowBounds {
   readonly x: number
@@ -82,10 +98,11 @@ export interface HudStateInputs {
 }
 
 export function deriveHudState(inputs: HudStateInputs): HudState {
-  if (inputs.settingsOpen || inputs.workspaceExpanded) return "expanded"
+  if (inputs.settingsOpen || inputs.workspaceExpanded || inputs.hotKeysOpen) {
+    return "expanded"
+  }
   if (
     inputs.composerOpen ||
-    inputs.hotKeysOpen ||
     inputs.sectionCount > 0 ||
     inputs.artifactCount > 0
   ) {
@@ -119,7 +136,7 @@ export function isShortcutBindings(value: unknown): value is ShortcutBindings {
     SHORTCUT_ACTIONS.every(
       (action) =>
         typeof candidate[action] === "string" &&
-        String(candidate[action]).trim().length > 0
+        isControlShiftShortcut(String(candidate[action]))
     )
   )
 }

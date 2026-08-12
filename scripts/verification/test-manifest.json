@@ -294,7 +294,12 @@
     {
       "path": "electron/config/shellPreferencesMigration.test.ts",
       "name": "adds safe defaults and replaces invalid additive preferences",
-      "sha256": "c24f60bd6884f1d618757e386b2d79b95d6efcd5419581c55e59d62cfc31dbb5"
+      "sha256": "7aed450e3186835779dad3aaef100239b8ddb3620bb1d752f8132febeb50a3d3"
+    },
+    {
+      "path": "electron/config/shellPreferencesMigration.test.ts",
+      "name": "moves legacy Option navigation defaults to Control Shift",
+      "sha256": "7aed450e3186835779dad3aaef100239b8ddb3620bb1d752f8132febeb50a3d3"
     },
     {
       "path": "electron/orchestrator/audioRouting.test.ts",
@@ -504,17 +509,17 @@
     {
       "path": "electron/providers/providerBoundary.test.ts",
       "name": "accepts only explicit first-party subscription authentication",
-      "sha256": "9994666d7acd3f3706903e70298b71c6bada636c6385f8abaa1c5e8e10a9f441"
+      "sha256": "6a88860bfcddf0a04f4ba5a57aa05a529ff1365477eb68390794a7be0f40fb5e"
     },
     {
       "path": "electron/providers/providerBoundary.test.ts",
       "name": "rejects legacy providers and entitlement surfaces",
-      "sha256": "9994666d7acd3f3706903e70298b71c6bada636c6385f8abaa1c5e8e10a9f441"
+      "sha256": "6a88860bfcddf0a04f4ba5a57aa05a529ff1365477eb68390794a7be0f40fb5e"
     },
     {
       "path": "electron/providers/selectionSnapshot.test.ts",
       "name": "locks explicit provider model and effort",
-      "sha256": "dd3a3137319f0cb9d2835c728c2ff0690649d45c1c481ed859f7cf72d6d7a007"
+      "sha256": "72a3f514c74c9aae83405f62e23e9c8e8621bf33908c2de8d7c0e89f0d652cb2"
     },
     {
       "path": "electron/ScreenshotHelper.test.ts",
@@ -604,12 +609,17 @@
     {
       "path": "electron/window/captureProtection.integration.test.ts",
       "name": "protects before every show and reconfiguration",
-      "sha256": "d2e4be1190be2adb19ef8f944ecdbd5def2427b80c19f97515475b60b2e4ce49"
+      "sha256": "10a0a69b74b0309fdc409682bb3d09cdad14f27b4c2a204158b0d699ac332fd6"
     },
     {
       "path": "electron/window/captureProtection.integration.test.ts",
       "name": "routes pointer changes through the production shell primitive",
-      "sha256": "d2e4be1190be2adb19ef8f944ecdbd5def2427b80c19f97515475b60b2e4ce49"
+      "sha256": "10a0a69b74b0309fdc409682bb3d09cdad14f27b4c2a204158b0d699ac332fd6"
+    },
+    {
+      "path": "electron/window/captureProtection.integration.test.ts",
+      "name": "reapplies protection around every production bounds mutation",
+      "sha256": "10a0a69b74b0309fdc409682bb3d09cdad14f27b4c2a204158b0d699ac332fd6"
     },
     {
       "path": "electron/window/composerVisibility.test.ts",
@@ -619,17 +629,27 @@
     {
       "path": "electron/window/displayGeometry.test.ts",
       "name": "falls back to the nearest available display after disconnect",
-      "sha256": "f4b1696cfb9f4f80d3680b02a5da57d147e4368fb7e6218b92eda12ed8c5524e"
+      "sha256": "b50c7dafa1ce3b1ba5c36ec2bbeb2be44b6f027353a5fb1c54270574f3f072a0"
     },
     {
       "path": "electron/window/displayGeometry.test.ts",
       "name": "restores snaps and clamps each window state",
-      "sha256": "f4b1696cfb9f4f80d3680b02a5da57d147e4368fb7e6218b92eda12ed8c5524e"
+      "sha256": "b50c7dafa1ce3b1ba5c36ec2bbeb2be44b6f027353a5fb1c54270574f3f072a0"
+    },
+    {
+      "path": "electron/window/displayGeometry.test.ts",
+      "name": "keeps the current origin when HUD state dimensions change",
+      "sha256": "b50c7dafa1ce3b1ba5c36ec2bbeb2be44b6f027353a5fb1c54270574f3f072a0"
+    },
+    {
+      "path": "electron/window/displayGeometry.test.ts",
+      "name": "restores the saved origin when startup is not a live transition",
+      "sha256": "b50c7dafa1ce3b1ba5c36ec2bbeb2be44b6f027353a5fb1c54270574f3f072a0"
     },
     {
       "path": "electron/window/windowVisibility.test.ts",
-      "name": "launches hidden and restores exact HUD state",
-      "sha256": "2e9e9a0254b76f97569f1316a656ff4a413c81a04481ab2d374de7ed4e526171"
+      "name": "reveals onboarding and preserves configured hidden startup",
+      "sha256": "ae86e4db95da566662aa4076d7e24eda408b8ad78d3116424ca2ea35ef9429b3"
     },
     {
       "path": "electron/windowOpenPolicy.test.ts",
@@ -814,7 +834,12 @@
     {
       "path": "src/features/profile/opportunitySnapshot.test.ts",
       "name": "isolates named opportunities across sessions",
-      "sha256": "06bf2cc75007334870fb7d04eb847eebce6b9f19ae40cd66b7d4b22fb8a0c9b6"
+      "sha256": "e94b3523d60f2f6cbdb2888fff4683bb4cccf80184fe852c5287c9e0b4a122d6"
+    },
+    {
+      "path": "src/features/profile/opportunitySnapshot.test.ts",
+      "name": "duplicates a saved context without linking future edits",
+      "sha256": "e94b3523d60f2f6cbdb2888fff4683bb4cccf80184fe852c5287c9e0b4a122d6"
     },
     {
       "path": "src/features/repositoryDiscovery.test.js",
@@ -829,17 +854,17 @@
     {
       "path": "src/features/shell/accessibility.test.tsx",
       "name": "enforces Quiet Signal accessibility and silence invariants",
-      "sha256": "8ab34492054177c96f38fcf3df609a2310685546edd9dc83c2a034ac69c2082b"
+      "sha256": "bc08fa7021a740495510244b1149cb9513445f3ff8f6c8dd7648132eb81cdeba"
     },
     {
       "path": "src/features/shell/CommandRail.test.tsx",
       "name": "renders exact pre-session and active controls",
-      "sha256": "628f2a191047971bd1c176b10a9b58f9750bebede14bd7cbdcf7be4cb7f48922"
+      "sha256": "4d8ae7c56371bfa582a35eec568ba8bc39643f25be3d7dbc032c41d94e8439d0"
     },
     {
       "path": "src/features/shell/CommandRail.test.tsx",
-      "name": "supports arrow-key mode selection without hiding any mode",
-      "sha256": "628f2a191047971bd1c176b10a9b58f9750bebede14bd7cbdcf7be4cb7f48922"
+      "name": "selects one system prompt from the complete dropdown",
+      "sha256": "4d8ae7c56371bfa582a35eec568ba8bc39643f25be3d7dbc032c41d94e8439d0"
     },
     {
       "path": "src/features/shell/CompactComposer.test.tsx",
@@ -854,17 +879,32 @@
     {
       "path": "src/features/shell/HotKeysPanel.test.tsx",
       "name": "keeps every shortcut action available as a visible control",
-      "sha256": "550a68cc11d3fcc980113632ba077fec61365ed06d1da176271adbcc4f2b3a80"
+      "sha256": "4309caea111f568427e9218c5c4c7d4b03559924508967bf34cb3e569e30b331"
     },
     {
       "path": "src/features/shell/HotKeysPanel.test.tsx",
       "name": "recovers the active map when Reset all cannot persist defaults",
-      "sha256": "550a68cc11d3fcc980113632ba077fec61365ed06d1da176271adbcc4f2b3a80"
+      "sha256": "4309caea111f568427e9218c5c4c7d4b03559924508967bf34cb3e569e30b331"
+    },
+    {
+      "path": "src/features/shell/HotKeysPanel.test.tsx",
+      "name": "does not allow Command or Option shortcuts to be saved",
+      "sha256": "4309caea111f568427e9218c5c4c7d4b03559924508967bf34cb3e569e30b331"
     },
     {
       "path": "src/features/shell/hudState.test.ts",
       "name": "expands required staged evidence controls beyond the compact bar",
-      "sha256": "afe380471c6ced0b9dcce82065ed8295437caadcd90c27d198566186b0ac89de"
+      "sha256": "e1285dfd914fcc91948aeabd042933a7a728e339c0da0c43a15a147e75b012d9"
+    },
+    {
+      "path": "src/features/shell/hudState.test.ts",
+      "name": "opens first-run provider setup in the expanded window",
+      "sha256": "e1285dfd914fcc91948aeabd042933a7a728e339c0da0c43a15a147e75b012d9"
+    },
+    {
+      "path": "src/features/shell/useLocalShellShortcuts.test.tsx",
+      "name": "keeps every advertised app shortcut active from editable controls",
+      "sha256": "86e4a69d71ed8af693026c5308ac8196cf164e11a5b382801a36aa0f58cf8383"
     },
     {
       "path": "src/features/shell/navigationShortcuts.test.tsx",
@@ -874,7 +914,12 @@
     {
       "path": "src/features/shell/pointerRegions.test.tsx",
       "name": "separates passthrough drag and controls",
-      "sha256": "2a8eab2f472ec4046955313e9fff80be8e8144aea7cf4bc2f0e449660cbdbb86"
+      "sha256": "7826f62731c18cae588bf3731077b8203423fe7af0936a71a42eb12f99ccd852"
+    },
+    {
+      "path": "src/features/shell/pointerRegions.test.tsx",
+      "name": "suspends click-through for a modal settings surface",
+      "sha256": "7826f62731c18cae588bf3731077b8203423fe7af0936a71a42eb12f99ccd852"
     },
     {
       "path": "src/features/system-design/architectureSchema.test.ts",
@@ -1129,7 +1174,12 @@
     {
       "path": "electron/history/archiveProjection.test.ts",
       "name": "projects complete session and excludes audio",
-      "sha256": "eace20f51573fcde76c38edc6355e18d2f00fcec3797a5567b4be488416d825f"
+      "sha256": "e3c2446a1d333b2ea9b73c76211b5a67d6bc0837381da56bdd546f66fb39a247"
+    },
+    {
+      "path": "electron/history/continuation.integration.test.ts",
+      "name": "continues encrypted History as untrusted persisted context",
+      "sha256": "2c0ee11df01efcdcd2fd04daba2a2dc36867ed2d82c9e722d17cedd408a8843b"
     },
     {
       "path": "electron/history/deletionIsolation.test.ts",
@@ -1164,12 +1214,117 @@
     {
       "path": "src/features/history/HistorySettings.test.tsx",
       "name": "exposes exact Settings-only controls and retention",
-      "sha256": "0c5dd840e297638648435f2f5b9522f64d0547ff98a2fb5838a33cea2fa1bbb9"
+      "sha256": "f4b3c436bc6771ad64db2f9a1d9744227aaf937e855487041a890d0df156f15a"
     },
     {
       "path": "src/features/history/crashDecision.test.tsx",
       "name": "offers explicit safe recovery without duplicate archive",
       "sha256": "d29d2aa14981ffd439d8388ed7d1cbf318e0220385038dc0e928b6fa0cb28c85"
+    },
+    {
+      "path": "electron/diagnostics/diagnosticPrivacy.test.ts",
+      "name": "previews redacted local-only diagnostic export",
+      "sha256": "5b4449a08af788f7c26285af28c3a1c1bb327decd6c4b8adf92be84e3e4f6028"
+    },
+    {
+      "path": "electron/privacy/verificationRecord.test.ts",
+      "name": "versions verifies fails and stales exact tuples",
+      "sha256": "2b21cdf94481e44c58ea4193ffe960e6a51ed5b76541e5626b30d4aea6b12047"
+    },
+    {
+      "path": "scripts/qualification/canonical-bytes.test.ts",
+      "name": "reproduces JCS bytes digests and exact signature domains",
+      "sha256": "b63bd2029717349fd8a46cc88fab1ea6fe12109eb39cd8ab5fc8566cce258a4a"
+    },
+    {
+      "path": "scripts/qualification/collector-write-once.test.ts",
+      "name": "persists first-touch recovery and rejects replay or final mutation",
+      "sha256": "54122c09abf2ec30e3619f3909807770930a18281b37e8e08deafd9637dca5a0"
+    },
+    {
+      "path": "scripts/qualification/evidence-graph.test.ts",
+      "name": "proves the exact sixteen-node twenty-eight-edge graph is acyclic",
+      "sha256": "05aa570311c91ffcc5351f3d06606168979101cef973707ae6a74fc761accd87"
+    },
+    {
+      "path": "scripts/qualification/meet-artifact-validator.test.ts",
+      "name": "rejects incomplete cyclic final-byte-mutated untrusted or local-only evidence",
+      "sha256": "2ad0dc399181011f3da593cb1ffd6904192f60e8317ae67a63b0c1d9ead160b2"
+    },
+    {
+      "path": "scripts/qualification/release-statement-constructibility.test.ts",
+      "name": "binds a post-build statement without changing pre-commit matrix identity",
+      "sha256": "ff0e279de962d7509666cd24c001e9e888a3fd533894df7023ea71dffda424c3"
+    },
+    {
+      "path": "scripts/qualification/schema-inventory.test.ts",
+      "name": "keeps all thirteen protocol families recursively closed",
+      "sha256": "98926dacacd62a3c49299cb1bc1693f4a9fb80516caae9de9e283f6c826e11f3"
+    },
+    {
+      "path": "scripts/qualification/trust-registry.test.ts",
+      "name": "rejects unknown revoked wrong-purpose duplicate and reused trust",
+      "sha256": "8efdeb82e95635602197166cebcbee708b765458b52c559ebb7d3ede0c7eaa51"
+    },
+    {
+      "path": "src/features/privacy/MeetVerification.test.tsx",
+      "name": "guides only qualified scopes with remote confirmation",
+      "sha256": "f0fa1a58471415c9c5f1e36acaab83142c18248a288fe326d83a0f6df22e2dd4"
+    },
+    {
+      "path": "tests/qualification/claimPolicy.test.ts",
+      "name": "rejects unqualified privacy and platform language",
+      "sha256": "14f97416d126006e97d9023a15014409e9f708bdfc788e1125b975ad7a09aa95"
+    },
+    {
+      "path": "tests/qualification/deferredScope.test.ts",
+      "name": "keeps deferred surfaces out of launch",
+      "sha256": "878d27bc6a3873c84b3650af522aa256dbe17f104692e5d75afa452996b70675"
+    },
+    {
+      "path": "tests/qualification/macosPackagePolicy.test.ts",
+      "name": "rejects any macOS entitlement allowlist mismatch",
+      "sha256": "f9fcec3260c3db03696ce175d642d834c77633ee7631ab3c0b63575e48a1cdd6"
+    },
+    {
+      "path": "tests/qualification/macosPackagePolicy.test.ts",
+      "name": "derives signed package identity from macOS tool evidence rather than the statement",
+      "sha256": "f9fcec3260c3db03696ce175d642d834c77633ee7631ab3c0b63575e48a1cdd6"
+    },
+    {
+      "path": "tests/qualification/noUsageGate.test.ts",
+      "name": "preserves the neutral frictionless tool boundary",
+      "sha256": "c2ab5f32ff48ea1ed97fa2717fa50dd14144f2ab5d46cd24e34e6dade3a3ff56"
+    },
+    {
+      "path": "tests/qualification/openSourcePrivacyPolicy.test.ts",
+      "name": "enforces free local-only product policy",
+      "sha256": "9f07e2bf9a318b4f97f22ee01ad2c0eb051b406842bb020652c4c4687d6263b2"
+    },
+    {
+      "path": "tests/qualification/packagedCaptureProtection.test.ts",
+      "name": "traces protection in the packaged app",
+      "sha256": "f258f20f6fd603411c09788ea41075794556141df5bfb994231ce881f08cf878"
+    },
+    {
+      "path": "tests/qualification/scopedRecovery.e2e.test.ts",
+      "name": "preserves session through every permission/provider failure",
+      "sha256": "60f27a7836915325a3f01049f9d9c18389343be937726d9d15cd296342c7c036"
+    },
+    {
+      "path": "tests/qualification/staffLivePositioning.contract.test.ts",
+      "name": "enforces the frozen Live-first Staff-plus corpus",
+      "sha256": "4d906af21efa563c156d6ed04fda25c6409f9bbe1e127b97cc9db5dbd1d025ff"
+    },
+    {
+      "path": "tests/qualification/liveProcedure.e2e.test.ts",
+      "name": "requires signed remote start/stop, starts the clock after ack, and seals only a complete bundle",
+      "sha256": "99fc9c848da723d2094b599d48383c9833226fc7a111bd438fb9bfbaab7b408b"
+    },
+    {
+      "path": "tests/qualification/liveProcedure.e2e.test.ts",
+      "name": "prevalidates a fixed production inbox before sealing the raw run",
+      "sha256": "99fc9c848da723d2094b599d48383c9833226fc7a111bd438fb9bfbaab7b408b"
     }
   ]
 }

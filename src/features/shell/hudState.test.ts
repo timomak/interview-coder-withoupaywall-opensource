@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { deriveHudState } from "../../shared/shell"
+import { deriveHudState, deriveStartupHudState } from "../../shared/shell"
 
 describe("HUD state selection", () => {
   it("expands required staged evidence controls beyond the compact bar", () => {
@@ -16,5 +16,13 @@ describe("HUD state selection", () => {
       "compact-answer"
     )
     expect(deriveHudState({ ...base, settingsOpen: true })).toBe("expanded")
+    expect(deriveHudState({ ...base, hotKeysOpen: true })).toBe("expanded")
+  })
+
+  it("opens first-run provider setup in the expanded window", () => {
+    expect(deriveStartupHudState({})).toBe("expanded")
+    expect(
+      deriveStartupHudState({ provider: "codex", model: "gpt-5.4" })
+    ).toBe("compact-bar")
   })
 })
