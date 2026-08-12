@@ -22,7 +22,7 @@ export function makeFakeExecutable(
   const stateFile = path.join(directory, "provider-state.json")
   fs.writeFileSync(
     executable,
-    `#!/opt/homebrew/opt/node@20/bin/node
+    `#!${process.execPath}
 const args = process.argv.slice(2)
 const fs = require("node:fs")
 const stateFile = ${JSON.stringify(stateFile)}
