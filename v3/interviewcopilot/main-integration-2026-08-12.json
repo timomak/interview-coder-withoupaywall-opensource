@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 1,
+  "kind": "long-horizon-main-integration",
+  "projectKey": "InterviewCopilot",
+  "recordedAt": "2026-08-12T13:58:14+02:00",
+  "status": "FORK_MAIN_INTEGRATED_HOSTED_GATES_GREEN",
+  "repository": {
+    "nameWithOwner": "timomak/interview-coder-withoupaywall-opensource",
+    "defaultBranch": "main",
+    "remote": "https://github.com/timomak/interview-coder-withoupaywall-opensource.git",
+    "previousMainRevision": "9dcb4b2d39607273a8528a24657cdb4f5bfc3412",
+    "reviewedProductRevision": "fd4be0e0af77f608dea1a40575d68b3373daf1c1",
+    "integrationRevision": "854d9aa761c932e278e85778413efad8bfcaa35d",
+    "integrationTree": "d9cedadfadf6f38eb9c14c63352036496c02b73e",
+    "integrationMode": "FAST_FORWARD_NO_REBASE_NO_FORCE_PUSH",
+    "allStackedHeadsContained": true
+  },
+  "integrationFix": {
+    "revision": "854d9aa761c932e278e85778413efad8bfcaa35d",
+    "scope": "TEST_ONLY_PROVIDER_FIXTURE_NODE_INTERPRETER_PORTABILITY",
+    "productionBehaviorChanged": false,
+    "reason": "The first hosted mirror exposed a hard-coded local Homebrew Node interpreter in generated provider test fixtures. The fixture now binds to the exact active Node executable."
+  },
+  "verification": {
+    "cleanExactProductCandidate": {
+      "revision": "fd4be0e0af77f608dea1a40575d68b3373daf1c1",
+      "node": "20.20.2",
+      "npm": "10.8.2",
+      "policy": "PASS",
+      "lint": "PASS",
+      "typecheck": "PASS",
+      "tests": "265_PASS_0_FAIL_0_SKIP",
+      "buildAndPackageInventory": "PASS"
+    },
+    "integrationFixTargeted": {
+      "revision": "854d9aa761c932e278e85778413efad8bfcaa35d",
+      "p02": "11_PASS_0_FAIL_0_SKIP",
+      "lint": "PASS",
+      "typecheck": "PASS"
+    },
+    "hosted": {
+      "ci": {
+        "runId": 31594021756,
+        "url": "https://github.com/timomak/interview-coder-withoupaywall-opensource/actions/runs/31594021756",
+        "status": "SUCCESS"
+      },
+      "codeql": {
+        "runId": 31594021745,
+        "url": "https://github.com/timomak/interview-coder-withoupaywall-opensource/actions/runs/31594021745",
+        "status": "SUCCESS"
+      }
+    }
+  },
+  "preservedBoundaries": {
+    "upstreamPullRequest155Integrated": false,
+    "notarizationPerformed": false,
+    "publicationPerformed": false,
+    "deploymentPerformed": false,
+    "physicalMeetQualificationPerformed": false,
+    "loseStreakTouched": false,
+    "legacyV1Invoked": false
+  },
+  "remainingUserCheckpoint": "Complete the visible one-time macOS Keychain admission for the already installed Developer ID-signed app at product revision fd4be0e, then run the packaged visual acceptance smoke."
+}

@@ -820,6 +820,18 @@
       "deploymentPerformed": false
     }
   },
+  "mainIntegration": {
+    "path": "v3/interviewcopilot/main-integration-2026-08-12.json",
+    "sha256": "c0e0330d6d56830778ae8f1dcdc114599170889fe95c14fcf2729ba0db2487af",
+    "status": "FORK_MAIN_INTEGRATED_HOSTED_GATES_GREEN",
+    "reviewedProductRevision": "fd4be0e0af77f608dea1a40575d68b3373daf1c1",
+    "integrationRevision": "854d9aa761c932e278e85778413efad8bfcaa35d",
+    "integrationTree": "d9cedadfadf6f38eb9c14c63352036496c02b73e",
+    "ci": "SUCCESS_RUN_31594021756",
+    "codeql": "SUCCESS_RUN_31594021745",
+    "upstreamPullRequest155Integrated": false,
+    "loseStreakTouched": false
+  },
   "metrics": {
     "projectKey": "InterviewCopilot",
     "milestoneId": "IC-M01",
@@ -928,5 +940,5 @@
       "loseStreakTouched": false
     }
   },
-  "nextSafeAction": "Wait for the user to enter the macOS login password and click Always Allow on the visible Safe Storage prompt, then run the packaged visual prompt-menu smoke for exact candidate fd4be0e0af77f608dea1a40575d68b3373daf1c1. Do not notarize, merge, publish, deploy, perform physical Meet actions, or touch LoseStreak."
+  "nextSafeAction": "Fork main is integrated and green at 854d9aa761c932e278e85778413efad8bfcaa35d. Wait for the user to enter the macOS login password and click Always Allow on the visible Safe Storage prompt for the already installed product revision fd4be0e0af77f608dea1a40575d68b3373daf1c1, then run the packaged visual prompt-menu smoke. Do not notarize, publish, deploy, perform physical Meet actions, or touch LoseStreak."
 }
