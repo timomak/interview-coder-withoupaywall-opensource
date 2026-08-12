@@ -1,0 +1,5 @@
+
+> interview-copilot@1.0.19 verify:diagnostics
+> node scripts/qualification/verify-diagnostics.mjs
+
+Diagnostic preview/export is redacted, manual, and local-only.

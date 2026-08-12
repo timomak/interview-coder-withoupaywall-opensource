@@ -1,0 +1,68 @@
+{
+  "schemaVersion": 1,
+  "kind": "long-horizon-followup-authoritative-result",
+  "projectKey": "InterviewCopilot",
+  "milestoneId": "IC-M05B",
+  "gateId": "IC-M05B-SETUP-HISTORY-AUTH-01",
+  "recordedAt": "2026-08-12T12:56:09+02:00",
+  "status": "PASS_SAFE_REPOSITORY_NATIVE_AWAITING_LOCAL_ACCEPTANCE_AND_EXTERNAL_RELEASE_BOUNDARIES",
+  "candidate": {
+    "branch": "codex/ic-m05-release",
+    "revision": "755e73f28d8671874270861702f4ec120bc9d7ca",
+    "tree": "1dec041d4287257da7971b130eea4e1b78310f1d",
+    "remoteRevision": "755e73f28d8671874270861702f4ec120bc9d7ca",
+    "worktreeClean": true
+  },
+  "approval": {
+    "result": "v3/interviewcopilot/milestone-IC-M05B-setup-history-review-result-1.json",
+    "disposition": "APPROVE",
+    "remainingMaterialFindings": 0
+  },
+  "runner": {
+    "path": "v3/interviewcopilot/ic-m05b-setup-history-authoritative-runner.mjs",
+    "sha256": "363d9b22247f828d2c337409b1e05f272d62c133ecbcd3af28732786b87c0ff5",
+    "baseRunnerSha256": "4cb85351b25324fc7b6ada5a0c21f033b277ff619d1cb0ad029410618592a64b",
+    "transformedSha256": "bba8a5c2817000c2a2f05119d9f1958266548acb923c9112c455c6f4b4812e3b"
+  },
+  "evidence": {
+    "resultPath": "v3/interviewcopilot/evidence/IC-M05B-SETUP-HISTORY-AUTH-01/authoritative-result.json",
+    "resultSha256": "5a7a1d3f83cd7724ac1a7b4c1a77966b5f9b32a1be37cea9e603cc00808f4e64",
+    "validatedTestResultsPath": "v3/interviewcopilot/evidence/IC-M05B-SETUP-HISTORY-AUTH-01/validated-test-results.json",
+    "validatedTestResultsSha256": "596cc4a2c8ba7e5d866289efee7eced72d8120ad831689dce9a4e00751502308",
+    "bindingHash": "89dac8c45c0c51bbfc000deecee92b2d64863b24b9f9e5d48d49a7a71ae0ac4a"
+  },
+  "authoritativeChecks": {
+    "install": "PASS_LOCKFILE_EXACT_SCRIPTS_DISABLED",
+    "electronInstall": "PASS_EXACT_LOCKFILE_ARTIFACT",
+    "policy": "PASS",
+    "lint": "PASS",
+    "typecheck": "PASS",
+    "legacy": "1_PASS_0_FAIL_0_SKIP",
+    "unit": "264_PASS_0_FAIL_0_SKIP",
+    "p12": "21_PASS_0_FAIL_0_SKIP",
+    "e2eMacos": "5_PASS_0_FAIL_0_SKIP",
+    "staffLiveCorpus": "1_PASS_0_FAIL_0_SKIP",
+    "namedTestManifest": "PASS",
+    "productionBuildAndPackageInventory": "PASS",
+    "diagnostics": "PASS_REDACTED_MANUAL_LOCAL_ONLY",
+    "candidateIdentityAfterRun": "UNCHANGED_AND_CLEAN"
+  },
+  "mechanicalIntegrationGuards": {
+    "diffCheck": "PASS",
+    "remoteHeadExact": true,
+    "pullRequest": 5,
+    "pullRequestState": "OPEN_DRAFT",
+    "pullRequestMergeable": true,
+    "hostedChecks": "NONE_CONFIGURED"
+  },
+  "prohibitedDuringRun": {
+    "installationPerformed": false,
+    "mergePerformed": false,
+    "deploymentPerformed": false,
+    "privilegedCapabilityInvoked": false,
+    "legacyV1Invoked": false,
+    "signingOrNotarizationPerformed": false,
+    "physicalMeetPerformed": false
+  },
+  "nextSafeAction": "Wait for the user's explicit request to launch exact candidate 755e73f28d8671874270861702f4ec120bc9d7ca for local acceptance before merge."
+}

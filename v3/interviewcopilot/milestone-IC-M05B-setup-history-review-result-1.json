@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "kind": "long-horizon-milestone-complete-finding-and-delta-review-result",
+  "projectKey": "InterviewCopilot",
+  "milestoneId": "IC-M05B",
+  "gateId": "IC-M05B-SETUP-HISTORY-REVIEW-01",
+  "recordedAt": "2026-08-12T12:56:09+02:00",
+  "approvedBase": "8aa2e988fdee442c144a7dae31fb2bb6b1748c23",
+  "initialCandidate": {
+    "revision": "7cf926eba546b03da8eb8e49b6e3c89679e8894f",
+    "tree": "53207fba04b658684dcb190f2ee155138bcf4960"
+  },
+  "reviewer": "/root/ui_setup_history_review",
+  "completeFindingBatch": {
+    "disposition": "REQUEST_CHANGES",
+    "findingIds": [
+      "IC-UI-001",
+      "IC-UI-002",
+      "IC-UI-003",
+      "IC-UI-004"
+    ],
+    "findingCount": 4,
+    "additionalGeneralReviewPerformed": false
+  },
+  "remediation": {
+    "revision": "755e73f28d8671874270861702f4ec120bc9d7ca",
+    "tree": "1dec041d4287257da7971b130eea4e1b78310f1d",
+    "scope": "One consolidated correction for untrusted History continuation, lossless shortcut migration, Control-Shift documentation, and visible keyboard focus."
+  },
+  "deltaClosureReview": {
+    "scope": [
+      "IC-UI-001",
+      "IC-UI-002",
+      "IC-UI-003",
+      "IC-UI-004"
+    ],
+    "disposition": "APPROVE",
+    "closedFindingIds": [
+      "IC-UI-001",
+      "IC-UI-002",
+      "IC-UI-003",
+      "IC-UI-004"
+    ],
+    "remainingMaterialFindings": []
+  },
+  "preAuthoritativeEvidence": {
+    "unit": "264_PASS_0_FAIL_0_SKIP",
+    "typecheck": "PASS_372_EXECUTABLE_FILES",
+    "lint": "PASS_372_EXECUTABLE_155_TEST_FILES",
+    "productionBuildAndPackageInventory": "PASS",
+    "diffCheck": "PASS"
+  },
+  "authoritativeSuiteAtClosure": "UNUSED",
+  "boundariesCrossed": []
+}

@@ -1,0 +1,51 @@
+
+> interview-copilot@1.0.19 build
+> npm run prepare:audio && npm run build:runtime && npm run verify:package-inventory
+
+
+> interview-copilot@1.0.19 prepare:audio
+> node scripts/audio/prepare-packaged-audio.mjs
+
+Packaged audio model accepted: bytes=147964211 sha256=a03779c86df3323075f5e796cb2ce5029f00ec8869eee3fdfb897afe36c6d002
+
+> interview-copilot@1.0.19 build:runtime
+> cross-env NODE_ENV=production npm run clean && vite build && tsc -p tsconfig.electron.json
+
+
+> interview-copilot@1.0.19 clean
+> node scripts/verification/clean-outputs.mjs
+
+vite v6.4.3 building for production...
+transforming...
+✓ 1716 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                                   0.54 kB │ gzip:   0.35 kB
+dist/assets/interviewcopilot-icon-do1hdoJ-.png   11.72 kB
+dist/assets/index-D-sGWvUB.css                   30.33 kB │ gzip:   6.69 kB
+dist/assets/index-TT564IJ-.js                   563.54 kB │ gzip: 157.06 kB │ map: 2,409.48 kB
+✓ built in 1.45s
+vite v6.4.3 building for production...
+transforming...
+✓ 393 modules transformed.
+rendering chunks...
+computing gzip size...
+dist-electron/main.js  1,022.20 kB │ gzip: 213.11 kB │ map: 1,912.14 kB
+✓ built in 668ms
+vite v6.4.3 building for production...
+transforming...
+✓ 12 modules transformed.
+rendering chunks...
+computing gzip size...
+dist-electron/preload.js  4.71 kB │ gzip: 1.26 kB │ map: 28.89 kB
+✓ built in 13ms
+
+> interview-copilot@1.0.19 verify:package-inventory
+> node scripts/verification/build-package-inventory.mjs
+
+  • electron-builder  version=24.13.3 os=25.5.0
+  • artifacts will be published if draft release exists  reason=CI detected
+  • loaded configuration  file=package.json ("build" field)
+  • packaging       platform=darwin arch=arm64 electron=29.4.6 appOutDir=/var/folders/_s/yy3z9vgd149_n825srlr5t_w0000gn/T/interviewcopilot-package-1e4Zz3/mac-arm64
+  • skipped macOS code signing  reason=identity explicitly is set to null
+Fresh package inventory accepted: 4661 asar entries, 118 outer entries, asar sha256=cad98e9c497f70f8cc10b394f4f740e9143137c64400465a11e7b19dd45b1863, inventory=/var/folders/_s/yy3z9vgd149_n825srlr5t_w0000gn/T/interviewcopilot-package-1e4Zz3/package-inventory.json

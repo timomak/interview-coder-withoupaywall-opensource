@@ -870,19 +870,19 @@
     "status": "WAITING_USER_LOCAL_ACCEPTANCE_TEST_REQUEST",
     "capturedAt": "2026-07-31T16:07:17+02:00",
     "handoff": "v3/interviewcopilot/paused-handoff-2026-07-31.json",
-    "candidateRevision": "6d72db12de8ebda93e5b193e57144e7cf3ab22c6",
-    "candidateTree": "3d3facdfd72cf1cf1cf8deebeb70c578c3c7097f",
+    "candidateRevision": "755e73f28d8671874270861702f4ec120bc9d7ca",
+    "candidateTree": "1dec041d4287257da7971b130eea4e1b78310f1d",
     "activeWriters": 0,
     "activeReviewers": 0,
     "activeCommands": 0,
-    "authoritativeSuite": "PASS_SAFE_REPOSITORY_NATIVE_AUTH_02",
+    "authoritativeSuite": "PASS_SAFE_REPOSITORY_NATIVE_IC-M05B-SETUP-HISTORY-AUTH-01",
     "resumedAt": "2026-08-11T17:30:26+02:00",
     "resumedBy": "EXPLICIT_USER_KEEP_GOING",
     "supersedingPlan": "v3/interviewcopilot/milestone-IC-M05B-packet-1.json",
     "supersedingPlanSha256": "28f250df5f3a481690af003512e180e84f4e95ddc9428bb7a47046c6f3f98b7a",
     "historicalPausePreserved": true,
     "remainingFindingIds": [],
-    "completionResult": "v3/interviewcopilot/milestone-IC-M05B-result-1.json",
+    "completionResult": "v3/interviewcopilot/milestone-IC-M05B-setup-history-authoritative-result-1.json",
     "pullRequest": 5,
     "waitingOn": [
       "USER_REQUEST_TO_LAUNCH_EXACT_CANDIDATE_FOR_LOCAL_ACCEPTANCE_TEST",
@@ -898,5 +898,5 @@
       "loseStreakTouched": false
     }
   },
-  "nextSafeAction": "Wait for the user's explicit request to launch exact candidate 6d72db12de8ebda93e5b193e57144e7cf3ab22c6 for local acceptance before merge. The Developer ID identity and InterviewCopilot-notary Keychain profile are ready; do not sign, notarize, merge, publish, or touch LoseStreak during the local test."
+  "nextSafeAction": "Wait for the user's explicit request to launch exact candidate 755e73f28d8671874270861702f4ec120bc9d7ca for local acceptance before merge. The Developer ID identity and InterviewCopilot-notary Keychain profile are ready; do not sign, notarize, merge, publish, or touch LoseStreak during the local test."
 }
