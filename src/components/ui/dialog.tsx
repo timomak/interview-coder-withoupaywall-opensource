@@ -16,6 +16,7 @@ const DialogOverlay = React.forwardRef<
     ref={ref}
     className={cn("fixed inset-0 bg-black bg-opacity-50 z-50", className)}
     {...props}
+    data-interactive
   />
 ))
 DialogOverlay.displayName = DialogPrimitive.Overlay.displayName
@@ -37,6 +38,7 @@ const DialogContent = React.forwardRef<
       )}
       style={{ maxHeight: "calc(100vh - 32px)", overflow: "auto" }}
       {...props}
+      data-interactive
     >
       {children}
     </DialogPrimitive.Content>

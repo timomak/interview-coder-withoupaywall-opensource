@@ -282,7 +282,7 @@ export default function SubscribedApp({
       data-density={config.shell?.density ?? "compact"}
       data-text-size={config.shell?.textSize ?? "default"}
     >
-      <PointerRegions />
+      <PointerRegions forceInteractive={settingsOpen} />
       <CommandRail
         session={session}
         mode={mode}
