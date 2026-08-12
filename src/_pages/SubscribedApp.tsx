@@ -64,6 +64,7 @@ export default function SubscribedApp({
     captureActive: false
   })
   const [mode, setMode] = useState<InterviewMode>("coding")
+  const [promptMenuOpen, setPromptMenuOpen] = useState(false)
   const [input, setInput] = useState("")
   const [composerOpen, setComposerOpen] = useState(false)
   const [hotKeysOpen, setHotKeysOpen] = useState(false)
@@ -82,7 +83,7 @@ export default function SubscribedApp({
     session.lifecycle === "active" ? session.sections.length : 0
   const artifactCount =
     session.lifecycle === "active" ? session.artifacts.length : 0
-  const hudState = deriveHudState({
+  const baseHudState = deriveHudState({
     settingsOpen,
     workspaceExpanded,
     composerOpen,
@@ -90,6 +91,12 @@ export default function SubscribedApp({
     sectionCount,
     artifactCount
   })
+  const hudState =
+    baseHudState === "expanded"
+      ? baseHudState
+      : promptMenuOpen
+        ? "compact-answer"
+        : baseHudState
 
   useEffect(() => {
     void window.electronAPI.getInterviewState().then(setSession)
@@ -107,12 +114,14 @@ export default function SubscribedApp({
     const frame = requestAnimationFrame(() => {
       const surface = shell.current
       if (!surface) return
-      const width =
-        hudState === "compact-bar"
+      const width = promptMenuOpen
+        ? Math.min(1120, Math.max(720, surface.scrollWidth))
+        : hudState === "compact-bar"
           ? Math.min(1120, Math.max(520, surface.scrollWidth))
           : 520
-      const height =
-        hudState === "compact-bar"
+      const height = promptMenuOpen
+        ? 188
+        : hudState === "compact-bar"
           ? config.shell?.density === "comfortable"
             ? 52
             : 44
@@ -125,6 +134,7 @@ export default function SubscribedApp({
     config.shell?.density,
     hotKeysOpen,
     hudState,
+    promptMenuOpen,
     shortcuts,
     sectionCount,
     artifactCount
@@ -287,6 +297,8 @@ export default function SubscribedApp({
         session={session}
         mode={mode}
         onModeChange={setMode}
+        promptMenuOpen={promptMenuOpen}
+        onPromptMenuOpenChange={setPromptMenuOpen}
         onStart={() => void start()}
         onRecord={toggleAudioMaster}
         recordLabel={record.label}

@@ -32,6 +32,8 @@ function props(overrides: Partial<CommandRailProps> = {}): CommandRailProps {
     session: createIdleInterviewSession(),
     mode: "coding",
     onModeChange: vi.fn(),
+    promptMenuOpen: false,
+    onPromptMenuOpenChange: vi.fn(),
     onStart: vi.fn(),
     onRecord: vi.fn(),
     onScreenshot: vi.fn(),
@@ -57,10 +59,9 @@ describe("CommandRail", () => {
     expect(screen.getByRole("img", { name: "InterviewCopilot" })).toBeVisible()
     expect(screen.queryByText("InterviewCopilot")).not.toBeInTheDocument()
     expect(screen.queryByText("Prompt")).not.toBeInTheDocument()
-    expect(screen.getByRole("combobox", { name: "System prompt" })).toHaveValue(
-      "coding"
-    )
-    expect(screen.getAllByRole("option")).toHaveLength(3)
+    expect(
+      screen.getByRole("button", { name: "System prompt: Coding" })
+    ).toHaveAttribute("aria-expanded", "false")
     expect(screen.getByRole("button", { name: "Start interview" })).toBeVisible()
     expect(screen.getByRole("button", { name: "HotKeys" })).toBeVisible()
     expect(screen.getByRole("button", { name: "Settings" })).toBeVisible()
@@ -96,17 +97,36 @@ describe("CommandRail", () => {
 
   it("selects one system prompt from the complete dropdown", () => {
     const onModeChange = vi.fn()
-    render(<CommandRail {...props({ onModeChange })} />)
+    const onPromptMenuOpenChange = vi.fn()
+    const { rerender } = render(
+      <CommandRail
+        {...props({ onModeChange, onPromptMenuOpenChange })}
+      />
+    )
 
-    fireEvent.change(screen.getByRole("combobox", { name: "System prompt" }), {
-      target: { value: "system-design" }
-    })
+    fireEvent.click(
+      screen.getByRole("button", { name: "System prompt: Coding" })
+    )
+    expect(onPromptMenuOpenChange).toHaveBeenCalledWith(true)
 
-    expect(onModeChange).toHaveBeenCalledWith("system-design")
+    rerender(
+      <CommandRail
+        {...props({
+          onModeChange,
+          onPromptMenuOpenChange,
+          promptMenuOpen: true
+        })}
+      />
+    )
+    expect(screen.getByRole("listbox", { name: "System prompts" })).toBeVisible()
     expect(screen.getAllByRole("option").map((option) => option.textContent)).toEqual([
-      "Coding",
+      "Coding✓",
       "System Design",
       "Behavioral"
     ])
+    fireEvent.click(screen.getByRole("option", { name: "System Design" }))
+
+    expect(onModeChange).toHaveBeenCalledWith("system-design")
+    expect(onPromptMenuOpenChange).toHaveBeenLastCalledWith(false)
   })
 })

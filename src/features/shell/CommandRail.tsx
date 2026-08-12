@@ -1,4 +1,4 @@
-import type { RefObject } from "react"
+import { useEffect, useRef, type RefObject } from "react"
 import appIcon from "../../assets/interviewcopilot-icon.png"
 import type { InterviewMode, InterviewSession } from "../../shared/interview"
 import type { ShortcutBindings } from "../../shared/shell"
@@ -13,6 +13,8 @@ export interface CommandRailProps {
   readonly session: InterviewSession
   readonly mode: InterviewMode
   readonly onModeChange: (mode: InterviewMode) => void
+  readonly promptMenuOpen: boolean
+  readonly onPromptMenuOpenChange: (open: boolean) => void
   readonly onStart: () => void
   readonly onRecord: () => void
   readonly onScreenshot: () => void
@@ -37,6 +39,8 @@ export function CommandRail({
   session,
   mode,
   onModeChange,
+  promptMenuOpen,
+  onPromptMenuOpenChange,
   onStart,
   onRecord,
   onScreenshot,
@@ -56,6 +60,24 @@ export function CommandRail({
   recordDisabled = false,
   recordDescription = "Start or resume microphone and system audio"
 }: CommandRailProps) {
+  const promptMenu = useRef<HTMLDivElement>(null)
+  const selectedMode = MODES.find(({ value }) => value === mode) ?? MODES[0]
+
+  useEffect(() => {
+    if (!promptMenuOpen) return
+    const closeOnOutsidePointer = (event: PointerEvent) => {
+      if (
+        event.target instanceof Node &&
+        !promptMenu.current?.contains(event.target)
+      ) {
+        onPromptMenuOpenChange(false)
+      }
+    }
+    document.addEventListener("pointerdown", closeOnOutsidePointer, true)
+    return () =>
+      document.removeEventListener("pointerdown", closeOnOutsidePointer, true)
+  }, [onPromptMenuOpenChange, promptMenuOpen])
+
   return (
     <header className="quiet-rail" data-interactive>
       <div className="quiet-drag-pill" data-drag-root aria-label="Move InterviewCopilot">
@@ -74,19 +96,56 @@ export function CommandRail({
 
       {session.lifecycle === "idle" ? (
         <>
-          <label className="quiet-prompt-select" data-interactive>
-            <select
-              aria-label="System prompt"
-              value={mode}
-              onChange={(event) => onModeChange(event.target.value as InterviewMode)}
+          <div
+            ref={promptMenu}
+            className="quiet-prompt-select"
+            data-interactive
+          >
+            <button
+              className="quiet-prompt-trigger"
+              type="button"
+              aria-label={`System prompt: ${selectedMode.label}`}
+              aria-haspopup="listbox"
+              aria-expanded={promptMenuOpen}
+              aria-controls="quiet-system-prompt-menu"
+              onClick={() => onPromptMenuOpenChange(!promptMenuOpen)}
+              onKeyDown={(event) => {
+                if (event.key === "Escape") onPromptMenuOpenChange(false)
+              }}
             >
-              {MODES.map((candidate) => (
-                <option key={candidate.value} value={candidate.value}>
-                  {candidate.label}
-                </option>
-              ))}
-            </select>
-          </label>
+              <span>{selectedMode.label}</span>
+              <span aria-hidden="true">⌄</span>
+            </button>
+            {promptMenuOpen ? (
+              <div
+                id="quiet-system-prompt-menu"
+                className="quiet-prompt-menu"
+                role="listbox"
+                aria-label="System prompts"
+                onKeyDown={(event) => {
+                  if (event.key === "Escape") onPromptMenuOpenChange(false)
+                }}
+              >
+                {MODES.map((candidate) => (
+                  <button
+                    key={candidate.value}
+                    type="button"
+                    role="option"
+                    aria-selected={candidate.value === mode}
+                    onClick={() => {
+                      onModeChange(candidate.value)
+                      onPromptMenuOpenChange(false)
+                    }}
+                  >
+                    <span>{candidate.label}</span>
+                    {candidate.value === mode ? (
+                      <span aria-hidden="true">✓</span>
+                    ) : null}
+                  </button>
+                ))}
+              </div>
+            ) : null}
+          </div>
           <button
             ref={hotKeysButtonRef}
             type="button"
