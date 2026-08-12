@@ -870,8 +870,8 @@
     "status": "WAITING_USER_LOCAL_ACCEPTANCE_RESULT",
     "capturedAt": "2026-07-31T16:07:17+02:00",
     "handoff": "v3/interviewcopilot/paused-handoff-2026-07-31.json",
-    "candidateRevision": "755e73f28d8671874270861702f4ec120bc9d7ca",
-    "candidateTree": "1dec041d4287257da7971b130eea4e1b78310f1d",
+    "candidateRevision": "f7a05255138430d834f4b7294476ff3724de13c1",
+    "candidateTree": "7812b3654a3dba4b6eaf967aac764e595b71e8b0",
     "activeWriters": 0,
     "activeReviewers": 0,
     "activeCommands": 0,
@@ -890,7 +890,19 @@
       "version": "1.0.19",
       "appAsarSha256": "398c9c8c64cd84c8a5d6927284bc158aab2d4eb189237ed44b2c543bdc2014d9",
       "installedAt": "2026-08-12T13:03:30+02:00",
-      "status": "INSTALLED_AND_RUNNING_AWAITING_USER_ACCEPTANCE"
+      "status": "SUPERSEDED_BY_SETTINGS_POINTER_FIX_F7A0525"
+    },
+    "localAcceptanceFollowup": {
+      "path": "v3/interviewcopilot/local-acceptance-fix-settings-pointer-1.json",
+      "candidateRevision": "f7a05255138430d834f4b7294476ff3724de13c1",
+      "candidateTree": "7812b3654a3dba4b6eaf967aac764e595b71e8b0",
+      "appPath": "/Applications/InterviewCopilot.app",
+      "version": "1.0.19",
+      "appAsarSha256": "958284facc419c4418f2a8743cba3b5cbe4f1bcc78ca166c87ec812a04a040c7",
+      "installedAt": "2026-08-12T13:17:30+02:00",
+      "reviewDisposition": "CLOSED_APPROVE",
+      "uiSmoke": "PASS",
+      "status": "INSTALLED_RUNNING_AWAITING_USER_ACCEPTANCE"
     },
     "pullRequest": 5,
     "waitingOn": [
@@ -907,5 +919,5 @@
       "loseStreakTouched": false
     }
   },
-  "nextSafeAction": "Wait for the user's local acceptance result for installed exact candidate 755e73f28d8671874270861702f4ec120bc9d7ca. Do not sign, notarize, merge, publish, deploy, perform physical Meet actions, or touch LoseStreak during the local test."
+  "nextSafeAction": "Wait for the user's local acceptance result for installed exact candidate f7a05255138430d834f4b7294476ff3724de13c1. Do not sign, notarize, merge, publish, deploy, perform physical Meet actions, or touch LoseStreak during the local test."
 }

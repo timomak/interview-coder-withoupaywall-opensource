@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "kind": "long-horizon-local-acceptance-fix",
+  "projectKey": "InterviewCopilot",
+  "milestoneId": "IC-M05B",
+  "recordedAt": "2026-08-12T13:17:30+02:00",
+  "status": "INSTALLED_RUNNING_AND_UI_SMOKE_PASSED",
+  "defect": "Settings content inherited the transparent HUD click-through state and sent clicks to content behind the Electron window.",
+  "candidate": {
+    "branch": "codex/ic-m05-release",
+    "revision": "f7a05255138430d834f4b7294476ff3724de13c1",
+    "tree": "7812b3654a3dba4b6eaf967aac764e595b71e8b0",
+    "parentApprovedRevision": "755e73f28d8671874270861702f4ec120bc9d7ca",
+    "remoteRevision": "f7a05255138430d834f4b7294476ff3724de13c1",
+    "worktreeClean": true
+  },
+  "verification": {
+    "p05": "28_PASS_0_FAIL_0_SKIP",
+    "lint": "PASS",
+    "typecheck": "PASS",
+    "productionBuildAndPackageInventory": "PASS",
+    "reviewInitial": "REQUEST_CHANGES_IC-SETTINGS-001_TEST_MANIFEST_ADMISSION",
+    "reviewDelta": "CLOSED_APPROVE_EXACT_F7A0525",
+    "testFileSha256": "7826f62731c18cae588bf3731077b8203423fe7af0936a71a42eb12f99ccd852",
+    "uiSmoke": "PASS_OPEN_SETTINGS_CLICK_CONTEXTS_CLOSE_SETTINGS_WITHOUT_PASSTHROUGH"
+  },
+  "installation": {
+    "path": "/Applications/InterviewCopilot.app",
+    "version": "1.0.19",
+    "releaseCommitShaEmbedded": "f7a05255138430d834f4b7294476ff3724de13c1",
+    "appAsarSha256": "958284facc419c4418f2a8743cba3b5cbe4f1bcc78ca166c87ec812a04a040c7",
+    "signature": "ADHOC_LOCAL_ONLY",
+    "codeSignatureVerification": "PASS",
+    "cdHash": "eb83f4afcbd7968a62eaf40b39248630a03d462e",
+    "launched": true
+  },
+  "rollback": {
+    "backupPath": "/Users/thirdfacedev/.codex/worktrees/ic-m05/TimoCodes/.artifacts/local-app-backups/InterviewCopilot-755e73f-pre-f7a0525.app",
+    "preserved": true
+  },
+  "boundaries": {
+    "mergePerformed": false,
+    "developerIdSigningPerformed": false,
+    "notarizationPerformed": false,
+    "publishPerformed": false,
+    "deploymentPerformed": false,
+    "loseStreakTouched": false
+  },
+  "nextSafeAction": "User continues local acceptance testing of exact installed revision f7a05255138430d834f4b7294476ff3724de13c1."
+}
