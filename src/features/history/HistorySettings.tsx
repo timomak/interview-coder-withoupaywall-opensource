@@ -62,13 +62,19 @@ export function HistorySettings({
 
   const continueSession = async () => {
     if (!opened) return
-    const result = await window.electronAPI.continueHistory(opened.sessionId)
-    if (!result.ok) {
-      setStatus(result.error ?? "Could not continue this session.")
-      return
+    try {
+      const result = await window.electronAPI.continueHistory(opened.sessionId)
+      if (!result.ok) {
+        setStatus(result.error ?? "Could not continue this session.")
+        return
+      }
+      setStatus("Continued in a new live session with the archived conversation attached.")
+      onContinued?.()
+    } catch (error) {
+      setStatus(
+        error instanceof Error ? error.message : "Could not continue this session."
+      )
     }
-    setStatus("Continued in a new live session with the archived conversation attached.")
-    onContinued?.()
   }
 
   return (

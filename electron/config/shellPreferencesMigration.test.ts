@@ -75,16 +75,21 @@ describe("M-05a live-shell preference migration", () => {
         language: "typescript",
         opacity: 1,
         shell: {
-          density: "compact",
-          textSize: "default",
+          density: "comfortable",
+          textSize: "large",
           shortcuts: {
             ...DEFAULT_SHORTCUT_BINDINGS,
+            record: "Control+Shift+8",
             "section-previous": "Control+Option+Left",
             "section-next": "Control+Option+Right",
             "section-scroll-up": "Control+Option+Up",
             "section-scroll-down": "Control+Option+Down"
           },
-          geometry: {}
+          geometry: {
+            "display-one": {
+              expanded: { x: 40, y: 60, width: 760, height: 720 }
+            }
+          }
         },
         migrations: {
           m05a: { completedAt: "existing" },
@@ -98,9 +103,19 @@ describe("M-05a live-shell preference migration", () => {
     try {
       const migrated = migrateLegacyConfig(configPath)
       expect(migrated.migrated).toBe(true)
-      expect(migrated.config.shell?.shortcuts).toEqual(
-        DEFAULT_SHORTCUT_BINDINGS
-      )
+      expect(migrated.config.shell).toEqual({
+        density: "comfortable",
+        textSize: "large",
+        shortcuts: {
+          ...DEFAULT_SHORTCUT_BINDINGS,
+          record: "Control+Shift+8"
+        },
+        geometry: {
+          "display-one": {
+            expanded: { x: 40, y: 60, width: 760, height: 720 }
+          }
+        }
+      })
       expect(
         Object.values(migrated.config.shell!.shortcuts).every((value) =>
           value.startsWith("Control+Shift+")

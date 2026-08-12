@@ -33,9 +33,15 @@ summary {
   -webkit-user-select: none;
 }
 
-button:focus,
-summary:focus {
+button:focus:not(:focus-visible),
+summary:focus:not(:focus-visible) {
   outline: none;
+}
+
+button:focus-visible,
+summary:focus-visible {
+  outline: 2px solid var(--quiet-signal);
+  outline-offset: 2px;
 }
 
 .quiet-shell {

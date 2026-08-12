@@ -3,6 +3,7 @@ import path from "node:path"
 import {
   CONFIG_SCHEMA_VERSION,
   SubscriptionConfig,
+  migrateLegacyShellShortcuts,
   validateSubscriptionConfig,
   withM05aDefaults
 } from "./schema"
@@ -113,9 +114,13 @@ export function migrateLegacyConfig(
   const raw = fs.readFileSync(configPath, "utf8")
   const parsed = JSON.parse(raw) as Record<string, unknown>
   if (parsed.schemaVersion === CONFIG_SCHEMA_VERSION) {
+    const prepared = {
+      ...parsed,
+      shell: migrateLegacyShellShortcuts(parsed.shell)
+    }
     let current: SubscriptionConfig
     try {
-      current = validateSubscriptionConfig(parsed)
+      current = validateSubscriptionConfig(prepared)
     } catch (error) {
       const message = error instanceof Error ? error.message : ""
       if (
@@ -132,7 +137,7 @@ export function migrateLegacyConfig(
       })
     }
     const config = withM05aDefaults(current, now().toISOString())
-    const changed = JSON.stringify(config) !== JSON.stringify(current)
+    const changed = JSON.stringify(config) !== JSON.stringify(parsed)
     if (changed) {
       atomicOwnerOnlyWrite(configPath, `${JSON.stringify(config, null, 2)}\n`)
     }

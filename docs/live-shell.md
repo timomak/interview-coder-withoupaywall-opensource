@@ -33,9 +33,12 @@ The default map is:
 - `Control+Shift+C` — open or focus the compact composer
 - `Control+Shift+Enter` — submit the draft and selected evidence
 - `Control+Shift+Arrow` — move the HUD
-- `Control+Option+Left/Right` — change the active answer section
-- `Control+Option+Up/Down` — scroll the active answer section
+- `Control+Shift+J/K` — change the active answer section
+- `Control+Shift+PageUp/PageDown` — scroll the active answer section
 - `Control+Shift+Backspace` — Reset
+- `Control+Shift+,` — open Settings
+- `Control+Shift+/` — open HotKeys
+- `Control+Shift+Q` — quit InterviewCopilot
 
 HotKeys exposes every binding and rejects duplicate or operating-system
 conflicts before committing a new map. Registration and preference persistence

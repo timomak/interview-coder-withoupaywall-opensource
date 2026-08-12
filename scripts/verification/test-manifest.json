@@ -294,12 +294,12 @@
     {
       "path": "electron/config/shellPreferencesMigration.test.ts",
       "name": "adds safe defaults and replaces invalid additive preferences",
-      "sha256": "780248a86e3f8e88c3865664c13047a5cad4a8932d413a7e731c934466600fcd"
+      "sha256": "7aed450e3186835779dad3aaef100239b8ddb3620bb1d752f8132febeb50a3d3"
     },
     {
       "path": "electron/config/shellPreferencesMigration.test.ts",
       "name": "moves legacy Option navigation defaults to Control Shift",
-      "sha256": "780248a86e3f8e88c3865664c13047a5cad4a8932d413a7e731c934466600fcd"
+      "sha256": "7aed450e3186835779dad3aaef100239b8ddb3620bb1d752f8132febeb50a3d3"
     },
     {
       "path": "electron/orchestrator/audioRouting.test.ts",
@@ -854,7 +854,7 @@
     {
       "path": "src/features/shell/accessibility.test.tsx",
       "name": "enforces Quiet Signal accessibility and silence invariants",
-      "sha256": "0609ed5b91ce8ac9cf0e7f7246259d55f24ed64ecf8d5a87a90168389cf64abd"
+      "sha256": "bc08fa7021a740495510244b1149cb9513445f3ff8f6c8dd7648132eb81cdeba"
     },
     {
       "path": "src/features/shell/CommandRail.test.tsx",
@@ -1169,7 +1169,12 @@
     {
       "path": "electron/history/archiveProjection.test.ts",
       "name": "projects complete session and excludes audio",
-      "sha256": "a2bd699d4d2cba0b6672ccc1d2699974acdbbabbbb89200554357dfe11457b73"
+      "sha256": "e3c2446a1d333b2ea9b73c76211b5a67d6bc0837381da56bdd546f66fb39a247"
+    },
+    {
+      "path": "electron/history/continuation.integration.test.ts",
+      "name": "continues encrypted History as untrusted persisted context",
+      "sha256": "2c0ee11df01efcdcd2fd04daba2a2dc36867ed2d82c9e722d17cedd408a8843b"
     },
     {
       "path": "electron/history/deletionIsolation.test.ts",

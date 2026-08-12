@@ -307,7 +307,7 @@ export function withM05aDefaults(
   } catch {
     // Invalid pre-M-05a values deliberately fall back to safe defaults.
   }
-  const validatedShell = (() => {
+  const shell = (() => {
     try {
       return config.shell
         ? validateLiveShellPreferences(config.shell)
@@ -316,29 +316,6 @@ export function withM05aDefaults(
       return DEFAULT_LIVE_SHELL_PREFERENCES
     }
   })()
-  const legacyNavigationBindings: Readonly<Partial<ShortcutBindings>> = {
-    "section-previous": "Control+Option+Left",
-    "section-next": "Control+Option+Right",
-    "section-scroll-up": "Control+Option+Up",
-    "section-scroll-down": "Control+Option+Down"
-  }
-  const shell = {
-    ...validatedShell,
-    shortcuts: Object.freeze({
-      ...validatedShell.shortcuts,
-      ...Object.fromEntries(
-        Object.entries(legacyNavigationBindings)
-          .filter(
-            ([action, legacy]) =>
-              validatedShell.shortcuts[action as ShortcutAction] === legacy
-          )
-          .map(([action]) => [
-            action,
-            DEFAULT_SHORTCUT_BINDINGS[action as ShortcutAction]
-          ])
-      )
-    }) as ShortcutBindings
-  }
   return {
     ...config,
     language:
@@ -355,4 +332,30 @@ export function withM05aDefaults(
       m06: config.migrations?.m06 ?? { completedAt }
     }
   }
+}
+
+const LEGACY_NAVIGATION_BINDINGS: Readonly<
+  Partial<Record<ShortcutAction, string>>
+> = Object.freeze({
+  "section-previous": "Control+Option+Left",
+  "section-next": "Control+Option+Right",
+  "section-scroll-up": "Control+Option+Up",
+  "section-scroll-down": "Control+Option+Down"
+})
+
+export function migrateLegacyShellShortcuts(value: unknown): unknown {
+  if (typeof value !== "object" || value === null) return value
+  const shell = value as Record<string, unknown>
+  if (typeof shell.shortcuts !== "object" || shell.shortcuts === null) {
+    return value
+  }
+  const shortcuts = shell.shortcuts as Record<string, unknown>
+  let changed = false
+  const migrated = { ...shortcuts }
+  for (const [action, legacy] of Object.entries(LEGACY_NAVIGATION_BINDINGS)) {
+    if (migrated[action] !== legacy) continue
+    migrated[action] = DEFAULT_SHORTCUT_BINDINGS[action as ShortcutAction]
+    changed = true
+  }
+  return changed ? { ...shell, shortcuts: migrated } : value
 }
