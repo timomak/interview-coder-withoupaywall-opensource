@@ -914,7 +914,12 @@
     {
       "path": "src/features/shell/pointerRegions.test.tsx",
       "name": "separates passthrough drag and controls",
-      "sha256": "2a8eab2f472ec4046955313e9fff80be8e8144aea7cf4bc2f0e449660cbdbb86"
+      "sha256": "7826f62731c18cae588bf3731077b8203423fe7af0936a71a42eb12f99ccd852"
+    },
+    {
+      "path": "src/features/shell/pointerRegions.test.tsx",
+      "name": "suspends click-through for a modal settings surface",
+      "sha256": "7826f62731c18cae588bf3731077b8203423fe7af0936a71a42eb12f99ccd852"
     },
     {
       "path": "src/features/system-design/architectureSchema.test.ts",
