@@ -8,7 +8,7 @@ describe("CodePanel", () => {
     render(<CodePanel code="const value = 42" onAction={onAction} />)
     expect(
       screen.getAllByRole("button").map((button) => button.textContent)
-    ).toEqual(["Copy", "Regenerate", "Debug", "Explain"])
+    ).toEqual(["Copy", "Regenerate", "Explain"])
     expect(
       screen.queryByRole("button", { name: /edit|run|terminal|test/i })
     ).toBeNull()

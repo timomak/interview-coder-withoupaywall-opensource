@@ -1,4 +1,4 @@
-const ACTIONS = ["copy", "regenerate", "debug", "explain"] as const
+const ACTIONS = ["copy", "regenerate", "explain"] as const
 type CodeAction = (typeof ACTIONS)[number]
 
 export interface CodePanelProps {

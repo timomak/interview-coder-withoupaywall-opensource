@@ -1,12 +1,18 @@
 import { useEffect, useRef, type RefObject } from "react"
 import appIcon from "../../assets/interviewcopilot-icon.png"
 import type { InterviewMode, InterviewSession } from "../../shared/interview"
+import type { ShortcutBindings } from "../../shared/shell"
+import { ShortcutChip } from "./ShortcutChip"
 
 const MODES: readonly { value: InterviewMode; label: string }[] = [
   { value: "coding", label: "Coding" },
   { value: "system-design", label: "System Design" },
   { value: "behavioral", label: "Behavioral" }
 ]
+
+const SETTINGS_SHORTCUT = "Control+Shift+,"
+const HOTKEYS_SHORTCUT = "Control+Shift+/"
+const QUIT_SHORTCUT = "Control+Shift+Q"
 
 export interface CommandRailProps {
   readonly session: InterviewSession
@@ -27,6 +33,9 @@ export interface CommandRailProps {
   readonly onWorkspace: () => void
   readonly hotKeysButtonRef?: RefObject<HTMLButtonElement>
   readonly contextLabel: string
+  readonly shortcuts: ShortcutBindings
+  readonly debugActive?: boolean
+  readonly onDebugToggle?: () => void
   readonly recordLabel?: "Record" | "Pause"
   readonly recordPressed?: boolean
   readonly recordDisabled?: boolean
@@ -52,6 +61,9 @@ export function CommandRail({
   onWorkspace,
   hotKeysButtonRef,
   contextLabel,
+  shortcuts,
+  debugActive = false,
+  onDebugToggle,
   recordLabel = "Record",
   recordPressed = false,
   recordDisabled = false,
@@ -59,6 +71,8 @@ export function CommandRail({
 }: CommandRailProps) {
   const promptMenu = useRef<HTMLDivElement>(null)
   const selectedMode = MODES.find(({ value }) => value === mode) ?? MODES[0]
+  const debugAvailable =
+    session.lifecycle === "active" && session.snapshot.mode === "coding"
 
   useEffect(() => {
     if (!promptMenuOpen) return
@@ -145,10 +159,12 @@ export function CommandRail({
           </div>
           <button type="button" data-interactive onClick={onSettings}>
             Settings
+            <ShortcutChip binding={SETTINGS_SHORTCUT} />
           </button>
           <button className="quiet-primary" type="button" data-interactive onClick={onStart}>
             <span aria-hidden="true">Start</span>
             <span className="sr-only">Start interview</span>
+            <ShortcutChip binding={shortcuts.submit} />
           </button>
         </>
       ) : (
@@ -162,12 +178,31 @@ export function CommandRail({
             onClick={onRecord}
           >
             {recordLabel}
+            <ShortcutChip binding={shortcuts.record} />
           </button>
           <button className="quiet-primary" type="button" data-interactive onClick={onScreenshot}>
             See screen
+            <ShortcutChip binding={shortcuts.screenshot} />
           </button>
           <button type="button" data-interactive onClick={onChat}>
-            Ask
+            Chat
+            <ShortcutChip binding={shortcuts.composer} />
+          </button>
+          {debugAvailable ? (
+            <button
+              type="button"
+              data-interactive
+              aria-pressed={debugActive}
+              title="Route sent messages to debugging the current code"
+              onClick={onDebugToggle}
+            >
+              Debug
+              <ShortcutChip binding={shortcuts.debug} />
+            </button>
+          ) : null}
+          <button className="quiet-danger" type="button" data-interactive onClick={onReset}>
+            Reset
+            <ShortcutChip binding={shortcuts.reset} />
           </button>
           <details
             className="quiet-more"
@@ -192,15 +227,15 @@ export function CommandRail({
                 onClick={onHotKeys}
               >
                 Keyboard shortcuts
+                <ShortcutChip binding={HOTKEYS_SHORTCUT} />
               </button>
               <button type="button" data-interactive onClick={onSettings}>
                 Settings
-              </button>
-              <button className="quiet-danger" type="button" data-interactive onClick={onReset}>
-                End session
+                <ShortcutChip binding={SETTINGS_SHORTCUT} />
               </button>
               <button className="quiet-danger" type="button" data-interactive onClick={onQuit}>
                 Quit InterviewCopilot
+                <ShortcutChip binding={QUIT_SHORTCUT} />
               </button>
             </div>
           </details>

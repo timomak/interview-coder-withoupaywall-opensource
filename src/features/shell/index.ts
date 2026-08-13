@@ -1,4 +1,5 @@
 export * from "./CommandRail"
+export * from "./ShortcutChip"
 export * from "./useLocalShellShortcuts"
 export * from "./CompactComposer"
 export * from "./PointerRegions"

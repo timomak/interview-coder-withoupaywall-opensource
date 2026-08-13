@@ -4,6 +4,7 @@ import {
   createIdleInterviewSession,
   reduceInterviewSession
 } from "../../domain/interview"
+import { DEFAULT_SHORTCUT_BINDINGS } from "../../shared/shell"
 import { CommandRail, type CommandRailProps } from "./CommandRail"
 
 function activeSession() {
@@ -45,6 +46,9 @@ function props(overrides: Partial<CommandRailProps> = {}): CommandRailProps {
     onReset: vi.fn(),
     onWorkspace: vi.fn(),
     contextLabel: "Full context",
+    shortcuts: DEFAULT_SHORTCUT_BINDINGS,
+    debugActive: false,
+    onDebugToggle: vi.fn(),
     ...overrides
   }
 }
@@ -68,10 +72,15 @@ describe("CommandRail", () => {
     for (const name of [
       "Record",
       "See screen",
-      "Ask"
+      "Chat",
+      "Debug",
+      "Reset"
     ]) {
       expect(screen.getByRole("button", { name })).toBeVisible()
     }
+    expect(
+      screen.getByRole("button", { name: "Debug" })
+    ).toHaveAttribute("aria-pressed", "false")
     expect(screen.getByLabelText("More session controls")).toBeVisible()
     rerender(
       <CommandRail
@@ -84,7 +93,9 @@ describe("CommandRail", () => {
       />
     )
     expect(screen.getByRole("button", { name: "Workspace" })).toBeVisible()
-    expect(screen.getByRole("button", { name: "End session" })).toBeVisible()
+    expect(
+      screen.queryByRole("button", { name: "End session" })
+    ).not.toBeInTheDocument()
     expect(
       screen.getByRole("button", { name: "Keyboard shortcuts" })
     ).toBeVisible()

@@ -13,7 +13,6 @@ describe("progressive Coding answer", () => {
           { id: "code", order: 2, body: "def solve():\\n    pass", state: "partial" }
         ]}
         onIntentChange={vi.fn()}
-        onNewQuestion={vi.fn()}
         onCodeAction={vi.fn()}
       />
     )

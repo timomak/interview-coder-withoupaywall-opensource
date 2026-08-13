@@ -48,12 +48,17 @@ summary:focus-visible {
 .quiet-shell {
   display: flex;
   width: min(760px, 100vw);
-  min-height: 100vh;
+  height: 100vh;
   align-items: flex-start;
   flex-direction: column;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
   color: #f4f7fb;
   background: transparent;
+}
+
+.quiet-shell > * {
+  flex: 0 0 auto;
 }
 
 .quiet-shell,
@@ -103,7 +108,9 @@ summary:focus-visible {
 }
 
 .quiet-rail {
-  position: relative;
+  position: sticky;
+  z-index: 250;
+  top: 0;
   width: fit-content;
   max-width: 100vw;
   height: 44px;
@@ -327,8 +334,10 @@ summary:focus-visible {
   display: grid;
   gap: 8px;
   width: min(760px, 100vw);
+  max-height: 45vh;
   margin-top: 8px;
   padding: 8px;
+  overflow: auto;
   border: 1px solid var(--quiet-border);
   border-radius: 12px;
   background: var(--quiet-surface-strong);

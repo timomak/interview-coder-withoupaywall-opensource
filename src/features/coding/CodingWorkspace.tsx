@@ -1,18 +1,15 @@
 import type { ResponseSection } from "../../shared/interview"
-import {
-  CODING_INTENTS,
-  CODING_INTENT_LABELS,
-  type CodingIntent
-} from "./types"
+import { CODING_INTENT_LABELS, type CodingIntent } from "./types"
 import { CodePanel } from "./CodePanel"
 
+const CAPTURE_INTENTS = ["analyze", "generate-code"] as const
+
 export interface CodingWorkspaceProps {
-  readonly intent?: CodingIntent
+  readonly intent: CodingIntent
   readonly sections: readonly ResponseSection[]
   readonly onIntentChange: (intent: CodingIntent) => void
-  readonly onNewQuestion: () => void
   readonly onCodeAction: (
-    action: "copy" | "regenerate" | "debug" | "explain"
+    action: "copy" | "regenerate" | "explain"
   ) => void
 }
 
@@ -20,7 +17,6 @@ export function CodingWorkspace({
   intent,
   sections,
   onIntentChange,
-  onNewQuestion,
   onCodeAction
 }: CodingWorkspaceProps) {
   const section = (id: string) =>
@@ -34,7 +30,7 @@ export function CodingWorkspace({
   return (
     <section className="quiet-coding-workspace" aria-label="Coding workspace">
       <div className="quiet-coding-toolbar" role="group" aria-label="Coding intent">
-        {CODING_INTENTS.map((candidate) => (
+        {CAPTURE_INTENTS.map((candidate) => (
           <button
             key={candidate}
             type="button"
@@ -45,9 +41,6 @@ export function CodingWorkspace({
             {CODING_INTENT_LABELS[candidate]}
           </button>
         ))}
-        <button type="button" data-interactive onClick={onNewQuestion}>
-          New Question
-        </button>
       </div>
       {section("answer") ? (
         <article aria-label="Answer">

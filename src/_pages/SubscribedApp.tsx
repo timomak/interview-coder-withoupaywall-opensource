@@ -73,7 +73,9 @@ export default function SubscribedApp({
   )
   const [shellStatus, setShellStatus] = useState("")
   const [workspaceExpanded, setWorkspaceExpanded] = useState(false)
-  const [codingIntent, setCodingIntent] = useState<CodingIntent>()
+  const [codingIntent, setCodingIntent] = useState<CodingIntent>("generate-code")
+  const [debugActive, setDebugActive] = useState(false)
+  const [composerIntent, setComposerIntent] = useState<CodingIntent>()
   const hotKeysButton = useRef<HTMLButtonElement>(null)
   const shell = useRef<HTMLElement>(null)
   const answerRegion = useRef<HTMLDivElement>(null)
@@ -179,15 +181,25 @@ export default function SubscribedApp({
     onQuit: () => void window.electronAPI.quitApplication()
   })
 
+  const branchHasSections =
+    session.lifecycle === "active" &&
+    (session.codingQuestions?.branches.find(
+      (branch) => branch.id === session.codingQuestions?.currentBranchId
+    )?.sectionIds.length ?? 0) > 0
+
   const submit = async (
     message = input,
     explicitCodingIntent?: CodingIntent
   ) => {
-    const requestedCodingIntent = explicitCodingIntent ?? codingIntent
-    if (mode === "coding" && !requestedCodingIntent) {
-      setShellStatus("Choose Analyze, Generate Code, Debug, or Follow-up.")
-      return false
-    }
+    // Sent messages follow up on the current answer unless Debug is toggled
+    // on or the branch has no answer yet (first request generates by default).
+    const requestedCodingIntent =
+      explicitCodingIntent ??
+      (debugActive
+        ? "debug"
+        : branchHasSections
+          ? "follow-up"
+          : codingIntent)
     const result = await window.electronAPI.dispatchInterviewCommand({
       type: "submit",
       route:
@@ -221,7 +233,7 @@ export default function SubscribedApp({
       setSession(await window.electronAPI.getInterviewState())
       const answered = await submit(
         "Use the current screen to answer the interviewer.",
-        mode === "coding" ? "analyze" : undefined
+        mode === "coding" ? (debugActive ? "debug" : codingIntent) : undefined
       )
       if (answered) setShellStatus("")
     } catch (error) {
@@ -229,6 +241,11 @@ export default function SubscribedApp({
         error instanceof Error ? error.message : "Screen capture failed."
       )
     }
+  }
+
+  const openComposer = (intent?: CodingIntent) => {
+    setComposerIntent(intent)
+    setComposerOpen(true)
   }
 
   const toggleAudioMaster = () => {
@@ -252,7 +269,7 @@ export default function SubscribedApp({
     () =>
       window.electronAPI.onShellShortcut((action) => {
         if (action === "composer") {
-          setComposerOpen(true)
+          openComposer()
         } else if (action === "record") {
           toggleAudioMaster()
         } else if (action === "screenshot") {
@@ -316,6 +333,10 @@ export default function SubscribedApp({
     }
   }, [composerOpen, session.lifecycle])
 
+  useEffect(() => {
+    if (session.lifecycle === "idle" && debugActive) setDebugActive(false)
+  }, [debugActive, session.lifecycle])
+
   return (
     <section
       ref={shell}
@@ -339,7 +360,10 @@ export default function SubscribedApp({
         recordDisabled={!audio.available}
         recordDescription={record.description}
         onScreenshot={() => void captureAndAnswer()}
-        onChat={() => setComposerOpen(true)}
+        onChat={() => openComposer()}
+        shortcuts={shortcuts}
+        debugActive={debugActive}
+        onDebugToggle={() => setDebugActive((active) => !active)}
         onHotKeys={() => setHotKeysOpen((open) => !open)}
         onSettings={() => void window.electronAPI.openSettings()}
         onQuit={() => void window.electronAPI.quitApplication()}
@@ -370,9 +394,15 @@ export default function SubscribedApp({
           hasSelectedEvidence={session.artifacts.some(
             (artifact) => artifact.selected && !artifact.submitted
           )}
-          onSubmit={(message) => submit(message)}
+          onSubmit={(message) =>
+            submit(message, composerIntent).then((ok) => {
+              if (ok) setComposerIntent(undefined)
+              return ok
+            })
+          }
           onClose={() => {
             setComposerOpen(false)
+            setComposerIntent(undefined)
             void window.electronAPI.closeComposer()
           }}
         />
@@ -421,12 +451,7 @@ export default function SubscribedApp({
             error={audio.error}
             onCommand={(command) => void audio.dispatch(command)}
             onOpenSystemSettings={openAudioSystemSettings}
-            onAnswer={(question) =>
-              void submit(
-                question,
-                session.snapshot.mode === "coding" ? "analyze" : undefined
-              )
-            }
+            onAnswer={(question) => void submit(question)}
           />
           <InputTray
             artifacts={session.artifacts.filter(
@@ -464,38 +489,16 @@ export default function SubscribedApp({
                     ?.sectionIds.includes(section.id)
                 )}
                 onIntentChange={setCodingIntent}
-                onNewQuestion={() =>
-                  void window.electronAPI
-                    .dispatchInterviewCommand({
-                      type: "new-coding-question",
-                      question: input
-                    })
-                    .then((result) => {
-                      setSession(result.state)
-                      if (!result.ok) {
-                        setShellStatus(result.error ?? "New Question failed.")
-                        return
-                      }
-                      setCodingIntent(undefined)
-                      setInput("")
-                      setShellStatus(
-                        "New Coding question ready; interview history preserved."
-                      )
-                    })
-                }
                 onCodeAction={(action) => {
                   if (action === "copy") {
                     const code = session.sections.find(
                       (section) => section.id === "code"
                     )?.body
                     if (code) void navigator.clipboard.writeText(code)
-                  } else if (action === "debug") {
-                    void window.electronAPI.debugCurrentCode()
                   } else {
-                    setCodingIntent(
-                      action === "regenerate" ? "generate-code" : "follow-up"
+                    openComposer(
+                      action === "regenerate" ? "generate-code" : undefined
                     )
-                    setComposerOpen(true)
                   }
                 }}
               />
