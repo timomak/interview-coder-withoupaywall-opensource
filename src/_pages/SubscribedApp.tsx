@@ -21,6 +21,7 @@ import {
 import {
   CodingWorkspace,
   snapshotCodingLanguage,
+  stripCodeFences,
   type CodingIntent
 } from "../features/coding"
 import {
@@ -73,7 +74,6 @@ export default function SubscribedApp({
   )
   const [shellStatus, setShellStatus] = useState("")
   const [workspaceExpanded, setWorkspaceExpanded] = useState(false)
-  const [codingIntent, setCodingIntent] = useState<CodingIntent>("generate-code")
   const [debugActive, setDebugActive] = useState(false)
   const [composerIntent, setComposerIntent] = useState<CodingIntent>()
   const hotKeysButton = useRef<HTMLButtonElement>(null)
@@ -123,21 +123,39 @@ export default function SubscribedApp({
     const frame = requestAnimationFrame(() => {
       const surface = shell.current
       if (!surface) return
+      const barHeight = config.shell?.density === "comfortable" ? 52 : 44
+      if (session.lifecycle === "active") {
+        if (hudState === "compact-bar") {
+          void window.electronAPI.updateContentDimensions({
+            width: Math.min(1120, Math.max(520, surface.scrollWidth)),
+            height: barHeight
+          })
+          return
+        }
+        // The user owns the compact-answer window size (drag the corner to
+        // resize); only grow it so the rail and any open menu stay visible.
+        const railWidth = Math.ceil(
+          surface.querySelector(".quiet-rail")?.scrollWidth ?? 0
+        )
+        const width = Math.max(window.innerWidth, railWidth, 520)
+        const height = Math.max(
+          window.innerHeight,
+          moreMenuOpen ? 400 : 80
+        )
+        if (width > window.innerWidth || height > window.innerHeight) {
+          void window.electronAPI.updateContentDimensions({ width, height })
+        }
+        return
+      }
       const width = promptMenuOpen
         ? Math.min(1120, Math.max(720, surface.scrollWidth))
-        : moreMenuOpen
-          ? 520
         : hudState === "compact-bar"
           ? Math.min(1120, Math.max(520, surface.scrollWidth))
           : 520
       const height = promptMenuOpen
         ? 188
-        : moreMenuOpen
-          ? 292
         : hudState === "compact-bar"
-          ? config.shell?.density === "comfortable"
-            ? 52
-            : 44
+          ? barHeight
           : Math.max(80, surface.scrollHeight)
       void window.electronAPI.updateContentDimensions({ width, height })
     })
@@ -149,6 +167,7 @@ export default function SubscribedApp({
     hudState,
     moreMenuOpen,
     promptMenuOpen,
+    session.lifecycle,
     shortcuts,
     sectionCount,
     artifactCount
@@ -181,6 +200,12 @@ export default function SubscribedApp({
     onQuit: () => void window.electronAPI.quitApplication()
   })
 
+  const requestPending =
+    session.lifecycle === "active" &&
+    session.requests.some(
+      (request) => !request.completed && !request.cancelled
+    )
+
   const branchHasSections =
     session.lifecycle === "active" &&
     (session.codingQuestions?.branches.find(
@@ -192,14 +217,15 @@ export default function SubscribedApp({
     explicitCodingIntent?: CodingIntent
   ) => {
     // Sent messages follow up on the current answer unless Debug is toggled
-    // on or the branch has no answer yet (first request generates by default).
+    // on or the branch has no answer yet (first request generates the full
+    // analysis plus code).
     const requestedCodingIntent =
       explicitCodingIntent ??
       (debugActive
         ? "debug"
         : branchHasSections
           ? "follow-up"
-          : codingIntent)
+          : "generate-code")
     const result = await window.electronAPI.dispatchInterviewCommand({
       type: "submit",
       route:
@@ -233,7 +259,11 @@ export default function SubscribedApp({
       setSession(await window.electronAPI.getInterviewState())
       const answered = await submit(
         "Use the current screen to answer the interviewer.",
-        mode === "coding" ? (debugActive ? "debug" : codingIntent) : undefined
+        mode === "coding"
+          ? debugActive
+            ? "debug"
+            : "generate-code"
+          : undefined
       )
       if (answered) setShellStatus("")
     } catch (error) {
@@ -478,7 +508,6 @@ export default function SubscribedApp({
           >
             {session.snapshot.mode === "coding" ? (
               <CodingWorkspace
-                intent={codingIntent}
                 sections={session.sections.filter((section) =>
                   session.codingQuestions?.branches
                     .find(
@@ -488,13 +517,19 @@ export default function SubscribedApp({
                     )
                     ?.sectionIds.includes(section.id)
                 )}
-                onIntentChange={setCodingIntent}
                 onCodeAction={(action) => {
                   if (action === "copy") {
-                    const code = session.sections.find(
-                      (section) => section.id === "code"
-                    )?.body
-                    if (code) void navigator.clipboard.writeText(code)
+                    const code = [...session.sections]
+                      .reverse()
+                      .find(
+                        (section) =>
+                          (section.id === "code" ||
+                            section.id.startsWith("code-")) &&
+                          section.body.length > 0
+                      )?.body
+                    if (code) {
+                      void navigator.clipboard.writeText(stripCodeFences(code))
+                    }
                   } else {
                     openComposer(
                       action === "regenerate" ? "generate-code" : undefined
@@ -519,6 +554,12 @@ export default function SubscribedApp({
             ) : (
               <AnswerSections sections={session.sections} />
             )}
+            {requestPending ? (
+              <div className="quiet-pending-inline" role="status">
+                <span className="quiet-spinner" aria-hidden="true" />
+                <span>Answering…</span>
+              </div>
+            ) : null}
             {session.compactExchanges.map((exchange) => (
               <article key={exchange.id} className="rounded bg-white/5 p-3">
                 <p>{exchange.prompt}</p>
@@ -527,6 +568,13 @@ export default function SubscribedApp({
             ))}
           </div>
         </>
+      ) : null}
+      {hudState !== "compact-bar" ? (
+        <div
+          className="quiet-resize-grip"
+          data-interactive
+          aria-hidden="true"
+        />
       ) : null}
     </section>
   )

@@ -6,13 +6,11 @@ describe("progressive Coding answer", () => {
   it("renders concise answer before stable code", () => {
     render(
       <CodingWorkspace
-        intent="generate-code"
         sections={[
           { id: "answer", order: 0, body: "Use a hash map.", state: "complete" },
           { id: "plan", order: 1, body: "Two steps; one trade-off; Time O(n), Space O(n)", state: "complete" },
           { id: "code", order: 2, body: "def solve():\\n    pass", state: "partial" }
         ]}
-        onIntentChange={vi.fn()}
         onCodeAction={vi.fn()}
       />
     )

@@ -1,47 +1,30 @@
 import type { ResponseSection } from "../../shared/interview"
-import { CODING_INTENT_LABELS, type CodingIntent } from "./types"
 import { CodePanel } from "./CodePanel"
 
-const CAPTURE_INTENTS = ["analyze", "generate-code"] as const
-
 export interface CodingWorkspaceProps {
-  readonly intent: CodingIntent
   readonly sections: readonly ResponseSection[]
-  readonly onIntentChange: (intent: CodingIntent) => void
   readonly onCodeAction: (
     action: "copy" | "regenerate" | "explain"
   ) => void
 }
 
 export function CodingWorkspace({
-  intent,
   sections,
-  onIntentChange,
   onCodeAction
 }: CodingWorkspaceProps) {
+  // Latest section with content wins so an in-flight request's empty
+  // placeholder sections never blank out the previous answer.
   const section = (id: string) =>
     [...sections]
       .reverse()
       .find(
         (candidate) =>
-          candidate.id === id || candidate.id.startsWith(`${id}-`)
+          (candidate.id === id || candidate.id.startsWith(`${id}-`)) &&
+          candidate.body.length > 0
       )
 
   return (
     <section className="quiet-coding-workspace" aria-label="Coding workspace">
-      <div className="quiet-coding-toolbar" role="group" aria-label="Coding intent">
-        {CAPTURE_INTENTS.map((candidate) => (
-          <button
-            key={candidate}
-            type="button"
-            data-interactive
-            aria-pressed={intent === candidate}
-            onClick={() => onIntentChange(candidate)}
-          >
-            {CODING_INTENT_LABELS[candidate]}
-          </button>
-        ))}
-      </div>
       {section("answer") ? (
         <article aria-label="Answer">
           <h2>Answer</h2>
@@ -64,7 +47,10 @@ export function CodingWorkspace({
         </article>
       ) : null}
       {sections
-        .filter((candidate) => candidate.id.startsWith("fix-"))
+        .filter(
+          (candidate) =>
+            candidate.id.startsWith("fix-") && candidate.body.length > 0
+        )
         .map((candidate) => (
           <article key={candidate.id} aria-label={`Fix ${candidate.id.slice(4)}`}>
             <h2>Fix {candidate.id.slice(4)}</h2>

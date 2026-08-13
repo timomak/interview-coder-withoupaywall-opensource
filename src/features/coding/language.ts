@@ -40,3 +40,9 @@ export function normalizeCodingLanguage(value: string): CodingLanguage {
 export function snapshotCodingLanguage(value: string): string {
   return normalizeCodingLanguage(value).id
 }
+
+export function stripCodeFences(code: string): string {
+  const trimmed = code.trim()
+  const fenced = trimmed.match(/^```[^\n]*\n?([\s\S]*?)\n?```$/)
+  return fenced ? fenced[1] : trimmed
+}

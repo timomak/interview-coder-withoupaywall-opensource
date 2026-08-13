@@ -47,7 +47,7 @@ summary:focus-visible {
 
 .quiet-shell {
   display: flex;
-  width: min(760px, 100vw);
+  width: 100vw;
   height: 100vh;
   align-items: flex-start;
   flex-direction: column;
@@ -179,8 +179,9 @@ summary:focus-visible {
   white-space: normal;
   border: 1px solid var(--quiet-border);
   border-radius: 10px;
-  background: rgba(8, 10, 13, 0.98);
+  background: var(--quiet-surface-strong);
   box-shadow: 0 16px 38px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(16px);
 }
 
 .quiet-more-menu .quiet-context {
@@ -226,8 +227,9 @@ summary:focus-visible {
   padding: 6px;
   border: 1px solid var(--quiet-border);
   border-radius: 10px;
-  background: #090c10;
+  background: var(--quiet-surface-strong);
   box-shadow: 0 14px 36px rgba(0, 0, 0, 0.52);
+  backdrop-filter: blur(16px);
 }
 
 .quiet-rail .quiet-prompt-menu button {
@@ -333,7 +335,7 @@ summary:focus-visible {
 .quiet-audio-panel {
   display: grid;
   gap: 8px;
-  width: min(760px, 100vw);
+  width: 100%;
   max-height: 45vh;
   margin-top: 8px;
   padding: 8px;
@@ -605,7 +607,7 @@ summary:focus-visible {
 .quiet-composer {
   align-items: stretch;
   flex-direction: column;
-  width: min(520px, 100vw);
+  width: 100%;
   margin-top: 8px;
 }
 
@@ -680,6 +682,8 @@ summary:focus-visible {
 .settings-dialog {
   width: min(760px, calc(100vw - 32px));
   height: min(720px, calc(100vh - 32px));
+  background: var(--quiet-surface-strong);
+  backdrop-filter: blur(16px);
 }
 
 .settings-tabs {
@@ -804,7 +808,7 @@ summary:focus-visible {
   gap: 8px;
   align-items: center;
   justify-content: space-between;
-  width: min(520px, 100vw);
+  width: 100%;
   margin: 8px 0 0;
   padding: 8px 10px;
   color: var(--quiet-text-secondary);
@@ -829,7 +833,7 @@ summary:focus-visible {
 }
 
 .quiet-input-tray {
-  width: min(520px, 100vw);
+  width: 100%;
   margin-top: 8px;
   padding: 8px;
   border: 1px solid var(--quiet-border);
@@ -871,7 +875,7 @@ summary:focus-visible {
 }
 
 .quiet-answer-region {
-  width: min(760px, 100vw);
+  width: 100%;
   max-height: 70vh;
   margin-top: 8px;
   overflow: auto;
@@ -950,6 +954,41 @@ summary:focus-visible {
 .quiet-answer-body pre {
   margin: 0;
   white-space: pre-wrap;
+}
+
+.quiet-pending-inline {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 10px 12px;
+  color: var(--quiet-text-secondary);
+}
+
+.quiet-spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(244, 247, 251, 0.22);
+  border-top-color: var(--quiet-signal);
+  border-radius: 50%;
+  animation: quiet-spin 0.9s linear infinite;
+}
+
+@keyframes quiet-spin {
+  to { transform: rotate(360deg); }
+}
+
+.quiet-resize-grip {
+  position: fixed;
+  z-index: 260;
+  right: 3px;
+  bottom: 3px;
+  width: 12px;
+  height: 12px;
+  cursor: nwse-resize;
+  border-right: 2px solid rgba(183, 192, 204, 0.55);
+  border-bottom: 2px solid rgba(183, 192, 204, 0.55);
+  border-bottom-right-radius: 5px;
 }
 
 button.quiet-primary {

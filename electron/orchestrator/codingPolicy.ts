@@ -10,7 +10,10 @@ import {
   type CodingFixCard,
   type CodingSectionId
 } from "../../src/features/coding/types"
-import { normalizeCodingLanguage } from "../../src/features/coding/language"
+import {
+  normalizeCodingLanguage,
+  stripCodeFences
+} from "../../src/features/coding/language"
 import { providerTemplateEnvelope } from "../prompts"
 
 const CODING_CONTEXT_CATEGORIES = new Set(["instructions", "transcript", "screenshot"])
@@ -28,6 +31,7 @@ export interface CodingProviderRequest {
   readonly intent: CodingIntent
   readonly requestId: string
   readonly language: string
+  readonly languagePolicy: string
   readonly sectionIds: readonly string[]
   readonly input: string
   readonly context: readonly ContextItem[]
@@ -83,6 +87,7 @@ export function buildCodingProviderRequest(input: {
     intent: input.intent,
     requestId: input.requestId,
     language: input.session.snapshot.language,
+    languagePolicy: `Answer in the programming language of the starter code or editor visible in the evidence. Only when no language is visible, answer in ${normalizeCodingLanguage(input.session.snapshot.language).label}.`,
     sectionIds:
       input.sectionIds ??
       sectionsForCodingIntent(input.intent, input.nextFixVersion ?? 1),
@@ -157,10 +162,12 @@ export function validateFirstClassCode(
 ): readonly string[] {
   const language = normalizeCodingLanguage(languageId)
   if (language.quality !== "first-class") return []
-  const syntax = FIRST_CLASS_SYNTAX[language.id]
-  return syntax?.test(code)
+  // The response language follows the on-screen starter code, so accept any
+  // supported language rather than pinning the configured one.
+  const body = stripCodeFences(code)
+  return Object.values(FIRST_CLASS_SYNTAX).some((syntax) => syntax.test(body))
     ? []
-    : [`Code does not contain representative ${language.label} syntax`]
+    : ["Code does not contain representative syntax for a supported language"]
 }
 
 export function validateCodingSections(

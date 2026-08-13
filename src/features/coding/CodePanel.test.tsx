@@ -18,4 +18,16 @@ describe("CodePanel", () => {
     fireEvent.click(screen.getByRole("button", { name: "Copy" }))
     expect(onAction).toHaveBeenCalledWith("copy")
   })
+
+  it("strips markdown fences from the rendered code", () => {
+    render(
+      <CodePanel
+        code={"```python\ndef solve():\n    pass\n```"}
+        onAction={vi.fn()}
+      />
+    )
+    const code = screen.getByRole("article", { name: "Code" })
+    expect(code).toHaveTextContent("def solve()")
+    expect(code.textContent).not.toContain("```")
+  })
 })

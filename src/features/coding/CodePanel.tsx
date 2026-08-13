@@ -1,3 +1,5 @@
+import { stripCodeFences } from "./language"
+
 const ACTIONS = ["copy", "regenerate", "explain"] as const
 type CodeAction = (typeof ACTIONS)[number]
 
@@ -22,7 +24,7 @@ export function CodePanel({ code, onAction }: CodePanelProps) {
         ))}
       </div>
       <pre tabIndex={0} aria-readonly="true">
-        <code>{code}</code>
+        <code>{stripCodeFences(code)}</code>
       </pre>
     </article>
   )
