@@ -106,6 +106,7 @@ export interface ElectronAPI {
     ignore: boolean,
     forward: boolean
   ) => Promise<{ success: boolean }>
+  setWindowOpacity: (opacity: number) => Promise<{ success: boolean }>
   setHudState: (state: HudState) => Promise<{ success: boolean }>
   captureScreenshot: () => Promise<{ success: boolean }>
   debugCurrentCode: () => Promise<{ success: boolean }>

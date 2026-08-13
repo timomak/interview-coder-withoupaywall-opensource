@@ -5,6 +5,8 @@ import {
   INTERVIEW_RECOVERY_CHANNEL,
   INTERVIEW_STATE_CHANNEL,
   parseInterviewCommand,
+  projectCommandResultForRenderer,
+  projectInterviewSessionForRenderer,
   type CommandResult
 } from "../src/shared/interview"
 import type { InterviewOrchestrator } from "./orchestrator"
@@ -81,6 +83,7 @@ export interface IpcHandlerDependencies {
     ignore: boolean,
     forward: boolean
   ) => void
+  readonly setWindowOpacity: (opacity: number) => void
   readonly getShortcutBindings: () => ShortcutBindings
   readonly updateShortcutBindings: (
     bindings: ShortcutBindings
@@ -218,7 +221,7 @@ export function initializeIpcHandlers(
   })
 
   ipcMain.handle(INTERVIEW_STATE_CHANNEL, () =>
-    dependencies.orchestrator.current()
+    projectInterviewSessionForRenderer(dependencies.orchestrator.current())
   )
   ipcMain.handle(INTERVIEW_RECOVERY_CHANNEL, () =>
     dependencies.orchestrator.inspectRecovery()
@@ -317,11 +320,13 @@ export function initializeIpcHandlers(
     }
     return dependencies.openHistory(value)
   })
-  ipcMain.handle("history:continue", (_event, value: unknown) => {
+  ipcMain.handle("history:continue", async (_event, value: unknown) => {
     if (typeof value !== "string" || value.length === 0 || value.length > 512) {
       throw new Error("History identity is malformed")
     }
-    return dependencies.continueHistory(value)
+    return projectCommandResultForRenderer(
+      await dependencies.continueHistory(value)
+    )
   })
   ipcMain.handle("history:delete", (_event, value: unknown) => {
     if (
@@ -364,11 +369,13 @@ export function initializeIpcHandlers(
     ) throw new Error("History export is malformed")
     return dependencies.exportHistory(value as HistoryExportRequest)
   })
-  ipcMain.handle(INTERVIEW_COMMAND_CHANNEL, (_event, command: unknown) => {
+  ipcMain.handle(INTERVIEW_COMMAND_CHANNEL, async (_event, command: unknown) => {
     const parsed = parseInterviewCommand(command)
-    return parsed.type === "reset"
-      ? dependencies.resetInterview()
-      : dependencies.orchestrator.command(parsed)
+    const result =
+      parsed.type === "reset"
+        ? await dependencies.resetInterview()
+        : await dependencies.orchestrator.command(parsed)
+    return projectCommandResultForRenderer(result)
   })
 
   ipcMain.handle(
@@ -401,6 +408,18 @@ export function initializeIpcHandlers(
     }
     const { ignore, forward } = value as { ignore: boolean; forward: boolean }
     dependencies.setWindowPointerEvents(ignore, forward)
+    return { success: true }
+  })
+  ipcMain.handle("window:set-opacity", (_event, value: unknown) => {
+    if (
+      typeof value !== "number" ||
+      !Number.isFinite(value) ||
+      value < 0.1 ||
+      value > 1
+    ) {
+      throw new Error("Window opacity must be between 0.1 and 1")
+    }
+    dependencies.setWindowOpacity(value)
     return { success: true }
   })
   ipcMain.handle("window:set-hud-state", (_event, value: unknown) => {

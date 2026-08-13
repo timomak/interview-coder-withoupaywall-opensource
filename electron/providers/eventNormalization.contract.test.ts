@@ -32,6 +32,7 @@ describe("provider event protocol", () => {
 
     const codex = normalizeCodexEvents(
       [
+        "non-protocol diagnostic output",
         JSON.stringify({ method: "turn/started", params: {} }),
         JSON.stringify({
           method: "item/agentMessage/delta",
@@ -40,6 +41,18 @@ describe("provider event protocol", () => {
         JSON.stringify({
           method: "item/completed",
           params: { item: { type: "structured_output", value: { answer: 42 } } }
+        }),
+        JSON.stringify({
+          method: "item/completed",
+          params: {
+            item: {
+              type: "agentMessage",
+              text: JSON.stringify({
+                kind: "structured",
+                sections: [{ id: "answer", body: "current protocol" }]
+              })
+            }
+          }
         }),
         JSON.stringify({ method: "thread/compacted", params: {} }),
         JSON.stringify({
@@ -61,6 +74,7 @@ describe("provider event protocol", () => {
     expect(codex.map((event) => event.type)).toEqual([
       "started",
       "text-delta",
+      "typed-payload",
       "typed-payload",
       "compaction",
       "usage",

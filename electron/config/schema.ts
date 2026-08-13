@@ -242,13 +242,25 @@ function validateLiveShellPreferences(value: unknown): LiveShellPreferences {
   const candidate = value as Record<string, unknown>
   if (
     Object.keys(candidate).some(
-      (key) => !["density", "textSize", "shortcuts", "geometry"].includes(key)
+      (key) =>
+        ![
+          "density",
+          "textSize",
+          "backgroundOpacity",
+          "shortcuts",
+          "geometry"
+        ].includes(key)
     ) ||
     (candidate.density !== "compact" &&
       candidate.density !== "comfortable") ||
     (candidate.textSize !== "small" &&
       candidate.textSize !== "default" &&
       candidate.textSize !== "large") ||
+    (candidate.backgroundOpacity !== undefined &&
+      (typeof candidate.backgroundOpacity !== "number" ||
+        !Number.isFinite(candidate.backgroundOpacity) ||
+        candidate.backgroundOpacity < 0.1 ||
+        candidate.backgroundOpacity > 1)) ||
     typeof candidate.shortcuts !== "object" ||
     candidate.shortcuts === null ||
     typeof candidate.geometry !== "object" ||
@@ -309,9 +321,12 @@ export function withM05aDefaults(
   }
   const shell = (() => {
     try {
-      return config.shell
-        ? validateLiveShellPreferences(config.shell)
-        : DEFAULT_LIVE_SHELL_PREFERENCES
+      if (!config.shell) return DEFAULT_LIVE_SHELL_PREFERENCES
+      const validated = validateLiveShellPreferences(config.shell)
+      return {
+        ...validated,
+        backgroundOpacity: validated.backgroundOpacity ?? 0.92
+      }
     } catch {
       return DEFAULT_LIVE_SHELL_PREFERENCES
     }

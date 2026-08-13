@@ -27,6 +27,7 @@ describe("M-05a live-shell preference migration", () => {
       expect(first.config.shell).toEqual({
         density: "compact",
         textSize: "default",
+        backgroundOpacity: 0.92,
         shortcuts: DEFAULT_SHORTCUT_BINDINGS,
         geometry: {}
       })
@@ -106,6 +107,7 @@ describe("M-05a live-shell preference migration", () => {
       expect(migrated.config.shell).toEqual({
         density: "comfortable",
         textSize: "large",
+        backgroundOpacity: 0.92,
         shortcuts: {
           ...DEFAULT_SHORTCUT_BINDINGS,
           record: "Control+Shift+8"

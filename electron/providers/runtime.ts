@@ -55,6 +55,12 @@ interface ProviderConversation {
   conversationId: string
 }
 
+interface PreparedCodexPrompt {
+  readonly text: string
+  readonly imageUrls: readonly string[]
+  readonly outputSchema?: Readonly<Record<string, unknown>>
+}
+
 const DEFAULTS = {
   timeoutMs: 120_000,
   terminateGraceMs: 1_500,
@@ -90,8 +96,104 @@ function errorFromProcess(
     type: "error",
     sequence: 0,
     code,
-    message: result.stderr || `Provider process ${result.failure}`,
+    message: result.stderr
+      ? `Provider process ${result.failure}: ${result.stderr}`
+      : `Provider process ${result.failure}`,
     recoverable: true
+  }
+}
+
+function isMissingCodexConversation(
+  events: readonly ProviderEvent[]
+): boolean {
+  return events.some((event) => {
+    if (event.type !== "error") return false
+    const message = event.message.toLowerCase()
+    return (
+      message.includes("no rollout found for thread id") ||
+      message.includes("unknown thread") ||
+      /thread\b.*\bnot found/.test(message)
+    )
+  })
+}
+
+function codingOutputSchema(
+  prompt: Readonly<Record<string, unknown>>
+): Readonly<Record<string, unknown>> | undefined {
+  if (
+    prompt.route !== "coding" ||
+    !Array.isArray(prompt.sectionIds) ||
+    prompt.sectionIds.length === 0 ||
+    !prompt.sectionIds.every((sectionId) => typeof sectionId === "string")
+  ) {
+    return undefined
+  }
+  const sectionIds = [...new Set(prompt.sectionIds as string[])]
+  if (sectionIds.length !== prompt.sectionIds.length) return undefined
+  return {
+    type: "object",
+    additionalProperties: false,
+    required: ["kind", "sections"],
+    properties: {
+      kind: { type: "string", enum: ["structured"] },
+      sections: {
+        type: "array",
+        minItems: sectionIds.length,
+        maxItems: sectionIds.length,
+        items: {
+          type: "object",
+          additionalProperties: false,
+          required: ["id", "body"],
+          properties: {
+            id: { type: "string", enum: sectionIds },
+            body: { type: "string" }
+          }
+        }
+      }
+    }
+  }
+}
+
+function prepareCodexPrompt(prompt: string): PreparedCodexPrompt {
+  let parsed: unknown
+  try {
+    parsed = JSON.parse(prompt) as unknown
+  } catch {
+    return { text: prompt, imageUrls: [] }
+  }
+  const imageUrls: string[] = []
+  const seen = new Map<string, number>()
+  const detachImages = (value: unknown): unknown => {
+    if (
+      typeof value === "string" &&
+      /^data:image\/(?:png|jpeg|webp);base64,/i.test(value)
+    ) {
+      let imageNumber = seen.get(value)
+      if (imageNumber === undefined) {
+        imageUrls.push(value)
+        imageNumber = imageUrls.length
+        seen.set(value, imageNumber)
+      }
+      return `[attached image ${imageNumber}]`
+    }
+    if (Array.isArray(value)) return value.map(detachImages)
+    if (typeof value !== "object" || value === null) return value
+    return Object.fromEntries(
+      Object.entries(value as Record<string, unknown>).map(([key, nested]) => [
+        key,
+        detachImages(nested)
+      ])
+    )
+  }
+  const detached = detachImages(parsed)
+  const root =
+    typeof detached === "object" && detached !== null && !Array.isArray(detached)
+      ? (detached as Readonly<Record<string, unknown>>)
+      : undefined
+  return {
+    text: JSON.stringify(detached),
+    imageUrls,
+    ...(root ? { outputSchema: codingOutputSchema(root) } : {})
   }
 }
 
@@ -141,19 +243,61 @@ export class ProviderRuntime {
         signal?: AbortSignal,
         onEvent?: ProviderEventSink
       ) => {
-        const outcome = await this.runTurn(
+        const mayNeedCodexConversationRecovery =
+          selection.provider === "codex" && conversation.mode === "resume"
+        const bufferedResumeEvents: ProviderEvent[] = []
+        let resumeAccepted = !mayNeedCodexConversationRecovery
+        const forwardEvent: ProviderEventSink = async (event) => {
+          if (resumeAccepted) {
+            await onEvent?.(event)
+            return
+          }
+          bufferedResumeEvents.push(event)
+          if (event.type !== "started") return
+          resumeAccepted = true
+          for (const buffered of bufferedResumeEvents) {
+            await onEvent?.(buffered)
+          }
+          bufferedResumeEvents.length = 0
+        }
+        let outcome = await this.runTurn(
           executable,
           selection,
           conversation,
           prompt,
           signal,
-          onEvent,
+          forwardEvent,
           (conversationId) => {
             acceptedConversationId = conversationId
             conversation.conversationId = conversationId
             conversation.mode = "resume"
           }
         )
+        if (
+          mayNeedCodexConversationRecovery &&
+          !signal?.aborted &&
+          isMissingCodexConversation(outcome.events)
+        ) {
+          conversation.mode = "create"
+          bufferedResumeEvents.length = 0
+          outcome = await this.runTurn(
+            executable,
+            selection,
+            conversation,
+            prompt,
+            signal,
+            onEvent,
+            (conversationId) => {
+              acceptedConversationId = conversationId
+              conversation.conversationId = conversationId
+              conversation.mode = "resume"
+            }
+          )
+        } else if (!resumeAccepted) {
+          for (const buffered of bufferedResumeEvents) {
+            await onEvent?.(buffered)
+          }
+        }
         if (
           outcome.events.some((event) => event.type === "completed") &&
           !outcome.events.some((event) => event.type === "error")
@@ -231,6 +375,7 @@ export class ProviderRuntime {
             prompt,
             signal,
             async (line, input) => {
+              if (this.codexEchoedUserMessage(line)) return
               const returnedId = this.codexConversationId(line)
               if (returnedId) {
                 if (
@@ -250,7 +395,6 @@ export class ProviderRuntime {
                     this.codexTurnStart(selection, returnedId, prompt)
                   )
                 )
-                input.end()
               } else if (this.codexConversationRejected(line)) {
                 input.end()
               }
@@ -260,6 +404,7 @@ export class ProviderRuntime {
                 if (event.type === "started" && conversationAnnounced) continue
                 await emit(event)
               }
+              if (this.codexTurnFinished(line)) input.end()
             }
           )
     const result = await this.runner.run(request)
@@ -334,13 +479,21 @@ export class ProviderRuntime {
       Parameters<SafeProcessRunner["run"]>[0]["onStdoutLine"]
     >
   ) {
+    const imageAwareMaximumLineBytes = Math.min(
+      16 * 1024 * 1024,
+      Math.max(this.options.maximumLineBytes, prompt.length + 512 * 1024)
+    )
+    const imageAwareMaximumOutputBytes = Math.min(
+      48 * 1024 * 1024,
+      Math.max(this.options.maximumOutputBytes, prompt.length * 2 + 2 * 1024 * 1024)
+    )
     const messages = [
       {
         id: 1,
         method: "initialize",
         params: {
           clientInfo: { name: "InterviewCopilot", version: "1" },
-          capabilities: { experimentalApi: false }
+          capabilities: { experimentalApi: true }
         }
       },
       { method: "initialized", params: {} },
@@ -360,6 +513,7 @@ export class ProviderRuntime {
             method: "thread/resume",
             params: {
               threadId: conversation.conversationId,
+              excludeTurns: true,
               model: selection.model,
               approvalPolicy: "never",
               sandbox: "read-only"
@@ -374,8 +528,19 @@ export class ProviderRuntime {
       onStdoutLine,
       signal,
       sensitiveValues: [conversation.conversationId],
-      ...this.options
+      ...this.options,
+      maximumLineBytes: imageAwareMaximumLineBytes,
+      maximumOutputBytes: imageAwareMaximumOutputBytes,
+      retainStdoutLines: false
     }
+  }
+
+  private codexEchoedUserMessage(line: string): boolean {
+    return (
+      (line.startsWith('{"method":"item/started"') ||
+        line.startsWith('{"method":"item/completed"')) &&
+      line.includes('"type":"userMessage"')
+    )
   }
 
   private codexConversationId(line: string): string | undefined {
@@ -383,7 +548,7 @@ export class ProviderRuntime {
     try {
       value = JSON.parse(line)
     } catch {
-      throw new Error("Codex emitted malformed JSON")
+      return undefined
     }
     if (typeof value !== "object" || value === null) return undefined
     const message = value as Record<string, unknown>
@@ -400,10 +565,30 @@ export class ProviderRuntime {
   }
 
   private codexConversationRejected(line: string): boolean {
-    const value = JSON.parse(line) as unknown
+    let value: unknown
+    try {
+      value = JSON.parse(line) as unknown
+    } catch {
+      return false
+    }
     if (typeof value !== "object" || value === null) return false
     const message = value as Record<string, unknown>
     return message.id === 2 && message.error !== undefined
+  }
+
+  private codexTurnFinished(line: string): boolean {
+    let value: unknown
+    try {
+      value = JSON.parse(line) as unknown
+    } catch {
+      return false
+    }
+    if (typeof value !== "object" || value === null) return false
+    const message = value as Record<string, unknown>
+    return (
+      message.method === "turn/completed" ||
+      (message.id === 3 && message.error !== undefined)
+    )
   }
 
   private codexTurnStart(
@@ -411,16 +596,23 @@ export class ProviderRuntime {
     conversationId: string,
     prompt: string
   ) {
+    const prepared = prepareCodexPrompt(prompt)
     return {
       id: 3,
       method: "turn/start",
       params: {
         threadId: conversationId,
-        input: [{ type: "text", text: prompt, text_elements: [] }],
+        input: [
+          { type: "text", text: prepared.text, text_elements: [] },
+          ...prepared.imageUrls.map((url) => ({ type: "image", url }))
+        ],
         model: selection.model,
         effort: selection.effort,
         approvalPolicy: "never",
-        sandboxPolicy: { type: "readOnly" }
+        sandboxPolicy: { type: "readOnly" },
+        ...(prepared.outputSchema
+          ? { outputSchema: prepared.outputSchema }
+          : {})
       }
     }
   }

@@ -515,8 +515,7 @@ export class InterviewOrchestrator {
       route,
       input,
       sectionIds,
-      codingIntent,
-      requestedArtifactIds
+      codingIntent
     )
   }
 
@@ -674,8 +673,7 @@ export class InterviewOrchestrator {
     route: "mode-action" | "correction",
     input: string,
     sectionIds: readonly string[],
-    codingIntent?: CodingIntent,
-    evidenceArtifactIds?: readonly string[]
+    codingIntent?: CodingIntent
   ): Promise<void> {
     const runtime = this.requireRuntime()
     const turn = this.beginTurn(requestId)
@@ -697,7 +695,9 @@ export class InterviewOrchestrator {
               intent: codingIntent,
               requestId,
               input,
-              evidenceArtifactIds,
+              evidenceArtifactIds: attempt.packet.evidence.map(
+                (artifact) => artifact.id
+              ),
               sectionIds
             })
           : session.snapshot.mode === "system-design" &&

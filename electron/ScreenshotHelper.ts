@@ -10,6 +10,62 @@ import captureRuntime from "./capture/inMemoryDesktopCapture.cjs"
 const execFileAsync = promisify(execFile)
 const PNG_CONTENT_TYPE = "image/png"
 
+export const SCREEN_CAPTURE_PERMISSION_MESSAGE =
+  "Screen Recording is off for InterviewCopilot. Enable it in macOS Privacy & Security, then restart the app."
+
+type ScreenMediaAccessStatus =
+  | "not-determined"
+  | "granted"
+  | "denied"
+  | "restricted"
+  | "unknown"
+
+interface ScreenCaptureAccessOptions {
+  readonly platform: NodeJS.Platform
+  readonly getMediaAccessStatus: () => ScreenMediaAccessStatus
+}
+
+function isPermissionShapedCaptureFailure(error: unknown): boolean {
+  const message = errorMessage(error).toLowerCase()
+  return (
+    message.includes("no primary-display pixels") ||
+    message.includes("failed to get sources") ||
+    message.includes("permission denied") ||
+    message.includes("not authorized") ||
+    message.includes("not permitted")
+  )
+}
+
+/**
+ * Attempts the real capture before consulting Electron's screen-access status.
+ * On macOS that status can remain `denied` after the user grants access, so it
+ * must only add recovery context to a capture that has already failed.
+ */
+export async function captureWithScreenPermissionContext(
+  capture: () => Promise<void>,
+  options: ScreenCaptureAccessOptions
+): Promise<void> {
+  try {
+    await capture()
+  } catch (error) {
+    if (
+      options.platform === "darwin" &&
+      isPermissionShapedCaptureFailure(error)
+    ) {
+      let status: ScreenMediaAccessStatus = "unknown"
+      try {
+        status = options.getMediaAccessStatus()
+      } catch {
+        // Preserve the original capture failure if the diagnostic API fails.
+      }
+      if (status === "denied" || status === "restricted") {
+        throw new Error(SCREEN_CAPTURE_PERMISSION_MESSAGE)
+      }
+    }
+    throw error
+  }
+}
+
 const WINDOWS_CAPTURE_SCRIPT = `
 Add-Type -AssemblyName System.Windows.Forms,System.Drawing
 $screens = [System.Windows.Forms.Screen]::AllScreens
@@ -111,13 +167,16 @@ export class ScreenshotHelper {
     await this.delay(this.hideDelayMs)
 
     let bytes: Buffer | undefined
+    let stage = "capture"
     try {
       bytes = await this.captureScreenshot()
       if (bytes.length === 0) {
         throw new Error("Screenshot capture returned empty image bytes")
       }
       const screenshotId = this.id()
+      stage = "encrypted persistence"
       await this.blobs.put(this.descriptor(screenshotId), bytes)
+      stage = "queue update"
       this.screenshotQueue.push(screenshotId)
       while (this.screenshotQueue.length > this.maximumScreenshots) {
         const expiredId = this.screenshotQueue.shift()
@@ -125,7 +184,13 @@ export class ScreenshotHelper {
       }
       return screenshotId
     } catch (error) {
-      throw new Error(`Failed to capture screenshot: ${errorMessage(error)}`)
+      const detail = errorMessage(
+        error,
+        error === undefined
+          ? "capture backend rejected without error details"
+          : String(error)
+      )
+      throw new Error(`Failed to capture screenshot during ${stage}: ${detail}`)
     } finally {
       bytes?.fill(0)
       await this.delay(this.showDelayMs)

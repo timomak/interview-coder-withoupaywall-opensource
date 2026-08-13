@@ -42,26 +42,15 @@ describe("audio controls", () => {
     ).toMatchObject({ label: "Record", pressed: false })
   })
 
-  it("presents deterministic master and independent source actions", () => {
-    const onMasterToggle = vi.fn()
-    const onSourceToggle = vi.fn()
-    render(
+  it("stays hidden while both sources are healthy", () => {
+    const { container } = render(
       <AudioSourceControls
         state={audioState()}
-        onMasterToggle={onMasterToggle}
-        onSourceToggle={onSourceToggle}
         onRetry={vi.fn()}
         onOpenSystemSettings={vi.fn()}
       />
     )
-
-    fireEvent.click(screen.getByRole("button", { name: "Record both" }))
-    fireEvent.click(
-      screen.getByRole("button", { name: "Enable microphone" })
-    )
-    expect(onMasterToggle).toHaveBeenCalledTimes(1)
-    expect(onSourceToggle).toHaveBeenCalledWith("microphone")
-    expect(onSourceToggle).not.toHaveBeenCalledWith("system")
+    expect(container).toBeEmptyDOMElement()
   })
 
   it("scopes permission repair and retry to the failed source", () => {
@@ -90,18 +79,16 @@ describe("audio controls", () => {
             }
           }
         })}
-        onMasterToggle={vi.fn()}
-        onSourceToggle={vi.fn()}
         onRetry={onRetry}
         onOpenSystemSettings={onOpenSystemSettings}
       />
     )
 
     expect(screen.getByText("Microphone access denied")).toBeVisible()
-    expect(screen.queryByRole("button", { name: "Retry system audio" })).toBeNull()
-    fireEvent.click(screen.getByRole("button", { name: "Retry microphone" }))
+    expect(screen.queryByText("System audio needs access")).toBeNull()
+    fireEvent.click(screen.getByRole("button", { name: "Try again" }))
     fireEvent.click(
-      screen.getByRole("button", { name: "Open System Settings" })
+      screen.getByRole("button", { name: "Open settings" })
     )
     expect(onRetry).toHaveBeenCalledWith("microphone")
     expect(onOpenSystemSettings).toHaveBeenCalledWith("microphone")

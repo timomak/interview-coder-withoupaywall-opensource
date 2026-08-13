@@ -64,7 +64,7 @@ export function buildCodingProviderRequest(input: {
   }
   const evidenceIds = input.evidenceArtifactIds
   const currentBranchId = input.session.codingQuestions?.currentBranchId
-  const evidence = input.session.artifacts.filter((artifact) =>
+  const evidenceCandidates = input.session.artifacts.filter((artifact) =>
     evidenceIds
       ? evidenceIds.includes(artifact.id)
       : artifact.submitted &&
@@ -72,6 +72,12 @@ export function buildCodingProviderRequest(input: {
           !currentBranchId ||
           artifact.codingBranchId === currentBranchId)
   )
+  const newestScreenshot = evidenceCandidates
+    .filter((artifact) => artifact.kind === "screenshot")
+    .at(-1)
+  const evidence = newestScreenshot
+    ? [newestScreenshot]
+    : evidenceCandidates.filter((artifact) => artifact.kind === "transcript")
   return {
     route: "coding",
     intent: input.intent,
@@ -177,24 +183,35 @@ export function validateCodingSections(
     }
   }
   if (intent === "analyze" || intent === "generate-code") {
-    const plan = byBaseId.get("plan") ?? ""
-    const bullets = plan
+    const prose = (body: string) =>
+      body.replace(/```[\s\S]*?```/g, "").trim()
+    const approach = [byBaseId.get("answer") ?? "", byBaseId.get("plan") ?? ""]
+      .map(prose)
+      .join("\n")
+    const response = [
+      byBaseId.get("answer") ?? "",
+      byBaseId.get("plan") ?? "",
+      byBaseId.get("explain") ?? ""
+    ]
+      .map(prose)
+      .join("\n")
+    const bullets = approach
       .split(/\r?\n/)
       .filter((line) => /^\s*(?:[-*]|\d+[.)])\s+\S/.test(line))
     if (bullets.length < 2 || bullets.length > 4) {
-      errors.push("Coding plan must contain 2-4 approach bullets")
+      errors.push("Coding response must contain 2-4 approach bullets")
     }
-    if (!/\btrade-?off\b/i.test(plan)) {
-      errors.push("Coding plan must state exactly one trade-off")
+    if (!/\btrade-?off\b/i.test(response)) {
+      errors.push("Coding response must state exactly one trade-off")
     }
-    if ((plan.match(/\btrade-?off\b/gi) ?? []).length !== 1) {
-      errors.push("Coding plan must state exactly one trade-off")
+    if ((response.match(/\btrade-?off\b/gi) ?? []).length !== 1) {
+      errors.push("Coding response must state exactly one trade-off")
     }
-    if (!/\btime\b[\s\S]*\bO\s*\(/i.test(plan)) {
-      errors.push("Coding plan must state time complexity")
+    if (!/\btime\b[\s\S]*\bO\s*\(/i.test(response)) {
+      errors.push("Coding response must state time complexity")
     }
-    if (!/\bspace\b[\s\S]*\bO\s*\(/i.test(plan)) {
-      errors.push("Coding plan must state space complexity")
+    if (!/\bspace\b[\s\S]*\bO\s*\(/i.test(response)) {
+      errors.push("Coding response must state space complexity")
     }
   }
   if (intent === "generate-code") {

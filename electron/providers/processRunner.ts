@@ -41,6 +41,7 @@ export interface ProcessRequest {
   signal?: AbortSignal
   sensitiveValues?: readonly string[]
   closeStdin?: boolean
+  retainStdoutLines?: boolean
   onStdoutLine?: (
     line: string,
     input: {
@@ -108,7 +109,7 @@ export class SafeProcessRunner {
         const lines = stdoutBuffer.split(/\r?\n/)
         stdoutBuffer = lines.pop() ?? ""
         for (const line of lines.filter((candidate) => candidate.length > 0)) {
-          stdoutLines.push(line)
+          if (request.retainStdoutLines !== false) stdoutLines.push(line)
           if (request.onStdoutLine) {
             lineHandling = lineHandling
               .then(() =>
@@ -146,7 +147,7 @@ export class SafeProcessRunner {
         if (forceTimer) clearTimeout(forceTimer)
         request.signal?.removeEventListener("abort", onAbort)
         if (stdoutBuffer.length > 0) {
-          stdoutLines.push(stdoutBuffer)
+          if (request.retainStdoutLines !== false) stdoutLines.push(stdoutBuffer)
           if (request.onStdoutLine) {
             lineHandling = lineHandling.then(() =>
               request.onStdoutLine?.(stdoutBuffer, {

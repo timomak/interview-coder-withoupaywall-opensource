@@ -144,6 +144,8 @@ const electronAPI = {
     ipcRenderer.invoke("window:update-content-dimensions", dimensions),
   setWindowPointerEvents: (ignore: boolean, forward: boolean) =>
     ipcRenderer.invoke("window:set-pointer-events", { ignore, forward }),
+  setWindowOpacity: (opacity: number) =>
+    ipcRenderer.invoke("window:set-opacity", opacity),
   setHudState: (state: HudState) =>
     ipcRenderer.invoke("window:set-hud-state", state),
   captureScreenshot: () => ipcRenderer.invoke("capture:screenshot"),

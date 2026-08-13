@@ -14,11 +14,7 @@ import {
 } from "../ui/dialog"
 import { Button } from "../ui/button"
 import { useToast } from "../../contexts/toast"
-import type {
-  DensityPreference,
-  LiveShellPreferences,
-  TextSizePreference
-} from "../../shared/shell"
+import type { LiveShellPreferences } from "../../shared/shell"
 import { ProfileSettings } from "../../features/profile"
 import { AudioSettings } from "../../features/audio"
 import { PromptStudio } from "../../features/prompts"
@@ -32,10 +28,9 @@ interface SettingsDialogProps {
 
 const SETTINGS_SECTIONS = [
   ["general", "General"],
-  ["contexts", "Contexts"],
-  ["prompts", "Prompts"],
-  ["history", "History"],
-  ["audio-privacy", "Audio & Privacy"]
+  ["profile", "Profile"],
+  ["audio", "Audio"],
+  ["advanced", "Advanced"]
 ] as const
 
 type SettingsSection = (typeof SETTINGS_SECTIONS)[number][0]
@@ -45,6 +40,7 @@ interface ProviderConfigBridge {
     provider?: ProviderId
     model?: string
     responseMode?: ResponseMode
+    opacity: number
     shell?: LiveShellPreferences
   }>
   configureProvider(config: {
@@ -53,9 +49,12 @@ interface ProviderConfigBridge {
     responseMode: ResponseMode
   }): Promise<unknown>
   updateConfig(config: {
-    shell: LiveShellPreferences
+    opacity?: number
+    shell?: LiveShellPreferences
   }): Promise<unknown>
 }
+
+const percent = (value: number) => Math.round(value * 100)
 
 export function SettingsDialog({
   open: externalOpen,
@@ -68,8 +67,11 @@ export function SettingsDialog({
   )
   const [responseMode, setResponseMode] = useState<ResponseMode>("fast")
   const [isLoading, setIsLoading] = useState(false)
-  const [density, setDensity] = useState<DensityPreference>("compact")
-  const [textSize, setTextSize] = useState<TextSizePreference>("default")
+  const [overallOpacity, setOverallOpacity] = useState(1)
+  const [backgroundOpacity, setBackgroundOpacity] = useState(0.92)
+  const [originalOverallOpacity, setOriginalOverallOpacity] = useState(1)
+  const [originalBackgroundOpacity, setOriginalBackgroundOpacity] =
+    useState(0.92)
   const [shellPreferences, setShellPreferences] =
     useState<LiveShellPreferences | null>(null)
   const [section, setSection] = useState<SettingsSection>("general")
@@ -88,6 +90,8 @@ export function SettingsDialog({
       .then((config) => {
         const nextProvider = config.provider ?? "claude-code"
         const capabilities = PROVIDER_CAPABILITIES[nextProvider]
+        const nextOverallOpacity = config.opacity ?? 1
+        const nextBackgroundOpacity = config.shell?.backgroundOpacity ?? 0.92
         setProvider(nextProvider)
         setModel(
           config.model && capabilities.models.includes(config.model)
@@ -95,17 +99,30 @@ export function SettingsDialog({
             : capabilities.models[0]
         )
         setResponseMode(config.responseMode ?? "fast")
-        if (config.shell) {
-          setShellPreferences(config.shell)
-          setDensity(config.shell.density)
-          setTextSize(config.shell.textSize)
-        }
+        setShellPreferences(config.shell ?? null)
+        setOverallOpacity(nextOverallOpacity)
+        setBackgroundOpacity(nextBackgroundOpacity)
+        setOriginalOverallOpacity(nextOverallOpacity)
+        setOriginalBackgroundOpacity(nextBackgroundOpacity)
       })
       .catch(() =>
-        showToast("Settings unavailable", "Could not load provider settings", "error")
+        showToast("Settings unavailable", "Could not load settings", "error")
       )
       .finally(() => setIsLoading(false))
   }, [bridge, open, showToast])
+
+  const previewOverallOpacity = (value: number) => {
+    setOverallOpacity(value)
+    void window.electronAPI.setWindowOpacity(value)
+  }
+
+  const previewBackgroundOpacity = (value: number) => {
+    setBackgroundOpacity(value)
+    document.documentElement.style.setProperty(
+      "--quiet-background-opacity",
+      String(value)
+    )
+  }
 
   const changeProvider = (next: ProviderId) => {
     setProvider(next)
@@ -113,6 +130,13 @@ export function SettingsDialog({
   }
 
   const changeOpen = (next: boolean) => {
+    if (!next) {
+      void window.electronAPI.setWindowOpacity(originalOverallOpacity)
+      document.documentElement.style.setProperty(
+        "--quiet-background-opacity",
+        String(originalBackgroundOpacity)
+      )
+    }
     setOpen(next)
     onOpenChange?.(next)
   }
@@ -123,13 +147,17 @@ export function SettingsDialog({
       await bridge.configureProvider({ provider, model, responseMode })
       if (shellPreferences) {
         await bridge.updateConfig({
-          shell: { ...shellPreferences, density, textSize }
+          opacity: overallOpacity,
+          shell: { ...shellPreferences, backgroundOpacity }
         })
       }
-      showToast("Saved", "Provider settings apply to the next interview", "success")
-      changeOpen(false)
+      setOriginalOverallOpacity(overallOpacity)
+      setOriginalBackgroundOpacity(backgroundOpacity)
+      showToast("Saved", "Appearance updates apply immediately", "success")
+      setOpen(false)
+      onOpenChange?.(false)
     } catch {
-      showToast("Save failed", "Provider settings were not changed", "error")
+      showToast("Save failed", "Settings were not changed", "error")
     } finally {
       setIsLoading(false)
     }
@@ -139,10 +167,9 @@ export function SettingsDialog({
     <Dialog open={open} onOpenChange={changeOpen}>
       <DialogContent className="settings-dialog bg-black text-white sm:max-w-2xl">
         <DialogHeader>
-          <DialogTitle>InterviewCopilot settings</DialogTitle>
+          <DialogTitle>Settings</DialogTitle>
           <DialogDescription className="text-white/70">
-            Configure providers, reusable context, prompts, past sessions,
-            audio, and privacy in one place.
+            Keep the copilot readable without covering your interview.
           </DialogDescription>
         </DialogHeader>
         <nav
@@ -163,109 +190,100 @@ export function SettingsDialog({
           ))}
         </nav>
         <div
-          className="settings-body space-y-4 py-4"
+          className="settings-body"
           role="tabpanel"
           aria-label={`${SETTINGS_SECTIONS.find(([id]) => id === section)?.[1]} settings`}
         >
           {section === "general" ? (
-            <>
-              <p className="text-xs text-white/60">
-                Choose the signed-in CLI subscription used by the next
-                interview. Active interviews keep their original snapshot.
-              </p>
-              <fieldset>
-                <legend className="mb-2 text-sm font-medium">Provider</legend>
-                {(["claude-code", "codex"] as const).map((candidate) => (
-                  <label key={candidate} className="mr-4 inline-flex gap-2">
-                    <input
-                      type="radio"
-                      checked={provider === candidate}
-                      onChange={() => changeProvider(candidate)}
-                    />
-                    {candidate === "claude-code" ? "Claude Code" : "Codex"}
-                  </label>
-                ))}
-              </fieldset>
-          <fieldset>
-            <legend className="mb-2 text-sm font-medium">HUD density</legend>
-            {(["compact", "comfortable"] as const).map((value) => (
-              <label key={value} className="mr-4 inline-flex gap-2">
-                <input
-                  type="radio"
-                  checked={density === value}
-                  onChange={() => setDensity(value)}
-                />
-                {value === "compact" ? "Compact" : "Comfortable"}
-              </label>
-            ))}
-          </fieldset>
-          <fieldset>
-            <legend className="mb-2 text-sm font-medium">Text size</legend>
-            {(["small", "default", "large"] as const).map((value) => (
-              <label key={value} className="mr-4 inline-flex gap-2">
-                <input
-                  type="radio"
-                  checked={textSize === value}
-                  onChange={() => setTextSize(value)}
-                />
-                {value === "default"
-                  ? "Default"
-                  : value === "small"
-                    ? "Small"
-                    : "Large"}
-              </label>
-            ))}
-          </fieldset>
-          <label className="block text-sm">
-            Model
-            <select
-              value={model}
-              onChange={(event) => setModel(event.target.value)}
-              className="mt-1 block w-full rounded bg-black p-2"
-            >
-              {PROVIDER_CAPABILITIES[provider].models.map((candidate) => (
-                <option key={candidate}>{candidate}</option>
-              ))}
-            </select>
-          </label>
-          <fieldset>
-            <legend className="mb-2 text-sm font-medium">Response style</legend>
-            {(["fast", "reasoning"] as const).map((mode) => (
-              <label key={mode} className="mr-4 inline-flex gap-2">
-                <input
-                  type="radio"
-                  checked={responseMode === mode}
-                  onChange={() => setResponseMode(mode)}
-                />
-                {mode === "fast" ? "Fast" : "Reasoning"}
-              </label>
-            ))}
-          </fieldset>
-          <p className="text-xs text-white/50">
-            Provider failures stop explicitly. InterviewCopilot never switches
-            providers automatically.
-          </p>
-            </>
+            <div className="settings-stack">
+              <section className="settings-group">
+                <h3>Appearance</h3>
+                <label className="settings-range">
+                  <span>
+                    Background opacity
+                    <output>{percent(backgroundOpacity)}%</output>
+                  </span>
+                  <input
+                    type="range"
+                    min="10"
+                    max="100"
+                    value={percent(backgroundOpacity)}
+                    onChange={(event) =>
+                      previewBackgroundOpacity(Number(event.target.value) / 100)
+                    }
+                  />
+                </label>
+                <label className="settings-range">
+                  <span>
+                    Overall opacity
+                    <output>{percent(overallOpacity)}%</output>
+                  </span>
+                  <input
+                    type="range"
+                    min="10"
+                    max="100"
+                    value={percent(overallOpacity)}
+                    onChange={(event) =>
+                      previewOverallOpacity(Number(event.target.value) / 100)
+                    }
+                  />
+                </label>
+              </section>
+              <section className="settings-group">
+                <h3>AI</h3>
+                <fieldset>
+                  <legend>Provider</legend>
+                  {(["claude-code", "codex"] as const).map((candidate) => (
+                    <label key={candidate} className="settings-choice">
+                      <input
+                        type="radio"
+                        checked={provider === candidate}
+                        onChange={() => changeProvider(candidate)}
+                      />
+                      {candidate === "claude-code" ? "Claude Code" : "Codex"}
+                    </label>
+                  ))}
+                </fieldset>
+                <label className="settings-field">
+                  Model
+                  <select
+                    value={model}
+                    onChange={(event) => setModel(event.target.value)}
+                  >
+                    {PROVIDER_CAPABILITIES[provider].models.map((candidate) => (
+                      <option key={candidate}>{candidate}</option>
+                    ))}
+                  </select>
+                </label>
+              </section>
+            </div>
           ) : null}
-          {section === "contexts" ? <ProfileSettings /> : null}
-          {section === "prompts" ? <PromptStudio /> : null}
-          {section === "history" ? (
-            <HistorySettings onContinued={() => changeOpen(false)} />
-          ) : null}
-          {section === "audio-privacy" ? (
-            <>
-              <AudioSettings disabled={isLoading} />
-              <MeetVerification />
-            </>
+          {section === "profile" ? <ProfileSettings /> : null}
+          {section === "audio" ? <AudioSettings disabled={isLoading} /> : null}
+          {section === "advanced" ? (
+            <div className="settings-stack">
+              <details className="settings-disclosure">
+                <summary>Custom prompts</summary>
+                <PromptStudio />
+              </details>
+              <details className="settings-disclosure">
+                <summary>Session history</summary>
+                <HistorySettings onContinued={() => changeOpen(false)} />
+              </details>
+              <details className="settings-disclosure">
+                <summary>Capture verification</summary>
+                <MeetVerification />
+              </details>
+            </div>
           ) : null}
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => changeOpen(false)}>
-            Close
+            Cancel
           </Button>
           {section === "general" ? (
             <Button disabled={isLoading} onClick={save}>
-              {isLoading ? "Saving…" : "Save general settings"}
+              {isLoading ? "Saving…" : "Save"}
             </Button>
           ) : null}
         </DialogFooter>

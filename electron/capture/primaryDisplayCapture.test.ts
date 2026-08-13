@@ -1,6 +1,10 @@
 import { createRequire } from "node:module"
 import { describe, expect, it, vi } from "vitest"
-import { ScreenshotHelper } from "../ScreenshotHelper"
+import {
+  SCREEN_CAPTURE_PERMISSION_MESSAGE,
+  ScreenshotHelper,
+  captureWithScreenPermissionContext
+} from "../ScreenshotHelper"
 import type { BlobDescriptor, BlobRepository } from "../storage"
 
 const captureRuntime = createRequire(import.meta.url)(
@@ -33,6 +37,38 @@ class MemoryBlobs implements BlobRepository {
 }
 
 describe("primary-display capture", () => {
+  it("attempts capture before consulting a stale denied permission status", async () => {
+    const capture = vi.fn(async () => undefined)
+    const getMediaAccessStatus = vi.fn(() => "denied" as const)
+
+    await captureWithScreenPermissionContext(capture, {
+      platform: "darwin",
+      getMediaAccessStatus
+    })
+
+    expect(capture).toHaveBeenCalledOnce()
+    expect(getMediaAccessStatus).not.toHaveBeenCalled()
+  })
+
+  it("adds permission recovery context after a genuine denied capture", async () => {
+    for (const message of [
+      "Electron desktop capture returned no primary-display pixels",
+      "Failed to capture screenshot during capture: Failed to get sources."
+    ]) {
+      await expect(
+        captureWithScreenPermissionContext(
+          async () => {
+            throw new Error(message)
+          },
+          {
+            platform: "darwin",
+            getMediaAccessStatus: () => "denied"
+          }
+        )
+      ).rejects.toThrow(SCREEN_CAPTURE_PERMISSION_MESSAGE)
+    }
+  })
+
   it("fails closed instead of substituting another display source", () => {
     const sources = [
       { id: "screen:other", display_id: "99" },

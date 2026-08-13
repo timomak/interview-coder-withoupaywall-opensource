@@ -5,6 +5,7 @@ import {
   safeStorage,
   screen,
   shell,
+  systemPreferences,
   type BrowserWindowConstructorOptions
 } from "electron"
 import fs from "node:fs"
@@ -42,13 +43,19 @@ import type {
   M04ActiveSnapshot
 } from "./orchestrator"
 import type { ResetArchive } from "../src/shared/interview"
-import { INTERVIEW_STATE_EVENT } from "../src/shared/interview"
+import {
+  INTERVIEW_STATE_EVENT,
+  projectInterviewSessionForRenderer
+} from "../src/shared/interview"
 import {
   AUDIO_STATE_EVENT,
   createInitialAudioSessionState
 } from "../src/shared/audio"
 import { createWindowOpenHandler } from "./windowOpenPolicy"
-import { ScreenshotHelper } from "./ScreenshotHelper"
+import {
+  ScreenshotHelper,
+  captureWithScreenPermissionContext
+} from "./ScreenshotHelper"
 import { ShortcutsHelper } from "./shortcuts"
 import {
   clampWindowBounds,
@@ -70,6 +77,8 @@ import {
   type ShortcutBindings
 } from "../src/shared/shell"
 import {
+  AudioCaptureError,
+  type AudioCaptureRuntime,
   AudioPreferencesRepository,
   AudioSessionController,
   type M07AudioPreferencesRecord
@@ -101,6 +110,26 @@ import { parseCanonicalJson, validateMatrix } from "./qualification/protocol"
 
 const isDevelopment = process.env.NODE_ENV === "development"
 let observedMeetBuildId: string | undefined
+
+async function prepareAudioCapture(source: "microphone" | "system"): Promise<void> {
+  if (process.platform !== "darwin") return
+  // Electron's screen status can remain `denied` after access is granted.
+  // Let the native system-audio helper attempt capture and report a genuine
+  // permission-denied event instead of rejecting from this stale preflight.
+  if (source === "system") return
+
+  let status = systemPreferences.getMediaAccessStatus("microphone")
+  if (status === "not-determined") {
+    const granted = await systemPreferences.askForMediaAccess("microphone")
+    status = granted ? "granted" : "denied"
+  }
+  if (status !== "granted") {
+    throw new AudioCaptureError(
+      "Microphone access is off for InterviewCopilot. Enable it in macOS Privacy & Security, then restart the app.",
+      "denied"
+    )
+  }
+}
 
 function sha256File(file: string): string {
   return crypto.createHash("sha256").update(fs.readFileSync(file)).digest("hex")
@@ -308,6 +337,7 @@ function createWindow(): void {
   const workArea = screen.getPrimaryDisplay().workAreaSize
   state.screenWidth = workArea.width
   state.screenHeight = workArea.height
+  const startupConfig = configHelper.loadConfig()
   const startupHudState = deriveStartupHudState(configHelper.loadConfig())
   const options: BrowserWindowConstructorOptions = {
     width: 520,
@@ -325,6 +355,7 @@ function createWindow(): void {
     hasShadow: false,
     skipTaskbar: true,
     type: "panel",
+    opacity: startupConfig.opacity,
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
@@ -559,7 +590,10 @@ function createOrchestrator(
       await profiles.save({ ...bundle, syntheticStories })
     },
     onState: (session) => {
-      state.mainWindow?.webContents.send(INTERVIEW_STATE_EVENT, session)
+      state.mainWindow?.webContents.send(
+        INTERVIEW_STATE_EVENT,
+        projectInterviewSessionForRenderer(session)
+      )
       state.mainWindow?.webContents.send(
         AUDIO_STATE_EVENT,
         session.lifecycle === "active"
@@ -714,10 +748,19 @@ async function initializeApplication(): Promise<void> {
       expectedSha256: nativeArtifacts.appleSpeechAdapterSha256
     })
   })
+  const permissionAwareAudioRuntime: AudioCaptureRuntime = {
+    async start(source, path) {
+      await prepareAudioCapture(source)
+      await audioRuntime.start(source, path)
+    },
+    pause: (source) => audioRuntime.pause(source),
+    stop: (source) => audioRuntime.stop(source),
+    cleanup: (reason) => audioRuntime.cleanup(reason)
+  }
   const audio = new AudioSessionController(
     orchestrator,
     audioPreferences,
-    audioRuntime
+    permissionAwareAudioRuntime
   )
   audioRuntime.setTranscriptSink((segment) => audio.ingestTranscript(segment))
   audioRuntime.setStatusSink((status) => audio.updateStatus(status))
@@ -759,7 +802,7 @@ async function initializeApplication(): Promise<void> {
         toggleMainWindow()
         return
       case "screenshot":
-        void capture.capture()
+        state.mainWindow?.webContents.send("shell:shortcut", action)
         return
       case "debug":
         void capture.debugCurrentCode()
@@ -834,7 +877,15 @@ async function initializeApplication(): Promise<void> {
     orchestrator,
     setWindowDimensions,
     toggleMainWindow,
-    captureScreenshot: () => capture.capture(),
+    captureScreenshot: () =>
+      captureWithScreenPermissionContext(
+        () => capture.capture(),
+        {
+          platform: process.platform,
+          getMediaAccessStatus: () =>
+            systemPreferences.getMediaAccessStatus("screen")
+        }
+      ),
     debugCurrentCode: () => capture.debugCurrentCode(),
     getProfileContext: async () => {
       const bundle = await profiles.load()
@@ -991,6 +1042,11 @@ async function initializeApplication(): Promise<void> {
       if (state.mainWindow) {
         applyPointerRouting(state.mainWindow, ignore, forward)
       }
+    },
+    setWindowOpacity: (opacity) => {
+      const mainWindow = state.mainWindow
+      if (!mainWindow || mainWindow.isDestroyed()) return
+      mainWindow.setOpacity(opacity)
     },
     setHudState,
     closeComposer: () => {

@@ -1,7 +1,6 @@
 import { useEffect, useRef, type RefObject } from "react"
 import appIcon from "../../assets/interviewcopilot-icon.png"
 import type { InterviewMode, InterviewSession } from "../../shared/interview"
-import type { ShortcutBindings } from "../../shared/shell"
 
 const MODES: readonly { value: InterviewMode; label: string }[] = [
   { value: "coding", label: "Coding" },
@@ -15,20 +14,19 @@ export interface CommandRailProps {
   readonly onModeChange: (mode: InterviewMode) => void
   readonly promptMenuOpen: boolean
   readonly onPromptMenuOpenChange: (open: boolean) => void
+  readonly moreMenuOpen: boolean
+  readonly onMoreMenuOpenChange: (open: boolean) => void
   readonly onStart: () => void
   readonly onRecord: () => void
   readonly onScreenshot: () => void
   readonly onChat: () => void
-  readonly onSubmit: () => void
   readonly onHotKeys: () => void
   readonly onSettings: () => void
   readonly onQuit: () => void
   readonly onReset: () => void
   readonly onWorkspace: () => void
-  readonly shortcuts: ShortcutBindings
   readonly hotKeysButtonRef?: RefObject<HTMLButtonElement>
   readonly contextLabel: string
-  readonly canSubmit: boolean
   readonly recordLabel?: "Record" | "Pause"
   readonly recordPressed?: boolean
   readonly recordDisabled?: boolean
@@ -41,20 +39,19 @@ export function CommandRail({
   onModeChange,
   promptMenuOpen,
   onPromptMenuOpenChange,
+  moreMenuOpen,
+  onMoreMenuOpenChange,
   onStart,
   onRecord,
   onScreenshot,
   onChat,
-  onSubmit,
   onHotKeys,
   onSettings,
   onQuit,
   onReset,
   onWorkspace,
-  shortcuts,
   hotKeysButtonRef,
   contextLabel,
-  canSubmit,
   recordLabel = "Record",
   recordPressed = false,
   recordDisabled = false,
@@ -146,24 +143,12 @@ export function CommandRail({
               </div>
             ) : null}
           </div>
-          <button
-            ref={hotKeysButtonRef}
-            type="button"
-            data-interactive
-            onClick={onHotKeys}
-          >
-            HotKeys <ShortcutChip label="⌃⇧/" />
-          </button>
           <button type="button" data-interactive onClick={onSettings}>
-            Settings <ShortcutChip label="⌃⇧," />
+            Settings
           </button>
           <button className="quiet-primary" type="button" data-interactive onClick={onStart}>
             <span aria-hidden="true">Start</span>
             <span className="sr-only">Start interview</span>
-            <ShortcutChip label="⌃⇧↵" />
-          </button>
-          <button className="quiet-danger" type="button" data-interactive onClick={onQuit}>
-            Quit <ShortcutChip label="⌃⇧Q" />
           </button>
         </>
       ) : (
@@ -176,80 +161,51 @@ export function CommandRail({
             disabled={recordDisabled}
             onClick={onRecord}
           >
-            {recordLabel} <ShortcutChip binding={shortcuts.record} />
+            {recordLabel}
           </button>
-          <button type="button" data-interactive onClick={onScreenshot}>
-            Screenshot <ShortcutChip binding={shortcuts.screenshot} />
+          <button className="quiet-primary" type="button" data-interactive onClick={onScreenshot}>
+            See screen
           </button>
           <button type="button" data-interactive onClick={onChat}>
-            Chat <ShortcutChip binding={shortcuts.composer} />
+            Ask
           </button>
-          <button
-            className="quiet-primary"
-            type="button"
+          <details
+            className="quiet-more"
             data-interactive
-            disabled={!canSubmit}
-            onClick={onSubmit}
+            open={moreMenuOpen}
+            onToggle={(event) =>
+              onMoreMenuOpenChange(event.currentTarget.open)
+            }
           >
-            Submit <ShortcutChip binding={shortcuts.submit} />
-          </button>
-          <span className="quiet-context" aria-label={`Context: ${contextLabel}`}>
-            <span aria-hidden="true">●</span> {contextLabel}
-          </span>
-          <button
-            ref={hotKeysButtonRef}
-            type="button"
-            data-interactive
-            onClick={onHotKeys}
-          >
-            HotKeys <ShortcutChip label="⌃⇧/" />
-          </button>
-          <button type="button" data-interactive onClick={onSettings}>
-            Settings <ShortcutChip label="⌃⇧," />
-          </button>
-          <button className="quiet-danger" type="button" data-interactive onClick={onQuit}>
-            Quit <ShortcutChip label="⌃⇧Q" />
-          </button>
-          <details data-interactive>
-            <summary>More</summary>
-            <button type="button" data-interactive onClick={onWorkspace}>
-              Workspace
-            </button>
-            <button className="quiet-danger" type="button" data-interactive onClick={onReset}>
-              Reset <ShortcutChip binding={shortcuts.reset} />
-            </button>
+            <summary aria-label="More session controls">•••</summary>
+            <div className="quiet-more-menu">
+              <span className="quiet-context" aria-label={`Context: ${contextLabel}`}>
+                <span aria-hidden="true">●</span> {contextLabel}
+              </span>
+              <button type="button" data-interactive onClick={onWorkspace}>
+                Workspace
+              </button>
+              <button
+                ref={hotKeysButtonRef}
+                type="button"
+                data-interactive
+                onClick={onHotKeys}
+              >
+                Keyboard shortcuts
+              </button>
+              <button type="button" data-interactive onClick={onSettings}>
+                Settings
+              </button>
+              <button className="quiet-danger" type="button" data-interactive onClick={onReset}>
+                End session
+              </button>
+              <button className="quiet-danger" type="button" data-interactive onClick={onQuit}>
+                Quit InterviewCopilot
+              </button>
+            </div>
           </details>
         </nav>
       )}
     </header>
   )
-}
-
-function ShortcutChip({
-  binding,
-  label
-}: Readonly<{ binding?: string; label?: string }>) {
-  const value = label ?? formatShortcut(binding ?? "")
-  return <span className="quiet-shortcut-chip" aria-hidden="true">{value}</span>
-}
-
-function formatShortcut(binding: string): string {
-  const keys: Readonly<Record<string, string>> = {
-    control: "⌃",
-    shift: "⇧",
-    option: "⌥",
-    alt: "⌥",
-    command: "⌘",
-    meta: "⌘",
-    enter: "↵",
-    backspace: "⌫",
-    left: "←",
-    right: "→",
-    up: "↑",
-    down: "↓"
-  }
-  return binding
-    .split("+")
-    .map((part) => keys[part.trim().toLowerCase()] ?? part.trim().toUpperCase())
-    .join("")
 }

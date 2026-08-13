@@ -14,13 +14,25 @@ function finiteNumber(value: unknown): number {
 }
 
 function parseLines(lines: readonly string[]): unknown[] {
-  return lines.map((line) => {
+  return lines.flatMap((line) => {
     try {
-      return JSON.parse(line) as unknown
+      return [JSON.parse(line) as unknown]
     } catch {
-      throw new Error("Provider emitted malformed JSON")
+      return []
     }
   })
+}
+
+function jsonPayload(value: unknown): unknown | undefined {
+  if (typeof value !== "string") return undefined
+  try {
+    const parsed = JSON.parse(value) as unknown
+    return typeof parsed === "object" && parsed !== null
+      ? parsed
+      : undefined
+  } catch {
+    return undefined
+  }
 }
 
 export function normalizeClaudeEvents(
@@ -162,6 +174,15 @@ export function normalizeCodexEvents(
           sequence: sequence++,
           payload: completed.value
         })
+      } else if (method === "item/completed" && completedType === "agentmessage") {
+        const payload = jsonPayload(completed.text)
+        if (payload !== undefined) {
+          events.push({
+            type: "typed-payload",
+            sequence: sequence++,
+            payload
+          })
+        }
       }
     } else if (method === "thread/compacted") {
       events.push({

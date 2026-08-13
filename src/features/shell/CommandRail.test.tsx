@@ -4,7 +4,6 @@ import {
   createIdleInterviewSession,
   reduceInterviewSession
 } from "../../domain/interview"
-import { DEFAULT_SHORTCUT_BINDINGS } from "../../shared/shell"
 import { CommandRail, type CommandRailProps } from "./CommandRail"
 
 function activeSession() {
@@ -34,19 +33,18 @@ function props(overrides: Partial<CommandRailProps> = {}): CommandRailProps {
     onModeChange: vi.fn(),
     promptMenuOpen: false,
     onPromptMenuOpenChange: vi.fn(),
+    moreMenuOpen: false,
+    onMoreMenuOpenChange: vi.fn(),
     onStart: vi.fn(),
     onRecord: vi.fn(),
     onScreenshot: vi.fn(),
     onChat: vi.fn(),
-    onSubmit: vi.fn(),
     onHotKeys: vi.fn(),
     onSettings: vi.fn(),
     onQuit: vi.fn(),
     onReset: vi.fn(),
     onWorkspace: vi.fn(),
-    shortcuts: DEFAULT_SHORTCUT_BINDINGS,
     contextLabel: "Full context",
-    canSubmit: true,
     ...overrides
   }
 }
@@ -63,36 +61,34 @@ describe("CommandRail", () => {
       screen.getByRole("button", { name: "System prompt: Coding" })
     ).toHaveAttribute("aria-expanded", "false")
     expect(screen.getByRole("button", { name: "Start interview" })).toBeVisible()
-    expect(screen.getByRole("button", { name: "HotKeys" })).toBeVisible()
     expect(screen.getByRole("button", { name: "Settings" })).toBeVisible()
-    expect(screen.getByRole("button", { name: "Quit" })).toBeVisible()
-    for (const chip of ["⌃⇧/", "⌃⇧,", "⌃⇧↵", "⌃⇧Q"]) {
-      expect(screen.getByText(chip)).toBeVisible()
-    }
     fireEvent.click(screen.getByRole("button", { name: "Settings" }))
     expect(onSettings).toHaveBeenCalledOnce()
-    fireEvent.click(screen.getByRole("button", { name: "Quit" }))
-    expect(onQuit).toHaveBeenCalledOnce()
-
     rerender(<CommandRail {...props({ session: activeSession(), onSettings, onQuit })} />)
     for (const name of [
       "Record",
-      "Screenshot",
-      "Chat",
-      "Submit",
-      "HotKeys",
-      "Settings",
-      "Quit"
+      "See screen",
+      "Ask"
     ]) {
       expect(screen.getByRole("button", { name })).toBeVisible()
     }
-    fireEvent.click(screen.getByText("More"))
+    expect(screen.getByLabelText("More session controls")).toBeVisible()
+    rerender(
+      <CommandRail
+        {...props({
+          session: activeSession(),
+          onSettings,
+          onQuit,
+          moreMenuOpen: true
+        })}
+      />
+    )
     expect(screen.getByRole("button", { name: "Workspace" })).toBeVisible()
-    expect(screen.getByRole("button", { name: "Reset" })).toBeVisible()
+    expect(screen.getByRole("button", { name: "End session" })).toBeVisible()
+    expect(
+      screen.getByRole("button", { name: "Keyboard shortcuts" })
+    ).toBeVisible()
     expect(screen.getByLabelText("Context: Full context")).toBeVisible()
-    for (const chip of ["⌃⇧R", "⌃⇧S", "⌃⇧C", "⌃⇧↵", "⌃⇧⌫"]) {
-      expect(screen.getByText(chip)).toBeVisible()
-    }
   })
 
   it("selects one system prompt from the complete dropdown", () => {

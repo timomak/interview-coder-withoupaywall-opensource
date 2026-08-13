@@ -1,7 +1,9 @@
 import {
+  CommandResult,
   CONTEXT_CATEGORIES,
   INTERVIEW_MODES,
   InterviewCommand,
+  InterviewSession,
   StartSnapshot
 } from "./types"
 import { isProviderId } from "../provider"
@@ -21,6 +23,49 @@ function hasOnlyKeys(
 ): boolean {
   const allowed = new Set(allowedKeys)
   return Object.keys(value).every((key) => allowed.has(key))
+}
+
+function projectActiveSessionForRenderer(
+  session: Extract<InterviewSession, { lifecycle: "active" }>
+): Extract<InterviewSession, { lifecycle: "active" }> {
+  return {
+    ...session,
+    artifacts: session.artifacts.map((artifact) =>
+      artifact.kind === "screenshot"
+        ? { ...artifact, content: "" }
+        : artifact
+    )
+  }
+}
+
+export function projectInterviewSessionForRenderer(
+  session: InterviewSession
+): InterviewSession {
+  if (session.lifecycle === "active") {
+    return projectActiveSessionForRenderer(session)
+  }
+  return {
+    ...session,
+    ...(session.lastArchive
+      ? {
+          lastArchive: {
+            ...session.lastArchive,
+            session: projectActiveSessionForRenderer(
+              session.lastArchive.session
+            )
+          }
+        }
+      : {})
+  }
+}
+
+export function projectCommandResultForRenderer(
+  result: CommandResult
+): CommandResult {
+  return {
+    ...result,
+    state: projectInterviewSessionForRenderer(result.state)
+  }
 }
 
 function isStartSnapshot(value: unknown): value is StartSnapshot {

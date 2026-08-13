@@ -69,6 +69,9 @@ export const CODEX_SUCCESS_BODY = `
     ? JSON.parse(fs.readFileSync(stateFile, "utf8"))
     : []
   let activeThread
+  let turnStarted = false
+  let turnCompleted = false
+  let completionTimer
   const lines = readline.createInterface({ input: process.stdin })
   lines.on("line", raw => {
     const message = JSON.parse(raw)
@@ -93,10 +96,34 @@ export const CODEX_SUCCESS_BODY = `
         lines.close()
         return
       }
+      const textInput = message.params.input.find(input => input.type === "text")
+      if (textInput?.text.includes('"expectImage":true')) {
+        const imageInput = message.params.input.find(input => input.type === "image")
+        if (
+          !imageInput?.url.startsWith("data:image/png;base64,") ||
+          textInput.text.includes("data:image") ||
+          message.params.outputSchema?.properties?.kind?.enum?.[0] !== "structured"
+        ) {
+          process.stderr.write("image prompt was not detached and typed")
+          process.exitCode = 46
+          lines.close()
+          return
+        }
+      }
+      turnStarted = true
     process.stdout.write(JSON.stringify({method:"turn/started",params:{}}) + "\\n")
-    process.stdout.write(JSON.stringify({method:"item/agentMessage/delta",params:{delta:"codex-answer"}}) + "\\n")
-    process.stdout.write(JSON.stringify({method:"thread/tokenUsage/updated",params:{tokenUsage:{inputTokens:2,outputTokens:4}}}) + "\\n")
-    process.stdout.write(JSON.stringify({method:"turn/completed",params:{turn:{status:"completed"}}}) + "\\n")
+    completionTimer = setTimeout(() => {
+      process.stdout.write(JSON.stringify({method:"item/agentMessage/delta",params:{delta:"codex-answer"}}) + "\\n")
+      process.stdout.write(JSON.stringify({method:"thread/tokenUsage/updated",params:{tokenUsage:{inputTokens:2,outputTokens:4}}}) + "\\n")
+      turnCompleted = true
+      process.stdout.write(JSON.stringify({method:"turn/completed",params:{turn:{status:"completed"}}}) + "\\n")
+    }, 10)
+    }
+  })
+  lines.on("close", () => {
+    if (turnStarted && !turnCompleted) {
+      clearTimeout(completionTimer)
+      process.exitCode = 45
     }
   })
 `

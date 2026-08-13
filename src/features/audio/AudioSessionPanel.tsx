@@ -29,16 +29,24 @@ export function AudioSessionPanel({
   onOpenSystemSettings,
   onAnswer
 }: AudioSessionPanelProps) {
+  const sourceFailure = Object.values(state.sources).some(
+    (source) => source.phase === "error" || source.permission === "denied"
+  )
+  const inactive =
+    state.status === "microphone-off" &&
+    state.segments.length === 0 &&
+    !state.pendingQuestion &&
+    !sourceFailure &&
+    !error
+
+  if (inactive) return null
+
   return (
     <aside className="quiet-audio-panel" data-interactive aria-label="Session audio">
       <AudioStatus state={state} />
       <AudioSourceControls
         state={state}
         disabled={!available}
-        onMasterToggle={() => onCommand({ type: "master-toggle" })}
-        onSourceToggle={(source) =>
-          onCommand({ type: "source-toggle", source })
-        }
         onRetry={(source) => onCommand({ type: "source-retry", source })}
         onOpenSystemSettings={onOpenSystemSettings}
       />
@@ -48,17 +56,22 @@ export function AudioSessionPanel({
           ready. Both sources remain off.
         </p>
       ) : null}
-      {error ? (
+      {error && !sourceFailure ? (
         <p className="quiet-error" role="alert">
           {error}
         </p>
       ) : null}
-      <TranscriptPanel
-        segments={state.segments}
-        onCorrectSpeaker={(segmentId, label) =>
-          onCommand(speakerCorrectionCommand(segmentId, label))
-        }
-      />
+      {state.segments.length > 0 ? (
+        <details className="quiet-transcript-disclosure">
+          <summary>Transcript · {state.segments.length}</summary>
+          <TranscriptPanel
+            segments={state.segments}
+            onCorrectSpeaker={(segmentId, label) =>
+              onCommand(speakerCorrectionCommand(segmentId, label))
+            }
+          />
+        </details>
+      ) : null}
       {state.pendingQuestion ? (
         <PendingQuestionReview
           mode={mode}

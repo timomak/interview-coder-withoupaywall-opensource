@@ -9,7 +9,6 @@ import type {
   InterviewSession,
   RecoveryChoice
 } from "../shared/interview"
-import { ContextDetail } from "../components/ContextDetail/ContextDetail"
 import {
   CommandRail,
   CompactComposer,
@@ -65,6 +64,7 @@ export default function SubscribedApp({
   })
   const [mode, setMode] = useState<InterviewMode>("coding")
   const [promptMenuOpen, setPromptMenuOpen] = useState(false)
+  const [moreMenuOpen, setMoreMenuOpen] = useState(false)
   const [input, setInput] = useState("")
   const [composerOpen, setComposerOpen] = useState(false)
   const [hotKeysOpen, setHotKeysOpen] = useState(false)
@@ -94,7 +94,7 @@ export default function SubscribedApp({
   const hudState =
     baseHudState === "expanded"
       ? baseHudState
-      : promptMenuOpen
+      : promptMenuOpen || moreMenuOpen
         ? "compact-answer"
         : baseHudState
 
@@ -109,6 +109,13 @@ export default function SubscribedApp({
     void window.electronAPI.setHudState(hudState)
   }, [hudState])
 
+  useEffect(() => {
+    document.documentElement.style.setProperty(
+      "--quiet-background-opacity",
+      String(config.shell?.backgroundOpacity ?? 0.92)
+    )
+  }, [config.shell?.backgroundOpacity])
+
   useLayoutEffect(() => {
     if (hudState === "expanded") return
     const frame = requestAnimationFrame(() => {
@@ -116,11 +123,15 @@ export default function SubscribedApp({
       if (!surface) return
       const width = promptMenuOpen
         ? Math.min(1120, Math.max(720, surface.scrollWidth))
+        : moreMenuOpen
+          ? 520
         : hudState === "compact-bar"
           ? Math.min(1120, Math.max(520, surface.scrollWidth))
           : 520
       const height = promptMenuOpen
         ? 188
+        : moreMenuOpen
+          ? 292
         : hudState === "compact-bar"
           ? config.shell?.density === "comfortable"
             ? 52
@@ -134,6 +145,7 @@ export default function SubscribedApp({
     config.shell?.density,
     hotKeysOpen,
     hudState,
+    moreMenuOpen,
     promptMenuOpen,
     shortcuts,
     sectionCount,
@@ -202,6 +214,23 @@ export default function SubscribedApp({
     return result.ok
   }
 
+  const captureAndAnswer = async () => {
+    setShellStatus("Looking at your screen…")
+    try {
+      await window.electronAPI.captureScreenshot()
+      setSession(await window.electronAPI.getInterviewState())
+      const answered = await submit(
+        "Use the current screen to answer the interviewer.",
+        mode === "coding" ? "analyze" : undefined
+      )
+      if (answered) setShellStatus("")
+    } catch (error) {
+      setShellStatus(
+        error instanceof Error ? error.message : "Screen capture failed."
+      )
+    }
+  }
+
   const toggleAudioMaster = () => {
     void audio.dispatch({ type: "master-toggle" })
   }
@@ -226,6 +255,8 @@ export default function SubscribedApp({
           setComposerOpen(true)
         } else if (action === "record") {
           toggleAudioMaster()
+        } else if (action === "screenshot") {
+          void captureAndAnswer()
         } else if (action === "debug") {
           if (mode !== "coding" || session.lifecycle !== "active") {
             setShellStatus("Fix current code requires an active Coding question.")
@@ -299,19 +330,16 @@ export default function SubscribedApp({
         onModeChange={setMode}
         promptMenuOpen={promptMenuOpen}
         onPromptMenuOpenChange={setPromptMenuOpen}
+        moreMenuOpen={moreMenuOpen}
+        onMoreMenuOpenChange={setMoreMenuOpen}
         onStart={() => void start()}
         onRecord={toggleAudioMaster}
         recordLabel={record.label}
         recordPressed={record.pressed}
         recordDisabled={!audio.available}
         recordDescription={record.description}
-        onScreenshot={() =>
-          void window.electronAPI.captureScreenshot().then(() => {
-            setShellStatus("Screenshot staged.")
-          })
-        }
+        onScreenshot={() => void captureAndAnswer()}
         onChat={() => setComposerOpen(true)}
-        onSubmit={() => void submit()}
         onHotKeys={() => setHotKeysOpen((open) => !open)}
         onSettings={() => void window.electronAPI.openSettings()}
         onQuit={() => void window.electronAPI.quitApplication()}
@@ -327,14 +355,6 @@ export default function SubscribedApp({
             ? contextStatusLabel(session)
             : "New context"
         }
-        canSubmit={
-          session.lifecycle === "active" &&
-          (input.trim().length > 0 ||
-            session.artifacts.some(
-              (artifact) => artifact.selected && !artifact.submitted
-            ))
-        }
-        shortcuts={shortcuts}
       />
       {hotKeysOpen ? (
         <HotKeysPanel
@@ -357,7 +377,20 @@ export default function SubscribedApp({
           }}
         />
       ) : null}
-      <p className="quiet-status" role="status">{shellStatus}</p>
+      {shellStatus ? (
+        <div className="quiet-status-card" role="status">
+          <span>{shellStatus}</span>
+          {shellStatus.includes("Screen Recording") ? (
+            <button
+              type="button"
+              data-interactive
+              onClick={() => openAudioSystemSettings("system")}
+            >
+              Open settings
+            </button>
+          ) : null}
+        </div>
+      ) : null}
       {session.lifecycle === "idle" ? (
         <CrashDecision
           recovery={recovery}
@@ -413,7 +446,6 @@ export default function SubscribedApp({
                 .then((result) => setSession(result.state))
             }
           />
-          <ContextDetail session={session} />
           <div
             ref={answerRegion}
             className="quiet-answer-region"

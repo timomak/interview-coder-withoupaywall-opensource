@@ -74,6 +74,7 @@ export interface PersistedWindowBounds {
 export interface LiveShellPreferences {
   readonly density: DensityPreference
   readonly textSize: TextSizePreference
+  readonly backgroundOpacity?: number
   readonly shortcuts: ShortcutBindings
   readonly geometry: Readonly<
     Record<string, Partial<Record<HudState, PersistedWindowBounds>>>
@@ -84,6 +85,7 @@ export const DEFAULT_LIVE_SHELL_PREFERENCES: LiveShellPreferences =
   Object.freeze({
     density: "compact",
     textSize: "default",
+    backgroundOpacity: 0.92,
     shortcuts: DEFAULT_SHORTCUT_BINDINGS,
     geometry: {}
   })

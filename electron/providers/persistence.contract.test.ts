@@ -52,7 +52,21 @@ describe("provider conversation continuity", () => {
             responseMode: "fast",
             requestedConversationId: fixture.id
           })
-        const firstTurn = await first.runTurn("turn one")
+        const firstTurn = await first.runTurn(
+          fixture.provider === "codex"
+            ? JSON.stringify({
+                route: "coding",
+                sectionIds: ["answer"],
+                expectImage: true,
+                evidence: [
+                  {
+                    content:
+                      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAB"
+                  }
+                ]
+              })
+            : "turn one"
+        )
         const createdId = first.conversationId()
         expect(createdId).toBeDefined()
         const restarted = new ProviderRuntime(options).startSession({
@@ -100,14 +114,21 @@ describe("provider conversation continuity", () => {
           expect(turnRequests[0].args).not.toContain("--resume")
           expect(turnRequests[1].args).toContain("--resume")
         } else {
+          expect(turnRequests[0].retainStdoutLines).toBe(false)
+          expect(turnRequests[0].maximumLineBytes).toBeGreaterThan(512 * 1024)
           expect(turnRequests[0].stdinLines).toEqual(
             expect.arrayContaining([
+              expect.stringMatching(
+                /"method":"initialize".*"experimentalApi":true/
+              ),
               expect.stringContaining('"method":"thread/start"')
             ])
           )
           expect(turnRequests[1].stdinLines).toEqual(
             expect.arrayContaining([
-              expect.stringContaining('"method":"thread/resume"')
+              expect.stringMatching(
+                /"method":"thread\/resume".*"excludeTurns":true/
+              )
             ])
           )
         }
@@ -122,10 +143,46 @@ describe("provider conversation continuity", () => {
               ? "99999999-9999-4999-8999-999999999999"
               : "019f-codex-thread-missing"
         })
-        const rejected = await nonexistent.runTurn("must reject")
-        expect(rejected.events).toContainEqual(
-          expect.objectContaining({ type: "error" })
+        const streamedEvents: Array<{ type: string }> = []
+        const recovered = await nonexistent.runTurn(
+          "recover if the native conversation is missing",
+          undefined,
+          (event) => {
+            streamedEvents.push(event)
+          }
         )
+        if (fixture.provider === "codex") {
+          expect(recovered.events).toContainEqual(
+            expect.objectContaining({ type: "completed" })
+          )
+          expect(recovered.events).not.toContainEqual(
+            expect.objectContaining({ type: "error" })
+          )
+          expect(streamedEvents).not.toContainEqual(
+            expect.objectContaining({ type: "error" })
+          )
+          expect(nonexistent.conversationId()).toMatch(
+            /^019f-codex-thread-/
+          )
+          const recoveryRequests = runner.requests
+            .filter((request) => !request.args.includes("--version"))
+            .slice(-2)
+          expect(recoveryRequests).toHaveLength(2)
+          expect(recoveryRequests[0].stdinLines).toEqual(
+            expect.arrayContaining([
+              expect.stringContaining('"method":"thread/resume"')
+            ])
+          )
+          expect(recoveryRequests[1].stdinLines).toEqual(
+            expect.arrayContaining([
+              expect.stringContaining('"method":"thread/start"')
+            ])
+          )
+        } else {
+          expect(recovered.events).toContainEqual(
+            expect.objectContaining({ type: "error" })
+          )
+        }
       }
     } finally {
       fs.rmSync(claude.directory, { recursive: true })
